@@ -187,8 +187,8 @@ async function saveMenu(){localStorage.setItem('mms_menu',JSON.stringify(MENU));
 let dis={};
 async function initDis(){dis=await loadJSON(GR_DIS,'rd_disabled',true)||{};draw();fetchBackground(GF_DIS,'rd_disabled',dis).then(changed=>{if(changed){dis=JSON.parse(localStorage.getItem('rd_disabled'))||{};draw()}})}
 function isDis(id){return dis[id]===true}
-async function togDis(id){if(dis[id])delete dis[id];else dis[id]=true;await saveJSON('rd_disabled',dis,GF_DIS);draw()}
-async function enAll(){dis={};unrTimes=[];disAdds=[];disDel=[];await saveJSON('rd_disabled',dis,GF_DIS);await saveConfig();draw();drawTimes();drawDel();toast('✓ Semua diaktifkan')}
+async function togDis(id){if(dis[id])delete dis[id];else dis[id]=true;draw();saveJSON('rd_disabled',dis,GF_DIS)}
+async function enAll(){dis={};unrTimes=[];disAdds=[];disDel=[];draw();drawTimes();drawDel();saveJSON('rd_disabled',dis,GF_DIS);saveConfig();toast('✓ Semua diaktifkan')}
 
 function getConfig(){return{adds:ADDS,slots:SLOTS,dels:DELS,disAdds,unrTimes,disDel}}
 async function loadConfig(){
@@ -217,7 +217,8 @@ function draw(){const r=document.getElementById('menu-root');if(!MENU||MENU.leng
 function drawTimes(){document.getElementById('times').innerHTML=SLOTS.map(t=>{const u=unrTimes.includes(t),a=selTime===t?' active':'';return'<button class="t-btn'+a+(u?' unavail':'')+(admin?' admin-mode':'')+'" onclick="selT(\''+t+'\')"'+(u&&!admin?' disabled':'')+'>'+t+'</button>'}).join('')}
 function selT(t){if(admin){const i=unrTimes.indexOf(t);if(i>-1)unrTimes.splice(i,1);else unrTimes.push(t);saveConfig();drawTimes();return}if(unrTimes.includes(t)){toast('❌ Waktu tidak tersedia');return}selTime=t;drawTimes()}
 function drawCust(){const sw=document.getElementById('c-sweet'),lv=document.getElementById('c-level'),ex=document.getElementById('c-extra');sw.innerHTML='';lv.innerHTML='';ex.innerHTML='';ADDS.forEach(a=>{const s=custAdds.includes(a.id),d=disAdds.includes(a.id);const ch='<span class="chip'+(s?' sel':'')+(d?' dis':'')+'" onclick="togC(\''+a.id+'\')">'+a.name+(a.price>0?' <span style="color:#FFB347">+RM'+a.price.toFixed(2)+'</span>':'')+'</span>';if(a.grp==='s')sw.innerHTML+=ch;else if(a.grp==='l')lv.innerHTML+=ch;else ex.innerHTML+=ch;});const at=custAdds.reduce((s,id)=>{const a=findAdd(id);return s+(a?a.price:0)},0);document.getElementById('c-price').textContent=(at+(custItem?MENU[custItem.ci].items[custItem.vi].price:0)).toFixed(2);}
-function togC(addId){if(disAdds.includes(addId))return;const a=findAdd(addId);if(!a)return;const idx=custAdds.indexOf(addId);if(idx>-1){custAdds.splice(idx,1)}else{if(a.grp==='s'||a.grp==='l'){custAdds=custAdds.filter(id=>{const x=findAdd(id);return x&&x.grp!==a.grp})}custAdds.push(addId)}drawCust()}
+let _addClicks={},_addTmr={};
+function togC(addId){if(disAdds.includes(addId)&&!admin)return;const a=findAdd(addId);if(!a)return;if(admin){_addClicks[addId]=(_addClicks[addId]||0)+1;clearTimeout(_addTmr[addId]);_addTmr[addId]=setTimeout(()=>{_addClicks[addId]=0},2000);if(_addClicks[addId]>=4){_addClicks[addId]=0;if(disAdds.includes(addId)){disAdds=disAdds.filter(x=>x!==addId);toast('✓ '+a.name+' diaktifkan')}else{disAdds.push(addId);toast('❌ '+a.name+' dilumpuhkan')}saveConfig();drawCust();return}}const idx=custAdds.indexOf(addId);if(idx>-1){custAdds.splice(idx,1)}else{if(a.grp==='s'||a.grp==='l'){custAdds=custAdds.filter(id=>{const x=findAdd(id);return x&&x.grp!==a.grp})}custAdds.push(addId)}drawCust()}
 function openCust(ci,vi){custItem={ci,vi};custAdds=[];document.getElementById('c-title').textContent=MENU[ci].items[vi].name;drawCust();document.getElementById('cust').style.display='flex'}
 function closeCust(){custItem=null;custAdds=[];document.getElementById('cust').style.display='none'}
 function confirmCust(){if(!custItem)return;const hasSweet=custAdds.some(id=>{const a=findAdd(id);return a&&a.grp==='s'});if(!hasSweet){toast('⚠ Sila pilih pemanis');return}const id='c'+custItem.ci+'v'+custItem.vi;if(!cart[id])cart[id]=[];cart[id].push({adds:[...custAdds]});closeCust();draw();toast('✓ Ditambah')}
