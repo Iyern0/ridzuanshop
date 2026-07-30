@@ -137,7 +137,7 @@ let cart={},disAdds=[],disDel=[],isCod=true,admin=false,admClk=0,admTmr=null,cus
 function getLoy(){try{return JSON.parse(localStorage.getItem('mms_loy'))||{c:0}}catch(e){return{c:0}}}
 function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
 function drawLoy(){const l=getLoy();document.getElementById('loy-count').textContent=l.c;const p=l.c%5,s=document.getElementById('stamps');let h='';for(let i=0;i<5;i++)h+='<div class="stamp'+(i<p?' filled':'')+'">'+(i<p?'⭐':'')+'</div>';s.innerHTML=h}
-const GID='ea01a7fce731d92cec3a18f90bfc48d5',GRAW='https://gist.githubusercontent.com/Iyern0/'+GID+'/raw/',GAPI='https://api.github.com/gists/'+GID,GTOK='YOUR_TOKEN_HERE';
+const GID='ea01a7fce731d92cec3a18f90bfc48d5',GRAW='https://gist.githubusercontent.com/Iyern0/'+GID+'/raw/',GAPI='https://api.github.com/gists/'+GID,GTOK='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';
 const GR_MENU=GRAW+'rd-menu.json',GR_DIS=GRAW+'rd-disabled.json',GF_MENU='rd-menu.json',GF_DIS='rd-disabled.json';
 async function loadJSON(url,key,fetchFallback){if(fetchFallback){try{const r=await fetch(url+'?t='+Date.now());if(r.ok){const d=await r.json();if(d&&typeof d==='object'){localStorage.setItem(key,JSON.stringify(d));return d}}}catch(e){}}try{const d=JSON.parse(localStorage.getItem(key));if(d)return d}catch(e){}return null}
 async function saveJSON(key,data,file){localStorage.setItem(key,JSON.stringify(data));if(!GID||GID==='YOUR_GIST_ID'||!GTOK||GTOK==='YOUR_GITHUB_TOKEN')return;try{const o={};o[file]={content:JSON.stringify(data)};await fetch(GAPI,{method:'PATCH',headers:{'Authorization':'token '+GTOK,'Content-Type':'application/json'},body:JSON.stringify({files:o})})}catch(e){}}
