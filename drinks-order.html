@@ -157,11 +157,8 @@ function fetchBackground(filename,key,local){
 }
 let _lastSave=0;
 async function saveJSON(key,data,file){
-  localStorage.setItem(key,JSON.stringify(data));
   if(!GID||GID==='YOUR_GIST_ID'||!GTOK){toast('⚠ Set token dulu: Admin bar > Set Token');return false}
-  if(Date.now()-_lastSave<1000){return false}
-  _lastSave=Date.now();
-  try{const o={};o[file]={content:JSON.stringify(data)};const r=await fetch(GAPI,{method:'PATCH',headers:{'Authorization':'token '+GTOK,'Content-Type':'application/json'},body:JSON.stringify({files:o})});if(!r.ok){if(r.status===401||r.status===403){GTOK='';localStorage.removeItem('mms_tok');toast('❌ Token tidak sah, sila set semula');return false}const t=await r.text();throw new Error('HTTP '+r.status+': '+t)}return true}catch(e){toast('❌ Gagal simpan: '+e.message);return false}}
+  try{const o={};o[file]={content:JSON.stringify(data)};const r=await fetch(GAPI,{method:'PATCH',headers:{'Authorization':'token '+GTOK,'Content-Type':'application/json'},body:JSON.stringify({files:o})});if(!r.ok){if(r.status===401||r.status===403){GTOK='';localStorage.removeItem('mms_tok');toast('❌ Token tidak sah, sila set semula');return false}const t=await r.text();throw new Error('HTTP '+r.status+': '+t)}localStorage.setItem(key,JSON.stringify(data));return true}catch(e){toast('❌ Gagal simpan: '+e.message);return false}}
 
 async function loadMenu(){try{const d=await loadJSON(GR_MENU,'mms_menu',true);if(d&&d.length>0){MENU=d;draw();fetchBackground(GF_MENU,'mms_menu',MENU).then(c=>{if(c){MENU=JSON.parse(localStorage.getItem('mms_menu'));draw()}});return}}catch(e){}MENU=JSON.parse(JSON.stringify(DEFAULT_MENU));localStorage.setItem('mms_menu',JSON.stringify(MENU));draw()}
 async function saveMenu(){localStorage.setItem('mms_menu',JSON.stringify(MENU));await saveJSON('mms_menu',MENU,GF_MENU);draw()}
