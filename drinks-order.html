@@ -256,7 +256,7 @@ function delDI(i){if(!confirm('Padam "'+DELS[i].l+'"?'))return;DELS.splice(i,1);
 
 (async()=>{await loadMenu();await initConfig();initDis();drawLoy();drawDel()})();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){initDis();loadMenu();initConfig()}});
-setInterval(()=>{if(document.hidden)return;fetchBackground(GF_DIS,'rd_disabled',dis).then(changed=>{if(changed){dis=JSON.parse(localStorage.getItem('rd_disabled'))||{};draw()}});fetchBackground(GF_MENU,'mms_menu',MENU).then(c=>{if(c){MENU=JSON.parse(localStorage.getItem('mms_menu'));draw()}});fetchBackground(GF_CONFIG,'rd_config',getConfig()).then(changed=>{if(changed){const d=JSON.parse(localStorage.getItem('rd_config'));if(d){if(d.adds)ADDS=d.adds;if(d.slots)SLOTS=d.slots;if(d.dels)DELS=d.dels;if(d.disAdds)disAdds=d.disAdds;if(d.unrTimes)unrTimes=d.unrTimes;if(d.disDel)disDel=d.disDel}draw();drawTimes();drawDel();drawCust()}})},30000);
+setInterval(()=>{if(document.hidden)return;fetchBackground(GF_DIS,'rd_disabled',dis).then(changed=>{if(changed){dis=JSON.parse(localStorage.getItem('rd_disabled'))||{};draw()}});fetchBackground(GF_MENU,'mms_menu',MENU).then(c=>{if(c){MENU=JSON.parse(localStorage.getItem('mms_menu'));draw()}});fetchBackground(GF_CONFIG,'rd_config',getConfig()).then(changed=>{if(changed){const d=JSON.parse(localStorage.getItem('rd_config'));if(d){if(d.adds)ADDS=d.adds;if(d.slots)SLOTS=d.slots;if(d.dels)DELS=d.dels;if(d.disAdds)disAdds=d.disAdds;if(d.unrTimes)unrTimes=d.unrTimes;if(d.disDel)disDel=d.disDel}draw();drawTimes();drawDel();drawCust()}})},10000);
 </script>
 </body>
 </html>
