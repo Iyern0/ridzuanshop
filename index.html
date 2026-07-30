@@ -1,11 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ms">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<title>MINUM MALAM SISWA â€” Order</title>
+<title>MINUM MALAM SISWA — Order</title>
 <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
-body{font-family:'Nunito',sans-serif;background:#0D0D1A;color:#F0F0F0;min-height:100vh;overflow-x:hidden;padding-bottom:130px}
+body{font-family:'Nunito',sans-serif;background:#0D0D1A;color:#F0F0F0;min-height:100vh;overflow-x:hidden}
 .hero{background:linear-gradient(160deg,#0D0D1A 0%,#1A1A2E 50%,#0D0D1A 100%);border-bottom:3px solid #00D4AA;padding:32px 20px 24px;text-align:center}
 .hero h1{font-family:'Bangers',cursive;font-size:clamp(40px,12vw,64px);color:#F0F0F0;text-shadow:0 0 20px rgba(0,212,170,0.3),3px 3px 0 rgba(0,0,0,0.5);letter-spacing:2px}
 .hero h1 span{color:#00D4AA}.hero .sub{font-size:13px;color:#8888AA;margin-top:6px;font-weight:700}
@@ -27,13 +27,13 @@ body{font-family:'Nunito',sans-serif;background:#0D0D1A;color:#F0F0F0;min-height
 .card .qty{position:absolute;top:-5px;left:-5px;background:#00D4AA;color:#000;font-size:11px;font-weight:900;min-width:22px;height:22px;border-radius:999px;display:flex;align-items:center;justify-content:center;padding:0 5px}
 .card .sold{position:absolute;bottom:8px;right:8px;background:rgba(68,68,68,0.8);color:#aaa;font-size:10px;padding:2px 8px;border-radius:5px}
 @media(min-width:700px){.grid{grid-template-columns:repeat(3,1fr);max-width:720px}}
-#bot{position:fixed;bottom:0;left:0;right:0;background:#232340;border-top:3px solid #00D4AA;padding:10px 14px;display:flex;align-items:center;gap:8px;z-index:200;box-shadow:0 -4px 20px rgba(0,0,0,0.6)}
-#bot input{background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.08);border-radius:8px;color:#F0F0F0;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;padding:10px 12px;outline:none;flex:1;min-width:0}
-#bot input::placeholder{color:#555}#bot input:focus{border-color:#00D4AA}#bot input:first-of-type{max-width:100px}
-#cartb{background:#00D4AA;color:#000;border:none;font-family:'Fredoka One',cursive;font-size:12px;padding:7px 10px;border-radius:8px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;flex-shrink:0}
-#cartb:active{transform:scale(0.95)}#cartb .c{background:#FF6B6B;color:#fff;font-size:10px;font-weight:900;padding:1px 6px;border-radius:999px}
-#ordb{background:#FFB347;color:#000;border:none;font-family:'Fredoka One',cursive;font-size:12px;padding:7px 10px;border-radius:8px;cursor:pointer;white-space:nowrap;flex-shrink:0}
-#ordb:active{transform:scale(0.95)}#ordb:disabled{background:#333;color:#555;cursor:not-allowed}
+#cart-bar{position:fixed;bottom:0;left:0;right:0;background:#232340;border-top:3px solid #00D4AA;padding:10px 16px 12px;display:none;align-items:center;gap:12px;z-index:200;box-shadow:0 -4px 20px rgba(0,0,0,0.6)}
+#cart-bar.show{display:flex}
+#cart-bar .info{flex:1;min-width:0}
+#cart-bar .count{font-size:12px;color:#8888AA;font-weight:700}
+#cart-bar .total{font-family:'Bangers',cursive;font-size:24px;color:#00D4AA}
+#cartb{flex-shrink:0;background:#00D4AA;color:#000;border:none;font-family:'Fredoka One',cursive;font-size:14px;padding:12px 24px;border-radius:10px;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,0.3)}
+#cartb:active{transform:scale(0.95)}
 .overlay{position:fixed;inset:0;z-index:300;display:none}.overlay.open{display:block}
 .overlay .bg{position:absolute;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(3px)}
 .panel{position:fixed;bottom:0;left:0;right:0;max-height:80vh;background:#232340;border-top:4px solid #00D4AA;border-radius:20px 20px 0 0;z-index:400;display:flex;flex-direction:column;transform:translateY(100%);transition:transform 0.35s cubic-bezier(0.34,1.1,0.64,1)}
@@ -54,8 +54,8 @@ body{font-family:'Nunito',sans-serif;background:#0D0D1A;color:#F0F0F0;min-height
 .dt{display:flex;gap:8px}.dt button{flex:1;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.08);color:#8888AA;font-family:'Fredoka One',cursive;font-size:13px;padding:8px;border-radius:8px;cursor:pointer;text-align:center}
 .dt button.active{background:rgba(0,212,170,0.1);border-color:#00D4AA;color:#00D4AA}
 .dt button.unavail{opacity:0.25;cursor:not-allowed;text-decoration:line-through}.dt button.unavail.admin-mode{opacity:0.4;cursor:pointer}
-.ts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.ts button{background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.08);color:#F0F0F0;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;padding:6px 14px;border-radius:8px;cursor:pointer}
+.ts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.ts button{background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.08);color:#F0F0F0;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;padding:8px 16px;border-radius:8px;cursor:pointer}
 .ts button:hover{border-color:#00D4AA}.ts button.active{background:rgba(0,212,170,0.15);border-color:#00D4AA;color:#00D4AA}
 .ts button.unavail{opacity:0.25;cursor:not-allowed;text-decoration:line-through}.ts button.unavail.admin-mode{opacity:0.4;cursor:pointer}.ts button.admin-mode{cursor:pointer}
 .ft{padding:12px 18px 18px;border-top:1px solid rgba(255,255,255,0.08)}
@@ -69,7 +69,8 @@ body{font-family:'Nunito',sans-serif;background:#0D0D1A;color:#F0F0F0;min-height
 .chip.sel{background:rgba(0,212,170,0.1);border-color:#00D4AA;color:#00D4AA}.chip.dis{opacity:0.35}
 .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#00D4AA;color:#000;font-family:'Fredoka One',cursive;font-size:13px;padding:10px 22px;border-radius:999px;z-index:999;opacity:0;transition:opacity 0.25s,transform 0.25s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-#admin-bar{display:none;background:rgba(255,107,107,0.12);border:1px dashed #FF6B6B;border-radius:8px;padding:8px 16px;max-width:640px;margin:0 auto 8px;text-align:center;font-size:12px;color:#8888AA}#admin-bar b{color:#FF6B6B}
+#admin-bar{display:none;background:rgba(255,107,107,0.12);border:1px dashed #FF6B6B;border-radius:8px;padding:10px 16px;max-width:640px;margin:0 auto 10px;text-align:center;font-size:12px;color:#8888AA;line-height:1.8}#admin-bar b{color:#FF6B6B}
+#admin-bar .adm-link{color:#00D4AA;text-decoration:underline;cursor:pointer;margin:0 4px}
 .page-foot{text-align:center;padding:20px;color:#8888AA;font-size:12px;font-weight:700}.page-foot b{color:#00D4AA}
 .modal{position:fixed;inset:0;z-index:600;display:none;align-items:center;justify-content:center;padding:20px}
 .modal .bg{position:absolute;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(3px);cursor:pointer}
@@ -77,209 +78,116 @@ body{font-family:'Nunito',sans-serif;background:#0D0D1A;color:#F0F0F0;min-height
 @keyframes in{from{transform:scale(0.9) translateY(20px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
 </style>
 </head><body>
-
-<div class="hero"><h1>ðŸŒ™ <span>MINUM</span> MALAM SISWA</h1><div class="sub">â° 10:30PM â€” 2:00AM Â· ðŸš— COD (RM1) / Free Pickup</div><div class="tags"><span>ðŸ§Š Ais</span><span>ðŸ’ Harga Mesra</span><span>ðŸ”¥ Beli 5 Percuma 1</span></div></div>
-<div class="bar"><span>ðŸŽ Pesanan</span><div class="stamps" id="stamps"></div><span class="count" id="loy-count">0</span></div>
-<div class="sec"><h2>ðŸ§‹ <span>Minuman</span></h2><div class="l"></div></div>
+<div class="hero"><h1>🌙 <span>MINUM</span> MALAM SISWA</h1><div class="sub">⏰ 10:30PM — 2:00AM · 🚗 COD (RM1) / Free Pickup</div><div class="tags"><span>🧊 Ais</span><span>💝 Harga Mesra</span><span>🔥 Beli 5 Percuma 1</span></div></div>
+<div class="bar"><span>🎁 Pesanan</span><div class="stamps" id="stamps"></div><span class="count" id="loy-count">0</span></div>
+<div class="sec"><h2>🧋 <span>Minuman</span></h2><div class="l"></div></div>
 <div id="menu-root"></div>
-<div id="bot"><input id="inp-name" placeholder="Nama" maxlength="25"><input id="inp-room" placeholder="Bilik" maxlength="15"><button id="cartb">ðŸ›’ <span class="c" id="cart-count">0</span></button><button id="ordb" disabled>Order</button></div>
-
-<div class="modal" id="cust"><div class="bg" onclick="closeCust()"></div><div class="box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-family:'Bangers',cursive;font-size:22px;color:#00D4AA">âœ¨ <span id="c-title" style="font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;color:#F0F0F0">Drink</span></span><button onclick="closeCust()" style="background:none;border:none;color:#8888AA;font-size:20px;cursor:pointer">âœ•</button></div>
-<div style="margin-bottom:6px;font-size:12px;font-weight:800;color:#8888AA;text-transform:uppercase">ðŸ¬ Pemanis</div><div style="margin-bottom:14px" id="c-sweet"></div>
-<div style="margin-bottom:6px;font-size:12px;font-weight:800;color:#8888AA;text-transform:uppercase">âž• Add-on</div><div style="margin-bottom:20px" id="c-extra"></div>
-<button onclick="confirmCust()" style="width:100%;background:#00D4AA;color:#000;border:none;font-family:'Fredoka One',cursive;font-size:15px;padding:12px;border-radius:10px;cursor:pointer">+ Add to Cart Â· RM<span id="c-price">0.00</span></button>
+<div id="cart-bar"><div class="info"><div class="count" id="cart-count">0 items</div><div class="total" id="cart-total">RM0.00</div></div><button id="cartb">Review Order</button></div>
+<div class="modal" id="cust"><div class="bg" onclick="closeCust()"></div><div class="box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-family:'Bangers',cursive;font-size:22px;color:#00D4AA">✨ <span id="c-title" style="font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;color:#F0F0F0">Drink</span></span><button onclick="closeCust()" style="background:none;border:none;color:#8888AA;font-size:20px;cursor:pointer">✕</button></div>
+<div style="margin-bottom:6px;font-size:12px;font-weight:800;color:#8888AA;text-transform:uppercase">🍬 Pemanis</div><div style="margin-bottom:10px" id="c-sweet"></div>
+<div style="margin-bottom:6px;font-size:12px;font-weight:800;color:#8888AA;text-transform:uppercase">🌿 Tahap Kemanisan</div><div style="margin-bottom:10px" id="c-level"></div>
+<div style="margin-bottom:6px;font-size:12px;font-weight:800;color:#8888AA;text-transform:uppercase">➕ Add-on</div><div style="margin-bottom:20px" id="c-extra"></div>
+<button onclick="confirmCust()" style="width:100%;background:#00D4AA;color:#000;border:none;font-family:'Fredoka One',cursive;font-size:15px;padding:12px;border-radius:10px;cursor:pointer">+ Add to Cart · RM<span id="c-price">0.00</span></button>
 </div></div>
-
 <div class="overlay" id="overlay"><div class="bg" onclick="closeCart()"></div></div>
-<div class="panel" id="panel"><div class="h"></div><div class="hd"><h2>ðŸ›’ Pesanan</h2><button class="x" onclick="closeCart()">âœ•</button></div>
-<div class="bd"><div class="empty" id="empty">ðŸ§º Belum ada pesanan</div><div id="items"></div>
-<div class="opt"><div class="l">ðŸš— Delivery Method</div><div class="dt" id="del"></div></div>
-<div class="opt"><div class="l">â° Masa Penghantaran / Ambil</div><div id="time-pickup" style="display:none"><input class="inp" id="pickup-time" placeholder="Cth: 11:00 malam" maxlength="30"></div><div class="ts" id="times"></div></div>
-<div class="opt"><div class="l">ðŸ“ Catatan</div><input class="inp" id="notes" placeholder="Cth: 1 Milo kurang manis" maxlength="200"></div>
-<div class="opt"><div class="l">ðŸ’³ Payment</div><div class="dt" id="pay"><button class="active" data-method="cash">ðŸ’µ Tunai</button><button data-method="qr">ðŸ“± QR Pay</button></div>
-<div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(0,212,170,0.1)"><img src="https://drive.google.com/uc?export=view&id=1NNMdTqR5wCahK5bqLOHP996CkzZavfoN" alt="TNG QR" style="width:240px;height:240px;display:block;border-radius:8px"></div><div style="font-size:12px;color:#8888AA;margin-top:8px;font-weight:600">Scan untuk bayar</div></div></div></div>
+<div class="panel" id="panel"><div class="h"></div><div class="hd"><h2>🛒 Pesanan</h2><button class="x" onclick="closeCart()">✕</button></div>
+<div class="bd"><div class="empty" id="empty">🧺 Belum ada pesanan</div><div id="items"></div>
+<div class="opt"><div class="l">📋 Menu</div><div id="items-summary" style="font-size:13px;color:#8888AA;font-weight:600;margin-top:4px"></div></div>
+<div class="opt"><div class="l">🚗 Delivery Method</div><div class="dt" id="del"></div></div>
+<div class="opt"><div class="l">👤 Customer</div><div style="display:flex;gap:8px;margin-top:4px"><input class="inp" id="inp-name2" placeholder="Nama" maxlength="25" style="flex:1"><input class="inp" id="inp-room2" placeholder="Bilik" maxlength="15" style="flex:1"></div></div>
+<div class="opt"><div class="l">⏰ Masa Penghantaran / Ambil</div><div id="time-pickup" style="display:none"><input class="inp" id="pickup-time" placeholder="Cth: 11:00 malam" maxlength="30"></div><div class="ts" id="times"></div></div>
+<div class="opt"><div class="l">📝 Catatan (opsional)</div><input class="inp" id="notes" placeholder="" maxlength="200"></div>
+<div class="opt"><div class="l">💳 Payment</div><div class="dt" id="pay"><button class="active" data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button></div>
+<div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(0,212,170,0.1)"><img src="https://drive.google.com/thumbnail?id=1NNMdTqR5wCahK5bqLOHP996CkzZavfoN&amp;sz=w500" alt="TNG QR" style="width:240px;height:240px;display:block;border-radius:8px"></div><div style="font-size:12px;color:#8888AA;margin-top:8px;font-weight:600">Scan untuk bayar</div></div></div></div>
 <div class="ft"><div class="tr" style="border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:8px;margin-bottom:8px"><span>Subtotal</span><span style="font-family:'Bangers',cursive;font-size:20px" id="sub">RM0.00</span></div>
-<div id="cod-row" class="tr"><span style="font-size:12px;color:#8888AA">ðŸ“¦ COD fee</span><span style="font-family:'Bangers',cursive;font-size:18px;color:#8888AA">RM1.00</span></div>
+<div id="cod-row" class="tr"><span style="font-size:12px;color:#8888AA">📦 COD fee</span><span style="font-family:'Bangers',cursive;font-size:18px;color:#8888AA">RM1.00</span></div>
 <div class="tr" style="margin-top:8px"><span>Jumlah</span><span class="am" id="total">RM0.00</span></div>
 <button class="go" id="checkout" disabled>Review Order</button></div></div>
-
-<div class="modal" id="confirm-modal"><div class="bg" onclick="closeConfirm()"></div><div class="box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-family:'Bangers',cursive;font-size:22px;color:#00D4AA">âœ… Confirm</span><button onclick="closeConfirm()" style="background:none;border:none;color:#8888AA;font-size:20px;cursor:pointer">âœ•</button></div>
+<div class="modal" id="confirm-modal"><div class="bg" onclick="closeConfirm()"></div><div class="box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-family:'Bangers',cursive;font-size:22px;color:#00D4AA">✅ Confirm</span><button onclick="closeConfirm()" style="background:none;border:none;color:#8888AA;font-size:20px;cursor:pointer">✕</button></div>
 <div style="max-height:240px;overflow-y:auto;margin-bottom:12px" id="confirm-items"></div>
-<div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:10px;margin-bottom:12px">
-<div id="confirm-delivery" style="font-size:13px;color:#8888AA;margin-bottom:4px"></div>
-<div id="confirm-pay" style="font-size:13px;color:#8888AA;margin-bottom:4px"></div>
-<div id="confirm-notes" style="font-size:13px;color:#8888AA"></div>
-<div style="display:flex;justify-content:space-between;font-size:22px;font-family:'Bangers',cursive;margin-top:10px"><span>Total</span><span id="confirm-total" style="color:#00D4AA">RM0.00</span></div></div>
-<button onclick="sendWa()" style="width:100%;background:#25D366;color:#fff;border:none;font-family:'Fredoka One',cursive;font-size:15px;padding:12px;border-radius:10px;cursor:pointer">ðŸ“¤ Confirm & Send</button>
+<div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:10px;margin-bottom:12px"><div id="confirm-delivery" style="font-size:13px;color:#8888AA;margin-bottom:4px"></div><div id="confirm-pay" style="font-size:13px;color:#8888AA;margin-bottom:4px"></div><div id="confirm-notes" style="font-size:13px;color:#8888AA"></div><div style="display:flex;justify-content:space-between;font-size:22px;font-family:'Bangers',cursive;margin-top:10px"><span>Total</span><span id="confirm-total" style="color:#00D4AA">RM0.00</span></div></div>
+<button onclick="sendWa()" style="width:100%;background:#25D366;color:#fff;border:none;font-family:'Fredoka One',cursive;font-size:15px;padding:12px;border-radius:10px;cursor:pointer">📤 Confirm &amp; Send</button>
 </div></div>
-
-<div class="page-foot"><i>Minum sedap, harga mesra! ðŸ§¡</i><br>Â© <b>MINUM MALAM SISWA</b></div>
+<div class="page-foot"><i>Minum sedap, harga mesra! 🧡</i><br>© <b>MINUM MALAM SISWA</b></div>
 <div class="toast" id="toast"></div>
-<div id="admin-bar">ðŸ”§ Admin â€” <b>aktif</b>. Klik minuman / waktu untuk <b>habiskan</b>. <span id="adm-close" style="cursor:pointer;color:#FF6B6B;text-decoration:underline">Tutup</span> | <span id="adm-all" style="cursor:pointer;color:#FF6B6B;text-decoration:underline">Reset semua</span></div>
-
+<div id="admin-bar">🔧 Admin — <b>aktif</b>. Klik minuman / waktu untuk <b>habiskan</b>. <span class="adm-link" id="adm-menu">Urus Menu</span> · <span id="adm-close" style="cursor:pointer;color:#FF6B6B;text-decoration:underline">Tutup</span> · <span id="adm-all" style="cursor:pointer;color:#FF6B6B;text-decoration:underline">Reset semua</span></div>
+<div class="modal" id="menu-modal"><div class="bg" onclick="closeMenuModal()"></div><div class="box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><span style="font-family:'Bangers',cursive;font-size:22px;color:#00D4AA">📝 Urus Menu</span><button onclick="closeMenuModal()" style="background:none;border:none;color:#8888AA;font-size:20px;cursor:pointer">✕</button></div>
+<div id="menu-list" style="max-height:200px;overflow-y:auto;margin-bottom:12px"></div>
+<div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:12px">
+<div style="display:flex;gap:8px;margin-bottom:8px"><input class="inp" id="m-name" placeholder="Nama minuman" style="flex:1"><input class="inp" id="m-price" placeholder="Harga" type="number" step="0.10" style="max-width:80px"></div>
+<label style="display:flex;align-items:center;gap:6px;font-size:13px;color:#8888AA;font-weight:700;margin-bottom:12px"><input type="checkbox" id="m-pop"> Popular</label>
+<div style="display:flex;gap:8px"><button id="m-save" style="flex:1;background:#00D4AA;color:#000;border:none;font-family:'Fredoka One',cursive;font-size:14px;padding:10px;border-radius:8px;cursor:pointer">➕ Tambah</button><button id="m-cancel" style="display:none;background:rgba(255,255,255,0.1);color:#8888AA;border:none;font-family:'Nunito',sans-serif;font-size:13px;padding:10px;border-radius:8px;cursor:pointer">Batal</button></div>
+</div></div></div>
 <script>
-const SHOP='MINUM MALAM SISWA',WA='601116470212',SLOTS=['6PM','7PM','8PM','9PM','10PM','11PM','12AM'];
+const SHOP='MINUM MALAM SISWA',WA='601116470212',SLOTS=['11:30PM','12:30AM','1:30AM'];
 let unrTimes=loadUT();
 function loadUT(){try{return JSON.parse(localStorage.getItem('mms_ut'))||[]}catch(e){return[]}}
 function saveUT(t){localStorage.setItem('mms_ut',JSON.stringify(t))}
 let selTime='';
-
-const MENU=[{name:'Minuman',items:[
-  {name:'Milo Ais',price:3.50,pop:true},{name:'Extrajoss Susu Mangga',price:2.50,pop:true},
-  {name:'Extrajoss Susu Anggur',price:2.50,pop:false},{name:'Indocafe Ais',price:3.50,pop:false},
-  {name:'Belgian Chocolate',price:4.00,pop:false},{name:'Horlicks Ais',price:3.50,pop:false},
-  {name:'Hazelnut Latte',price:4.00,pop:false},{name:'Mocha',price:4.00,pop:false},
-  {name:'Teh Tarik Air Asia',price:4.00,pop:false},
+const DEFAULT_MENU=[{name:'Minuman',items:[
+{name:'Milo Ais',price:3.50,pop:true},{name:'Extrajoss Susu Mangga',price:2.50,pop:true},{name:'Extrajoss Susu Anggur',price:2.50,pop:false},{name:'Indocafe Ais',price:3.50,pop:false},{name:'Belgian Chocolate',price:4.00,pop:false},{name:'Horlicks Ais',price:3.50,pop:false},{name:'Hazelnut Latte',price:4.00,pop:false},{name:'Mocha',price:4.00,pop:false},{name:'Teh Tarik Air Asia',price:4.00,pop:false},
 ]}];
+let MENU=[];let mgItem=null;
 const ADDS=[
-  {name:'Gula',price:0,grp:'s'},{name:'Susu Kental Manis',price:0,grp:'s'},
-  {name:'Extra Gula',price:0.50,grp:'e'},{name:'Extra Susu',price:0.50,grp:'e'},
+{name:'Gula',price:0,grp:'s'},{name:'Susu Kental Manis',price:0,grp:'s'},
+{name:'Kurang Manis (50%)',price:0,grp:'l'},
+{name:'Extra Gula',price:0.50,grp:'e'},{name:'Extra Susu',price:0.50,grp:'e'},{name:'Extra Kaw',price:0.50,grp:'e'},
 ];
-// { 'c0v0': [{adds:[0]},{adds:[0,2]}], 'c0v1': [{adds:[1]}] }
 let cart={},disAdds=[],disDel=[],isCod=true,admin=false,admClk=0,admTmr=null,custItem=null,custAdds=[];
-
 function getLoy(){try{return JSON.parse(localStorage.getItem('mms_loy'))||{c:0}}catch(e){return{c:0}}}
 function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
-function drawLoy(){const l=getLoy();document.getElementById('loy-count').textContent=l.c;const p=l.c%5,s=document.getElementById('stamps');let h='';for(let i=0;i<5;i++)h+='<div class="stamp'+(i<p?' filled':'')+'">'+(i<p?'â­':'')+'</div>';s.innerHTML=h}
-
-const GID='ea01a7fce731d92cec3a18f90bfc48d5',GRAW='https://gist.githubusercontent.com/Iyern0/'+GID+'/raw/rd-disabled.json',GAPI='https://api.github.com/gists/'+GID,GTOK='YOUR_TOKEN_HERE';
-async function loadDis(){if(GID&&GID!=='YOUR_GIST_ID'){try{const r=await fetch(GRAW+'?t='+Date.now());if(r.ok){const d=await r.json();if(d&&typeof d==='object'){localStorage.setItem('rd_disabled',JSON.stringify(d));return d}}}catch(e){}}try{const d=JSON.parse(localStorage.getItem('rd_disabled'));if(d)return d}catch(e){}return{}}
-async function saveDis(d){localStorage.setItem('rd_disabled',JSON.stringify(d));if(!GID||GID==='YOUR_GIST_ID'||!GTOK||GTOK==='YOUR_GITHUB_TOKEN')return;try{await fetch(GAPI,{method:'PATCH',headers:{'Authorization':'token '+GTOK,'Content-Type':'application/json'},body:JSON.stringify({files:{'rd-disabled.json':{content:JSON.stringify(d)}}})})}catch(e){}}
-let dis={};async function initDis(){dis=await loadDis();draw()}function isDis(id){return dis[id]===true}
-async function togDis(id){if(dis[id])delete dis[id];else dis[id]=true;await saveDis(dis);draw()}
-async function enAll(){dis={};unrTimes=[];disAdds=[];disDel=[];saveUT([]);saveDisAdds([]);saveDisDel([]);await saveDis(dis);draw();drawTimes();toast('âœ“ Semua diaktifkan')}
-
+function drawLoy(){const l=getLoy();document.getElementById('loy-count').textContent=l.c;const p=l.c%5,s=document.getElementById('stamps');let h='';for(let i=0;i<5;i++)h+='<div class="stamp'+(i<p?' filled':'')+'">'+(i<p?'⭐':'')+'</div>';s.innerHTML=h}
+const GID='ea01a7fce731d92cec3a18f90bfc48d5',GRAW='https://gist.githubusercontent.com/Iyern0/'+GID+'/raw/',GAPI='https://api.github.com/gists/'+GID,GTOK='YOUR_TOKEN_HERE';
+const GR_MENU=GRAW+'rd-menu.json',GR_DIS=GRAW+'rd-disabled.json',GF_MENU='rd-menu.json',GF_DIS='rd-disabled.json';
+async function loadJSON(url,key,fetchFallback){if(fetchFallback){try{const r=await fetch(url+'?t='+Date.now());if(r.ok){const d=await r.json();if(d&&typeof d==='object'){localStorage.setItem(key,JSON.stringify(d));return d}}}catch(e){}}try{const d=JSON.parse(localStorage.getItem(key));if(d)return d}catch(e){}return null}
+async function saveJSON(key,data,file){localStorage.setItem(key,JSON.stringify(data));if(!GID||GID==='YOUR_GIST_ID'||!GTOK||GTOK==='YOUR_GITHUB_TOKEN')return;try{const o={};o[file]={content:JSON.stringify(data)};await fetch(GAPI,{method:'PATCH',headers:{'Authorization':'token '+GTOK,'Content-Type':'application/json'},body:JSON.stringify({files:o})})}catch(e){}}
+async function loadMenu(){const d=await loadJSON(GR_MENU,'mms_menu',true);if(d&&d.length>0){MENU=d}else{MENU=JSON.parse(JSON.stringify(DEFAULT_MENU));localStorage.setItem('mms_menu',JSON.stringify(MENU))}draw()}
+let dis={};async function initDis(){dis=await loadJSON(GR_DIS,'rd_disabled',true)||{};draw()}function isDis(id){return dis[id]===true}
+async function togDis(id){if(dis[id])delete dis[id];else dis[id]=true;await saveJSON('rd_disabled',dis,GF_DIS);draw()}
+async function enAll(){dis={};unrTimes=[];disAdds=[];disDel=[];saveUT([]);saveDisAdds([]);saveDisDel([]);await saveJSON('rd_disabled',dis,GF_DIS);draw();drawTimes();toast('✓ Semua diaktifkan')}
 function toast(m){const t=document.getElementById('toast');t.innerHTML=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2000)}
 function waUrl(t){return'https://wa.me/'+WA.replace(/[^0-9]/g,'')+'?text='+encodeURIComponent(t)}
-
-function draw(){
-  const r=document.getElementById('menu-root');let h='<div class="grid">';
-  MENU.forEach((cat,ci)=>{cat.items.forEach((v,vi)=>{
-    const id='c'+ci+'v'+vi,d=isDis(id),items=cart[id]||[],cq=items.length;
-    const badge=v.pop?'<span class="badge">ðŸ”¥ Popular</span>':'',dot=cq?'<span class="qty">'+cq+'</span>':'',sold=d?'<span class="sold">âœ• Habis</span>':'';
-    let e='ðŸ§‹';if(v.name.includes('Milo'))e='ðŸ¥¤';else if(v.name.includes('Extrajoss'))e='ðŸ¹';else if(v.name.includes('Indocafe'))e='â˜•';else if(v.name.includes('Chocolate'))e='ðŸ«';else if(v.name.includes('Horlicks'))e='ðŸ¥›';else if(v.name.includes('Hazelnut'))e='ðŸŒ°';else if(v.name.includes('Mocha'))e='ðŸµ';
-    h+='<div class="card'+(d?' disabled':'')+(cq?' in-cart':'')+(admin?' admin-mode':'')+'" onclick="addToCart(\''+id+'\')">'+badge+dot+sold+'<div class="e">'+e+'</div><div class="n">'+v.name+'</div><div class="p">RM'+v.price.toFixed(2)+'</div></div>';
-  })});
-  h+='</div>';r.innerHTML=h;upCart();drawLoy();drawDel();
-}
-
+function draw(){const r=document.getElementById('menu-root');if(!MENU||MENU.length===0){r.innerHTML='';upCart();drawLoy();drawDel();return}let h='<div class="grid">';MENU.forEach((cat,ci)=>{cat.items.forEach((v,vi)=>{const id='c'+ci+'v'+vi,d=isDis(id),items=cart[id]||[],cq=items.length;const badge=v.pop?'<span class="badge">🔥 Popular</span>':'',dot=cq?'<span class="qty">'+cq+'</span>':'',sold=d?'<span class="sold">✕ Habis</span>':'';let e='🧋';if(v.name.includes('Milo'))e='🥤';else if(v.name.includes('Extrajoss'))e='🍹';else if(v.name.includes('Indocafe'))e='☕';else if(v.name.includes('Chocolate'))e='🍫';else if(v.name.includes('Horlicks'))e='🥛';else if(v.name.includes('Hazelnut'))e='🌰';else if(v.name.includes('Mocha'))e='🍵';h+='<div class="card'+(d?' disabled':'')+(cq?' in-cart':'')+(admin?' admin-mode':'')+'" onclick="addToCart(\''+id+'\')">'+badge+dot+sold+'<div class="e">'+e+'</div><div class="n">'+v.name+'</div><div class="p">RM'+v.price.toFixed(2)+'</div></div>';})});h+='</div>';r.innerHTML=h;upCart();drawLoy();drawDel();}
 function drawTimes(){document.getElementById('times').innerHTML=SLOTS.map(t=>{const u=unrTimes.includes(t),a=selTime===t?' active':'';return'<button class="t-btn'+a+(u?' unavail':'')+(admin?' admin-mode':'')+'" onclick="selT(\''+t+'\')"'+(u&&!admin?' disabled':'')+'>'+t+'</button>'}).join('')}
-function selT(t){if(admin){const i=unrTimes.indexOf(t);if(i>-1)unrTimes.splice(i,1);else unrTimes.push(t);saveUT(unrTimes);drawTimes();return}if(unrTimes.includes(t)){toast('âŒ Waktu tidak tersedia');return}selTime=t;drawTimes()}
-
+function selT(t){if(admin){const i=unrTimes.indexOf(t);if(i>-1)unrTimes.splice(i,1);else unrTimes.push(t);saveUT(unrTimes);drawTimes();return}if(unrTimes.includes(t)){toast('❌ Waktu tidak tersedia');return}selTime=t;drawTimes()}
 function saveDisAdds(a){localStorage.setItem('mms_da',JSON.stringify(a))}
 function loadDisAdds(){try{return JSON.parse(localStorage.getItem('mms_da'))||[]}catch(e){return[]}}
 function saveDisDel(a){localStorage.setItem('mms_dd',JSON.stringify(a))}
 function loadDisDel(){try{return JSON.parse(localStorage.getItem('mms_dd'))||[]}catch(e){return[]}}
 disAdds=loadDisAdds();disDel=loadDisDel();
-
-function drawCust(){
-  const sw=document.getElementById('c-sweet'),ex=document.getElementById('c-extra');sw.innerHTML='';ex.innerHTML='';
-  ADDS.forEach((a,i)=>{const s=custAdds.includes(i),d=disAdds.includes(i);
-    const ch='<span class="chip'+(s?' sel':'')+(d?' dis':'')+'" onclick="togC('+i+')">'+a.name+(a.price>0?' <span style="color:#FFB347">+RM'+a.price.toFixed(2)+'</span>':'')+'</span>';
-    if(a.grp==='s')sw.innerHTML+=ch;else ex.innerHTML+=ch});
-  const at=custAdds.reduce((s,i)=>s+ADDS[i].price,0);
-  document.getElementById('c-price').textContent=(at+(custItem?MENU[custItem.ci].items[custItem.vi].price:0)).toFixed(2);
-}
+function drawCust(){const sw=document.getElementById('c-sweet'),lv=document.getElementById('c-level'),ex=document.getElementById('c-extra');sw.innerHTML='';lv.innerHTML='';ex.innerHTML='';ADDS.forEach((a,i)=>{const s=custAdds.includes(i),d=disAdds.includes(i);const ch='<span class="chip'+(s?' sel':'')+(d?' dis':'')+'" onclick="togC('+i+')">'+a.name+(a.price>0?' <span style="color:#FFB347">+RM'+a.price.toFixed(2)+'</span>':'')+'</span>';if(a.grp==='s')sw.innerHTML+=ch;else if(a.grp==='l')lv.innerHTML+=ch;else ex.innerHTML+=ch;});const at=custAdds.reduce((s,i)=>s+ADDS[i].price,0);document.getElementById('c-price').textContent=(at+(custItem?MENU[custItem.ci].items[custItem.vi].price:0)).toFixed(2);}
 function togC(i){if(disAdds.includes(i))return;const idx=custAdds.indexOf(i);if(idx>-1)custAdds.splice(idx,1);else custAdds.push(i);drawCust()}
 function openCust(ci,vi){custItem={ci,vi};custAdds=[];document.getElementById('c-title').textContent=MENU[ci].items[vi].name;drawCust();document.getElementById('cust').style.display='flex'}
 function closeCust(){custItem=null;custAdds=[];document.getElementById('cust').style.display='none'}
-function confirmCust(){
-  if(!custItem)return;var hs=false;
-  for(var xi=0;xi<custAdds.length;xi++){if(ADDS[custAdds[xi]].grp==='s'){hs=true;break}}
-  if(!hs){toast('âš  Sila pilih pemanis');return}
-  const id='c'+custItem.ci+'v'+custItem.vi;if(!cart[id])cart[id]=[];cart[id].push({adds:[...custAdds]});closeCust();draw();toast('âœ“ Ditambah');
-}
-
-function addToCart(id){
-  if(admin){togDis(id);return}
-  if(isDis(id)){toast('âŒ Item habis');return}
-  openCust(parseInt(id.match(/c(\d+)/)[1]),parseInt(id.match(/v(\d+)/)[1]));
-}
+function confirmCust(){if(!custItem)return;var hs=false;for(var xi=0;xi<custAdds.length;xi++){if(ADDS[custAdds[xi]].grp==='s'){hs=true;break}}if(!hs){toast('⚠ Sila pilih pemanis');return}const id='c'+custItem.ci+'v'+custItem.vi;if(!cart[id])cart[id]=[];cart[id].push({adds:[...custAdds]});closeCust();draw();toast('✓ Ditambah')}
+function addToCart(id){if(admin){togDis(id);return}if(isDis(id)){toast('❌ Item habis');return}openCust(parseInt(id.match(/c(\d+)/)[1]),parseInt(id.match(/v(\d+)/)[1]))}
 function remInst(key,idx){if(cart[key]){cart[key].splice(idx,1);if(cart[key].length===0)delete cart[key];draw()}}
-
-function upCart(){
-  const e=Object.entries(cart);let totalItems=0;e.forEach(([_,v])=>totalItems+=v.length);
-  document.getElementById('cart-count').textContent=totalItems;
-  document.getElementById('ordb').disabled=totalItems===0;document.getElementById('checkout').disabled=totalItems===0;
-  document.getElementById('times').style.display=isCod?'flex':'none';document.getElementById('time-pickup').style.display=isCod?'none':'block';drawTimes();drawDel();
-  let total=0,html='';
-  e.forEach(([id,items])=>{
-    const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]),item=MENU[ci].items[vi];
-    items.forEach((inst,i)=>{
-      const ac=inst.adds.reduce((s,j)=>s+ADDS[j].price,0);total+=item.price+ac;
-      const al=inst.adds.map(j=>ADDS[j].name).join(', ');
-      html+='<div class="item"><div class="ii"><div class="nm">'+item.name+'</div><div class="sb">RM'+(item.price+ac).toFixed(2)+(al?' <span style="color:#8888AA">Â· '+al+'</span>':'')+'</div></div><div class="iq"><button onclick="remInst(\''+id+'\','+i+')" style="color:#FF6B6B">âˆ’</button><button onclick="addToCart(\''+id+'\')" style="color:#00D4AA">+</button></div></div>';
-    });
-  });
-  document.getElementById('items').innerHTML=html;
-  const cod=isCod?1:0;document.getElementById('sub').textContent='RM'+total.toFixed(2);document.getElementById('total').textContent='RM'+(total+cod).toFixed(2);
-  document.getElementById('empty').style.display=totalItems?'none':'block';document.getElementById('cod-row').style.display=isCod?'flex':'none';
-}
-
+function upCart(){const e=Object.entries(cart);let totalItems=0;e.forEach(([_,v])=>totalItems+=v.length);const bar=document.getElementById('cart-bar');if(totalItems>0){bar.classList.add('show');document.getElementById('cart-count').textContent=totalItems+' item(s)';}else{bar.classList.remove('show');}document.getElementById('checkout').disabled=totalItems===0;document.getElementById('times').style.display=isCod?'flex':'none';document.getElementById('time-pickup').style.display=isCod?'none':'block';drawTimes();drawDel();let total=0,html='';e.forEach(([id,items])=>{if(!MENU)return;const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;const item=MENU[ci].items[vi];items.forEach((inst,i)=>{const ac=inst.adds.reduce((s,j)=>s+ADDS[j].price,0);total+=item.price+ac;const al=inst.adds.map(j=>ADDS[j].name).join(', ');html+='<div class="item"><div class="ii"><div class="nm">'+item.name+'</div><div class="sb">RM'+(item.price+ac).toFixed(2)+(al?' <span style="color:#8888AA">· '+al+'</span>':'')+'</div></div><div class="iq"><button onclick="remInst(\''+id+'\','+i+')" style="color:#FF6B6B">−</button><button onclick="addToCart(\''+id+'\')" style="color:#00D4AA">+</button></div></div>';});});document.getElementById('items').innerHTML=html;document.getElementById('items-summary').textContent=totalItems+' item(s) · RM'+total.toFixed(2);const cod=isCod?1:0;document.getElementById('sub').textContent='RM'+total.toFixed(2);document.getElementById('total').textContent='RM'+(total+cod).toFixed(2);document.getElementById('cart-total').textContent='RM'+(total+cod).toFixed(2);document.getElementById('empty').style.display=totalItems?'none':'block';document.getElementById('cod-row').style.display=isCod?'flex':'none';}
 function openCart(){document.getElementById('overlay').classList.add('open');document.getElementById('panel').classList.add('open')}
 function closeCart(){document.getElementById('overlay').classList.remove('open');document.getElementById('panel').classList.remove('open')}
-
-const DELS=[{t:'cod',l:'ðŸ“¦ COD (+RM1)',f:1},{t:'pickup',l:'ðŸª Ambil Sendiri',f:0}];
+const DELS=[{t:'cod',l:'📦 COD (+RM1)',f:1},{t:'pickup',l:'🏪 Ambil Sendiri',f:0}];
 function drawDel(){document.getElementById('del').innerHTML=DELS.map(d=>{const di=disDel.includes(d.t),a=(isCod&&d.t==='cod')||(!isCod&&d.t==='pickup');return'<button class="dt-btn'+(a?' active':'')+(di?' unavail':'')+(admin?' admin-mode':'')+'" data-type="'+d.t+'">'+d.l+'</button>'}).join('')}
-document.getElementById('del').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=b.dataset.type;if(admin){const i=disDel.indexOf(t);if(i>-1)disDel.splice(i,1);else disDel.push(t);saveDisDel(disDel);drawDel();return}if(disDel.includes(t)){toast('âŒ Tidak tersedia');return}document.querySelectorAll('#del button').forEach(b=>b.classList.remove('active'));b.classList.add('active');isCod=t==='cod';document.getElementById('times').style.display=isCod?'flex':'none';document.getElementById('time-pickup').style.display=isCod?'none':'block';if(!isCod)selTime=document.getElementById('pickup-time').value.trim()||'(nyatakan masa)';else selTime='';drawTimes();upCart()});
+document.getElementById('del').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=b.dataset.type;if(admin){const i=disDel.indexOf(t);if(i>-1)disDel.splice(i,1);else disDel.push(t);saveDisDel(disDel);drawDel();return}if(disDel.includes(t)){toast('❌ Tidak tersedia');return}document.querySelectorAll('#del button').forEach(b=>b.classList.remove('active'));b.classList.add('active');isCod=t==='cod';document.getElementById('times').style.display=isCod?'flex':'none';document.getElementById('time-pickup').style.display=isCod?'none':'block';if(!isCod)selTime=document.getElementById('pickup-time').value.trim()||'(nyatakan masa)';else selTime='';drawTimes();upCart();const r2=document.getElementById('inp-room2');r2.disabled=!isCod;r2.style.opacity=isCod?'1':'0.35';r2.style.pointerEvents=isCod?'auto':'none';if(!isCod)r2.value='';});
+document.getElementById('inp-room2').disabled=false;document.getElementById('inp-room2').style.opacity='1';document.getElementById('inp-room2').style.pointerEvents='auto';
 document.getElementById('pickup-time').addEventListener('input',function(){selTime=this.value.trim()||'(nyatakan masa)'});
-
 let payM='cash';
 document.getElementById('pay').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;document.querySelectorAll('#pay button').forEach(b=>b.classList.remove('active'));b.classList.add('active');payM=b.dataset.method;document.getElementById('qr-section').style.display=payM==='qr'?'block':'none'});
-
-document.getElementById('ordb').addEventListener('click',()=>{if(!document.getElementById('inp-name').value.trim()){toast('âš  Sila masukkan nama');return}if(!document.getElementById('inp-room').value.trim()){toast('âš  Sila masukkan blok/bilik');return}openCart()});
-
 function closeConfirm(){document.getElementById('confirm-modal').style.display='none'}
-document.getElementById('checkout').addEventListener('click',function(){
-  const e=Object.entries(cart);let totalItems=0;e.forEach(([_,v])=>totalItems+=v.length);
-  if(totalItems===0){toast('âš  Tiada pesanan');return}
-  const n=document.getElementById('inp-name').value.trim(),r=document.getElementById('inp-room').value.trim();
-  if(!n){toast('âš  Sila masukkan nama');closeCart();return}if(!r){toast('âš  Sila masukkan blok/bilik');closeCart();return}if(!selTime){toast('âš  Sila pilih masa');return}
-  let html='',total=0,idx=0;
-  e.forEach(([id,items])=>{
-    const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]),item=MENU[ci].items[vi];
-    items.forEach(inst=>{
-      idx++;const ac=inst.adds.reduce((s,j)=>s+ADDS[j].price,0);total+=item.price+ac;
-      const al=inst.adds.map(j=>ADDS[j].name).join(', ');
-      html+='<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05)"><span>'+idx+'. '+item.name+(al?' <span style="color:#8888AA">Â· '+al+'</span>':'')+'</span><span style="color:#00D4AA;font-family:\'Bangers\',cursive">RM'+(item.price+ac).toFixed(2)+'</span></div>';
-    });
-  });
-  document.getElementById('confirm-items').innerHTML=html;
-  document.getElementById('confirm-delivery').innerHTML='ðŸš— '+(isCod?'COD (+RM1)':'Ambil Sendiri')+' Â· â° '+selTime+' Â· ðŸ‘¤ '+n+' '+r;
-  document.getElementById('confirm-pay').innerHTML='ðŸ’³ '+(payM==='cash'?'Tunai':'QR Pay');
-  const notes=document.getElementById('notes').value.trim();
-  document.getElementById('confirm-notes').innerHTML=notes?'ðŸ“ '+notes:'';
-  const cod=isCod?1:0;
-  document.getElementById('confirm-total').textContent='RM'+(total+cod).toFixed(2);
-  document.getElementById('confirm-modal').style.display='flex';
-});
-function sendWa(){
-  const n=document.getElementById('inp-name').value.trim(),r=document.getElementById('inp-room').value.trim();
-  let msg='Hi '+SHOP+'! Pesanan:\n',total=0;
-  Object.entries(cart).forEach(([id,items])=>{
-    const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]),item=MENU[ci].items[vi];
-    items.forEach(inst=>{
-      const ac=inst.adds.reduce((s,j)=>s+ADDS[j].price,0);
-      msg+=item.name+' = RM'+(item.price+ac).toFixed(2)+(ac>0?' (âž• '+inst.adds.map(j=>ADDS[j].name).join(', ')+')':'')+'\n';
-      total+=item.price+ac;
-    });
-  });
-  const cod=isCod?1:0;total+=cod;
-  if(isCod)msg+='\nðŸ“¦ COD (+RM1)';else msg+='\nðŸª Ambil Sendiri';
-  msg+='\nâ° '+selTime+'\nðŸ’³ Bayar: '+(payM==='cash'?'Tunai':'QR Pay');
-  const notes=document.getElementById('notes').value.trim();if(notes)msg+='\nðŸ“ Catatan: '+notes;
-  msg+='\nJumlah: RM'+total.toFixed(2)+'\nNama: '+n+'\nRoom: '+r;
-  window.open(waUrl(msg),'_blank');closeConfirm();closeCart();toast('âœ“ WhatsApp dibuka');
-  const l=getLoy();l.c++;if(l.c%5===0)toast('ðŸŽ‰ Congrats! Minuman percuma seterusnya!');saveLoy(l);drawLoy();drawDel();
-  cart={};selTime='';document.getElementById('pickup-time').value='';document.getElementById('notes').value='';draw();
-}
+document.getElementById('checkout').addEventListener('click',function(){const e=Object.entries(cart);let totalItems=0;e.forEach(([_,v])=>totalItems+=v.length);if(totalItems===0){toast('⚠ Tiada pesanan');return}const n=document.getElementById('inp-name2').value.trim(),r=document.getElementById('inp-room2').value.trim();if(!n){toast('⚠ Sila masukkan nama');closeCart();return}if(isCod&&!r){toast('⚠ Sila masukkan blok/bilik');closeCart();return}if(!selTime){toast('⚠ Sila pilih masa');return}let html='',total=0,idx=0;e.forEach(([id,items])=>{const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;const item=MENU[ci].items[vi];items.forEach(inst=>{idx++;const ac=inst.adds.reduce((s,j)=>s+ADDS[j].price,0);total+=item.price+ac;const al=inst.adds.map(j=>ADDS[j].name).join(', ');html+='<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05)"><span>'+idx+'. '+item.name+(al?' <span style="color:#8888AA">· '+al+'</span>':'')+'</span><span style="color:#00D4AA;font-family:\'Bangers\',cursive">RM'+(item.price+ac).toFixed(2)+'</span></div>';});});document.getElementById('confirm-items').innerHTML=html;document.getElementById('confirm-delivery').innerHTML='🚗 '+(isCod?'COD (+RM1)':'Ambil Sendiri')+' · ⏰ '+selTime+' · 👤 '+n+(isCod?' '+r:'');document.getElementById('confirm-pay').innerHTML='💳 '+(payM==='cash'?'Tunai':'QR Pay');const notes=document.getElementById('notes').value.trim();document.getElementById('confirm-notes').innerHTML=notes?'📝 '+notes:'';document.getElementById('confirm-total').textContent='RM'+(total+(isCod?1:0)).toFixed(2);document.getElementById('confirm-modal').style.display='flex';});
+function sendWa(){const n=document.getElementById('inp-name2').value.trim(),r=document.getElementById('inp-room2').value.trim();let msg='Hi '+SHOP+'! Pesanan:\n',total=0;Object.entries(cart).forEach(([id,items])=>{const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;const item=MENU[ci].items[vi];items.forEach(inst=>{const ac=inst.adds.reduce((s,j)=>s+ADDS[j].price,0);msg+=item.name+' = RM'+(item.price+ac).toFixed(2)+(ac>0?' (➕ '+inst.adds.map(j=>ADDS[j].name).join(', ')+')':'')+'\n';total+=item.price+ac})});const cod=isCod?1:0;total+=cod;if(isCod)msg+='\n📦 COD (+RM1)';else msg+='\n🏪 Ambil Sendiri';msg+='\n⏰ '+selTime+'\n💳 Bayar: '+(payM==='cash'?'Tunai':'QR Pay')+'\n👤 '+n+(isCod?' ('+r+')':'');const notes=document.getElementById('notes').value.trim();if(notes)msg+='\n📝 Catatan: '+notes;msg+='\nJumlah: RM'+total.toFixed(2);window.open(waUrl(msg),'_blank');closeConfirm();closeCart();toast('✓ WhatsApp dibuka');const l=getLoy();l.c++;if(l.c%5===0)toast('🎉 Congrats! Minuman percuma seterusnya!');saveLoy(l);drawLoy();drawDel();cart={};selTime='';document.getElementById('pickup-time').value='';document.getElementById('notes').value='';draw();}
 document.getElementById('cartb').addEventListener('click',openCart);
-document.querySelector('.hero h1').addEventListener('click',()=>{admClk++;clearTimeout(admTmr);admTmr=setTimeout(()=>{admClk=0},1000);if(admClk>=5){admClk=0;admin=!admin;document.getElementById('admin-bar').style.display=admin?'block':'none';draw();drawTimes();toast(admin?'ðŸ”§ Admin mode ON':'Admin mode OFF')}});
+document.querySelector('.hero h1').addEventListener('click',()=>{admClk++;clearTimeout(admTmr);admTmr=setTimeout(()=>{admClk=0},1000);if(admClk>=5){admClk=0;admin=!admin;document.getElementById('admin-bar').style.display=admin?'block':'none';draw();drawTimes();toast(admin?'🔧 Admin mode ON':'Admin mode OFF')}});
 document.getElementById('adm-close').addEventListener('click',()=>{admin=false;document.getElementById('admin-bar').style.display='none';draw();drawTimes()});
 document.getElementById('adm-all').addEventListener('click',enAll);
-initDis();drawLoy();drawDel();
+document.getElementById('adm-menu').addEventListener('click',()=>{mgItem=null;drawMenuList();document.getElementById('m-save').textContent='➕ Tambah';document.getElementById('m-cancel').style.display='none';document.getElementById('m-name').value='';document.getElementById('m-price').value='';document.getElementById('m-pop').checked=false;document.getElementById('menu-modal').style.display='flex'});
+function drawMenuList(){const el=document.getElementById('menu-list');if(!MENU||MENU.length===0||!MENU[0].items.length){el.innerHTML='<div style="color:#8888AA;font-size:13px;padding:8px 0">Tiada item. Tambah yang pertama!</div>';return}el.innerHTML=MENU[0].items.map((v,i)=>'<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="flex:1;font-weight:700;font-size:13px">'+(v.pop?'🔥 ':'')+v.name+'</span><span style="font-family:Bangers,cursive;color:#FFB347;font-size:16px">RM'+v.price.toFixed(2)+'</span><button onclick="editItem('+i+')" style="background:rgba(0,212,170,0.1);border:none;color:#00D4AA;font-size:12px;padding:4px 10px;border-radius:6px;cursor:pointer">✎</button><button onclick="delItem('+i+')" style="background:rgba(255,107,107,0.1);border:none;color:#FF6B6B;font-size:12px;padding:4px 10px;border-radius:6px;cursor:pointer">✕</button></div>').join('')}
+function editItem(i){const v=MENU[0].items[i];mgItem=i;document.getElementById('m-name').value=v.name;document.getElementById('m-price').value=v.price;document.getElementById('m-pop').checked=v.pop||false;document.getElementById('m-save').textContent='💾 Simpan';document.getElementById('m-cancel').style.display='block'}
+function delItem(i){if(!confirm('Padam "'+MENU[0].items[i].name+'"?'))return;MENU[0].items.splice(i,1);saveMenu();drawMenuList();draw();toast('✓ Dipadam')}
+document.getElementById('m-save').addEventListener('click',()=>{const n=document.getElementById('m-name').value.trim(),p=parseFloat(document.getElementById('m-price').value);if(!n){toast('⚠ Masukkan nama');return}if(!p||p<=0){toast('⚠ Masukkan harga');return}const item={name:n,price:p,pop:document.getElementById('m-pop').checked};if(mgItem!==null){MENU[0].items[mgItem]=item}else{MENU[0].items.push(item)}mgItem=null;saveMenu();drawMenuList();document.getElementById('m-name').value='';document.getElementById('m-price').value='';document.getElementById('m-pop').checked=false;document.getElementById('m-save').textContent='➕ Tambah';document.getElementById('m-cancel').style.display='none';toast(mgItem!==null?'✓ Dikemas kini':'✓ Ditambah')});
+document.getElementById('m-cancel').addEventListener('click',()=>{mgItem=null;document.getElementById('m-name').value='';document.getElementById('m-price').value='';document.getElementById('m-pop').checked=false;document.getElementById('m-save').textContent='➕ Tambah';document.getElementById('m-cancel').style.display='none';drawMenuList()});
+function closeMenuModal(){document.getElementById('menu-modal').style.display='none';mgItem=null}
+async function saveMenu(){localStorage.setItem('mms_menu',JSON.stringify(MENU));await saveJSON('mms_menu',MENU,GF_MENU);draw()}
+loadMenu();initDis();drawLoy();drawDel();
 </script>
 </body>
 </html>
-
-
