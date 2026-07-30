@@ -274,7 +274,11 @@ function delDI(i){if(!confirm('Padam "'+DELS[i].l+'"?'))return;DELS.splice(i,1);
 
 (async()=>{await loadMenu();await initConfig();initDis();drawLoy();drawDel()})();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){initDis();loadMenu();initConfig()}});
-setInterval(()=>{if(document.hidden)return;fetch(GAPI).then(r=>{if(!r.ok)return;return r.json()}).then(d=>{if(!d||!d.files)return;let redraw=false;const df=d.files[GF_DIS];if(df){const parsed=JSON.parse(df.content);if(JSON.stringify(parsed)!==JSON.stringify(dis)){dis=parsed;localStorage.setItem('rd_disabled',df.content);redraw=true}}const mf=d.files[GF_MENU];if(mf){const parsed=JSON.parse(mf.content);if(JSON.stringify(parsed)!==JSON.stringify(MENU)){MENU=parsed;localStorage.setItem('mms_menu',mf.content);redraw=true}}const cf=d.files[GF_CONFIG];if(cf){const parsed=JSON.parse(cf.content);if(JSON.stringify(parsed)!==JSON.stringify(getConfig())){if(parsed.adds)ADDS=parsed.adds;if(parsed.slots)SLOTS=parsed.slots;if(parsed.dels)DELS=parsed.dels;if(parsed.disAdds)disAdds=parsed.disAdds;if(parsed.unrTimes)unrTimes=parsed.unrTimes;if(parsed.disDel)disDel=parsed.disDel;localStorage.setItem('rd_config',cf.content);redraw=true}}if(redraw){draw();drawTimes();drawDel();drawCust()}}).catch(()=>{})},10000);
+function pollFile(url,key,local){return fetch(url+'?t='+Date.now()).then(r=>{if(!r.ok)return false;return r.json()}).then(d=>{if(!d||typeof d!=='object')return false;const s=JSON.stringify(d);if(s===JSON.stringify(local))return false;localStorage.setItem(key,s);return true}).catch(()=>false)}
+setInterval(()=>{if(document.hidden)return;let redraw=false;
+pollFile(GR_DIS,'rd_disabled',dis).then(changed=>{if(changed){dis=JSON.parse(localStorage.getItem('rd_disabled'))||{};redraw=true;draw()}});
+pollFile(GR_MENU,'mms_menu',MENU).then(changed=>{if(changed){MENU=JSON.parse(localStorage.getItem('mms_menu'));redraw=true;draw()}});
+pollFile(GR_CONFIG,'rd_config',getConfig()).then(changed=>{if(changed){const d=JSON.parse(localStorage.getItem('rd_config'));if(d){if(d.adds)ADDS=d.adds;if(d.slots)SLOTS=d.slots;if(d.dels)DELS=d.dels;if(d.disAdds)disAdds=d.disAdds;if(d.unrTimes)unrTimes=d.unrTimes;if(d.disDel)disDel=d.disDel}draw();drawTimes();drawDel();drawCust()}})},10000);
 </script>
 </body>
 </html>
