@@ -145,9 +145,17 @@ async function loadJSON(url,key,fetchFallback){
   try{const r=await fetch(url+'?t='+Date.now());if(r.ok){const d=await r.json();if(d&&typeof d==='object'){localStorage.setItem(key,JSON.stringify(d));return d}}}catch(e){}
   return null
 }
+function fetchBackground(url,key,local){
+  if(!url)return false;
+  return fetch(url+'?t='+Date.now()).then(r=>{if(!r.ok)return false;return r.json()}).then(d=>{
+    if(!d||typeof d!=='object')return false;
+    const s=JSON.stringify(d);if(s===JSON.stringify(local))return false;
+    localStorage.setItem(key,s);return true;
+  }).catch(()=>false);
+}
 async function saveJSON(key,data,file){localStorage.setItem(key,JSON.stringify(data));if(!GID||GID==='YOUR_GIST_ID'||!GTOK){toast('⚠ Set token dulu: Admin bar > Set Token');return false}try{const o={};o[file]={content:JSON.stringify(data)};const r=await fetch(GAPI,{method:'PATCH',headers:{'Authorization':'token '+GTOK,'Content-Type':'application/json'},body:JSON.stringify({files:o})});if(!r.ok){const t=await r.text();throw new Error('HTTP '+r.status+': '+t)}return true}catch(e){toast('❌ Gagal simpan: '+e.message);return false}}
 async function loadMenu(){try{const d=await loadJSON(GR_MENU,'mms_menu',true);if(d&&d.length>0){MENU=d;draw();return}}catch(e){}MENU=JSON.parse(JSON.stringify(DEFAULT_MENU));localStorage.setItem('mms_menu',JSON.stringify(MENU));draw()}
-let dis={};async function initDis(){dis=await loadJSON(GR_DIS,'rd_disabled',true)||{};draw()}function isDis(id){return dis[id]===true}
+let dis={};async function initDis(){dis=await loadJSON(GR_DIS,'rd_disabled',true)||{};draw();fetchBackground(GR_DIS,'rd_disabled',dis).then(changed=>{if(changed){dis=JSON.parse(localStorage.getItem('rd_disabled'))||{};draw()}})}function isDis(id){return dis[id]===true}
 async function togDis(id){if(dis[id])delete dis[id];else dis[id]=true;await saveJSON('rd_disabled',dis,GF_DIS);draw()}
 async function enAll(){dis={};unrTimes=[];disAdds=[];disDel=[];saveUT([]);saveDisAdds([]);saveDisDel([]);await saveJSON('rd_disabled',dis,GF_DIS);draw();drawTimes();toast('✓ Semua diaktifkan')}
 function toast(m){const t=document.getElementById('toast');t.innerHTML=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2000)}
