@@ -340,7 +340,6 @@ document.getElementById('del').addEventListener('click',e=>{const b=e.target.clo
 let BLOCKS=['Kristal A','Kristal B','Nilam','Zamrud'];let disBlocks=[];
 function drawBlocks(){const g=document.getElementById('block-grid');g.innerHTML=BLOCKS.map(b=>{const dis=disBlocks.includes(b);return'<button onclick="pickBlock(\''+b+'\')"'+(selBlock===b?' class="active"':'')+(dis?' style="opacity:0.3;cursor:not-allowed;text-decoration:line-through"':'')+'>'+b+'</button>'}).join('')+'<button onclick="pickBlock(\'other\')"'+(selBlock==='other'?' class="active"':'')+'>Lain-lain</button>';document.getElementById('block-custom').style.display=selBlock==='other'?'block':'none'}
 function pickBlock(b){if(disBlocks.includes(b)){toast('❌ Blok tidak tersedia');return}selBlock=b;drawBlocks();upCart()}
-document.getElementById('inp-room2').disabled=false;document.getElementById('inp-room2').style.opacity='1';document.getElementById('inp-room2').style.pointerEvents='auto';
 document.getElementById('pickup-time').addEventListener('input',function(){selTime=this.value.trim()||'(nyatakan masa)'});
 let payM='cash';
 document.getElementById('pay').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;document.querySelectorAll('#pay button').forEach(b=>b.classList.remove('active'));b.classList.add('active');payM=b.dataset.method;document.getElementById('qr-section').style.display=payM==='qr'?'block':'none'});
