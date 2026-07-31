@@ -99,6 +99,9 @@ body{font-family:'Nunito',sans-serif;background:#0D0D1A;color:#F0F0F0;min-height
 .cfg-form .grp-btns{display:flex;gap:6px;margin-bottom:14px}
 .cfg-form .grp-btns .chip{padding:8px 14px;font-size:13px}
 </style>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#00D4AA">
 </head><body>
 <div class="hero"><h1>🌙 <span>MINUM</span> MALAM SISWA</h1><div class="sub">⏰ 10:30PM — 2:00AM · 🚗 COD (RM1) / Free Pickup</div><div class="tags"><span>🧊 Ais</span><span>💝 Harga Mesra</span><span>🔥 Beli 5 Percuma 1</span></div></div>
 <div class="bar"><span>🎁 Pesanan</span><div class="stamps" id="stamps"></div><span class="count" id="loy-count">0</span></div>
@@ -320,5 +323,6 @@ pollFile(GR_DIS,'rd_disabled',dis).then(changed=>{if(changed&&!_dirty){dis=JSON.
 pollFile(GR_MENU,'mms_menu',MENU).then(changed=>{if(changed&&!_dirty){MENU=JSON.parse(localStorage.getItem('mms_menu'));draw()}});
 pollFile(GR_CONFIG,'rd_config',getConfig()).then(changed=>{if(changed&&!_dirty){const d=JSON.parse(localStorage.getItem('rd_config'));if(d){if(d.adds)ADDS=Array.isArray(d.adds)?d.adds.map((a,i)=>a.id?a:{...a,id:a.name.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')||'addon_'+i}):ADDS;if(d.slots)SLOTS=d.slots;if(d.dels)DELS=d.dels;if(d.disAdds){if(d.disAdds.length>0&&typeof d.disAdds[0]==='number')disAdds=d.disAdds.map(i=>ADDS[i]?ADDS[i].id:null).filter(Boolean);else disAdds=d.disAdds}if(d.unrTimes)unrTimes=d.unrTimes;if(d.disDel)disDel=d.disDel}draw();drawTimes();drawDel();drawCust()}})},10000);
 </script>
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js')</script>
 </body>
 </html>
