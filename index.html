@@ -209,7 +209,6 @@ body{font-family:'Nunito',sans-serif;background:#0D0D1A;color:#F0F0F0;min-height
 </div></div>
 <div class="page-foot"><i>Minum sedap, harga mesra! 🧡</i><br>© <b>MINUM MALAM SISWA</b></div>
 <div class="toast" id="toast"></div>
-<div id="admin-bar"><div style="margin-bottom:8px;font-size:14px;font-weight:800">🔧 Admin Mode</div><div style="display:flex;justify-content:center;flex-wrap:wrap;gap:6px"><span class="adm-link" id="adm-config">⚙️ Urus Menu</span><span class="adm-link" id="adm-orders" style="background:rgba(0,212,170,0.1);border-color:rgba(0,212,170,0.25);color:#00D4AA">📥 Pesanan</span><span class="adm-link" id="adm-token" style="background:rgba(255,179,71,0.1);border-color:rgba(255,179,71,0.25);color:#FFB347">🔑 Token<span id="adm-tok-status" style="margin-left:4px"></span></span><span class="adm-link" id="adm-close" style="background:rgba(255,107,107,0.1);border-color:rgba(255,107,107,0.25);color:#FF6B6B">✕ Tutup</span><span class="adm-link" id="adm-all" style="background:rgba(255,107,107,0.1);border-color:rgba(255,107,107,0.25);color:#FF6B6B">🔄 Reset</span></div></div>
 <div class="modal" id="config-modal"><div class="bg" onclick="closeConfigModal()"></div><div class="box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><span style="font-family:'Bangers',cursive;font-size:24px;color:#00D4AA">⚙️ Urus</span><div style="display:flex;gap:8px;align-items:center"><span id="cfg-dirty" style="display:none;background:#FFB347;color:#000;font-size:11px;font-weight:800;padding:3px 10px;border-radius:999px">● Belum save</span><button onclick="saveAll()" id="cfg-save" style="display:none;background:#00D4AA;color:#000;border:none;font-family:'Fredoka One',cursive;font-size:13px;padding:8px 16px;border-radius:8px;cursor:pointer">💾 Save</button><button onclick="closeConfigModal()" style="background:rgba(255,255,255,0.06);border:none;color:#F0F0F0;font-size:16px;width:36px;height:36px;border-radius:50%;cursor:pointer">✕</button></div></div>
 <div class="cfg-tabs" id="cfg-tabs"></div>
 <div class="cfg-list" id="cfg-list"></div>
@@ -244,79 +243,37 @@ function highlight(id,msg){const el=document.getElementById(id);el.style.borderC
 function waUrl(t){return'https://wa.me/'+WA.replace(/[^0-9]/g,'')+'?text='+encodeURIComponent(t)}
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 
-// 🔥 FIREBASE — Orders ke Firestore (optional). Buat projek di console.firebase.google.com → Firestore → Create database (Production mode) → Project settings → Your apps → SDK setup → paste key di bawah. Pastikan Rules (tab Rules):
-//   rules_version = '2';
-//   service cloud.firestore {
-//     match /databases/{database}/documents {
-//       match /orders/{docId} { allow read, write: if true; }
-//     }
-//   }
+// 🔥 FIREBASE — Everything on Firestore: menu, config, disabled items, orders.
+// Console: console.firebase.google.com → minum-malam-siswa
+// Rules: allow read, write on /orders/{docId} and /settings/{docId}
 const FIREBASE_CONFIG={apiKey:'AIzaSyCigQpzEiu8bVxJ9u0IWVCQ7qYMrCWJ9_g',authDomain:'minum-malam-siswa.firebaseapp.com',projectId:'minum-malam-siswa',storageBucket:'minum-malam-siswa.firebasestorage.app',messagingSenderId:'779932197479',appId:'1:779932197479:web:77d58967ab7d059c8c6ac2'};
 const FB_READY=!!(FIREBASE_CONFIG.apiKey&&FIREBASE_CONFIG.apiKey.indexOf('PASTE')<0);
 let _db=null,_fbInit=false;
 function getDb(){try{if(!FB_READY||_fbInit&&!_db)return null;if(_db)return _db;firebase.initializeApp(FIREBASE_CONFIG);_fbInit=true;_db=firebase.firestore();return _db}catch(e){console.warn('Firebase init gagal:',e);return null}}
 function saveOrder(order){const db=getDb();if(!db)return;db.collection('orders').add({...order,createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>{if(!document.hidden)toast('☁️ Pesanan disimpan')}).catch(e=>console.warn('Firestore write gagal:',e))}
 
-const GID='ea01a7fce731d92cec3a18f90bfc48d5',GRAW='https://gist.githubusercontent.com/Iyern0/'+GID+'/raw/',GAPI='https://api.github.com/gists/'+GID;
-let GTOK=localStorage.getItem('mms_tok')||'';
-const GR_MENU=GRAW+'rd-menu.json',GR_DIS=GRAW+'rd-disabled.json',GR_CONFIG=GRAW+'rd-config.json';
-const GF_MENU='rd-menu.json',GF_DIS='rd-disabled.json',GF_CONFIG='rd-config.json';
-async function loadJSON(url,key,fetchFallback){
-  try{const c=localStorage.getItem(key);if(c){const d=JSON.parse(c);if(d&&typeof d==='object')return d}}catch(e){}
-  if(!fetchFallback)return null;
-  try{const r=await fetch(url+'?t='+Date.now());if(r.ok){const d=await r.json();if(d&&typeof d==='object'){localStorage.setItem(key,JSON.stringify(d));return d}}}catch(e){}
-  return null
-}
-function fetchBackground(filename,key,local){
-  return fetch(GAPI).then(r=>{if(!r.ok)return false;return r.json()}).then(d=>{
-    if(!d||!d.files||!d.files[filename])return false;
-    const parsed=JSON.parse(d.files[filename].content);
-    const s=JSON.stringify(parsed);if(s===JSON.stringify(local))return false;
-    localStorage.setItem(key,s);return true;
-  }).catch(()=>false);
-}
+// Firestore settings — single doc per collection
+const MENU_DOC='settings/menu',CONFIG_DOC='settings/config',DIS_DOC='settings/disabled';
+async function fsGet(path){const db=getDb();if(!db)return null;try{const s=await db.doc(path).get();return s.exists?s.data():null}catch(e){return null}}
+async function fsSet(path,data){const db=getDb();if(!db)return false;try{await db.doc(path).set(data);return true}catch(e){console.warn(e);return false}}
 let _dirty=false;
-function markDirty(){_dirty=true;document.getElementById('cfg-dirty').style.display='inline';document.getElementById('cfg-save').style.display='block'}
-function clearDirty(){_dirty=false;document.getElementById('cfg-dirty').style.display='none';document.getElementById('cfg-save').style.display='none'}
+function markDirty(){_dirty=true;const e1=document.getElementById('cfg-dirty'),e2=document.getElementById('cfg-save');if(e1)e1.style.display='inline';if(e2)e2.style.display='block'}
+function clearDirty(){_dirty=false;const e1=document.getElementById('cfg-dirty'),e2=document.getElementById('cfg-save');if(e1)e1.style.display='none';if(e2)e2.style.display='none'}
 async function saveAll(){const [m,c]=await Promise.all([saveMenu(),saveConfig()]);if(m&&c){clearDirty();toast('✓ Semua perubahan disimpan')}else{toast('⚠ Ada yang gagal disimpan')}}
-let _lastSave=0;
-async function saveJSON(key,data,file){
-  if(!GID||GID==='YOUR_GIST_ID'||!GTOK){toast('⚠ Set token dulu: Admin bar > Set Token');return false}
-  try{const o={};o[file]={content:JSON.stringify(data)};const r=await fetch(GAPI,{method:'PATCH',headers:{'Authorization':'token '+GTOK,'Content-Type':'application/json'},body:JSON.stringify({files:o})});if(!r.ok){if(r.status===401||r.status===403){GTOK='';localStorage.removeItem('mms_tok');toast('❌ Token tidak sah, sila set semula');return false}const t=await r.text();throw new Error('HTTP '+r.status+': '+t)}localStorage.setItem(key,JSON.stringify(data));return true}catch(e){toast('❌ Gagal simpan: '+e.message);return false}}
 
-async function loadMenu(){try{const d=await loadJSON(GR_MENU,'mms_menu',true);if(Array.isArray(d)&&d.length>0){MENU=d;draw();fetchBackground(GF_MENU,'mms_menu',MENU).then(c=>{if(c){MENU=JSON.parse(localStorage.getItem('mms_menu'));draw()}});return}}catch(e){}MENU=JSON.parse(JSON.stringify(DEFAULT_MENU));localStorage.setItem('mms_menu',JSON.stringify(MENU));draw()}
-async function saveMenu(){const ok=await saveJSON('mms_menu',MENU,GF_MENU);draw();return ok}
+async function loadMenu(){const d=await fsGet(MENU_DOC);if(d&&Array.isArray(d.items)&&d.items.length>0)MENU=d.items;else{MENU=JSON.parse(JSON.stringify(DEFAULT_MENU));await fsSet(MENU_DOC,{items:MENU})}draw();const db=getDb();if(db)db.doc(MENU_DOC).onSnapshot(snap=>{if(snap.exists&&snap.data().items){MENU=snap.data().items;draw()}})}
+async function saveMenu(){const ok=await fsSet(MENU_DOC,{items:MENU});draw();return ok}
 
 let dis={};
-async function initDis(){dis=await loadJSON(GR_DIS,'rd_disabled',true)||{};draw();fetchBackground(GF_DIS,'rd_disabled',dis).then(changed=>{if(changed){dis=JSON.parse(localStorage.getItem('rd_disabled'))||{};draw()}})}
+async function initDis(){const d=await fsGet(DIS_DOC);if(d)dis=d;draw();const db=getDb();if(db)db.doc(DIS_DOC).onSnapshot(snap=>{if(snap.exists){dis=snap.data();draw()}})}
 function isDis(id){return dis[id]===true}
-async function togDis(id){if(dis[id])delete dis[id];else dis[id]=true;draw();saveJSON('rd_disabled',dis,GF_DIS)}
-async function enAll(){dis={};unrTimes=[];disAdds=[];disDel=[];draw();drawTimes();drawDel();saveJSON('rd_disabled',dis,GF_DIS);saveConfig();toast('✓ Semua diaktifkan')}
+async function togDis(id){if(dis[id])delete dis[id];else dis[id]=true;draw();await fsSet(DIS_DOC,dis)}
+async function enAll(){dis={};unrTimes=[];disAdds=[];disDel=[];draw();drawTimes();drawDel();await fsSet(DIS_DOC,dis);await saveConfig();toast('✓ Semua diaktifkan')}
 
 function getConfig(){return{adds:ADDS,slots:SLOTS,dels:DELS,blocks:BLOCKS,disAdds,unrTimes,disDel,disBlocks}}
-async function loadConfig(){
-  const d=await loadJSON(GR_CONFIG,'rd_config',true);
-  if(d){
-    if(d.adds)ADDS=d.adds.map((a,i)=>a.id?a:{...a,id:a.name.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')||'addon_'+i});
-    if(d.slots)SLOTS=d.slots;
-    if(d.dels)DELS=d.dels;
-    if(d.disAdds){
-      if(d.disAdds.length>0&&typeof d.disAdds[0]==='number')disAdds=d.disAdds.map(i=>ADDS[i]?ADDS[i].id:null).filter(Boolean);
-      else disAdds=d.disAdds;
-    }
-    if(d.unrTimes)unrTimes=d.unrTimes;
-    if(d.disDel)disDel=d.disDel;
-    if(d.blocks)BLOCKS=d.blocks;
-    if(d.disBlocks)disBlocks=d.disBlocks;
-  }
-}
-async function saveConfig(){return await saveJSON('rd_config',getConfig(),GF_CONFIG)}
-async function initConfig(){
-  await loadConfig();
-  fetchBackground(GF_CONFIG,'rd_config',getConfig()).then(changed=>{
-    if(changed){const d=JSON.parse(localStorage.getItem('rd_config'));if(d){if(d.adds)ADDS=d.adds;if(d.slots)SLOTS=d.slots;if(d.dels)DELS=d.dels;if(d.disAdds)disAdds=d.disAdds;if(d.unrTimes)unrTimes=d.unrTimes;if(d.disDel)disDel=d.disDel}draw();drawTimes();drawDel();drawCust()}
-  });
-}
+async function loadConfig(){const d=await fsGet(CONFIG_DOC);if(d){if(d.adds)ADDS=d.adds.map((a,i)=>a.id?a:{...a,id:a.name.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')||'addon_'+i});if(d.slots)SLOTS=d.slots;if(d.dels)DELS=d.dels;if(d.disAdds){if(d.disAdds.length>0&&typeof d.disAdds[0]==='number')disAdds=d.disAdds.map(i=>ADDS[i]?ADDS[i].id:null).filter(Boolean);else disAdds=d.disAdds}if(d.unrTimes)unrTimes=d.unrTimes;if(d.disDel)disDel=d.disDel;if(d.blocks)BLOCKS=d.blocks;if(d.disBlocks)disBlocks=d.disBlocks}}
+async function saveConfig(){return await fsSet(CONFIG_DOC,getConfig())}
+async function initConfig(){await loadConfig();const db=getDb();if(db)db.doc(CONFIG_DOC).onSnapshot(snap=>{if(snap.exists){const d=snap.data();if(d.adds)ADDS=d.adds;if(d.slots)SLOTS=d.slots;if(d.dels)DELS=d.dels;if(d.blocks)BLOCKS=d.blocks;if(d.disAdds)disAdds=d.disAdds;if(d.unrTimes)unrTimes=d.unrTimes;if(d.disDel)disDel=d.disDel;if(d.disBlocks)disBlocks=d.disBlocks;draw();drawTimes();drawDel();drawCust()}})}
 
 function draw(){const r=document.getElementById('menu-root');if(!MENU||MENU.length===0){r.innerHTML='';upCart();drawLoy();drawDel();return}let h='<div class="grid">';MENU.forEach((cat,ci)=>{cat.items.forEach((v,vi)=>{const id='c'+ci+'v'+vi,d=isDis(id),items=cart[id]||[],cq=items.length;const badge=v.pop?'<span class="badge">🔥 Popular</span>':'',dot=cq?'<span class="qty">'+cq+'</span>':'',sold=d?'<span class="sold">✕ Habis</span>':'';let e='🧋';if(v.name.includes('Milo'))e='🥤';else if(v.name.includes('Extrajoss'))e='🍹';else if(v.name.includes('Indocafe'))e='☕';else if(v.name.includes('Chocolate'))e='🍫';else if(v.name.includes('Horlicks'))e='🥛';else if(v.name.includes('Hazelnut'))e='🌰';else if(v.name.includes('Mocha'))e='🍵';h+='<div class="card'+(d?' disabled':'')+(cq?' in-cart':'')+(admin?' admin-mode':'')+'" onclick="addToCart(\''+id+'\')"><button class="card-toggle '+(d?'off':'on')+'" onclick="event.stopPropagation();togDis(\''+id+'\')">'+(d?'✕':'✓')+'</button>'+badge+dot+sold+'<div class="e">'+e+'</div><div class="n">'+v.name+'</div><div class="p">RM'+v.price.toFixed(2)+'</div></div>';})});h+='</div>';r.innerHTML=h;upCart();drawLoy();drawDel();}
 function drawTimes(){document.getElementById('times').innerHTML=SLOTS.map(t=>{const u=unrTimes.includes(t),a=selTime===t?' active':'';return'<button class="t-btn'+a+(u?' unavail':'')+(admin?' admin-mode':'')+'" onclick="selT(\''+t+'\')"'+(u&&!admin?' disabled':'')+'>'+t+'</button>'}).join('')}
@@ -402,8 +359,7 @@ function admDelDI(i){if(!confirm('Padam "'+DELS[i].l+'"?'))return;DELS.splice(i,
 function admTogBlockDis(b){if(disBlocks.includes(b))disBlocks=disBlocks.filter(x=>x!==b);else disBlocks.push(b);saveConfig();admDelivery(document.getElementById('adm-pg'))}
 function admAddBlock(){const n=document.getElementById('ab-name').value.trim();if(!n){toast('⚠ Nama blok');return}if(BLOCKS.includes(n)){toast('❌ Sudah ada');return}BLOCKS.push(n);saveConfig();admDelivery(document.getElementById('adm-pg'));toast('✓ Ditambah')}
 function admDelBlock(i){if(!confirm('Padam "'+BLOCKS[i]+'"?'))return;BLOCKS.splice(i,1);if(disBlocks.includes(BLOCKS[i]))disBlocks=disBlocks.filter(x=>x!==BLOCKS[i]);saveConfig();admDelivery(document.getElementById('adm-pg'));toast('✓ Dipadam')}
-function admSettings(pg){pg.innerHTML='<div style="max-width:500px"><div class="a-form"><div class="a-sec" style="border:none;padding-top:0">🔑 GitHub Token</div><div style="font-size:13px;margin-bottom:12px;color:#8888AA">'+(GTOK?'<span style="color:#00D4AA">✓ Active</span>':'<span style="color:#FF6B6B">⚠ Not set</span>')+'</div><button onclick="admSetToken()" style="background:rgba(255,179,71,0.1);border:1px solid rgba(255,179,71,0.25);color:#FFB347;font-family:\'Fredoka One\',cursive;font-size:13px;padding:10px 18px;border-radius:10px;cursor:pointer;font-weight:800">🔑 Set Token</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">🔄 Reset</div><div style="font-size:13px;color:#8888AA;margin-bottom:12px">Enable all items + time slots</div><button onclick="exitAdmin();enAll()" style="background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.2);color:#FF6B6B;font-family:\'Nunito\',sans-serif;font-weight:800;font-size:13px;padding:10px 18px;border-radius:10px;cursor:pointer">🔄 Reset Semua</button></div></div>'}
-function admSetToken(){const t=prompt('Paste GitHub token (ghp_...)');if(t&&t.startsWith('ghp_')){GTOK=t;localStorage.setItem('mms_tok',t);toast('✓ Token saved');admSettings(document.getElementById('adm-pg'))}else if(t){toast('❌ Mesti ghp_')}}
+function admSettings(pg){pg.innerHTML='<div style="max-width:500px"><div class="a-form"><div class="a-sec" style="border:none;padding-top:0">🔑 Storage</div><div style="font-size:13px;margin-bottom:12px;color:#00D4AA;font-weight:700">✓ Firebase Firestore — real-time sync</div></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">🔄 Reset</div><div style="font-size:13px;color:#8888AA;margin-bottom:12px">Enable all items + time slots + blocks</div><button onclick="exitAdmin();enAll()" style="background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.2);color:#FF6B6B;font-family:\'Nunito\',sans-serif;font-weight:800;font-size:13px;padding:10px 18px;border-radius:10px;cursor:pointer">🔄 Reset Semua</button></div></div>'}
 
 const TABS=['menu','pemanis','masa','penghantaran'],TAB_LBL={menu:'Minuman',pemanis:'Pemanis',masa:'Masa',penghantaran:'Penghantaran'};
 function openConfigModal(){mgTab='menu';mgItem=null;drawCfgTabs();drawCfgList();drawCfgForm();document.getElementById('config-modal').style.display='flex'}
@@ -441,12 +397,7 @@ function addDI(){const l=document.getElementById('d-label').value.trim(),t=docum
 function delDI(i){if(!confirm('Padam "'+DELS[i].l+'"?'))return;DELS.splice(i,1);drawCfgList();drawDel();markDirty();toast('✓ Dipadam')}
 
 (async()=>{await loadMenu();await initConfig();initDis();drawLoy();drawDel()})();
-document.addEventListener('visibilitychange',()=>{if(!document.hidden){initDis();loadMenu();initConfig()}});
-function pollFile(url,key,local){return fetch(url+'?t='+Date.now()).then(r=>{if(!r.ok)return false;return r.json()}).then(d=>{if(!d||typeof d!=='object')return false;const s=JSON.stringify(d);if(s===JSON.stringify(local))return false;localStorage.setItem(key,s);return true}).catch(()=>false)}
-setInterval(()=>{if(document.hidden||_dirty)return;
-pollFile(GR_DIS,'rd_disabled',dis).then(changed=>{if(changed&&!_dirty){dis=JSON.parse(localStorage.getItem('rd_disabled'))||{};draw()}});
-pollFile(GR_MENU,'mms_menu',MENU).then(changed=>{if(changed&&!_dirty){MENU=JSON.parse(localStorage.getItem('mms_menu'));draw()}});
-pollFile(GR_CONFIG,'rd_config',getConfig()).then(changed=>{if(changed&&!_dirty){const d=JSON.parse(localStorage.getItem('rd_config'));if(d){if(d.adds)ADDS=Array.isArray(d.adds)?d.adds.map((a,i)=>a.id?a:{...a,id:a.name.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')||'addon_'+i}):ADDS;if(d.slots)SLOTS=d.slots;if(d.dels)DELS=d.dels;if(d.disAdds){if(d.disAdds.length>0&&typeof d.disAdds[0]==='number')disAdds=d.disAdds.map(i=>ADDS[i]?ADDS[i].id:null).filter(Boolean);else disAdds=d.disAdds}if(d.unrTimes)unrTimes=d.unrTimes;if(d.disDel)disDel=d.disDel}draw();drawTimes();drawDel();drawCust()}})},10000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
 </script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js')</script>
 </body>

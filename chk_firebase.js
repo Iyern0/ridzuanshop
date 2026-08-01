@@ -1,8 +1,8 @@
 const fs = require('fs');
 const html = fs.readFileSync('drinks-order.html', 'utf8');
-// Block 1: firebase config + getDb + saveOrder (ends right before const GID=)
+// Block 1: firebase config + getDb + saveOrder (ends right before let _dirty)
 const i = html.indexOf('// 🔥 FIREBASE');
-const e1 = html.indexOf('const GID=', i);
+const e1 = html.indexOf('let _dirty=false', i);
 // Block 2: dashboard funcs (ends right before cartb listener)
 const d0 = html.indexOf('let _ordersUnsub=null');
 const db_idx = html.indexOf("document.getElementById('cartb')", d0);
@@ -36,7 +36,7 @@ const stubs = {
   localStorage: { getItem: () => null, setItem: () => {} },
 };
 
-const api = new Function(...Object.keys(stubs), code + ';return{FB_READY,getDb,saveOrder,renderOrders}')(...Object.values(stubs));
+const api = new Function(...Object.keys(stubs), code + ';return{FB_READY,getDb,saveOrder,fsGet,fsSet}')(...Object.values(stubs));
 
 let pass = 0, fail = 0;
 function chk(name, cond) { if (cond) pass++; else { fail++; console.log('FAIL:', name); } }
@@ -51,20 +51,9 @@ chk('getDb returns db when configured', api.getDb() !== null);
 api.saveOrder({ items: [] });
 chk('saveOrder no throw with real config', true);
 
-// 4. renderOrders with sample order
-el('orders-list').innerHTML = '';
-api.renderOrders([{ id: 'x1', name: 'Ali', room: 'B2', delivery: 'COD', time: '11:30PM', payment: 'cash', total: 5.5, status: 'baru', items: [{ name: 'Milo Ais', price: 3.5, adds: ['Gula'], qty: 1 }] }]);
-const out = els['orders-list'].innerHTML;
-chk('render shows name', out.includes('Ali'));
-chk('render shows item', out.includes('Milo Ais'));
-chk('render shows total', out.includes('RM5.50'));
-chk('render shows status btn', out.includes("setOrderStatus('x1'"));
-chk('render escapes nothing broken', out.includes('1×'));
-
-// 5. empty list
-el('orders-list').innerHTML = '';
-api.renderOrders([]);
-chk('empty renders empty msg', els['orders-list'].innerHTML.includes('Tiada pesanan'));
+// 4. fsGet and fsSet are functions
+chk('fsGet is function', typeof api.fsGet === 'function');
+chk('fsSet is function', typeof api.fsSet === 'function');
 
 // 6. configured path: init once, add() called with order + timestamp
 let initCalls = 0, addPayload = null;
@@ -83,8 +72,8 @@ const cfgStubs = {
   console: { warn: () => {} },
   localStorage: { getItem: () => null, setItem: () => {} },
 };
-const cfgCode = code.replace(/PASTE_API_KEY/g, 'testkey');
-const cfg = new Function(...Object.keys(cfgStubs), cfgCode + ';return{FB_READY,getDb,saveOrder}')(...Object.values(cfgStubs));
+const cfgCode = code.replace(/AIzaSy/g, 'testkey');
+const cfg = new Function(...Object.keys(cfgStubs), cfgCode + ';return{FB_READY,getDb,saveOrder,fsGet}')(...Object.values(cfgStubs));
 chk('FB_READY true when configured', cfg.FB_READY === true);
 const d1 = cfg.getDb(), d2 = cfg.getDb();
 chk('getDb caches same db', d1 === d2 && d1 !== null);
