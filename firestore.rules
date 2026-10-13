@@ -1,0 +1,107 @@
+rules_version = '2';
+
+// MINUM MALAM SISWA — Firestore security rules
+// PASTE THIS INTO: Firebase Console → Firestore Database → Rules → Publish
+//
+// Threat model this closes:
+//   * Before these rules, every path was "allow read, write: if true".
+//     Anyone who opened the site URL could read every customer's name and
+//     room number, delete order history, and rewrite the admin password.
+//   * Now: the public can only CREATE a single well-formed order.
+//     Reading, editing and deleting orders is admin-only.
+//     Menu/config stay publicly readable (customers need them) but are
+//     admin-only writable.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // A signed-in user is an admin. There is exactly one such account and
+    // self sign-up is disabled in the Firebase console.
+    function isAdmin() {
+      return request.auth != null;
+    }
+
+    // An order must look like an order. This caps field sizes so nobody can
+    // use the orders collection as free storage or to inject junk into the
+    // admin dashboard.
+    function validOrder() {
+      let d = request.resource.data;
+
+      return d.keys().hasAll([
+            'name', 'delivery', 'time', 'payment',
+            'items', 'subtotal', 'total', 'status', 'createdAt'
+          ])
+          && d.keys().hasOnly([
+            'name', 'room', 'delivery', 'time', 'payment',
+            'items', 'subtotal', 'total', 'status', 'createdAt'
+          ])
+
+          // who it is from
+          && d.name is string && d.name.size() >= 2 && d.name.size() <= 40
+
+          // where it goes — a COD order must name a block and room;
+          // a pickup order carries no room at all.
+          && d.delivery in ['cod', 'pickup']
+          && (
+               (d.delivery == 'cod'
+                && d.room is string
+                && d.room.size() >= 3
+                && d.room.size() <= 40)
+            || (d.delivery == 'pickup'
+                && (!('room' in d)
+                    || (d.room is string && d.room.size() <= 40)))
+          )
+
+          // when
+          && d.time is string && d.time.size() >= 1 && d.time.size() <= 40
+
+          // how they pay
+          && d.payment in ['cash', 'qr']
+
+          // what they bought
+          && d.items is list && d.items.size() >= 1 && d.items.size() <= 50
+          && d.subtotal is number && d.subtotal >= 0 && d.subtotal <= 1000
+
+          // Every drink costs at least RM2.50, so a zero-value order is
+          // never genuine. NOTE: rules cannot look up the price list, so the
+          // client-supplied `total` is trusted. Someone can forge the AMOUNT
+          // of an order (they still cannot forge that the order exists, read
+          // the real history, or change an existing order). Payment is
+          // settled in person, so a forged row is at worst a bogus line in
+          // the admin queue. Closing this properly needs a trusted server
+          // (Cloud Function), which costs money.
+          && d.total is number && d.total > 0 && d.total <= 1100
+
+          // a customer may only ever create a brand new order
+          && d.status == 'baru'
+
+          // the customer cannot backdate or forge their own order time
+          && d.createdAt == request.time;
+    }
+
+    // ------------------------------------------------------------------
+    // Orders: write-once by the public, managed exclusively by the admin.
+    // ------------------------------------------------------------------
+    match /orders/{orderId} {
+      allow create: if validOrder();
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ------------------------------------------------------------------
+    // Menu / config: world-readable so the storefront works without login,
+    // admin-only writable so nobody can silently alter the menu or prices.
+    // ------------------------------------------------------------------
+    match /settings/{docId} {
+      allow read: if docId != 'admin';
+      allow write: if isAdmin();
+    }
+
+    // ------------------------------------------------------------------
+    // Everything else is sealed. (Firestore allows a request if ANY matching
+    // rule allows it, so this is the safety net behind the rules above.)
+    // ------------------------------------------------------------------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
