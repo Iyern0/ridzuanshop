@@ -64,25 +64,41 @@ which costs money.
 
 ---
 
-## ⚙️ Setup (do these before deploying)
+## ⚙️ Setup status — COMPLETE (2026-10-14)
 
-**1. Enable Email/Password sign-in**
-Firebase Console → Authentication → Sign-in method → **Email/Password** → Enable.
-Without this, admin login fails with `auth/operation-not-allowed`.
+All of the following is **done and verified against the live project**:
 
-**2. Create the admin account**
-Authentication → Users → Add user. Use a real inbox so you can reset the password.
-Disable "Email enumeration" and turn OFF self sign-up under Settings → Authorised domains.
+| Step | State |
+|---|---|
+| Email/Password sign-in enabled | ✅ enabled |
+| Admin account created | ✅ `zjasneh5@gmail.com` (owner of the Firebase project) |
+| `firestore.rules` published | ✅ deployed, compiled clean |
+| `settings/admin` (old plaintext password) | ✅ unreadable via rules |
 
-**3. Publish the rules**
-Firestore Database → Rules → paste **`firestore.rules`** → Publish.
-Until this is done, your data is still world-readable.
+Admin credentials are in `C:\Users\kiifu\Desktop\fb-admin-setup\ADMIN-CREDENTIALS.txt`.
+**Change that password** once you've saved it: Firebase Console → Authentication → Users.
 
-**4. Delete the obsolete document**
-Firestore → `settings` → `admin` → delete. It contains the old plaintext password.
+### The account that matters
+`minum-malam-siswa` is owned by **`zjasneh5@gmail.com`** — note the **5**.
+If the console says *"project does not exist or you do not have permission"*, your
+browser is signed into a different Google account. Use an incognito window and sign
+in as `zjasneh5@gmail.com`.
 
-**5. Add your admin domain**
-Authentication → Settings → Authorised domains → add `iyern0.github.io`.
+### If you ever need to redo it
+```powershell
+cd C:\Users\kiifu\Desktop\fb-admin-setup
+firebase login          # must be zjasneh5@gmail.com
+node after-login.js     # enables the provider + (re)creates the admin user
+```
+Helper scripts in that folder:
+`probe.js` (is Auth on? are orders private?), `verify-auth.js` (end-to-end auth check),
+`inventory.js` / `show-menu.js` (read live data), `cleanup-tests.js` (remove test orders).
+
+### Redeploying rules after an edit
+```powershell
+cd C:\Users\kiifu\Desktop\claude
+firebase deploy --only firestore:rules --project minum-malam-siswa
+```
 
 ---
 
@@ -124,11 +140,12 @@ After selecting block → room number input appears → "Intan 3-2-1" format
 ---
 
 ## Admin Dashboard
-**Enter:** Tap 🌙 MINUM MALAM SISWA title 5× within 1 second → email + password prompt.
-**Again while inside:** tap 5× to sign out.
-
-Auth session is remembered — once signed in, the panel opens on reload without re-entering
-the password. Password changes are done in the Firebase console, not in the app.
+| Entry point | Tap 🌙 MINUM MALAM SISWA title 5× within 1 second → email + password prompt. |
+|---|---|
+| Admin account | `zjasneh5@gmail.com` |
+| Session | Remembered — the panel reopens on reload without re-entering the password |
+| Sign out | Tap the title 5× again while inside the panel |
+| Password change | Firebase Console → Authentication → Users (there is no in-app change) |
 
 ### Sidebar Tabs
 | Tab | Function |
