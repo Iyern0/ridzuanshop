@@ -43,11 +43,16 @@ service cloud.firestore {
           ])
           && d.keys().hasOnly([
             'name', 'room', 'delivery', 'time', 'payment',
-            'items', 'subtotal', 'total', 'status', 'createdAt'
+            'items', 'subtotal', 'total', 'status', 'createdAt', 'phone'
           ])
 
           // who it is from
           && d.name is string && d.name.size() >= 2 && d.name.size() <= 40
+
+          // optional WhatsApp number, used only for the loyalty stamp count
+          // NOTE: use hasAny() - the `in` operator works on lists, not maps.
+          && (!d.keys().hasAny(['phone'])
+              || (d.phone is string && d.phone.size() <= 20))
 
           // where it goes — a COD order must name a block and room;
           // a pickup order carries no room at all.
@@ -95,6 +100,34 @@ service cloud.firestore {
     match /orders/{orderId} {
       allow create: if validOrder();
       allow read, update, delete: if isAdmin();
+    }
+
+    // ------------------------------------------------------------------
+    // Funnel analytics. Anonymous step counters.
+    //
+    //   * anyone may append an event (that is how we count anonymous
+    //     visitors at all - they are not signed in)
+    //   * only the admin may read them back
+    //   * nobody may edit or delete history
+    //
+    // The field list is closed, so this collection cannot be used as free
+    // storage. A determined person could inflate the counts; that costs us
+    // nothing and is far preferable to requiring a login for the menu.
+    // ------------------------------------------------------------------
+    function validEvent() {
+      let d = request.resource.data;
+      return d.keys().hasAll(['step', 'at', 'sid'])
+          && d.keys().hasOnly(['step', 'at', 'sid'])
+          && d.step in ['page_view', 'menu_view', 'item_open',
+                        'add_cart', 'checkout_open', 'order_sent', 'order_fail']
+          && d.sid is string && d.sid.size() >= 6 && d.sid.size() <= 40
+          && d.at == request.time;
+    }
+
+    match /events/{eventId} {
+      allow create: if validEvent();
+      allow read: if isAdmin();
+      allow update, delete: if false;
     }
 
     // ------------------------------------------------------------------

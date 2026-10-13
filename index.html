@@ -8,20 +8,20 @@
 <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
-body{font-family:'Nunito',sans-serif;background:#0D0D1A;color:#F0F0F0;min-height:100vh;overflow-x:hidden}
-.hero{background:linear-gradient(160deg,#0D0D1A 0%,#1A1A2E 50%,#0D0D1A 100%);border-bottom:3px solid #00D4AA;padding:32px 20px 24px;text-align:center}
+body{font-family:'Nunito',sans-serif;background:#131010;color:#F0F0F0;min-height:100vh;overflow-x:hidden}
+.hero{background:linear-gradient(160deg,#131010 0%,#1E1913 50%,#131010 100%);border-bottom:3px solid #00D4AA;padding:32px 20px 24px;text-align:center}
 .hero h1{font-family:'Bangers',cursive;font-size:clamp(40px,12vw,64px);color:#F0F0F0;text-shadow:0 0 20px rgba(0,212,170,0.3),3px 3px 0 rgba(0,0,0,0.5);letter-spacing:2px}
-.hero h1 span{color:#00D4AA}.hero .sub{font-size:13px;color:#8888AA;margin-top:6px;font-weight:700}
+.hero h1 span{color:#00D4AA}.hero .sub{font-size:13px;color:#9A9385;margin-top:6px;font-weight:700}
 .hero .tags{display:flex;justify-content:center;gap:6px;margin-top:10px;flex-wrap:wrap}
 .hero .tags span{background:rgba(0,212,170,0.08);border:1px solid rgba(0,212,170,0.2);padding:5px 14px;border-radius:999px;font-size:12px;font-weight:700;color:#00D4AA}
-.bar{background:#1A1A2E;border-bottom:1px solid rgba(255,255,255,0.08);padding:12px 16px;display:flex;align-items:center;justify-content:center;gap:12px;font-size:12px;color:#8888AA;font-weight:700}
+.bar{background:#1E1913;border-bottom:1px solid rgba(255,255,255,0.08);padding:12px 16px;display:flex;align-items:center;justify-content:center;gap:12px;font-size:12px;color:#9A9385;font-weight:700}
 .bar .stamps{display:flex;gap:5px}.bar .stamp{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:12px}
 .bar .stamp.filled{background:#00D4AA;border-color:#00D4AA}.bar .count{font-family:'Bangers',cursive;font-size:22px;color:#00D4AA}
 .sec{display:flex;align-items:center;gap:10px;padding:20px 16px 8px;max-width:640px;margin:0 auto}
 .sec h2{font-family:'Fredoka One',cursive;font-size:20px;color:#F0F0F0;white-space:nowrap}
 .sec h2 span{color:#00D4AA}.sec .l{flex:1;height:2px;background:rgba(255,255,255,0.08)}
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0 16px 16px;max-width:640px;margin:0 auto}
-.card{background:#1A1A2E;border:1.5px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px 12px;cursor:pointer;transition:border-color 0.2s,box-shadow 0.2s,transform 0.1s;-webkit-tap-highlight-color:transparent;user-select:none;position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px}
+.card{background:#1E1913;border:1.5px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px 12px;cursor:pointer;transition:border-color 0.2s,box-shadow 0.2s,transform 0.1s;-webkit-tap-highlight-color:transparent;user-select:none;position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px}
 .card:active{transform:scale(0.96)}.card:hover{border-color:#00D4AA;box-shadow:0 0 20px rgba(0,212,170,0.1)}
 .card.disabled{opacity:0.3;pointer-events:none}.card.disabled.admin-mode{pointer-events:auto;cursor:pointer}.card.in-cart{border-color:#00D4AA;box-shadow:0 0 0 1px #00D4AA}
 .card .e{font-size:36px}.card .n{font-family:'Fredoka One',cursive;font-size:14px;color:#F0F0F0}.card .p{font-family:'Bangers',cursive;font-size:24px;color:#FFB347}
@@ -35,32 +35,67 @@ body{font-family:'Nunito',sans-serif;background:#0D0D1A;color:#F0F0F0;min-height
 .card-toggle.on{background:#00D4AA;color:#000;border-color:#00D4AA}
 .card-toggle.off{background:#FF6B6B;color:#fff;border-color:#FF6B6B}
 .card-toggle:active{transform:scale(0.9)}
+.quick-add{position:absolute;bottom:8px;right:8px;width:34px;height:34px;border-radius:50%;border:none;background:#00D4AA;color:#000;font-size:22px;font-weight:900;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,212,170,0.35);z-index:6}
+.quick-add:active{transform:scale(0.88)}
+.card .sold{bottom:8px;right:8px}
+.status-bar{display:flex;align-items:center;justify-content:center;gap:8px;padding:9px 16px;font-size:13px;font-weight:800;letter-spacing:0.2px}
+.status-bar.open{background:linear-gradient(90deg,rgba(0,212,170,0.18),rgba(0,212,170,0.06));color:#00D4AA;border-bottom:1px solid rgba(0,212,170,0.25)}
+.status-bar.closed{background:linear-gradient(90deg,rgba(255,107,107,0.16),rgba(255,107,107,0.05));color:#FF8A8A;border-bottom:1px solid rgba(255,107,107,0.22)}
+.status-bar .dot{width:9px;height:9px;border-radius:50%;background:currentColor;flex-shrink:0}
+.status-bar.open .dot{animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.45;transform:scale(0.8)}}
+.trust{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;padding:10px 16px 2px;max-width:640px;margin:0 auto}
+.trust span{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:999px;padding:5px 12px;font-size:11px;font-weight:700;color:#9A9AB0}
+.badge-new{position:absolute;top:-5px;right:-5px;background:#FFB347;color:#000;font-size:9px;font-weight:900;padding:2px 8px;border-radius:999px}
+.founder{display:flex;align-items:center;gap:12px;max-width:640px;margin:14px auto 0;padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px}
+.founder img{width:46px;height:46px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #00D4AA}
+.founder .fi{flex:1;min-width:0}
+.founder .fn{font-weight:800;font-size:14px;color:#F0F0F0}
+.founder .fs{font-size:11px;color:#9A9385;font-weight:700;margin-top:2px}
+.founder .fb{background:#25D366;color:#fff;border:none;font-weight:800;font-size:12px;padding:8px 14px;border-radius:999px;cursor:pointer;flex-shrink:0;text-decoration:none;display:inline-block}
+.photo{width:100%;aspect-ratio:1;border-radius:10px;object-fit:cover;margin-bottom:6px;background:rgba(255,255,255,0.04)}
+.done{position:fixed;inset:0;z-index:1200;background:#131010;display:none;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;overflow-y:auto}
+.done.show{display:flex}
+.done .tick{width:76px;height:76px;border-radius:50%;background:rgba(0,212,170,0.12);border:3px solid #00D4AA;display:flex;align-items:center;justify-content:center;font-size:38px;margin-bottom:16px;animation:in .35s cubic-bezier(0.34,1.56,0.64,1)}
+.done h2{font-family:'Bangers',cursive;font-size:34px;color:#00D4AA;letter-spacing:1px;margin-bottom:4px}
+.done .code{font-family:'Bangers',cursive;font-size:19px;color:#FFB347;letter-spacing:2px;margin-bottom:16px}
+.done .box2{width:100%;max-width:400px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:16px;margin-bottom:14px;text-align:left}
+.done .box2 .r{display:flex;justify-content:space-between;font-size:13px;color:#C8C8D8;padding:5px 0}
+.done .box2 .r b{color:#F0F0F0}
+.done .steps{display:flex;align-items:center;gap:6px;justify-content:center;margin:14px 0 20px;flex-wrap:wrap}
+.done .st{padding:5px 12px;border-radius:999px;font-size:11px;font-weight:800;background:rgba(255,255,255,0.05);color:#666}
+.done .st.on{background:rgba(0,212,170,0.15);color:#00D4AA}
+.done .arw{color:#444;font-size:11px}
+.done .go2{width:100%;max-width:400px;background:#25D366;color:#fff;border:none;font-family:'Fredoka One',cursive;font-size:16px;padding:14px;border-radius:12px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,0.3);margin-bottom:10px}
+.done .go2:disabled{background:#333;color:#666;box-shadow:none}
+.done .alt{background:none;border:none;color:#9A9385;font-size:13px;font-weight:700;cursor:pointer;text-decoration:underline}
+.warnbox{max-width:400px;font-size:12px;color:#FFB347;font-weight:700;margin-bottom:14px;line-height:1.6}
 @media(min-width:700px){.grid{grid-template-columns:repeat(3,1fr);max-width:720px}}
-#cart-bar{position:fixed;bottom:0;left:0;right:0;background:#232340;border-top:3px solid #00D4AA;padding:10px 16px 12px;display:none;align-items:center;gap:12px;z-index:200;box-shadow:0 -4px 20px rgba(0,0,0,0.6)}
+#cart-bar{position:fixed;bottom:0;left:0;right:0;background:#2A2419;border-top:3px solid #00D4AA;padding:10px 16px 12px;display:none;align-items:center;gap:12px;z-index:200;box-shadow:0 -4px 20px rgba(0,0,0,0.6)}
 #cart-bar.show{display:flex}
 #cart-bar .info{flex:1;min-width:0}
-#cart-bar .count{font-size:12px;color:#8888AA;font-weight:700}
+#cart-bar .count{font-size:12px;color:#9A9385;font-weight:700}
 #cart-bar .total{font-family:'Bangers',cursive;font-size:24px;color:#00D4AA}
 #cartb{flex-shrink:0;background:#00D4AA;color:#000;border:none;font-family:'Fredoka One',cursive;font-size:14px;padding:12px 24px;border-radius:10px;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,0.3)}
 #cartb:active{transform:scale(0.95)}
 .overlay{position:fixed;inset:0;z-index:300;display:none}.overlay.open{display:block}
 .overlay .bg{position:absolute;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(3px)}
-.panel{position:fixed;bottom:0;left:0;right:0;max-height:80vh;background:#232340;border-top:4px solid #00D4AA;border-radius:20px 20px 0 0;z-index:400;display:flex;flex-direction:column;transform:translateY(100%);transition:transform 0.35s cubic-bezier(0.34,1.1,0.64,1)}
+.panel{position:fixed;bottom:0;left:0;right:0;max-height:80vh;background:#2A2419;border-top:4px solid #00D4AA;border-radius:20px 20px 0 0;z-index:400;display:flex;flex-direction:column;transform:translateY(100%);transition:transform 0.35s cubic-bezier(0.34,1.1,0.64,1)}
 .panel.open{transform:translateY(0)}
 @media(min-width:600px){.panel{left:auto;right:0;bottom:0;top:0;max-height:100vh;max-width:420px;border-radius:0;border-left:3px solid #00D4AA;border-top:none;transform:translateX(100%)}.panel.open{transform:translateX(0)}}
 .panel .h{width:40px;height:4px;background:rgba(255,255,255,0.15);border-radius:4px;margin:12px auto 0;flex-shrink:0}
 .panel .hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 10px;border-bottom:1px solid rgba(255,255,255,0.08)}
 .panel .hd h2{font-family:'Bangers',cursive;font-size:24px;color:#00D4AA}
 .panel .hd .x{background:rgba(255,255,255,0.06);border:none;color:#F0F0F0;font-size:18px;width:32px;height:32px;border-radius:50%;cursor:pointer}
-.panel .bd{overflow-y:auto;flex:1;padding:8px 18px}.empty{text-align:center;padding:40px 20px;color:#8888AA;font-size:15px;font-weight:700}
+.panel .bd{overflow-y:auto;flex:1;padding:8px 18px}.empty{text-align:center;padding:40px 20px;color:#9A9385;font-size:15px;font-weight:700}
 .item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.08)}
-.ii{flex:1;min-width:0}.ii .nm{font-weight:800;font-size:14px}.ii .sb{font-size:11px;color:#8888AA;font-weight:600;margin-top:2px}
+.ii{flex:1;min-width:0}.ii .nm{font-weight:800;font-size:14px}.ii .sb{font-size:11px;color:#9A9385;font-weight:600;margin-top:2px}
 .iq{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border-radius:8px;padding:4px 8px;flex-shrink:0}
 .iq button{background:none;border:none;font-size:18px;font-weight:900;cursor:pointer;width:26px;height:26px;border-radius:50%}
 .iq button:hover{background:rgba(0,212,170,0.15)}
 .opt{padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.08)}
-.opt .l{font-size:12px;font-weight:800;color:#8888AA;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
-.dt{display:flex;gap:8px}.dt button{flex:1;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.08);color:#8888AA;font-family:'Fredoka One',cursive;font-size:13px;padding:8px;border-radius:8px;cursor:pointer;text-align:center}
+.opt .l{font-size:12px;font-weight:800;color:#9A9385;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+.dt{display:flex;gap:8px}.dt button{flex:1;background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.08);color:#9A9385;font-family:'Fredoka One',cursive;font-size:13px;padding:8px;border-radius:8px;cursor:pointer;text-align:center}
 .dt button.active{background:rgba(0,212,170,0.1);border-color:#00D4AA;color:#00D4AA}
 .dt button.unavail{opacity:0.25;cursor:not-allowed;text-decoration:line-through}.dt button.unavail.admin-mode{opacity:0.4;cursor:pointer}
 .ts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
@@ -69,26 +104,26 @@ body{font-family:'Nunito',sans-serif;background:#0D0D1A;color:#F0F0F0;min-height
 .ts button.unavail{opacity:0.25;cursor:not-allowed;text-decoration:line-through}.ts button.unavail.admin-mode{opacity:0.4;cursor:pointer}.ts button.admin-mode{cursor:pointer}
 .ft{padding:12px 18px 18px;border-top:1px solid rgba(255,255,255,0.08)}
 .ft .tr{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-.ft .tr span{font-family:'Fredoka One',cursive;font-size:14px;color:#8888AA}
+.ft .tr span{font-family:'Fredoka One',cursive;font-size:14px;color:#9A9385}
 .ft .tr .am{font-family:'Bangers',cursive;font-size:24px;color:#00D4AA}
 .ft .go{width:100%;margin-top:12px;background:#25D366;color:#fff;border:none;font-family:'Fredoka One',cursive;font-size:14px;padding:10px;border-radius:10px;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,0.3)}
 .ft .go:active{transform:scale(0.97)}.ft .go:disabled{background:#333;color:#555;cursor:not-allowed;box-shadow:none}
 .inp{background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.08);border-radius:8px;color:#F0F0F0;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;padding:10px 12px;outline:none;width:100%}
-.chip{background:#1A1A2E;border:1.5px solid rgba(255,255,255,0.08);border-radius:999px;padding:8px 16px;font-size:13px;font-weight:700;color:#F0F0F0;cursor:pointer;white-space:nowrap;display:inline-block;margin:2px}
+.chip{background:#1E1913;border:1.5px solid rgba(255,255,255,0.08);border-radius:999px;padding:8px 16px;font-size:13px;font-weight:700;color:#F0F0F0;cursor:pointer;white-space:nowrap;display:inline-block;margin:2px}
 .chip.sel{background:rgba(0,212,170,0.1)!important;border-color:#00D4AA!important;color:#00D4AA!important}.chip.dis{opacity:0.35}
 .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#00D4AA;color:#000;font-family:'Fredoka One',cursive;font-size:13px;padding:10px 22px;border-radius:999px;z-index:999;opacity:0;transition:opacity 0.25s,transform 0.25s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.page-foot{text-align:center;padding:20px;color:#8888AA;font-size:12px;font-weight:700}.page-foot b{color:#00D4AA}
+.page-foot{text-align:center;padding:20px;color:#9A9385;font-size:12px;font-weight:700}.page-foot b{color:#00D4AA}
 .modal{position:fixed;inset:0;z-index:600;display:none;align-items:center;justify-content:center;padding:20px}
 .modal .bg{position:absolute;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(3px);cursor:pointer}
-.modal .box{position:relative;background:#232340;border:1.5px solid #00D4AA;border-radius:20px;padding:24px;max-width:380px;width:100%;animation:in .3s cubic-bezier(0.34,1.56,0.64,1)}
+.modal .box{position:relative;background:#2A2419;border:1.5px solid #00D4AA;border-radius:20px;padding:24px;max-width:380px;width:100%;animation:in .3s cubic-bezier(0.34,1.56,0.64,1)}
 @keyframes in{from{transform:scale(0.9) translateY(20px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
-#admin-panel{display:none;position:fixed;inset:0;z-index:1000;background:#0D0D1A;color:#F0F0F0}
+#admin-panel{display:none;position:fixed;inset:0;z-index:1000;background:#131010;color:#F0F0F0}
 #admin-panel.show{display:flex}
-.adm-side{width:220px;background:#141425;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;flex-shrink:0}
+.adm-side{width:220px;background:#191510;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;flex-shrink:0}
 .adm-side .brand{padding:22px 18px;font-family:'Bangers',cursive;font-size:18px;color:#00D4AA;border-bottom:1px solid rgba(255,255,255,0.06)}
 .adm-side nav{flex:1;overflow-y:auto;padding:12px 0}
-.adm-side nav a{display:flex;align-items:center;gap:10px;padding:14px 18px;font-size:13px;font-weight:700;color:#8888AA;cursor:pointer;transition:all .15s;border-left:3px solid transparent;text-decoration:none}
+.adm-side nav a{display:flex;align-items:center;gap:10px;padding:14px 18px;font-size:13px;font-weight:700;color:#9A9385;cursor:pointer;transition:all .15s;border-left:3px solid transparent;text-decoration:none}
 .adm-side nav a:hover{background:rgba(255,255,255,0.03);color:#F0F0F0}
 .adm-side nav a.active{color:#00D4AA;background:rgba(0,212,170,0.06);border-left-color:#00D4AA}
 .adm-side .exit{padding:16px;border-top:1px solid rgba(255,255,255,0.06)}
@@ -111,17 +146,17 @@ body{font-family:'Nunito',sans-serif;background:#0D0D1A;color:#F0F0F0;min-height
 }
 .a-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;margin-bottom:12px}
 .a-card .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.a-card .nm{font-weight:800;font-size:14px}.a-card .ts{font-size:11px;color:#8888AA}
+.a-card .nm{font-weight:800;font-size:14px}.a-card .ts{font-size:11px;color:#9A9385}
 .a-card .it{font-size:13px;color:#bbb;margin-bottom:4px}
 .a-card .mt{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .a-card .pr{font-family:'Bangers',cursive;font-size:18px;color:#00D4AA}
-.a-card .note{font-size:11px;color:#8888AA;margin-bottom:8px}
+.a-card .note{font-size:11px;color:#9A9385;margin-bottom:8px}
 .a-card .acts{display:flex;gap:6px}
 .a-card .acts button{padding:7px 14px;border-radius:8px;border:none;font-size:12px;font-weight:800;cursor:pointer;transition:all .12s}
-.a-card .acts .st{background:rgba(255,255,255,0.05);color:#8888AA}
+.a-card .acts .st{background:rgba(255,255,255,0.05);color:#9A9385}
 .a-card .acts .st.on{background:#00D4AA;color:#000}
 .a-card .acts .del{background:rgba(255,107,107,0.12);color:#FF6B6B;margin-left:auto}
-.a-sec{font-size:11px;font-weight:800;color:#8888AA;text-transform:uppercase;letter-spacing:0.5px;padding:14px 0 6px;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:8px}
+.a-sec{font-size:11px;font-weight:800;color:#9A9385;text-transform:uppercase;letter-spacing:0.5px;padding:14px 0 6px;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:8px}
 .a-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
 .a-row .n{flex:1;font-weight:700;font-size:14px}
 .a-row .p{font-family:'Bangers',cursive;font-size:16px;color:#FFB347;flex-shrink:0}
@@ -137,7 +172,7 @@ body{font-family:'Nunito',sans-serif;background:#0D0D1A;color:#F0F0F0;min-height
 .block-grid button:hover{border-color:#00D4AA}
 .a-chip.on{background:rgba(0,212,170,0.1);border-color:#00D4AA;color:#00D4AA}
 .a-filter{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
-.a-filter button{padding:12px 22px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:#8888AA;font-size:14px;font-weight:800;cursor:pointer;transition:all .15s}
+.a-filter button{padding:12px 22px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:#9A9385;font-size:14px;font-weight:800;cursor:pointer;transition:all .15s}
 .a-filter button.on{border-color:#00D4AA;background:rgba(0,212,170,0.12);color:#00D4AA}
 .a-card .num{font-family:'Bangers',cursive;font-size:18px;color:#00D4AA;margin-right:8px}
 .a-card .room-box{color:#FFB347;font-family:'Fredoka One',cursive;font-size:16px;padding:10px 16px;border-radius:10px;margin:8px 0;font-weight:700;display:inline-block}
@@ -145,13 +180,13 @@ body{font-family:'Nunito',sans-serif;background:#0D0D1A;color:#F0F0F0;min-height
 .a-card .acts .st{padding:10px 18px;font-size:13px;font-weight:800;border-radius:10px}
 .a-card .acts .st.on{box-shadow:0 2px 8px rgba(0,212,170,0.3)}
 .a-card .acts .del{padding:10px 14px;font-size:13px}
-.a-card .info-row{display:flex;gap:10px;align-items:center;margin-bottom:8px;flex-wrap:wrap;font-size:13px;color:#8888AA}
+.a-card .info-row{display:flex;gap:10px;align-items:center;margin-bottom:8px;flex-wrap:wrap;font-size:13px;color:#9A9385}
 .a-bulk{margin-bottom:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .a-bulk button{background:#00D4AA;color:#000;border:none;font-family:'Fredoka One',cursive;font-size:14px;padding:12px 24px;border-radius:10px;cursor:pointer}
 .a-search{background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.08);border-radius:10px;color:#F0F0F0;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;padding:12px 16px;width:100%;max-width:400px;margin-bottom:16px;outline:none}
 .a-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
 .a-stat{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px;text-align:center}
-.a-stat .label{font-size:12px;font-weight:800;color:#8888AA;text-transform:uppercase;margin-bottom:6px}
+.a-stat .label{font-size:12px;font-weight:800;color:#9A9385;text-transform:uppercase;margin-bottom:6px}
 .a-stat .count{font-family:'Bangers',cursive;font-size:28px;color:#F0F0F0}
 .a-stat .rev{font-family:'Bangers',cursive;font-size:16px;color:#00D4AA;margin-top:4px}
 @media(max-width:500px){.a-stats{grid-template-columns:1fr}}
@@ -161,51 +196,59 @@ body{font-family:'Nunito',sans-serif;background:#0D0D1A;color:#F0F0F0;min-height
 <meta name="theme-color" content="#00D4AA">
 </head><body>
 <div class="hero"><h1>🌙 <span>MINUM</span> MALAM SISWA</h1><div class="sub">⏰ 10:30PM — 2:00AM · 🚗 COD (RM1) / Free Pickup</div><div class="tags"><span>🧊 Ais</span><span>💝 Harga Mesra</span><span>🔥 Beli 5 Percuma 1</span></div></div>
+<div id="status-bar" class="status-bar"></div>
+<div id="founder" class="founder" style="display:none"></div>
+<div class="trust"><span>⏱ Siap ~15-30 min</span><span>💵 Bayar masa sampai</span><span>🍹 Beli 5 Percuma 1</span><span>🧊 Ais balang</span></div>
 <div class="bar"><span>🎁 Pesanan</span><div class="stamps" id="stamps"></div><span class="count" id="loy-count">0</span></div>
 <div class="sec"><h2>🧋 <span>Minuman</span></h2><div class="l"></div></div>
 <div id="menu-root"></div>
 <div id="cart-bar"><div class="info"><div class="count" id="cart-count">0 items</div><div class="total" id="cart-total">RM0.00</div></div><button id="cartb">Review Order</button></div>
-<div class="modal" id="cust"><div class="bg" onclick="closeCust()"></div><div class="box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-family:'Bangers',cursive;font-size:22px;color:#00D4AA">✨ <span id="c-title" style="font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;color:#F0F0F0">Drink</span></span><button onclick="closeCust()" style="background:none;border:none;color:#8888AA;font-size:20px;cursor:pointer">✕</button></div>
-<div style="margin-bottom:6px;font-size:12px;font-weight:800;color:#8888AA;text-transform:uppercase">🍬 Pemanis</div><div style="margin-bottom:10px" id="c-sweet"></div>
-<div style="margin-bottom:6px;font-size:12px;font-weight:800;color:#8888AA;text-transform:uppercase">🌿 Tahap Kemanisan</div><div style="margin-bottom:10px" id="c-level"></div>
-<div style="margin-bottom:6px;font-size:12px;font-weight:800;color:#8888AA;text-transform:uppercase">➕ Add-on</div><div style="margin-bottom:20px" id="c-extra"></div>
+<div class="modal" id="cust"><div class="bg" onclick="closeCust()"></div><div class="box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-family:'Bangers',cursive;font-size:22px;color:#00D4AA">✨ <span id="c-title" style="font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;color:#F0F0F0">Drink</span></span><button onclick="closeCust()" style="background:none;border:none;color:#9A9385;font-size:20px;cursor:pointer">✕</button></div>
+<div style="margin-bottom:6px;font-size:12px;font-weight:800;color:#9A9385;text-transform:uppercase">🍬 Pemanis</div><div style="margin-bottom:10px" id="c-sweet"></div>
+<div style="margin-bottom:6px;font-size:12px;font-weight:800;color:#9A9385;text-transform:uppercase">🌿 Tahap Kemanisan</div><div style="margin-bottom:10px" id="c-level"></div>
+<div style="margin-bottom:6px;font-size:12px;font-weight:800;color:#9A9385;text-transform:uppercase">➕ Add-on</div><div style="margin-bottom:20px" id="c-extra"></div>
 <button onclick="confirmCust()" style="width:100%;background:#00D4AA;color:#000;border:none;font-family:'Fredoka One',cursive;font-size:15px;padding:12px;border-radius:10px;cursor:pointer">+ Add to Cart · RM<span id="c-price">0.00</span></button>
 </div></div>
 <div class="overlay" id="overlay"><div class="bg" onclick="closeCart()"></div></div>
 <div class="panel" id="panel"><div class="h"></div><div class="hd"><h2>🛒 Pesanan</h2><button class="x" onclick="closeCart()">✕</button></div>
 <div class="bd"><div class="empty" id="empty">🧺 Belum ada pesanan</div><div id="items"></div>
-<div class="opt"><div class="l">📋 Menu</div><div id="items-summary" style="font-size:13px;color:#8888AA;font-weight:600;margin-top:4px"></div></div>
+<div class="opt"><div class="l">📋 Menu</div><div id="items-summary" style="font-size:13px;color:#9A9385;font-weight:600;margin-top:4px"></div></div>
 <div class="opt"><div class="l">🚗 Delivery Method</div><div class="dt" id="del"></div></div>
-<div class="opt"><div class="l">👤 Customer</div><div style="display:flex;gap:8px;margin-top:4px"><input class="inp" id="inp-name2" placeholder="Nama" maxlength="25" style="flex:1"></div></div>
+<div class="opt"><div class="l">👤 Nama</div><div style="display:flex;gap:8px;margin-top:4px"><input class="inp" id="inp-name2" placeholder="Nama anda" maxlength="25" style="flex:1"></div></div>
+<div class="opt"><div class="l">📱 No. WhatsApp <span style="color:#FFB347">(pilihan — untuk stamp)</span></div><div style="margin-top:4px"><input class="inp" id="inp-phone" placeholder="cth: 0123456789" inputmode="tel" maxlength="20"><div style="font-size:11px;color:#9A9385;font-weight:600;margin-top:6px">Isi untuk kira stamp Beli 5 Percuma 1. Tak diisi pun boleh order.</div></div></div>
 <div class="opt" id="block-section"><div class="l">🏠 Blok</div><div class="block-grid" id="block-grid"></div><div id="room-row" style="display:none;margin-top:8px"><input class="inp" id="inp-room" placeholder="Nombor bilik / unit" maxlength="20"></div></div>
-<div class="opt"><div class="l" id="time-label">⏰ Masa Penghantaran</div><div id="time-pickup" style="display:none"><input class="inp" id="pickup-time" placeholder="Cth: 11:00 malam" maxlength="30"></div><div id="pickup-note" style="display:none;font-size:13px;color:#8888AA;font-weight:600;margin-top:8px">💬 Akan chat, kalau dah siap</div><div class="ts" id="times"></div></div>
-<div class="opt"><div class="l">💳 Payment</div><div class="dt" id="pay"><button class="active" data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button></div>
-<div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(0,212,170,0.1)"><img src="https://drive.google.com/thumbnail?id=1NNMdTqR5wCahK5bqLOHP996CkzZavfoN&amp;sz=w500" alt="TNG QR" style="width:240px;height:240px;display:block;border-radius:8px"></div><div style="font-size:12px;color:#8888AA;margin-top:8px;font-weight:600">Scan untuk bayar</div></div></div></div>
+<div class="opt"><div style="display:flex;justify-content:space-between;align-items:center"><div class="l" id="time-label" style="margin:0">⏰ Masa</div><button id="time-toggle" onclick="toggleTimePick()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#00D4AA;font-size:12px;font-weight:800;padding:6px 14px;border-radius:999px;cursor:pointer">ASAP ▾</button></div><div id="time-pick" style="display:none;margin-top:10px"><div id="time-pickup" style="display:none"><input class="inp" id="pickup-time" placeholder="Cth: 11:00 malam" maxlength="30"></div><div id="pickup-note" style="display:none;font-size:13px;color:#9A9385;font-weight:600;margin-bottom:8px">💬 Akan chat, kalau dah siap</div><div class="ts" id="times"></div></div></div>
+</div>
 <div class="ft"><div class="tr" style="border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:8px;margin-bottom:8px"><span>Subtotal</span><span style="font-family:'Bangers',cursive;font-size:20px" id="sub">RM0.00</span></div>
-<div id="cod-row" class="tr"><span style="font-size:12px;color:#8888AA">📦 COD fee</span><span style="font-family:'Bangers',cursive;font-size:18px;color:#8888AA">RM1.00</span></div>
+<div id="cod-row" class="tr"><span style="font-size:12px;color:#9A9385">📦 COD fee</span><span style="font-family:'Bangers',cursive;font-size:18px;color:#9A9385">RM1.00</span></div>
 <div class="tr" style="margin-top:8px"><span>Jumlah</span><span class="am" id="total">RM0.00</span></div>
 <button class="go" id="checkout" disabled>Review Order</button></div></div>
 <div class="modal" id="confirm-modal"><div class="bg" onclick="closeConfirm()"></div><div class="box" style="max-width:440px;max-height:90vh;overflow-y:auto"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><span style="font-family:'Bangers',cursive;font-size:26px;color:#00D4AA">🧾 Pesanan Anda</span><button onclick="closeConfirm()" style="background:rgba(255,255,255,0.06);border:none;color:#F0F0F0;font-size:16px;width:36px;height:36px;border-radius:50%;cursor:pointer">✕</button></div>
 <div style="background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.15);border-radius:12px;padding:14px;margin-bottom:14px" id="confirm-items"></div>
 <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"><div id="confirm-delivery" style="background:rgba(255,179,71,0.1);border:1px solid rgba(255,179,71,0.2);border-radius:8px;padding:8px 14px;font-size:13px;color:#FFB347;font-weight:700"></div><div id="confirm-pay" style="background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.2);border-radius:8px;padding:8px 14px;font-size:13px;color:#00D4AA;font-weight:700"></div></div>
-<div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:14px;margin-bottom:16px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;color:#8888AA;font-weight:700">Subtotal</span><span id="confirm-sub" style="font-size:13px;color:#F0F0F0;font-weight:700"></span></div><div id="confirm-cod" style="display:none;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;color:#8888AA;font-weight:700">📦 COD</span><span style="font-size:13px;color:#F0F0F0;font-weight:700">+RM1.00</span></div><div style="display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08)"><span style="font-family:'Bangers',cursive;font-size:20px;color:#F0F0F0">Jumlah</span><span id="confirm-total" style="font-family:'Bangers',cursive;font-size:24px;color:#00D4AA">RM0.00</span></div></div>
-<button onclick="sendWa()" id="wa-send" style="width:100%;background:#25D366;color:#fff;border:none;font-family:'Fredoka One',cursive;font-size:16px;padding:14px;border-radius:12px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,0.3)">Hantar ke WhatsApp</button>
+<div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:14px;margin-bottom:16px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;color:#9A9385;font-weight:700">Subtotal</span><span id="confirm-sub" style="font-size:13px;color:#F0F0F0;font-weight:700"></span></div><div id="confirm-cod" style="display:none;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;color:#9A9385;font-weight:700">📦 COD</span><span style="font-size:13px;color:#F0F0F0;font-weight:700">+RM1.00</span></div><div style="display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08)"><span style="font-family:'Bangers',cursive;font-size:20px;color:#F0F0F0">Jumlah</span><span id="confirm-total" style="font-family:'Bangers',cursive;font-size:24px;color:#00D4AA">RM0.00</span></div></div>
+<div style="margin-bottom:14px"><div class="l" style="font-size:12px;font-weight:800;color:#9A9385;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">💳 Bayar bila sampai</div><div class="dt" id="pay"><button class="active" data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(0,212,170,0.1)"><img src="https://drive.google.com/thumbnail?id=1NNMdTqR5wCahK5bqLOHP996CkzZavfoN&amp;sz=w500" alt="TNG QR" style="width:210px;height:210px;display:block;border-radius:8px"></div><div style="font-size:12px;color:#9A9385;margin-top:8px;font-weight:600">Scan untuk bayar</div></div></div><button onclick="sendWa()" id="wa-send" style="width:100%;background:#25D366;color:#fff;border:none;font-family:'Fredoka One',cursive;font-size:16px;padding:14px;border-radius:12px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,0.3)">Hantar ke WhatsApp</button>
 </div></div>
 <div class="page-foot"><i>Minum sedap, harga mesra! 🧡</i><br>© <b>MINUM MALAM SISWA</b></div>
 <div class="toast" id="toast"></div>
-<div class="modal" id="admin-login" style="z-index:1100"><div class="bg" onclick="closeAdminLogin()"></div><div class="box" style="max-width:340px;text-align:center"><div style="font-family:'Bangers',cursive;font-size:22px;color:#00D4AA;margin-bottom:4px">🔒 Admin Login</div><div style="font-size:12px;color:#8888AA;font-weight:700;margin-bottom:16px">Akaun admin sah sahaja</div><input class="inp" id="admin-email" type="email" autocomplete="username" inputmode="email" placeholder="admin@email.com" style="margin-bottom:10px;text-align:center"><input class="inp" id="admin-pw" type="password" autocomplete="current-password" placeholder="Password" style="margin-bottom:14px;text-align:center" onkeydown="if(event.key==='Enter')verifyAdminLogin()"><div style="display:flex;gap:8px"><button onclick="verifyAdminLogin()" id="admin-login-btn" style="flex:1;background:#00D4AA;color:#000;border:none;font-family:'Fredoka One',cursive;font-size:14px;padding:12px;border-radius:10px;cursor:pointer">Masuk</button><button onclick="closeAdminLogin()" style="background:rgba(255,255,255,0.08);color:#8888AA;border:none;font-size:13px;padding:12px;border-radius:10px;cursor:pointer">Batal</button></div></div></div>
+<div class="done" id="done"></div>
+<div class="modal" id="admin-login" style="z-index:1100"><div class="bg" onclick="closeAdminLogin()"></div><div class="box" style="max-width:340px;text-align:center"><div style="font-family:'Bangers',cursive;font-size:22px;color:#00D4AA;margin-bottom:4px">🔒 Admin Login</div><div style="font-size:12px;color:#9A9385;font-weight:700;margin-bottom:16px">Akaun admin sah sahaja</div><input class="inp" id="admin-email" type="email" autocomplete="username" inputmode="email" placeholder="admin@email.com" style="margin-bottom:10px;text-align:center"><input class="inp" id="admin-pw" type="password" autocomplete="current-password" placeholder="Password" style="margin-bottom:14px;text-align:center" onkeydown="if(event.key==='Enter')verifyAdminLogin()"><div style="display:flex;gap:8px"><button onclick="verifyAdminLogin()" id="admin-login-btn" style="flex:1;background:#00D4AA;color:#000;border:none;font-family:'Fredoka One',cursive;font-size:14px;padding:12px;border-radius:10px;cursor:pointer">Masuk</button><button onclick="closeAdminLogin()" style="background:rgba(255,255,255,0.08);color:#9A9385;border:none;font-size:13px;padding:12px;border-radius:10px;cursor:pointer">Batal</button></div></div></div>
 </div></div>
-<div id="admin-panel"><div class="adm-side"><div class="brand">🌙 MMS Admin</div><nav id="adm-nav"><a class="active" onclick="switchAdmin('orders')">📥 Pesanan</a><a onclick="switchAdmin('menu')">🧋 Minuman</a><a onclick="switchAdmin('addons')">🍬 Pemanis</a><a onclick="switchAdmin('schedule')">⏰ Masa</a><a onclick="switchAdmin('delivery')">🚗 Penghantaran</a><a onclick="switchAdmin('settings')">⚙️ Settings</a></nav><div class="exit"><button onclick="exitAdmin()">✕ Customer View</button></div></div><div class="adm-main"><div class="hd"><h2 id="adm-hd">📥 Pesanan</h2></div><div class="pg" id="adm-pg"></div></div></div>
+<div id="admin-panel"><div class="adm-side"><div class="brand">🌙 MMS Admin</div><nav id="adm-nav"><a class="active" onclick="switchAdmin('orders')">📥 Pesanan</a><a onclick="switchAdmin('menu')">🧋 Minuman</a><a onclick="switchAdmin('addons')">🍬 Pemanis</a><a onclick="switchAdmin('schedule')">⏰ Masa</a><a onclick="switchAdmin('delivery')">🚗 Penghantaran</a><a onclick="switchAdmin('customers')">👥 Pelanggan</a><a onclick="switchAdmin('stats')">📊 Analitis</a><a onclick="switchAdmin('settings')">⚙️ Settings</a></nav><div class="exit"><button onclick="exitAdmin()">✕ Customer View</button></div></div><div class="adm-main"><div class="hd"><h2 id="adm-hd">📥 Pesanan</h2></div><div class="pg" id="adm-pg"></div></div></div>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
 const SHOP='MINUM MALAM SISWA',WA='601116470212';
-let SLOTS=['11:30PM','12:30AM','1:30AM'],unrTimes=[],selTime='';
+let SLOTS=['11:30PM','12:30AM','1:30AM'],unrTimes=[],selTime='ASAP';
+let HOURS=[1350,120];
+let WHO={n:'',b:'',note:'',img:''};
 const DEFAULT_MENU=[{name:'Minuman',items:[
 {name:'Milo Ais',price:3.50,pop:true},{name:'Extrajoss Susu Mangga',price:2.50,pop:true},{name:'Extrajoss Susu Anggur',price:2.50,pop:false},{name:'Indocafe Ais',price:3.50,pop:false},{name:'Belgian Chocolate',price:4.00,pop:false},{name:'Horlicks Ais',price:3.50,pop:false},{name:'Hazelnut Latte',price:4.00,pop:false},{name:'Mocha',price:4.00,pop:false},{name:'Teh Tarik Air Asia',price:4.00,pop:false},
 ]}];
 let MENU=[];
+function computeCheapest(){let c=Infinity;(MENU||[]).forEach(function(cat){var it=(cat&&cat.items)||[];it.forEach(function(v){if(typeof v.price==='number'&&v.price>0&&v.price<c)c=v.price})});CHEAPEST_PRICE=(c===Infinity?0:c)}
+let CHEAPEST_PRICE=0;
 let ADDS=[
 {id:'gula',name:'Gula',price:0,grp:'s'},{id:'susukm',name:'Susu Kental Manis',price:0,grp:'s'},
 {id:'kurang_manis',name:'Kurang Manis (50%)',price:0,grp:'l'},
@@ -238,6 +281,17 @@ let _db=null,_auth=null;
 function getDb(){try{if(!FB_READY)return null;if(_db)return _db;firebase.initializeApp(FIREBASE_CONFIG);_db=firebase.firestore();return _db}catch(e){console.warn('Firebase init gagal:',e);return null}}
 function getAuth(){try{if(!FB_READY||!firebase.auth)return null;if(!_auth)_auth=firebase.auth();return _auth}catch(e){console.warn('Auth gagal:',e);return null}}
 function isAdmin(){const a=getAuth();return !!(a&&a.currentUser)}
+
+// ---------------------------------------------------------------------------
+// Funnel analytics. Anonymous step counters only: no names, phones, IPs or
+// cookies. A random per-tab id lets us de-duplicate, nothing more. Written to
+// the events collection, readable by the admin only.
+// ---------------------------------------------------------------------------
+const FUNNEL=['page_view','menu_view','item_open','add_cart','checkout_open','order_sent'];
+let _sid=null;
+function sid(){if(_sid)return _sid;try{_sid=sessionStorage.getItem('mms_sid')||''}catch(e){}if(!_sid)_sid=Date.now().toString(36)+Math.random().toString(36).slice(2,10);try{sessionStorage.setItem('mms_sid',_sid)}catch(e){}return _sid}
+const _evOnce={};
+function track(step,once){try{if(once&&_evOnce[step])return;_evOnce[step]=1;const db=getDb();if(!db)return;db.collection('events').add({step:step,at:firebase.firestore.FieldValue.serverTimestamp(),sid:sid()}).catch(function(){})}catch(e){}}
 const ORDER_LIMIT=200;
 function ordersQ(db){if(!isAdmin())return null;return db.collection('orders').orderBy('createdAt','desc').limit(ORDER_LIMIT)}
 function watchOrders(cb,err){const db=getDb();const q=db?ordersQ(db):null;if(!q)return null;return q.onSnapshot(s=>cb(s.docs.map(d=>({id:d.id,...d.data()}))),err)}
@@ -248,7 +302,7 @@ const MENU_DOC='settings/menu',CONFIG_DOC='settings/config',DIS_DOC='settings/di
 async function fsGet(path){const db=getDb();if(!db)return null;try{const s=await db.doc(path).get();return s.exists?s.data():null}catch(e){return null}}
 async function fsSet(path,data){const db=getDb();if(!db)return false;try{await db.doc(path).set(data);return true}catch(e){console.warn(e);return false}}
 
-async function loadMenu(){const d=await fsGet(MENU_DOC);if(d&&Array.isArray(d.items)&&d.items.length>0)MENU=d.items;else{MENU=JSON.parse(JSON.stringify(DEFAULT_MENU));await fsSet(MENU_DOC,{items:MENU})}draw();const db=getDb();if(db)db.doc(MENU_DOC).onSnapshot(snap=>{if(snap.exists&&snap.data().items){MENU=snap.data().items;draw()}})}
+async function loadMenu(){const d=await fsGet(MENU_DOC);if(d&&Array.isArray(d.items)&&d.items.length>0){MENU=d.items;computeCheapest();}else{MENU=JSON.parse(JSON.stringify(DEFAULT_MENU));await fsSet(MENU_DOC,{items:MENU})}draw();const db=getDb();if(db)db.doc(MENU_DOC).onSnapshot(snap=>{if(snap.exists&&snap.data().items){MENU=snap.data().items;computeCheapest();draw()}})}
 async function saveMenu(){const ok=await fsSet(MENU_DOC,{items:MENU});draw();return ok}
 
 let dis={};
@@ -257,23 +311,32 @@ function isDis(id){return dis[id]===true}
 async function togDis(id){if(dis[id])delete dis[id];else dis[id]=true;draw();await fsSet(DIS_DOC,dis)}
 async function enAll(){dis={};unrTimes=[];disAdds=[];disDel=[];draw();drawTimes();drawDel();await fsSet(DIS_DOC,dis);await saveConfig();toast('✓ Semua diaktifkan')}
 
-function getConfig(){return{adds:ADDS,slots:SLOTS,dels:DELS,blocks:BLOCKS,disAdds,unrTimes,disDel,disBlocks}}
-async function loadConfig(){const d=await fsGet(CONFIG_DOC);if(d){if(d.adds)ADDS=d.adds.map((a,i)=>a.id?a:{...a,id:a.name.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')||'addon_'+i});if(d.slots)SLOTS=d.slots;if(d.dels)DELS=d.dels;if(d.disAdds){if(d.disAdds.length>0&&typeof d.disAdds[0]==='number')disAdds=d.disAdds.map(i=>ADDS[i]?ADDS[i].id:null).filter(Boolean);else disAdds=d.disAdds}if(d.unrTimes)unrTimes=d.unrTimes;if(d.disDel)disDel=d.disDel;if(d.blocks)BLOCKS=d.blocks;if(d.disBlocks)disBlocks=d.disBlocks}}
+function getConfig(){return{adds:ADDS,slots:SLOTS,dels:DELS,blocks:BLOCKS,disAdds,unrTimes,disDel,disBlocks,hours:HOURS,who:WHO}}
+async function loadConfig(){const d=await fsGet(CONFIG_DOC);if(d){if(d.adds)ADDS=d.adds.map((a,i)=>a.id?a:{...a,id:a.name.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')||'addon_'+i});if(d.slots)SLOTS=d.slots;if(d.dels)DELS=d.dels;if(d.disAdds){if(d.disAdds.length>0&&typeof d.disAdds[0]==='number')disAdds=d.disAdds.map(i=>ADDS[i]?ADDS[i].id:null).filter(Boolean);else disAdds=d.disAdds}if(d.unrTimes)unrTimes=d.unrTimes;if(d.disDel)disDel=d.disDel;if(d.blocks)BLOCKS=d.blocks;if(d.disBlocks)disBlocks=d.disBlocks;if(Array.isArray(d.hours)&&d.hours.length===2)HOURS=d.hours;if(d.who&&typeof d.who==='object')WHO=d.who}}
 async function saveConfig(){return await fsSet(CONFIG_DOC,getConfig())}
-async function initConfig(){await loadConfig();const db=getDb();if(db)db.doc(CONFIG_DOC).onSnapshot(snap=>{if(snap.exists){const d=snap.data();if(d.adds)ADDS=d.adds;if(d.slots)SLOTS=d.slots;if(d.dels)DELS=d.dels;if(d.blocks)BLOCKS=d.blocks;if(d.disAdds)disAdds=d.disAdds;if(d.unrTimes)unrTimes=d.unrTimes;if(d.disDel)disDel=d.disDel;if(d.disBlocks)disBlocks=d.disBlocks;draw();drawTimes();drawDel();drawCust()}})}
+async function initConfig(){await loadConfig();const db=getDb();if(db)db.doc(CONFIG_DOC).onSnapshot(snap=>{if(snap.exists){const d=snap.data();if(d.adds)ADDS=d.adds;if(d.slots)SLOTS=d.slots;if(d.dels)DELS=d.dels;if(d.blocks)BLOCKS=d.blocks;if(d.disAdds)disAdds=d.disAdds;if(d.unrTimes)unrTimes=d.unrTimes;if(d.disDel)disDel=d.disDel;if(d.disBlocks)disBlocks=d.disBlocks;if(Array.isArray(d.hours)&&d.hours.length===2){HOURS=d.hours;drawStatus()}if(d.who&&typeof d.who==='object'){WHO=d.who;drawFounder()}draw();drawTimes();drawDel();drawCust()}})}
 
-function draw(){const r=document.getElementById('menu-root');if(!MENU||MENU.length===0){r.innerHTML='';upCart();drawLoy();drawDel();return}let h='<div class="grid">';MENU.forEach((cat,ci)=>{cat.items.forEach((v,vi)=>{const id='c'+ci+'v'+vi,d=isDis(id),items=cart[id]||[],cq=items.length;const badge=v.pop?'<span class="badge">🔥 Popular</span>':'',dot=cq?'<span class="qty">'+cq+'</span>':'',sold=d?'<span class="sold">✕ Habis</span>':'';let e='🧋';if(v.name.includes('Milo'))e='🥤';else if(v.name.includes('Extrajoss'))e='🍹';else if(v.name.includes('Indocafe'))e='☕';else if(v.name.includes('Chocolate'))e='🍫';else if(v.name.includes('Horlicks'))e='🥛';else if(v.name.includes('Hazelnut'))e='🌰';else if(v.name.includes('Mocha'))e='🍵';h+='<div class="card'+(d?' disabled':'')+(cq?' in-cart':'')+(admin?' admin-mode':'')+'" onclick="addToCart(\''+id+'\')"><button class="card-toggle '+(d?'off':'on')+'" onclick="event.stopPropagation();togDis(\''+id+'\')">'+(d?'✕':'✓')+'</button>'+badge+dot+sold+'<div class="e">'+e+'</div><div class="n">'+esc(v.name)+'</div><div class="p">RM'+v.price.toFixed(2)+'</div></div>';})});h+='</div>';r.innerHTML=h;upCart();drawLoy();drawDel();}
+function draw(){const r=document.getElementById('menu-root');if(MENU&&MENU.length){track('menu_view',true)}if(!MENU||MENU.length===0){r.innerHTML='';upCart();drawLoy();drawDel();return}let h='<div class="grid">';MENU.forEach((cat,ci)=>{cat.items.forEach((v,vi)=>{const id='c'+ci+'v'+vi,d=isDis(id),items=cart[id]||[],cq=items.length;const cheapest=(v.price===CHEAPEST_PRICE);let badge='';if(d)badge='';else if(v.pop)badge='<span class="badge">🔥 Paling Laku</span>';else if(cheapest)badge='<span class="badge-new">💸 Paling Murah</span>';const dot=cq?'<span class="qty">'+cq+'</span>':'',sold=d?'<span class="sold">✕ Habis</span>':'';let e='🧋';if(v.name.includes('Milo'))e='🥤';else if(v.name.includes('Extrajoss'))e='🍹';else if(v.name.includes('Indocafe'))e='☕';else if(v.name.includes('Chocolate'))e='🍫';else if(v.name.includes('Horlicks'))e='🥛';else if(v.name.includes('Hazelnut'))e='🌰';else if(v.name.includes('Mocha'))e='🍵';h+='<div class="card'+(d?' disabled':'')+(cq?' in-cart':'')+(admin?' admin-mode':'')+'" onclick="addToCart(\''+id+'\')"><button class="card-toggle '+(d?'off':'on')+'" onclick="event.stopPropagation();togDis(\''+id+'\')">'+(d?'✕':'✓')+'</button>'+(d?'':'<button class="quick-add" onclick="event.stopPropagation();quickAdd(\''+id+'\')">+</button>')+badge+dot+sold+(v.img?'<img class="photo" src="'+esc(v.img)+'" alt="'+esc(v.name)+'" loading="lazy" onerror="this.style.display=\'none\'">':'<div class="e">'+e+'</div>')+'<div class="n">'+esc(v.name)+'</div><div class="p">RM'+v.price.toFixed(2)+'</div></div>';})});h+='</div>';r.innerHTML=h;upCart();drawLoy();drawDel();}
+function fmtMin(m){m=((m%1440)+1440)%1440;const h=Math.floor(m/60),mm=m%60,ap=h<12?'AM':'PM';let hh=h%12;if(hh===0)hh=12;return hh+':'+(mm<10?'0':'')+mm+ap}
+function isOpenNow(){const n=new Date(),m=n.getHours()*60+n.getMinutes();const o=HOURS[0],c=HOURS[1];return o<=c?(m>=o&&m<c):(m>=o||m<c)}
+function minsUntilClose(){const n=new Date(),m=n.getHours()*60+n.getMinutes();const c=HOURS[1];let d=c-m;if(d<=0)d+=1440;return d}
+function drawFounder(){const el=document.getElementById('founder');if(!el)return;const w=WHO||{};if(!w.n){el.style.display='none';return}el.style.display='flex';el.innerHTML=(w.img?'<img src="'+esc(w.img)+'" alt="" onerror="this.style.display=\'none\'">':'')+'<div class="fi"><div class="fn">'+esc(w.n)+'</div><div class="fs">'+esc(w.b||'')+(w.note?' · '+esc(w.note):'')+'</div></div>'+(WA?'<a class="fb" href="https://wa.me/'+WA.replace(/[^0-9]/g,'')+'" target="_blank" rel="noopener">WhatsApp</a>':'')}
+function syncTimeButton(){const b=document.getElementById('time-toggle');if(!b)return;b.textContent=(selTime==='ASAP'||!selTime?'ASAP':selTime)+' ▾'}
+function toggleTimePick(){const d=document.getElementById('time-pick');if(!d)return;const open=d.style.display==='block';d.style.display=open?'none':'block';if(open)selTime='ASAP';drawTimes();syncTimeButton()}
+function drawStatus(){const el=document.getElementById('status-bar');if(!el)return;const o=HOURS[0],c=HOURS[1];if(isOpenNow()){const left=minsUntilClose();const lft=left<60?left+' minit':Math.floor(left/60)+' jam '+(left%60)+' min';el.className='status-bar open';el.innerHTML='<span class="dot"></span> BUKA SEKARANG · tutup dalam '+lft+' ('+fmtMin(c)+')'}else{el.className='status-bar closed';el.innerHTML='<span class="dot"></span> TUTUP · buka '+fmtMin(o)+' — anda masih boleh lihat menu'}window._statusTmr=setTimeout(drawStatus,30000)}
 function drawTimes(){document.getElementById('times').innerHTML=SLOTS.map(t=>{const u=unrTimes.includes(t),a=selTime===t?' active':'';return'<button class="t-btn'+a+(u?' unavail':'')+(admin?' admin-mode':'')+'" onclick="selT(\''+t+'\')"'+(u&&!admin?' disabled':'')+'>'+t+'</button>'}).join('')}
-function selT(t){if(admin){const i=unrTimes.indexOf(t);if(i>-1)unrTimes.splice(i,1);else unrTimes.push(t);saveConfig();drawTimes();return}if(unrTimes.includes(t)){toast('❌ Waktu tidak tersedia');return}selTime=t;drawTimes()}
+function selT(t){if(!admin){document.getElementById('time-pick').style.display='none'}if(admin){const i=unrTimes.indexOf(t);if(i>-1)unrTimes.splice(i,1);else unrTimes.push(t);saveConfig();drawTimes();return}if(unrTimes.includes(t)){toast('❌ Waktu tidak tersedia');return}selTime=t;drawTimes()}
 function drawCust(){if(!custItem||!MENU[custItem.ci]||!MENU[custItem.ci].items[custItem.vi]){closeCust();return}const sw=document.getElementById('c-sweet'),lv=document.getElementById('c-level'),ex=document.getElementById('c-extra');sw.innerHTML='';lv.innerHTML='';ex.innerHTML='';ADDS.forEach(a=>{const s=custAdds.includes(a.id),d=disAdds.includes(a.id);const ch='<span class="chip'+(s?' sel':'')+(d?' dis':'')+'" onclick="togC(\''+a.id+'\')">'+esc(a.name)+(a.price>0?' <span style="color:#FFB347">+RM'+a.price.toFixed(2)+'</span>':'')+'</span>';if(a.grp==='s')sw.innerHTML+=ch;else if(a.grp==='l')lv.innerHTML+=ch;else ex.innerHTML+=ch;});const at=custAdds.reduce((s,id)=>{const a=findAdd(id);return s+(a?a.price:0)},0);document.getElementById('c-price').textContent=(at+(custItem?MENU[custItem.ci].items[custItem.vi].price:0)).toFixed(2);}
 let _addClicks={},_addTmr={};
 function togC(addId){if(disAdds.includes(addId)&&!admin)return;const a=findAdd(addId);if(!a)return;if(admin){_addClicks[addId]=(_addClicks[addId]||0)+1;clearTimeout(_addTmr[addId]);_addTmr[addId]=setTimeout(()=>{_addClicks[addId]=0},2000);if(_addClicks[addId]>=4){_addClicks[addId]=0;if(disAdds.includes(addId)){disAdds=disAdds.filter(x=>x!==addId);toast('✓ '+a.name+' diaktifkan')}else{disAdds.push(addId);toast('❌ '+a.name+' dilumpuhkan')}saveConfig();drawCust();return}}const idx=custAdds.indexOf(addId);if(idx>-1){custAdds.splice(idx,1)}else{if(a.grp==='s'||a.grp==='l'){custAdds=custAdds.filter(id=>{const x=findAdd(id);return x&&x.grp!==a.grp})}custAdds.push(addId)}drawCust()}
-function openCust(ci,vi){custItem={ci,vi};custAdds=[];document.getElementById('c-title').textContent=MENU[ci].items[vi].name;drawCust();document.getElementById('cust').style.display='flex'}
+function openCust(ci,vi){track('item_open');custItem={ci,vi};custAdds=[];document.getElementById('c-title').textContent=MENU[ci].items[vi].name;drawCust();document.getElementById('cust').style.display='flex'}
 function closeCust(){custItem=null;custAdds=[];document.getElementById('cust').style.display='none'}
-function confirmCust(){if(!custItem)return;const hasSweet=custAdds.some(id=>{const a=findAdd(id);return a&&a.grp==='s'});const anySweetAvail=ADDS.some(a=>a.grp==='s'&&!disAdds.includes(a.id));if(!hasSweet&&anySweetAvail){toast('⚠ Sila pilih pemanis');return}const id='c'+custItem.ci+'v'+custItem.vi;if(!cart[id])cart[id]=[];cart[id].push({adds:[...custAdds]});saveCart();closeCust();draw();toast('✓ Ditambah')}
+function confirmCust(){if(!custItem)return;const hasSweet=custAdds.some(id=>{const a=findAdd(id);return a&&a.grp==='s'});const anySweetAvail=ADDS.some(a=>a.grp==='s'&&!disAdds.includes(a.id));if(!hasSweet&&anySweetAvail){toast('⚠ Sila pilih pemanis');return}const id='c'+custItem.ci+'v'+custItem.vi;if(!cart[id])cart[id]=[];cart[id].push({adds:[...custAdds]});saveCart();track('add_cart');closeCust();draw();toast('✓ Ditambah')}
+function defaultAdds(){const out=[];const s=ADDS.find(a=>a.grp==='s'&&!disAdds.includes(a.id));const l=ADDS.find(a=>a.grp==='l'&&!disAdds.includes(a.id));if(s)out.push(s.id);if(l)out.push(l.id);return out}
+function quickAdd(id){if(isDis(id)){toast('Item habis');return}const m=id.match(/c(\d+)v(\d+)/);if(!m)return;const ci=parseInt(m[1]),vi=parseInt(m[2]);if(!MENU[ci]||!MENU[ci].items[vi])return;if(!cart[id])cart[id]=[];cart[id].push({adds:defaultAdds()});saveCart();track('add_cart');draw();toast(esc(MENU[ci].items[vi].name)+' ditambah')}
 function addToCart(id){if(isDis(id)){toast('❌ Item habis');return}const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;openCust(ci,vi)}
 function remInst(key,idx){if(cart[key]){cart[key].splice(idx,1);if(cart[key].length===0)delete cart[key];saveCart();draw()}}
-function upCart(){const e=Object.entries(cart);let totalItems=0;e.forEach(([_,v])=>totalItems+=v.length);const bar=document.getElementById('cart-bar');if(totalItems>0){bar.classList.add('show');document.getElementById('cart-count').textContent=totalItems+' item(s)';}else{bar.classList.remove('show');}document.getElementById('checkout').disabled=totalItems===0;document.getElementById('times').style.display=isCod?'flex':'none';document.getElementById('time-pickup').style.display=isCod?'none':'block';drawTimes();drawDel();let total=0,html='';e.forEach(([id,items])=>{if(!MENU)return;const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;const item=MENU[ci].items[vi];items.forEach((inst,i)=>{const ac=inst.adds.reduce((s,aid)=>{const a=findAdd(aid);return s+(a?a.price:0)},0);total+=item.price+ac;const al=inst.adds.map(aid=>{const a=findAdd(aid);return a?a.name:''}).filter(Boolean).join(', ');html+='<div class="item"><div class="ii"><div class="nm">'+item.name+'</div><div class="sb">RM'+(item.price+ac).toFixed(2)+(al?' <span style="color:#8888AA">· '+al+'</span>':'')+'</div></div><div class="iq"><button onclick="remInst(\''+id+'\','+i+')" style="color:#FF6B6B">−</button><button onclick="addToCart(\''+id+'\')" style="color:#00D4AA">+</button></div></div>';});});document.getElementById('items').innerHTML=html;document.getElementById('items-summary').textContent=totalItems+' item(s) · RM'+total.toFixed(2);const cod=isCod?1:0;document.getElementById('sub').textContent='RM'+total.toFixed(2);document.getElementById('total').textContent='RM'+(total+cod).toFixed(2);document.getElementById('cart-total').textContent='RM'+(total+cod).toFixed(2);document.getElementById('empty').style.display=totalItems?'none':'block';document.getElementById('cod-row').style.display=isCod?'flex':'none';}
+function upCart(){const e=Object.entries(cart);let totalItems=0;e.forEach(([_,v])=>totalItems+=v.length);const bar=document.getElementById('cart-bar');if(totalItems>0){bar.classList.add('show');document.getElementById('cart-count').textContent=totalItems+' item(s)';}else{bar.classList.remove('show');}document.getElementById('checkout').disabled=totalItems===0;drawTimes();drawDel();syncTimeButton();let total=0,html='';e.forEach(([id,items])=>{if(!MENU)return;const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;const item=MENU[ci].items[vi];items.forEach((inst,i)=>{const ac=inst.adds.reduce((s,aid)=>{const a=findAdd(aid);return s+(a?a.price:0)},0);total+=item.price+ac;const al=inst.adds.map(aid=>{const a=findAdd(aid);return a?a.name:''}).filter(Boolean).join(', ');html+='<div class="item"><div class="ii"><div class="nm">'+item.name+'</div><div class="sb">RM'+(item.price+ac).toFixed(2)+(al?' <span style="color:#9A9385">· '+al+'</span>':'')+'</div></div><div class="iq"><button onclick="remInst(\''+id+'\','+i+')" style="color:#FF6B6B">−</button><button onclick="addToCart(\''+id+'\')" style="color:#00D4AA">+</button></div></div>';});});document.getElementById('items').innerHTML=html;document.getElementById('items-summary').textContent=totalItems+' item(s) · RM'+total.toFixed(2);const cod=isCod?1:0;document.getElementById('sub').textContent='RM'+total.toFixed(2);document.getElementById('total').textContent='RM'+(total+cod).toFixed(2);document.getElementById('cart-total').textContent='RM'+(total+cod).toFixed(2);document.getElementById('empty').style.display=totalItems?'none':'block';document.getElementById('cod-row').style.display=isCod?'flex':'none';}
 function openCart(){document.getElementById('overlay').classList.add('open');document.getElementById('panel').classList.add('open')}
 function closeCart(){document.getElementById('overlay').classList.remove('open');document.getElementById('panel').classList.remove('open')}
 function drawDel(){document.getElementById('del').innerHTML=DELS.map(d=>{const di=disDel.includes(d.t),a=(isCod&&d.t==='cod')||(!isCod&&d.t==='pickup');return'<button class="dt-btn'+(a?' active':'')+(di?' unavail':'')+(admin?' admin-mode':'')+'" data-type="'+d.t+'">'+esc(d.l)+'</button>'}).join('')}
@@ -286,31 +349,115 @@ document.getElementById('pickup-time').addEventListener('input',function(){selTi
 let payM='cash';
 document.getElementById('pay').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;document.querySelectorAll('#pay button').forEach(b=>b.classList.remove('active'));b.classList.add('active');payM=b.dataset.method;document.getElementById('qr-section').style.display=payM==='qr'?'block':'none'});
 function closeConfirm(){document.getElementById('confirm-modal').style.display='none'}
-document.getElementById('checkout').addEventListener('click',function(){const e=Object.entries(cart);let totalItems=0;e.forEach(([_,v])=>totalItems+=v.length);if(totalItems===0){toast('⚠ Tiada pesanan');return}const n=document.getElementById('inp-name2').value.trim(),r=isCod?(selBlock==='other'?((document.getElementById('inp-custom-block')||{}).value||'').trim():selBlock):'';if(!n){highlight('inp-name2','⚠ Sila masukkan nama');return}if(isCod&&!selBlock){toast('⚠ Sila pilih blok');return}if(isCod&&selBlock&&!document.getElementById('inp-room').value.trim()){toast('⚠ Sila masukkan nombor bilik');return}if(!selTime){toast('⚠ Sila pilih masa');return}let html='',total=0,idx=0;e.forEach(([id,items])=>{const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;const item=MENU[ci].items[vi];items.forEach(inst=>{idx++;const ac=inst.adds.reduce((s,aid)=>{const a=findAdd(aid);return s+(a?a.price:0)},0);total+=item.price+ac;const al=inst.adds.map(aid=>{const a=findAdd(aid);return a?a.name:''}).filter(Boolean).join(', ');const emoji=item.name.includes('Milo')?'🥤':item.name.includes('Extrajoss')?'🍹':item.name.includes('Indocafe')?'☕':item.name.includes('Chocolate')?'🍫':item.name.includes('Horlicks')?'🥛':item.name.includes('Hazelnut')?'🌰':item.name.includes('Mocha')?'🍵':'🧋';html+='<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="font-size:20px">'+emoji+'</span><div style="flex:1"><div style="font-weight:800;font-size:14px;color:#F0F0F0">'+item.name+'</div>'+(al?'<div style="font-size:11px;color:#8888AA;margin-top:2px">➕ '+al+'</div>':'')+'</div><span style="font-family:\'Bangers\',cursive;font-size:18px;color:#00D4AA">RM'+(item.price+ac).toFixed(2)+'</span></div>';});});document.getElementById('confirm-items').innerHTML=html;document.getElementById('confirm-delivery').innerHTML='🚗 '+(isCod?'COD (+RM1)':'Ambil Sendiri')+' · ⏰ '+esc(selTime)+' · 👤 '+esc(n)+(isCod?' '+esc(r):'');document.getElementById('confirm-pay').innerHTML='💳 '+(payM==='cash'?'💵 Tunai':'📱 QR Pay');document.getElementById('confirm-sub').textContent='RM'+total.toFixed(2);document.getElementById('confirm-cod').style.display=isCod?'flex':'none';document.getElementById('confirm-total').textContent='RM'+(total+(isCod?1:0)).toFixed(2);document.getElementById('confirm-modal').style.display='flex';});
+document.getElementById('checkout').addEventListener('click',function(){const e=Object.entries(cart);let totalItems=0;e.forEach(([_,v])=>totalItems+=v.length);if(totalItems===0){toast('⚠ Tiada pesanan');return}const n=document.getElementById('inp-name2').value.trim(),r=isCod?(selBlock==='other'?((document.getElementById('inp-custom-block')||{}).value||'').trim():selBlock):'';if(!n){highlight('inp-name2','⚠ Sila masukkan nama');return}if(isCod&&!selBlock){toast('⚠ Sila pilih blok');return}if(isCod&&selBlock&&!document.getElementById('inp-room').value.trim()){toast('⚠ Sila masukkan nombor bilik');return}if(!selTime){toast('⚠ Sila pilih masa');return}let html='',total=0,idx=0;e.forEach(([id,items])=>{const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;const item=MENU[ci].items[vi];items.forEach(inst=>{idx++;const ac=inst.adds.reduce((s,aid)=>{const a=findAdd(aid);return s+(a?a.price:0)},0);total+=item.price+ac;const al=inst.adds.map(aid=>{const a=findAdd(aid);return a?a.name:''}).filter(Boolean).join(', ');const emoji=item.name.includes('Milo')?'🥤':item.name.includes('Extrajoss')?'🍹':item.name.includes('Indocafe')?'☕':item.name.includes('Chocolate')?'🍫':item.name.includes('Horlicks')?'🥛':item.name.includes('Hazelnut')?'🌰':item.name.includes('Mocha')?'🍵':'🧋';html+='<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="font-size:20px">'+emoji+'</span><div style="flex:1"><div style="font-weight:800;font-size:14px;color:#F0F0F0">'+item.name+'</div>'+(al?'<div style="font-size:11px;color:#9A9385;margin-top:2px">➕ '+al+'</div>':'')+'</div><span style="font-family:\'Bangers\',cursive;font-size:18px;color:#00D4AA">RM'+(item.price+ac).toFixed(2)+'</span></div>';});});document.getElementById('confirm-items').innerHTML=html;document.getElementById('confirm-delivery').innerHTML='🚗 '+(isCod?'COD (+RM1)':'Ambil Sendiri')+' · ⏰ '+esc(selTime)+' · 👤 '+esc(n)+(isCod?' '+esc(r):'');document.getElementById('confirm-pay').innerHTML='💳 '+(payM==='cash'?'💵 Tunai':'📱 QR Pay');document.getElementById('confirm-sub').textContent='RM'+total.toFixed(2);document.getElementById('confirm-cod').style.display=isCod?'flex':'none';document.getElementById('confirm-total').textContent='RM'+(total+(isCod?1:0)).toFixed(2);document.getElementById('confirm-modal').style.display='flex';});
 function clip(s,max){return String(s==null?'':s).trim().slice(0,max)}
 function saveCart(){try{localStorage.setItem('mms_cart',JSON.stringify(cart))}catch(e){}}
 function loadCart(){try{const c=JSON.parse(localStorage.getItem('mms_cart'));if(c&&typeof c==='object'){cart=c;return true}}catch(e){}return false}
+function orderCode(){const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<6;i++)s+=A[Math.floor(Math.random()*A.length)];return s}
+function fmtTimeLabel(t){return (t==='ASAP'||!t)?'Secepat mungkin (~15-30 min)':t}
 let _sending=false;
-async function sendWa(){if(_sending)return;if(!Object.values(cart).reduce((s,v)=>s+v.length,0)){toast('Tiada item dalam bakul');closeConfirm();return}const btn=document.getElementById('wa-send');const n=clip(document.getElementById('inp-name2').value,40),roomIn=clip(document.getElementById('inp-room').value,20);const r=isCod?(clip(selBlock,30)+(roomIn?' '+roomIn:'')):'';if(!n){highlight('inp-name2','Sila masukkan nama');return}if(isCod&&!selBlock){toast('Sila pilih blok');return}if(isCod&&!roomIn){highlight('inp-room','Sila masukkan nombor bilik');return}if(!selTime){toast('Sila pilih masa');return}
-let msg='Hi '+SHOP+'! Pesanan:\n',total=0;const ordMap={};Object.entries(cart).forEach(([id,items])=>{const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;const item=MENU[ci].items[vi];items.forEach(inst=>{const ac=inst.adds.reduce((s,aid)=>{const a=findAdd(aid);return s+(a?a.price:0)},0);const al=inst.adds.map(aid=>{const a=findAdd(aid);return a?a.name:''}).filter(Boolean),okey=item.name+'|'+al.join(',');ordMap[okey]=ordMap[okey]||{name:clip(item.name,60),price:+(item.price+ac).toFixed(2),adds:al.slice(0,10).map(x=>clip(x,40)),qty:0};ordMap[okey].qty++;msg+=item.name+' = RM'+(item.price+ac).toFixed(2)+(ac>0?' ('+al.join(', ')+')':'')+'\n';total+=item.price+ac})});
-const cod=isCod?1:0;total+=cod;if(isCod)msg+='\nCOD (+RM1)';else msg+='\nAmbil Sendiri';msg+='\nMasa: '+selTime+'\nBayar: '+(payM==='cash'?'Tunai':'QR Pay')+'\nNama: '+n+(isCod?' ('+r+')':'');msg+='\nJumlah: RM'+total.toFixed(2);
-_sending=true;btn.disabled=true;btn.textContent='Menghantar...';
-const saved=await saveOrder({name:n,room:r,delivery:isCod?'cod':'pickup',time:clip(selTime,40),payment:payM,items:Object.values(ordMap).slice(0,50),subtotal:+(total-cod).toFixed(2),total:+total.toFixed(2),status:'baru'});
-_sending=false;btn.disabled=false;btn.textContent='Hantar ke WhatsApp';
-window.open(waUrl(msg),'_blank');
-closeConfirm();closeCart();toast(saved?'Pesanan dihantar!':'WhatsApp dibuka - simpan bukti');
-const l=getLoy();l.c++;if(l.c%5===0)setTimeout(()=>toast('Congrats! Minuman percuma seterusnya!'),900);saveLoy(l);drawLoy();cart={};saveCart();selTime='';selBlock='';document.getElementById('pickup-time').value='';document.getElementById('room-row').style.display='none';draw();}
+async function sendWa(){
+  if(_sending)return;
+  const items=Object.values(cart).reduce((s,v)=>s+v.length,0);
+  if(!items){toast('Tiada item dalam bakul');closeConfirm();return}
+  const btn=document.getElementById('wa-send');
+  const n=clip(document.getElementById('inp-name2').value,40);
+  const roomIn=clip(document.getElementById('inp-room').value,20);
+  const r=isCod?(clip(selBlock,30)+(roomIn?' '+roomIn:'')):'';
+  if(!n){highlight('inp-name2','Sila masukkan nama');return}
+  if(isCod&&!selBlock){toast('Sila pilih blok');return}
+  if(isCod&&!roomIn){highlight('inp-room','Sila masukkan nombor bilik');return}
+  const when=selTime||'ASAP';
+  let msg='Hi '+SHOP+'! Pesanan:\n',total=0;const ordMap={};
+  Object.entries(cart).forEach(([id,list])=>{
+    const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);
+    if(!MENU[ci]||!MENU[ci].items[vi])return;
+    const item=MENU[ci].items[vi];
+    list.forEach(inst=>{
+      const ac=inst.adds.reduce((s,aid)=>{const a=findAdd(aid);return s+(a?a.price:0)},0);
+      const al=inst.adds.map(aid=>{const a=findAdd(aid);return a?a.name:''}).filter(Boolean);
+      const okey=item.name+'|'+al.join(',');
+      ordMap[okey]=ordMap[okey]||{name:clip(item.name,60),price:+(item.price+ac).toFixed(2),adds:al.slice(0,10).map(x=>clip(x,40)),qty:0};
+      ordMap[okey].qty++;
+      total+=item.price+ac
+    })
+  });
+  const cod=isCod?1:0;total+=cod;
+  _sending=true;btn.disabled=true;btn.textContent='Menghantar...';
+
+  const phone=clip((document.getElementById('inp-phone')||{}).value,20);
+  const payload={name:n,room:r,delivery:isCod?'cod':'pickup',time:clip(when,40),payment:payM,items:Object.values(ordMap).slice(0,50),subtotal:+(total-cod).toFixed(2),total:+total.toFixed(2),status:'baru'};
+  if(phone)payload.phone=phone;
+
+  let code=null,saved=false;
+  const db=getDb();
+  if(db){
+    for(let attempt=0;attempt<3&&!saved;attempt++){
+      code=orderCode();
+      try{
+        await db.collection('orders').doc(code).set({...payload,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+        saved=true
+      }catch(e){console.warn('order write gagal ('+code+'):',e)}
+    }
+  }
+
+  _sending=false;btn.disabled=false;btn.textContent='Hantar ke WhatsApp';
+
+  if(code)msg+='No. Pesanan: #'+code+'\n';
+  Object.values(ordMap).forEach(o=>{
+    const al=o.adds.join(', ');
+    msg+=o.qty+'x '+o.name+' = RM'+o.price.toFixed(2)+(o.adds.length?' ('+al+')':'')+'\n'
+  });
+  msg+='\n'+(isCod?'COD (+RM1)':'Ambil sendiri');
+  msg+='\nMasa: '+fmtTimeLabel(when);
+  msg+='\nBayar: '+(payM==='cash'?'Tunai':'QR Pay');
+  msg+='\nNama: '+n+(isCod?' ('+r+')':'');
+  msg+='\nJumlah: RM'+total.toFixed(2);
+
+  if(!saved){showDone({code:code,items:OrdDisplay(ordMap),total:total,isCod:isCod,r:r,n:n,when:when,warn:true});return}
+  track('order_sent');
+  showDone({code:code,items:OrdDisplay(ordMap),total:total,isCod:isCod,r:r,n:n,when:when,warn:false});
+  window.open(waUrl(msg),'_blank');
+  const l=getLoy();l.c++;if(l.c%5===0)setTimeout(()=>toast('Congrats! Minuman percuma seterusnya!'),900);saveLoy(l);drawLoy();
+  cart={};saveCart();selTime='ASAP';selBlock='';
+  const pt=document.getElementById('pickup-time');if(pt)pt.value='';
+  const ph=document.getElementById('inp-phone');if(ph)ph.value='';
+  const rr=document.getElementById('room-row');if(rr)rr.style.display='none';
+  closeConfirm();closeCart();draw();
+}
+function OrdDisplay(map){return Object.values(map)}
+function showDone(o){
+  const el=document.getElementById('done');if(!el)return;
+  el._msg=o;
+  const rows=(o.items||[]).map(i=>'<div class="r"><span>'+i.qty+'x '+esc(i.name)+(i.adds&&i.adds.length?' <span style="color:#9A9385">· '+esc(i.adds.join(', '))+'</span>':'')+'</span><b>RM'+(i.price*i.qty).toFixed(2)+'</b></div>').join('');
+  el.innerHTML='<div class="tick">'+(o.warn?'⚠':'✓')+'</div>'
+    +'<h2>'+(o.warn?'Pesanan disimpan':'Pesanan Diterima')+'</h2>'
+    +(o.code?'<div class="code">#'+esc(o.code)+'</div>':'')
+    +(o.warn?'<div class="warnbox">Rekod dalam sistem gagal, tapi WhatsApp tetap dibuka. Tekan hantar dalam WhatsApp supaya pesanan anda diterima.</div>':'')
+    +'<div class="box2">'+rows
+      +'<div class="r" style="border-top:1px solid rgba(255,255,255,0.08);margin-top:6px;padding-top:8px"><span>Jumlah</span><b style="color:#00D4AA;font-size:16px">RM'+Number(o.total).toFixed(2)+'</b></div>'
+      +'<div class="r"><span>Penghantaran</span><b>'+(o.isCod?'COD (+RM1)':'Ambil sendiri')+'</b></div>'
+      +(o.isCod?'<div class="r"><span>Lokasi</span><b>'+esc(o.r)+'</b></div>':'')
+      +'<div class="r"><span>Masa</span><b>'+esc(fmtTimeLabel(o.when))+'</b></div>'
+    +'</div>'
+    +'<div class="steps"><span class="st on">Diterima</span><span class="arw">›</span><span class="st">Dibuat</span><span class="arw">›</span><span class="st">Dalam perjalanan</span><span class="arw">›</span><span class="st">Sampai</span></div>'
+    +'<button class="go2" onclick="reopenWa()">Buka WhatsApp</button>'
+    +'<button class="alt" onclick="closeDone()">Tutup</button>';
+  el.classList.add('show');
+}
+function reopenWa(){const o=document.getElementById('done')._msg;if(!o)return;let msg='Hi '+SHOP+'! Pesanan:\n';if(o.code)msg+='No. Pesanan: #'+o.code+'\n';(o.items||[]).forEach(i=>{msg+=i.qty+'x '+i.name+' = RM'+(i.price*i.qty).toFixed(2)+(i.adds&&i.adds.length?' ('+i.adds.join(', ')+')':'')+'\n'});msg+='\nJumlah: RM'+Number(o.total).toFixed(2);window.open(waUrl(msg),'_blank')}
+function closeDone(){const el=document.getElementById('done');if(el)el.classList.remove('show')}
 function setOrderStatus(id,st){const db=getDb();if(!db)return;db.collection('orders').doc(id).update({status:st}).catch(e=>console.warn('Firestore update gagal:',e))}
 document.getElementById('cartb').addEventListener('click',openCart);
 document.querySelector('.hero h1').addEventListener('click',()=>{admClk++;clearTimeout(admTmr);admTmr=setTimeout(()=>{admClk=0},1000);if(admClk>=5){admClk=0;if(!admin)showAdminLogin();else{const a=getAuth();if(a)a.signOut().then(()=>{exitAdmin();toast('🔒 已登出 / Logged out')})}}});
 function exitAdmin(){if(admUnsub){admUnsub();admUnsub=null}admin=false;document.getElementById('admin-panel').classList.remove('show');toast('Admin mode OFF')}
 let admTab='orders',admUnsub=null;
-const ADM_T={orders:'📥 Pesanan',menu:'🧋 Minuman',addons:'🍬 Pemanis',schedule:'⏰ Masa',delivery:'🚗 Penghantaran',settings:'⚙️ Settings'};
-function switchAdmin(t){admTab=t;document.getElementById('adm-hd').textContent=ADM_T[t]||t;document.querySelectorAll('#adm-nav a').forEach(a=>{a.classList.toggle('active',a.textContent.trim()===ADM_T[t])});const pg=document.getElementById('adm-pg');if(t==='orders')admOrders(pg);else if(t==='menu')admMenu(pg);else if(t==='addons')admAddons(pg);else if(t==='schedule')admSchedule(pg);else if(t==='delivery')admDelivery(pg);else if(t==='settings')admSettings(pg)}
+const ADM_T={orders:'📥 Pesanan',menu:'🧋 Minuman',addons:'🍬 Pemanis',schedule:'⏰ Masa',delivery:'🚗 Penghantaran',customers:'👥 Pelanggan',stats:'📊 Analitis',settings:'⚙️ Settings'};
+function switchAdmin(t){admTab=t;document.getElementById('adm-hd').textContent=ADM_T[t]||t;document.querySelectorAll('#adm-nav a').forEach(a=>{a.classList.toggle('active',a.textContent.trim()===ADM_T[t])});const pg=document.getElementById('adm-pg');if(t==='orders')admOrders(pg);else if(t==='menu')admMenu(pg);else if(t==='addons')admAddons(pg);else if(t==='schedule')admSchedule(pg);else if(t==='delivery')admDelivery(pg);else if(t==='customers')admCustomers(pg);else if(t==='stats')admAnalytics(pg);else if(t==='settings')admSettings(pg)}
 let _admFilter='all',_admSearch='',_admPrevCount=0,_admVisDocs=[];
 function admBeep(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=880;g.gain.value=0.3;o.start();o.stop(ctx.currentTime+0.15);if(navigator.vibrate)navigator.vibrate(200)}catch(e){}}
 function timeAgo(d){if(!d)return'';const diff=(Date.now()-d.getTime())/1000;if(diff<60)return'Masih baru';if(diff<3600)return Math.floor(diff/60)+' min lalu';if(diff<86400)return Math.floor(diff/3600)+' jam lalu';return Math.floor(diff/86400)+' hari lalu'}
-function admOrders(pg){if(admUnsub){admUnsub();admUnsub=null}_admSearch='';const db=getDb();if(!isAdmin()){pg.innerHTML='<div style="padding:20px;color:#FFB347;font-weight:700">🔒 Login admin diperlukan.</div>';return}if(!db){pg.innerHTML='<div style="padding:20px;color:#FFB347;font-weight:700">⚠ Firebase tidak tersedia.</div>';return}pg.innerHTML='<div style="color:#8888AA;text-align:center;padding:30px">Memuatkan...</div>';admUnsub=ordersQ(db).onSnapshot(snap=>{const docs=snap.docs.map(d=>({id:d.id,...d.data()}));if(docs.length>_admPrevCount&&admTab==='orders'&&document.getElementById('admin-panel').classList.contains('show'))admBeep();_admPrevCount=docs.length;_admRenderOrders(pg,docs)},e=>{pg.innerHTML='<div style="color:#FF6B6B;padding:20px">Error: '+esc(e.message)+'</div>'})}
+function admOrders(pg){if(admUnsub){admUnsub();admUnsub=null}_admSearch='';const db=getDb();if(!isAdmin()){pg.innerHTML='<div style="padding:20px;color:#FFB347;font-weight:700">🔒 Login admin diperlukan.</div>';return}if(!db){pg.innerHTML='<div style="padding:20px;color:#FFB347;font-weight:700">⚠ Firebase tidak tersedia.</div>';return}pg.innerHTML='<div style="color:#9A9385;text-align:center;padding:30px">Memuatkan...</div>';admUnsub=ordersQ(db).onSnapshot(snap=>{const docs=snap.docs.map(d=>({id:d.id,...d.data()}));if(docs.length>_admPrevCount&&admTab==='orders'&&document.getElementById('admin-panel').classList.contains('show'))admBeep();_admPrevCount=docs.length;_admRenderOrders(pg,docs)},e=>{pg.innerHTML='<div style="color:#FF6B6B;padding:20px">Error: '+esc(e.message)+'</div>'})}
 function _admRenderOrders(pg,docs){const f=_admFilter;const live=docs.filter(o=>o.status!=='deleted');let filtered=f==='all'?live:live.filter(o=>o.status===f);if(f==='done'&&_admSearch){const q=_admSearch.toLowerCase();filtered=filtered.filter(o=>(o.name||'').toLowerCase().includes(q)||(o.room||'').toLowerCase().includes(q))}_admVisDocs=filtered;const filters=[['all','📅 History'],['baru','🔴 Baru',live.filter(o=>o.status==='baru').length],['processing','🟡 Proses',live.filter(o=>o.status==='processing').length],['done','🟢 Siap',live.filter(o=>o.status==='done').length]];let h='<div class="a-filter">'+filters.map(([k,l,c])=>'<button class="'+(f===k?'on':'')+'" onclick="admSetFilter(\''+k+'\')">'+l+(c!==undefined?' <span style="opacity:0.6">'+c+'</span>':'')+'</button>').join('')+'</div>';
 if(f==='done')h+='<input class="a-search" placeholder="🔍 Cari nama / bilik..." value="'+esc(_admSearch)+'" oninput="admDoSearch(this.value)">';
 if((f==='baru'||f==='processing')&&filtered.length)h+='<div class="a-bulk"><button onclick="admBulkDone()">✅ Tandakan Semua Siap ('+filtered.length+')</button></div>';
@@ -323,7 +470,7 @@ if(f==='all'){
     return{lbl,count:match.length,total};
   });
   h+='<div class="a-stats">'+stats.map(s=>'<div class="a-stat"><div class="label">'+s.lbl+'</div><div class="count">'+s.count+'</div><div class="rev">RM'+s.total.toFixed(2)+'</div></div>').join('')+'</div>';
-}if(!filtered.length){h+='<div style="text-align:center;padding:40px;color:#8888AA;font-weight:700;font-size:15px">'+(f==='all'?'📭 Tiada pesanan':'Tiada pesanan untuk status ini')+'</div>';pg.innerHTML=h;return}filtered.forEach((o,idx)=>{const num=live.indexOf(o)+1;const items=(o.items||[]).map(i=>'<div class="item-line">'+i.qty+'× '+esc(i.name)+(i.adds&&i.adds.length?' <span style="color:#8888AA;font-size:13px">· '+esc(i.adds.join(', '))+'</span>':'')+'</div>').join('');const when=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate().toLocaleString('ms-MY',{hour:'2-digit',minute:'2-digit'})+(timeAgo(o.createdAt.toDate())?' · '+timeAgo(o.createdAt.toDate()):''):'';const isCod=o.delivery!=='pickup';const stCol=o.status==='done'?'#00D4AA':o.status==='processing'?'#FFB347':'#FF6B6B';h+='<div class="a-card" style="border-left:3px solid '+stCol+'"><div class="top"><span><span class="num">#'+num+'</span><span class="nm">'+esc(o.name||'')+'</span>'+(o.room?' <span style="color:#8888AA;font-size:13px">· '+esc(o.room)+'</span>':'')+'</span><span class="ts">'+when+'</span></div>'+(isCod&&o.room?'<div class="room-box">🏠 Blok '+esc(o.room)+'</div>':'')+'<div class="items-list">'+items+'</div>'+'<div class="info-row"><span>⏰ '+esc(o.time||'')+'</span><span>'+(o.payment==='cash'?'💵 Tunai':'📱 QR')+'</span><span style="color:#8888AA">'+(isCod?'📦 COD':'🏪 Pickup')+'</span></div><div class="acts">'+[['baru','Baru'],['processing','Proses'],['done','Siap']].map(([k,l])=>'<button class="st'+(o.status===k?' on':'')+'" onclick="admUpdOrder(\''+o.id+'\',\''+k+'\')">'+l+'</button>').join('')+'<button class="st" onclick="admWaNotif(\''+o.id+'\')" style="background:rgba(37,211,102,0.15);color:#25D366;font-weight:800">📤</button><button class="del" onclick="admDelOrder(\''+o.id+'\')">✕</button></div></div>'});pg.innerHTML=h}
+}if(!filtered.length){h+='<div style="text-align:center;padding:40px;color:#9A9385;font-weight:700;font-size:15px">'+(f==='all'?'📭 Tiada pesanan':'Tiada pesanan untuk status ini')+'</div>';pg.innerHTML=h;return}filtered.forEach((o,idx)=>{const num=live.indexOf(o)+1;const items=(o.items||[]).map(i=>'<div class="item-line">'+i.qty+'× '+esc(i.name)+(i.adds&&i.adds.length?' <span style="color:#9A9385;font-size:13px">· '+esc(i.adds.join(', '))+'</span>':'')+'</div>').join('');const when=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate().toLocaleString('ms-MY',{hour:'2-digit',minute:'2-digit'})+(timeAgo(o.createdAt.toDate())?' · '+timeAgo(o.createdAt.toDate()):''):'';const isCod=o.delivery!=='pickup';const stCol=o.status==='done'?'#00D4AA':o.status==='processing'?'#FFB347':'#FF6B6B';h+='<div class="a-card" style="border-left:3px solid '+stCol+'"><div class="top"><span><span class="num">#'+num+'</span><span class="nm">'+esc(o.name||'')+'</span>'+(o.room?' <span style="color:#9A9385;font-size:13px">· '+esc(o.room)+'</span>':'')+'</span><span class="ts">'+when+'</span></div>'+(isCod&&o.room?'<div class="room-box">🏠 Blok '+esc(o.room)+'</div>':'')+'<div class="items-list">'+items+'</div>'+'<div class="info-row"><span>⏰ '+esc(o.time||'')+'</span><span>'+(o.payment==='cash'?'💵 Tunai':'📱 QR')+'</span><span style="color:#9A9385">'+(isCod?'📦 COD':'🏪 Pickup')+'</span></div><div class="acts">'+[['baru','Baru'],['processing','Proses'],['done','Siap']].map(([k,l])=>'<button class="st'+(o.status===k?' on':'')+'" onclick="admUpdOrder(\''+o.id+'\',\''+k+'\')">'+l+'</button>').join('')+'<button class="st" onclick="admWaNotif(\''+o.id+'\')" style="background:rgba(37,211,102,0.15);color:#25D366;font-weight:800">📤</button><button class="del" onclick="admDelOrder(\''+o.id+'\')">✕</button></div></div>'});pg.innerHTML=h}
 function admSetFilter(f){_admFilter=f;const pg=document.getElementById('adm-pg');if(admUnsub){admUnsub();admUnsub=null}const db=getDb();if(!db||!isAdmin())return;admUnsub=ordersQ(db).onSnapshot(snap=>{const docs=snap.docs.map(d=>({id:d.id,...d.data()}));_admRenderOrders(pg,docs)})}
 function admUpdOrder(id,status){const db=getDb();if(!db)return;db.collection('orders').doc(id).update({status}).catch(e=>console.warn(e))}
 function admDelOrder(id){if(!confirm('Padam pesanan ini?\n\nIa boleh dipulihkan dari Firebase Console (status = deleted).'))return;const db=getDb();if(!db)return;db.collection('orders').doc(id).update({status:'deleted',deletedAt:firebase.firestore.FieldValue.serverTimestamp()}).catch(e=>console.warn(e))}
@@ -331,14 +478,14 @@ function admDoSearch(v){_admSearch=v;const pg=document.getElementById('adm-pg');
 function admBulkDone(){if(!_admVisDocs.length)return;if(!confirm('Tandakan semua '+_admVisDocs.length+' sebagai Siap?'))return;const db=getDb();if(!db)return;_admVisDocs.forEach(o=>db.collection('orders').doc(o.id).update({status:'done'}));toast('✓ '+_admVisDocs.length+' pesanan ditandakan siap')}
 function admWaNotif(id){const o=_admVisDocs.find(x=>x.id===id);if(!o)return;window.open('https://wa.me/'+WA.replace(/[^0-9]/g,'')+'?text='+encodeURIComponent('Pesanan '+o.name+' siap! Boleh ambil.'),'_blank')}
 let _aei=null;
-function admMenu(pg){_aei=null;let h='<div style="max-width:700px">';(MENU||[]).forEach((cat,ci)=>{cat.items.forEach((v,i)=>{const id='c'+ci+'v'+i;const d=isDis(id);const last=i===cat.items.length-1;h+='<div class="a-row" style="'+(d?'opacity:0.4':'')+'"><span class="n" style="'+(d?'text-decoration:line-through':'')+'">'+(v.pop?'🔥 ':'')+esc(v.name)+'</span><span class="p">RM'+v.price.toFixed(2)+'</span><div class="b"><button style="background:rgba(255,255,255,0.05);color:#8888AA" onclick="admMoveMI('+i+',-1)"'+(i===0?' disabled style="opacity:0.3"':'')+'>▲</button><button style="background:rgba(255,255,255,0.05);color:#8888AA" onclick="admMoveMI('+i+',1)"'+(last?' disabled style="opacity:0.3"':'')+'>▼</button><button style="background:'+(d?'rgba(255,107,107,0.15)':'rgba(0,212,170,0.1)')+';color:'+(d?'#FF6B6B':'#00D4AA')+'" onclick="togDis(\''+id+'\');admMenu(document.getElementById(\'adm-pg\'))">'+(d?'✕':'✓')+'</button><button style="background:rgba(0,212,170,0.1);color:#00D4AA" onclick="admEditMI('+i+')">✎</button><button style="background:rgba(255,107,107,0.1);color:#FF6B6B" onclick="admDelMI('+i+')">✕</button></div></div>'})});h+='</div><div class="a-form"><div class="row"><input class="inp" id="am-name" placeholder="Nama minuman" style="flex:1"><input class="inp" id="am-price" placeholder="Harga" type="number" step="0.10" style="max-width:90px"></div><label style="display:flex;align-items:center;gap:6px;font-size:13px;color:#8888AA;font-weight:700;margin-bottom:14px"><input type="checkbox" id="am-pop"> Popular</label><div style="display:flex;gap:8px"><button onclick="admSaveMI()" id="am-save" style="flex:1;background:#00D4AA;color:#000;border:none;font-family:\'Fredoka One\',cursive;font-size:14px;padding:12px;border-radius:10px;cursor:pointer">➕ Tambah</button><button onclick="admCancelMI()" id="am-cancel" style="display:none;background:rgba(255,255,255,0.08);color:#8888AA;border:none;font-size:13px;padding:12px;border-radius:10px;cursor:pointer">Batal</button></div></div>';pg.innerHTML=h}
-function admEditMI(i){const v=MENU[0].items[i];_aei=i;document.getElementById('am-name').value=v.name;document.getElementById('am-price').value=v.price;document.getElementById('am-pop').checked=v.pop||false;document.getElementById('am-save').textContent='💾 Simpan';document.getElementById('am-cancel').style.display='block'}
+function admMenu(pg){_aei=null;let h='<div style="max-width:700px">';(MENU||[]).forEach((cat,ci)=>{cat.items.forEach((v,i)=>{const id='c'+ci+'v'+i;const d=isDis(id);const last=i===cat.items.length-1;h+='<div class="a-row" style="'+(d?'opacity:0.4':'')+'"><span class="n" style="'+(d?'text-decoration:line-through':'')+'">'+(v.pop?'🔥 ':'')+esc(v.name)+'</span><span class="p">RM'+v.price.toFixed(2)+'</span><div class="b"><button style="background:rgba(255,255,255,0.05);color:#9A9385" onclick="admMoveMI('+i+',-1)"'+(i===0?' disabled style="opacity:0.3"':'')+'>▲</button><button style="background:rgba(255,255,255,0.05);color:#9A9385" onclick="admMoveMI('+i+',1)"'+(last?' disabled style="opacity:0.3"':'')+'>▼</button><button style="background:'+(d?'rgba(255,107,107,0.15)':'rgba(0,212,170,0.1)')+';color:'+(d?'#FF6B6B':'#00D4AA')+'" onclick="togDis(\''+id+'\');admMenu(document.getElementById(\'adm-pg\'))">'+(d?'✕':'✓')+'</button><button style="background:rgba(0,212,170,0.1);color:#00D4AA" onclick="admEditMI('+i+')">✎</button><button style="background:rgba(255,107,107,0.1);color:#FF6B6B" onclick="admDelMI('+i+')">✕</button></div></div>'})});h+='</div><div class="a-form"><div class="row"><input class="inp" id="am-name" placeholder="Nama minuman" style="flex:1"><input class="inp" id="am-price" placeholder="Harga" type="number" step="0.10" style="max-width:90px"></div><div class="row"><input class="inp" id="am-img" placeholder="URL gambar (pilihan)" style="flex:1"></div><label style="display:flex;align-items:center;gap:6px;font-size:13px;color:#9A9385;font-weight:700;margin-bottom:14px"><input type="checkbox" id="am-pop"> Popular</label><div style="display:flex;gap:8px"><button onclick="admSaveMI()" id="am-save" style="flex:1;background:#00D4AA;color:#000;border:none;font-family:\'Fredoka One\',cursive;font-size:14px;padding:12px;border-radius:10px;cursor:pointer">➕ Tambah</button><button onclick="admCancelMI()" id="am-cancel" style="display:none;background:rgba(255,255,255,0.08);color:#9A9385;border:none;font-size:13px;padding:12px;border-radius:10px;cursor:pointer">Batal</button></div></div>';pg.innerHTML=h}
+function admEditMI(i){const v=MENU[0].items[i];_aei=i;document.getElementById('am-name').value=v.name;document.getElementById('am-price').value=v.price;document.getElementById('am-pop').checked=v.pop||false;document.getElementById('am-img').value=v.img||'';document.getElementById('am-save').textContent='💾 Simpan';document.getElementById('am-cancel').style.display='block'}
 function admDelMI(i){if(!confirm('Padam "'+MENU[0].items[i].name+'"?'))return;MENU[0].items.splice(i,1);admMenu(document.getElementById('adm-pg'));saveMenu();toast('✓ Dipadam')}
-function admSaveMI(){const n=document.getElementById('am-name').value.trim(),p=parseFloat(document.getElementById('am-price').value);if(!n){toast('⚠ Nama');return}if(!p||p<=0){toast('⚠ Harga');return}const item={name:n,price:p,pop:document.getElementById('am-pop').checked};if(_aei!==null)MENU[0].items[_aei]=item;else MENU[0].items.push(item);_aei=null;admMenu(document.getElementById('adm-pg'));saveMenu();toast('✓ Disimpan')}
+function admSaveMI(){const n=document.getElementById('am-name').value.trim(),p=parseFloat(document.getElementById('am-price').value);if(!n){toast('⚠ Nama');return}if(!p||p<=0){toast('⚠ Harga');return}const item={name:n,price:p,pop:document.getElementById('am-pop').checked};const _img=document.getElementById('am-img').value.trim();if(_img)item.img=_img;if(_aei!==null)MENU[0].items[_aei]=item;else MENU[0].items.push(item);_aei=null;admMenu(document.getElementById('adm-pg'));saveMenu();toast('✓ Disimpan')}
 function admCancelMI(){_aei=null;admMenu(document.getElementById('adm-pg'))}
 function admMoveMI(i,dir){const items=MENU[0].items;const j=i+dir;if(j<0||j>=items.length)return;[items[i],items[j]]=[items[j],items[i]];admMenu(document.getElementById('adm-pg'));saveMenu()}
 let _eai=null,_eag='s';
-function admAddons(pg){_eai=null;const gs=[{k:'s',l:'🍬 Pemanis',items:[]},{k:'l',l:'🌿 Level',items:[]},{k:'e',l:'➕ Extra',items:[]}];ADDS.forEach((a,i)=>{const g=gs.find(x=>x.k===a.grp);if(g)g.items.push({...a,idx:i})});let h='';gs.forEach(g=>{if(!g.items.length)return;h+='<div class="a-sec">'+g.l+'</div>';g.items.forEach(a=>{const dis=disAdds.includes(a.id);h+='<div class="a-row" style="'+(dis?'opacity:0.4':'')+'"><span class="n" style="'+(dis?'text-decoration:line-through':'')+'">'+esc(a.name)+'</span><span class="p">'+(a.price>0?'RM'+a.price.toFixed(2):'Free')+'</span><div class="b"><button style="background:'+(dis?'rgba(255,107,107,0.15)':'rgba(0,212,170,0.1)')+';color:'+(dis?'#FF6B6B':'#00D4AA')+'" onclick="admTogDis(\''+a.id+'\')">'+(dis?'✕':'✓')+'</button><button style="background:rgba(0,212,170,0.1);color:#00D4AA" onclick="admEditAI('+a.idx+')">✎</button><button style="background:rgba(255,107,107,0.1);color:#FF6B6B" onclick="admDelAI('+a.idx+')">✕</button></div></div>'})});h+='<div class="a-form"><div class="row"><input class="inp" id="aa-name" placeholder="Nama" style="flex:1"><input class="inp" id="aa-price" placeholder="Harga" type="number" step="0.10" style="max-width:90px"></div><div class="chips"><button class="a-chip'+(_eag==='s'?' on':'')+'" onclick="admPickG(this,\'s\')">🍬 Pemanis</button><button class="a-chip'+(_eag==='l'?' on':'')+'" onclick="admPickG(this,\'l\')">🌿 Level</button><button class="a-chip'+(_eag==='e'?' on':'')+'" onclick="admPickG(this,\'e\')">➕ Extra</button></div><div style="display:flex;gap:8px"><button onclick="admSaveAI()" id="aa-save" style="flex:1;background:#00D4AA;color:#000;border:none;font-family:\'Fredoka One\',cursive;font-size:14px;padding:12px;border-radius:10px;cursor:pointer">➕ Tambah</button><button onclick="admCancelAI()" id="aa-cancel" style="display:none;background:rgba(255,255,255,0.08);color:#8888AA;border:none;font-size:13px;padding:12px;border-radius:10px;cursor:pointer">Batal</button></div></div>';pg.innerHTML=h}
+function admAddons(pg){_eai=null;const gs=[{k:'s',l:'🍬 Pemanis',items:[]},{k:'l',l:'🌿 Level',items:[]},{k:'e',l:'➕ Extra',items:[]}];ADDS.forEach((a,i)=>{const g=gs.find(x=>x.k===a.grp);if(g)g.items.push({...a,idx:i})});let h='';gs.forEach(g=>{if(!g.items.length)return;h+='<div class="a-sec">'+g.l+'</div>';g.items.forEach(a=>{const dis=disAdds.includes(a.id);h+='<div class="a-row" style="'+(dis?'opacity:0.4':'')+'"><span class="n" style="'+(dis?'text-decoration:line-through':'')+'">'+esc(a.name)+'</span><span class="p">'+(a.price>0?'RM'+a.price.toFixed(2):'Free')+'</span><div class="b"><button style="background:'+(dis?'rgba(255,107,107,0.15)':'rgba(0,212,170,0.1)')+';color:'+(dis?'#FF6B6B':'#00D4AA')+'" onclick="admTogDis(\''+a.id+'\')">'+(dis?'✕':'✓')+'</button><button style="background:rgba(0,212,170,0.1);color:#00D4AA" onclick="admEditAI('+a.idx+')">✎</button><button style="background:rgba(255,107,107,0.1);color:#FF6B6B" onclick="admDelAI('+a.idx+')">✕</button></div></div>'})});h+='<div class="a-form"><div class="row"><input class="inp" id="aa-name" placeholder="Nama" style="flex:1"><input class="inp" id="aa-price" placeholder="Harga" type="number" step="0.10" style="max-width:90px"></div><div class="chips"><button class="a-chip'+(_eag==='s'?' on':'')+'" onclick="admPickG(this,\'s\')">🍬 Pemanis</button><button class="a-chip'+(_eag==='l'?' on':'')+'" onclick="admPickG(this,\'l\')">🌿 Level</button><button class="a-chip'+(_eag==='e'?' on':'')+'" onclick="admPickG(this,\'e\')">➕ Extra</button></div><div style="display:flex;gap:8px"><button onclick="admSaveAI()" id="aa-save" style="flex:1;background:#00D4AA;color:#000;border:none;font-family:\'Fredoka One\',cursive;font-size:14px;padding:12px;border-radius:10px;cursor:pointer">➕ Tambah</button><button onclick="admCancelAI()" id="aa-cancel" style="display:none;background:rgba(255,255,255,0.08);color:#9A9385;border:none;font-size:13px;padding:12px;border-radius:10px;cursor:pointer">Batal</button></div></div>';pg.innerHTML=h}
 function admPickG(el,g){_eag=g;el.closest('.chips').querySelectorAll('.a-chip').forEach(c=>c.classList.remove('on'));el.classList.add('on')}
 function admTogDis(id){if(disAdds.includes(id))disAdds=disAdds.filter(x=>x!==id);else disAdds.push(id);saveConfig();admAddons(document.getElementById('adm-pg'))}
 function admEditAI(i){const a=ADDS[i];_eai=i;_eag=a.grp;document.getElementById('aa-name').value=a.name;document.getElementById('aa-price').value=a.price||'';document.getElementById('aa-save').textContent='💾 Simpan';document.getElementById('aa-cancel').style.display='block';document.querySelectorAll('.a-chip').forEach(c=>{c.classList.toggle('on',c.textContent.includes({s:'Pemanis',l:'Level',e:'Extra'}[a.grp]))})}
@@ -355,14 +502,95 @@ function admTogBlockDis(b){if(disBlocks.includes(b))disBlocks=disBlocks.filter(x
 function admAddBlock(){const n=document.getElementById('ab-name').value.trim();if(!n){toast('⚠ Nama blok');return}if(BLOCKS.includes(n)){toast('❌ Sudah ada');return}BLOCKS.push(n);saveConfig();admDelivery(document.getElementById('adm-pg'));toast('✓ Ditambah')}
 function admDelBlock(i){if(!confirm('Padam "'+BLOCKS[i]+'"?'))return;BLOCKS.splice(i,1);if(disBlocks.includes(BLOCKS[i]))disBlocks=disBlocks.filter(x=>x!==BLOCKS[i]);saveConfig();admDelivery(document.getElementById('adm-pg'));toast('✓ Dipadam')}
 
-function admSettings(pg){const u=(getAuth()&&getAuth().currentUser)?getAuth().currentUser:null;pg.innerHTML='<div style="max-width:500px"><div class="a-form"><div class="a-sec" style="border:none;padding-top:0">🔐 Akaun Admin</div><div style="font-size:13px;margin-bottom:8px;color:#8888AA">Log masuk sebagai</div><div style="font-size:14px;font-weight:800;color:#00D4AA;margin-bottom:4px">'+esc(u?u.email:'—')+'</div><div style="font-size:11px;color:#8888AA;margin-bottom:12px">Tukar password melalui Firebase Console.</div><button onclick="admSignOutNow()" style="width:100%;background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.25);color:#FF6B6B;font-weight:800;font-size:13px;padding:11px;border-radius:10px;cursor:pointer">🔒 Log Keluar</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">☁️ Storage</div><div style="font-size:13px;margin-bottom:12px;color:#00D4AA;font-weight:700">Firestore — real-time sync, rules locked</div></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">🔄 Reset</div><div style="font-size:13px;color:#8888AA;margin-bottom:12px">Enable all items + time slots + blocks</div><button onclick="exitAdmin();enAll()" style="background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.2);color:#FF6B6B;font-weight:800;font-size:13px;padding:10px 18px;border-radius:10px;cursor:pointer">🔄 Reset Semua</button></div></div>'}
+function admSettings(pg){const u=(getAuth()&&getAuth().currentUser)?getAuth().currentUser:null;pg.innerHTML='<div style="max-width:500px"><div class="a-form"><div class="a-sec" style="border:none;padding-top:0">🔐 Akaun Admin</div><div style="font-size:13px;margin-bottom:8px;color:#9A9385">Log masuk sebagai</div><div style="font-size:14px;font-weight:800;color:#00D4AA;margin-bottom:4px">'+esc(u?u.email:'—')+'</div><div style="font-size:11px;color:#9A9385;margin-bottom:12px">Tukar password melalui Firebase Console.</div><button onclick="admSignOutNow()" style="width:100%;background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.25);color:#FF6B6B;font-weight:800;font-size:13px;padding:11px;border-radius:10px;cursor:pointer">🔒 Log Keluar</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">☁️ Storage</div><div style="font-size:13px;margin-bottom:12px;color:#00D4AA;font-weight:700">Firestore — real-time sync, rules locked</div></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">🕐 Waktu Buka</div><div class="row"><input class="inp" id="st-open" placeholder="10:30PM" style="flex:1"><input class="inp" id="st-close" placeholder="2:00AM" style="flex:1"></div><div style="font-size:11px;color:#9A9385;margin-bottom:12px">Format: 10:30PM / 2:00AM</div><button onclick="admSaveHours()" style="background:#00D4AA;color:#000;border:none;font-weight:800;font-size:13px;padding:10px 18px;border-radius:10px;cursor:pointer">Simpan Waktu</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">🙋 Siapa Kami</div><div class="row"><input class="inp" id="st-wn" placeholder="Nama (cth: Zul)" style="flex:1"></div><div class="row"><input class="inp" id="st-wb" placeholder="Blok (cth: Blok Zamrud, Sem 5)" style="flex:1"></div><div class="row"><input class="inp" id="st-wnote" placeholder="Balasan biasa (cth: reply ~2 min)" style="flex:1"></div><div class="row"><input class="inp" id="st-wimg" placeholder="URL gambar (pilihan)" style="flex:1"></div><button onclick="admSaveWho()" style="background:#00D4AA;color:#000;border:none;font-weight:800;font-size:13px;padding:10px 18px;border-radius:10px;cursor:pointer">Simpan</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">💾 Data</div><div style="font-size:13px;color:#9A9385;margin-bottom:12px">Muat turun semua pesanan sebagai fail (backup).</div><button onclick="admExport()" style="background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.3);color:#00D4AA;font-weight:800;font-size:13px;padding:10px 18px;border-radius:10px;cursor:pointer">⬇ Export Pesanan (JSON)</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">🔄 Reset</div><div style="font-size:13px;color:#9A9385;margin-bottom:12px">Enable all items + time slots + blocks</div><button onclick="exitAdmin();enAll()" style="background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.2);color:#FF6B6B;font-weight:800;font-size:13px;padding:10px 18px;border-radius:10px;cursor:pointer">🔄 Reset Semua</button></div></div>';admFillSettings()}
+function admCustomers(pg){
+  const db=getDb();
+  if(!db){pg.innerHTML='<div style="padding:20px;color:#FFB347;font-weight:700">Firebase tidak tersedia.</div>';return}
+  pg.innerHTML='<div style="color:#9A9385;text-align:center;padding:30px">Memuatkan...</div>';
+  db.collection('orders').limit(2000).get().then(function(snap){
+    const byPhone={};
+    snap.forEach(function(d){const o=d.data();if(o.status==='deleted')return;const p=(o.phone||'').replace(/[^0-9]/g,'');if(!p)return;if(!byPhone[p])byPhone[p]={phone:o.phone,n:o.name,count:0,spend:0,last:null};byPhone[p].count++;byPhone[p].spend+=Number(o.total||0);const t2=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate():null;if(t2&&(!byPhone[p].last||t2>byPhone[p].last))byPhone[p].last=t2;if(o.name)byPhone[p].n=o.name});
+    const rows=Object.values(byPhone).sort(function(a,b){return b.count-a.count});
+    let h='<div style="max-width:700px">';
+    if(!rows.length){h+='<div style="text-align:center;padding:40px;color:#9A9385;font-weight:700;font-size:15px">Belum ada nombor telefon dikumpul.<br><br><span style="font-size:13px">Ia diisi oleh pelanggan (pilihan) semasa order.</span></div>';pg.innerHTML=h+'</div>';return}
+    h+='<div class="a-sec">Stamps — '+rows.length+' pelanggan</div>';
+    rows.forEach(function(c){
+      const stamps=c.count%5,free=Math.floor(c.count/5);
+      const ready=free>0;
+      h+='<div class="a-row"><span class="n">'+esc(c.n||'-')+'<div style="font-size:11px;color:#9A9385;font-weight:700;margin-top:2px">'+esc(c.phone)+' · RM'+c.spend.toFixed(2)+' · '+(c.last?c.last.toLocaleDateString('ms-MY'):'')+'</div></span>'+
+         '<span style="font-family:Bangers,cursive;font-size:20px;color:'+(ready?'#00D4AA':'#FFB347')+'">'+c.count+'x'+(ready?' 🎉':'')+'</span>'+
+         '<span style="font-size:11px;color:#9A9385;font-weight:800;margin-left:10px">'+stamps+'/5</span></div>';
+    });
+    h+='<div style="margin-top:16px;padding:14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;font-size:12px;color:#9A9385;line-height:1.7"><b style="color:#00D4AA">Cara guna:</b> setiap pelanggan yang tinggalkan nombor akan dikira di sini. Bila cukup 5, minuman seterusnya percuma — beritahu mereka melalui WhatsApp.</div></div>';
+    pg.innerHTML=h;
+  }).catch(function(e){pg.innerHTML='<div style="color:#FF6B6B;padding:20px">Gagal baca: '+esc(e.message)+'</div>'});
+}
+let _anWin=1;
+const AN_LBL={page_view:'Buka laman',menu_view:'Nampak menu',item_open:'Buka minuman',add_cart:'Masuk troli',checkout_open:'Buka checkout',order_sent:'Hantar order'};
+function admAnalytics(pg){
+  const db=getDb();
+  if(!db){pg.innerHTML='<div style="padding:20px;color:#FFB347;font-weight:700">Firebase tidak tersedia.</div>';return}
+  const wins=[[1,'Hari ini'],[7,'7 hari'],[30,'30 hari'],[0,'Semua']];
+  let h='<div style="max-width:760px">';
+  h+='<div class="a-filter">'+wins.map(function(w){return '<button class="'+(_anWin===w[0]?'on':'')+'" onclick="admAnWin('+w[0]+')">'+w[1]+'</button>'}).join('')+'</div>';
+  h+='<div id="an-body"><div style="color:#9A9385;text-align:center;padding:30px">Memuatkan...</div></div></div>';
+  pg.innerHTML=h;
+  const start=_anWin===0?new Date(0):new Date(Date.now()-_anWin*86400000);
+  db.collection('events').where('at','>=',start).limit(5000).get().then(function(snap){
+    const counts={};const sids={};let total=0;
+    snap.forEach(function(d){const e=d.data();counts[e.step]=(counts[e.step]||0)+1;total++;if(e.step==='page_view')sids[e.sid||'?']=1});
+    const visitors=Object.keys(sids).length;
+    const body=document.getElementById('an-body');
+    if(!body)return;
+    if(!total){body.innerHTML='<div style="text-align:center;padding:40px;color:#9A9385;font-weight:700;font-size:15px">Belum ada data untuk tempoh ini.<br><br><span style="font-size:13px">Data terkumpul bila orang buka link anda.</span></div>';return}
+    const top=counts['page_view']||1;
+    let rows='';let prev=null;
+    FUNNEL.forEach(function(step){
+      const c=counts[step]||0;
+      const pct=Math.round(c/top*100);
+      const drop=prev===null?null:(prev>0?Math.round((prev-c)/prev*100):0);
+      const w=Math.max(2,pct);
+      rows+='<div style="margin-bottom:14px">'
+        +'<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px">'
+        +'<span style="font-weight:800;font-size:14px;color:#F0F0F0">'+AN_LBL[step]+'</span>'
+        +'<span style="font-family:Bangers,cursive;font-size:20px;color:#00D4AA">'+c+'</span>'
+        +'</div>'
+        +'<div style="height:12px;background:rgba(255,255,255,0.05);border-radius:999px;overflow:hidden">'
+        +'<div style="height:100%;width:'+w+'%;background:linear-gradient(90deg,#00D4AA,#00A88A);border-radius:999px"></div>'
+        +'</div>'
+        +'<div style="display:flex;gap:10px;margin-top:5px;font-size:11px;color:#9A9385;font-weight:700">'
+        +'<span>'+pct+'% dari pelawat</span>'
+        +(drop===null?'':'<span style="color:'+(drop>=50?'#FF6B6B':'#FFB347')+'">-'+drop+'% dari langkah sebelum</span>')
+        +'</div></div>';
+      prev=c;
+    });
+    const sent=counts['order_sent']||0;const failed=counts['order_fail']||0;
+    const rate=visitors?Math.round(sent/visitors*100):0;
+    body.innerHTML='<div class="a-stats" style="grid-template-columns:repeat(3,1fr)">'
+      +'<div class="a-stat"><div class="label">Pelawat</div><div class="count">'+visitors+'</div><div class="rev">unik</div></div>'
+      +'<div class="a-stat"><div class="label">Order</div><div class="count">'+sent+'</div><div class="rev">'+failed+' gagal</div></div>'
+      +'<div class="a-stat"><div class="label">Kadar</div><div class="count">'+rate+'%</div><div class="rev">pelawat ke order</div></div>'
+      +'</div>'+rows
+      +'<div style="margin-top:18px;padding:14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;font-size:12px;color:#9A9385;line-height:1.7">'
+      +'<b style="color:#00D4AA">Cara baca:</b> kalau ramai <b>Buka laman</b> tapi sikit <b>Nampak menu</b>, masalahnya kelajuan muat. Kalau ramai <b>Nampak menu</b> tapi sikit <b>Buka minuman</b>, menu tak menarik. Kalau ramai <b>Buka checkout</b> tapi sikit <b>Hantar order</b>, ada sesuatu yang menyekat borang.</div>';
+  }).catch(function(e){
+    const body=document.getElementById('an-body');
+    if(body)body.innerHTML='<div style="color:#FF6B6B;padding:20px">Gagal baca: '+esc(e.message)+'</div>';
+  });
+}
+function admAnWin(w){_anWin=w;admAnalytics(document.getElementById('adm-pg'))}
+function admSaveHours(){const o=parseClock(document.getElementById('st-open').value),c=parseClock(document.getElementById('st-close').value);if(o===null||c===null){toast('Format: 10:30PM');return}HOURS=[o,c];saveConfig();drawStatus();toast('Waktu disimpan')}
+function admSaveWho(){WHO={n:document.getElementById('st-wn').value.trim(),b:document.getElementById('st-wb').value.trim(),note:document.getElementById('st-wnote').value.trim(),img:document.getElementById('st-wimg').value.trim()};saveConfig();drawFounder();toast('Disimpan')}
+function admFillSettings(){const so=document.getElementById('st-open');if(!so)return;so.value=fmtMin(HOURS[0]);document.getElementById('st-close').value=fmtMin(HOURS[1]);const w=WHO||{};document.getElementById('st-wn').value=w.n||'';document.getElementById('st-wb').value=w.b||'';document.getElementById('st-wnote').value=w.note||'';document.getElementById('st-wimg').value=w.img||''}
+function parseClock(s){const m=String(s||'').trim().toUpperCase().match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)?$/);if(!m)return null;let h=parseInt(m[1],10),mi=m[2]?parseInt(m[2],10):0;const ap=m[3];if(ap==='PM'&&h<12)h+=12;if(ap==='AM'&&h===12)h=0;if(h>23||mi>59)return null;return h*60+mi}
+function admExport(){const db=getDb();if(!db){toast('Firebase tidak tersedia');return}toast('Menyediakan fail...');db.collection('orders').get().then(function(snap){const rows=[];snap.forEach(function(d){const o=d.data();o._id=d.id;if(o.createdAt&&o.createdAt.toDate)o._createdAt=o.createdAt.toDate().toISOString();delete o.createdAt;rows.push(o)});const blob=new Blob([JSON.stringify(rows,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='mms-orders-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(a.href)},3000);toast('Fail dimuat turun ('+rows.length+' pesanan)')}).catch(function(e){toast('Gagal export')})}
 function admSignOutNow(){const a=getAuth();if(a)a.signOut().then(()=>{exitAdmin();toast('🔒 Log keluar')})}
 
 
 
 
 
-(async()=>{loadCart();await loadMenu();await initConfig();initDis();drawLoy();drawDel();const a=getAuth();if(a)a.onAuthStateChanged(u=>{if(u&&u.email){const e=document.getElementById('admin-email');if(e)e.value=u.email;enterAdmin()}else if(admin){exitAdmin()}})})();
+(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();await loadMenu();await initConfig();initDis();drawLoy();drawDel();const a=getAuth();if(a)a.onAuthStateChanged(u=>{if(u&&u.email){const e=document.getElementById('admin-email');if(e)e.value=u.email;enterAdmin()}else if(admin){exitAdmin()}})})();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
 </script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js')</script>
