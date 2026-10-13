@@ -1,0 +1,39 @@
+# ---------------------------------------------------------------------------
+# MINUM MALAM SISWA — stale pre-Firestore artefacts
+#
+# These belong to the old architecture (menu stored in a GitHub Gist, admin
+# gated by a hardcoded password). The app moved to Firestore + Firebase Auth,
+# so nothing here matches the live app and the check scripts would fail.
+# Kept on disk for reference, deliberately excluded from version control.
+# ---------------------------------------------------------------------------
+chk_index.js
+chk_drinks-order-experiment.js
+chk_firebase.js
+drinks-order-experiment.html
+drinks-order.bak.html
+drinks-corpus/
+drinks-out/
+
+# Local scratch / experiments
+*-experiment.*
+*.bak.html
+*.tmp
+_*.json
+
+# Never commit credentials or private keys
+service-account*.json
+*-firebase-adminsdk-*.json
+ADMIN-CREDENTIALS.txt
+
+# Local env
+.env
+
+# Editor / OS noise
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+
+# Local Firebase CLI state
+firebase-debug.log
+.firebase/
