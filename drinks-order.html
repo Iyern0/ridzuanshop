@@ -241,7 +241,7 @@ function isAdmin(){const a=getAuth();return !!(a&&a.currentUser)}
 const ORDER_LIMIT=200;
 function ordersQ(db){if(!isAdmin())return null;return db.collection('orders').orderBy('createdAt','desc').limit(ORDER_LIMIT)}
 function watchOrders(cb,err){const db=getDb();const q=db?ordersQ(db):null;if(!q)return null;return q.onSnapshot(s=>cb(s.docs.map(d=>({id:d.id,...d.data()}))),err)}
-function saveOrder(order){const db=getDb();if(!db)return;db.collection('orders').add({...order,createdAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>{if(!document.hidden)toast('☁️ Pesanan disimpan')}).catch(e=>console.warn('Firestore write gagal:',e))}
+async function saveOrder(order){const db=getDb();if(!db)return false;try{await db.collection('orders').add({...order,createdAt:firebase.firestore.FieldValue.serverTimestamp()});if(!document.hidden)toast('Pesanan disimpan');return true}catch(e){console.warn('Firestore write gagal:',e);return false}}
 
 // Firestore settings — single doc per collection
 const MENU_DOC='settings/menu',CONFIG_DOC='settings/config',DIS_DOC='settings/disabled';
