@@ -590,7 +590,7 @@ function admSignOutNow(){const a=getAuth();if(a)a.signOut().then(()=>{exitAdmin(
 
 
 
-(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();loadMenu();await initConfig();initDis();drawLoy();drawDel();const a=getAuth();if(a)a.onAuthStateChanged(u=>{if(u&&u.email){const e=document.getElementById('admin-email');if(e)e.value=u.email;enterAdmin()}else if(admin){exitAdmin()}})})();
+(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();await loadMenu();await initConfig();initDis();drawLoy();drawDel();const a=getAuth();if(a)a.onAuthStateChanged(u=>{if(u&&u.email){const e=document.getElementById('admin-email');if(e)e.value=u.email;enterAdmin()}else if(admin){exitAdmin()}})})();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
 </script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js')</script>
