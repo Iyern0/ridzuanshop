@@ -429,6 +429,12 @@ button:disabled:active{transform:none}
 .done .alt{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.11);color:#D8D2C8;border-radius:10px;padding:11px 26px;font-size:14px;text-decoration:none;margin-top:4px}
 .done .alt:hover{background:rgba(255,255,255,0.11);color:#F0F0F0}
 #toast-act{font-family:'Nunito',sans-serif}
+
+.a-card .paid{font-size:12px;font-weight:800;padding:4px 10px;border-radius:7px;background:rgba(255,179,71,0.13);color:#FFB347;cursor:pointer}
+.a-card .paid.on{background:rgba(0,212,170,0.13);color:#00D4AA;cursor:default}
+.a-card .paid-btn{width:39px;height:39px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:#FFB347;font-size:16px;cursor:pointer;flex-shrink:0;transition:.16s}
+.a-card .paid-btn:hover{background:rgba(0,212,170,0.14);border-color:rgba(0,212,170,0.3);color:#00D4AA}
+.warnText{color:#FFB347}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -470,7 +476,7 @@ button:disabled:active{transform:none}
 <div style="background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.15);border-radius:12px;padding:14px;margin-bottom:14px" id="confirm-items"></div>
 <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"><div id="confirm-delivery" style="background:rgba(255,179,71,0.1);border:1px solid rgba(255,179,71,0.2);border-radius:8px;padding:8px 14px;font-size:13px;color:#FFB347;font-weight:700"></div><div id="confirm-pay" style="background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.2);border-radius:8px;padding:8px 14px;font-size:13px;color:#00D4AA;font-weight:700"></div></div>
 <div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:14px;margin-bottom:16px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;color:#9A9385;font-weight:700">Subtotal</span><span id="confirm-sub" style="font-size:13px;color:#F0F0F0;font-weight:700"></span></div><div id="confirm-cod" style="display:none;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;color:#9A9385;font-weight:700">📦 COD</span><span style="font-size:13px;color:#F0F0F0;font-weight:700">+RM1.00</span></div><div style="display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08)"><span style="font-family:'Bangers',cursive;font-size:20px;color:#F0F0F0">Jumlah</span><span id="confirm-total" style="font-family:'Bangers',cursive;font-size:24px;color:#00D4AA">RM0.00</span></div></div>
-<button onclick="sendWa()" id="wa-send" style="width:100%;background:#25D366;color:#fff;border:none;font-family:'Fredoka One',cursive;font-size:16px;padding:14px;border-radius:12px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,0.3)">Hantar ke WhatsApp</button>
+<button onclick="sendWa()" id="wa-send" style="width:100%;background:#25D366;color:#fff;border:none;font-family:'Fredoka One',cursive;font-size:16px;padding:14px;border-radius:12px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,0.3)">Hantar Pesanan</button>
 </div></div>
 <div class="page-foot"><i>Minum sedap, harga mesra! 🧡</i><br>© <b>MINUM MALAM SISWA</b></div>
 <div class="toast" id="toast"></div>
@@ -789,7 +795,7 @@ async function sendWa(){
     }
   }
 
-  _sending=false;btn.disabled=false;btn.textContent='Hantar ke WhatsApp';
+  _sending=false;btn.disabled=false;btn.textContent='Hantar Pesanan';
 
   if(orderNo)msg+='No. Pesanan: #'+fmtNo(orderNo)+'\n';
   Object.values(ordMap).forEach(o=>{
@@ -808,7 +814,7 @@ async function sendWa(){
   notifyOwner({no:orderNo,items:ordMap?Object.keys(ordMap).map(function(k){return ordMap[k]}):[],total:total,room:r,time:when,payment:payM});
   showDone({...disp,warn:false});
   saveMyOrder(disp);saveCustomer();
-  window.open(waUrl(msg),'_blank');
+  toast('✓ Pesanan dihantar!');
   const l=getLoy();l.c++;if(l.c%5===0)setTimeout(()=>toast('Congrats! Minuman percuma seterusnya!'),900);saveLoy(l);drawLoy();
   cart={};saveCart();selTime='';selBlock='';isCod=null;payM='';
   const pt=document.getElementById('pickup-time');if(pt)pt.value='';
@@ -904,10 +910,11 @@ function showDone(o){
       +'<div class="r"><span>Masa</span><b>'+esc(fmtTimeLabel(o.when))+'</b></div>'
     +'</div>'
     +'<div class="steps" id="done-steps"><span class="st" data-i="0">Diterima</span><span class="arw">›</span><span class="st" data-i="1">Dibuat</span><span class="arw">›</span><span class="st" data-i="2">Dalam perjalanan</span><span class="arw">›</span><span class="st" data-i="3">Sampai</span></div>'
-    +'<div id="done-status" style="font-size:12px;color:#9A9385;font-weight:700;margin-bottom:14px"></div>'
-    +'<button class="go2" onclick="reopenWa()">Buka WhatsApp</button>'
+    +'<div id="done-status" style="font-size:12px;color:#9A9385;font-weight:700;margin-bottom:10px"></div>'
+    +'<div id="paid-mark" style="display:none;background:rgba(0,212,170,0.12);border:1px solid rgba(0,212,170,0.3);border-radius:10px;padding:10px;margin-bottom:14px;font-size:13px;font-weight:800;color:#00D4AA">✓ Bayaran diterima</div>'
+    +'<button class="go2" onclick="closeDone()">Selesai</button>'
     +'<div class="done-note">🔔 You&rsquo;ll be notified when it&rsquo;s on the way</div>'
-    +'<button class="alt" onclick="closeDone()">Tutup</button>';
+    +'<button class="alt" onclick="reopenWa()">Simpan resit ke WhatsApp (pilihan)</button>';
   el.classList.add('show');
   if(!o.warn&&o.code)trackOrder(o.code);
   autoAskNotify();
@@ -943,7 +950,12 @@ function trackOrder(code){
     const el=document.getElementById('done');
     if(el&&el._msg)el._msg._st=d.status||'baru';
     const o=loadMyOrder();
-    if(o&&o.code===code){o._st=d.status;try{localStorage.setItem('mms_last',JSON.stringify(o))}catch(e){}}
+    if(o&&o.code===code){
+      o._st=d.status;o._paid=!!d.paid;
+      const pm=document.getElementById('paid-mark');
+      if(pm)pm.style.display=d.paid?'block':'none';
+      try{localStorage.setItem('mms_last',JSON.stringify(o))}catch(e){}
+    }
   },function(){});
 }
 function reopenWa(){const o=document.getElementById('done')._msg;if(!o)return;let msg='Hi '+SHOP+'! Pesanan:\n';if(o.code)msg+='No. Pesanan: #'+o.code+'\n';(o.items||[]).forEach(i=>{msg+=i.qty+'x '+i.name+' = RM'+(i.price*i.qty).toFixed(2)+(i.adds&&i.adds.length?' ('+i.adds.join(', ')+')':'')+'\n'});msg+='\nJumlah: RM'+Number(o.total).toFixed(2);window.open(waUrl(msg),'_blank')}
@@ -990,8 +1002,10 @@ function _admOrderCard(o,idx){
    +'<div class="top"><span class="num">#'+(o.no!=null?fmtNo(o.no):idx+1)+'</span><span class="nm">'+esc(o.name||'')+'</span><span class="ts">'+when+'</span></div>'
    +(isCod&&o.room?'<div class="where">🏠 Blok '+esc(o.room)+'</div>':'')
    +'<div class="items-list">'+items+'</div>'
-   +'<div class="meta"><span>⏰ '+esc(o.time||'')+'</span><span>'+(o.payment==='cash'?'💵 Tunai':'📱 QR Pay')+'</span><span>'+(isCod?'📦 COD':'🏪 Ambil sendiri')+'</span><span class="money">RM'+Number(o.total||0).toFixed(2)+'</span></div>'
-   +'<div class="acts"><div class="stepper">'
+   +'<div class="meta"><span>⏰ '+esc(o.time||'')+'</span><span>'+(o.payment==='cash'?'💵 Tunai':'📱 QR Pay')+'</span><span>'+(isCod?'📦 COD':'🏪 Ambil sendiri')+'</span>'
+   +(o.paid?'<span class="paid on">✓ Bayar '+(o.paidAt&&o.paidAt.toDate?o.paidAt.toDate().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'}):'')+'</span>':'<span class="paid" title="Tekan bila sudah terima bayaran">💰 Belum bayar</span>')
+   +'<span class="money">RM'+Number(o.total||0).toFixed(2)+'</span></div>'
+   +'<div class="acts"><button class="paid-btn" onclick="admTogglePaid(\''+o.id+'\')" title="Tanda bayaran">'+(o.paid?'✓':'💰')+'</button><div class="stepper">'
    +[['baru','Baru'],['processing','Proses'],['done','Siap']].map(x=>'<button class="'+(o.status===x[0]?'on':'')+'" onclick="admUpdOrder(\''+o.id+'\',\''+x[0]+'\')">'+x[1]+'</button>').join('')
    +'</div>'
    +'<span class="spacer"></span>'
@@ -1018,9 +1032,10 @@ function _admRenderOrders(pg,docs){
     return{n:m.length,v:m.reduce((s,o)=>s+Number(o.total||0),0)};
   };
   const T=sum(todayStart),W=sum(weekStart);
+  const unpaid=live.filter(function(o){return !o.paid&&o.status!=='done'}).length;
 
   let h='<div class="a-bar"><div class="a-seg">'+segs.map(x=>'<button class="'+(f===x[0]?'on':'')+'" onclick="admSetFilter(\''+x[0]+'\')">'+x[1]+'<span class="c">'+x[2]+'</span></button>').join('')+'</div>'
-   +'<div class="sum">'+(T.n?'Malam ini <b>'+T.n+'</b> pesanan · <b>RM'+T.v.toFixed(2)+'</b>':'Belum ada pesanan malam ini')+(W.n?'<br>Minggu ini <i>'+W.n+'</i> · <i>RM'+W.v.toFixed(2)+'</i>':'')+'</div></div>';
+   +'<div class="sum">'+(T.n?'Malam ini <b>'+T.n+'</b> pesanan · <b>RM'+T.v.toFixed(2)+'</b>':'Belum ada pesanan malam ini')+(W.n?'<br>Minggu ini <i>'+W.n+'</i> · <i>RM'+W.v.toFixed(2)+'</i>':'')+(unpaid?'<br><span class="warnText">'+unpaid+' belum bayar</span>':'')+'</div></div>';
 
   if(f==='done'||f==='all')h+='<input class="a-search" placeholder="🔍 Cari nama atau blok..." value="'+esc(_admSearch)+'" oninput="admDoSearch(this.value)">';
   if(f==='aktif'&&filtered.length)h+='<div class="a-bulk"><button onclick="admBulkDone()">✅ Tandakan semua siap ('+filtered.length+')</button></div>';
@@ -1057,6 +1072,18 @@ function admDelOrder(id){
 
 // Clear out everything already finished. Soft delete, so undo restores the
 // exact status each order had rather than guessing.
+function admTogglePaid(id){
+  const o=_admVisDocs.find(function(x){return x.id===id});
+  if(!o)return;
+  const db=getDb();if(!db)return;
+  const nowPaid=!o.paid;
+  db.collection('orders').doc(id).update({paid:nowPaid,paidAt:nowPaid?firebase.firestore.FieldValue.serverTimestamp():null})
+   .then(function(){
+    db.collection('tracking').doc(id).update({paid:nowPaid,paidAt:nowPaid?firebase.firestore.FieldValue.serverTimestamp():null}).catch(function(){});
+    toast(nowPaid?'💰 Direkodkan sudah bayar':'↩ Bayaran ditanda belum');
+   })
+   .catch(function(){toast('Gagal kemas kini bayaran')});
+}
 function admBulkDelDone(){
   const done=_admVisDocs.filter(function(o){return o.status==='done'});
   if(!done.length){toast('Tiada pesanan siap dipadam');return}
