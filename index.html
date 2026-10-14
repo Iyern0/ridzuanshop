@@ -388,6 +388,10 @@ function isAdmin(){const a=getAuth();return !!(a&&a.currentUser)}
 // Sound + haptics. Audio needs a user gesture first; every call site here is
 // already inside a tap, so the context is allowed to start.
 // ---------------------------------------------------------------------------
+// Normalise a Malaysian number for wa.me: 0123456789 / +60123456789 -> 60123456789
+function waNum(p){p=String(p==null?'':p).replace(/[^0-9]/g,'');if(!p)return'';if(p.charAt(0)==='0')p='60'+p.slice(1);return p}
+function orderRef(o){if(!o)return'#';if(o.no)return'#'+fmtNo(o.no);if(o.code)return'#'+o.code;return o.id?'#'+String(o.id).slice(0,6):'#'}
+
 let _actx=null;
 function beep(freq,dur,vol){try{if(!_actx)_actx=new(window.AudioContext||window.webkitAudioContext)();if(_actx.state==='suspended')_actx.resume();const o=_actx.createOscillator(),g=_actx.createGain();o.connect(g);g.connect(_actx.destination);o.type='sine';o.frequency.value=freq||880;const now=_actx.currentTime;g.gain.setValueAtTime(vol||0.10,now);g.gain.exponentialRampToValueAtTime(0.001,now+(dur||0.12));o.start(now);o.stop(now+(dur||0.12))}catch(e){}}
 function buzz(ms){try{if(navigator.vibrate)navigator.vibrate(ms||15)}catch(e){}}
@@ -593,8 +597,30 @@ function fillCustomer(){
 }
 function saveMyOrder(o){try{localStorage.setItem('mms_last',JSON.stringify({code:o.code,no:o.no,at:Date.now(),total:o.total,items:o.items,isCod:o.isCod,r:o.r,when:o.when,pay:o.pay}));showMyOrderBtn()}catch(e){}}
 function loadMyOrder(){try{const j=JSON.parse(localStorage.getItem('mms_last'));return j&&j.code?j:null}catch(e){return null}}
+let _notifOn=false,_lastSt='';
+function notifySupported(){return typeof window.Notification!=='undefined'}
+function askNotify(){
+  if(!notifySupported()){toast('Browser ini tidak menyokong notifikasi');return}
+  try{
+    Notification.requestPermission().then(function(p){
+      if(p==='granted'){
+        _notifOn=true;
+        toast('🔔 Aktif — kami akan maklumkan');
+        const b=document.getElementById('notif-btn');if(b)b.style.display='none';
+      }else toast('Notifikasi ditolak');
+    });
+  }catch(e){toast('Notifikasi tidak tersedia')}
+}
+function fireNotify(title,body){
+  try{
+    if(!_notifOn)return;
+    if(!notifySupported()||Notification.permission!=='granted')return;
+    if(document.visibilityState==='visible')return;
+    new Notification(title,{body:body,tag:'mms-order',renotify:false});
+  }catch(e){}
+}
 function showMyOrderBtn(){const b=document.getElementById('my-order');if(!b)return;const o=loadMyOrder();b.style.display=o?'inline-flex':'none';if(o)b.textContent='📦 Pesanan saya · #'+fmtNo(o.no)}
-function openMyOrder(){const o=loadMyOrder();if(!o)return;showDone({...o,warn:false})}
+function openMyOrder(){const o=loadMyOrder();if(!o)return;_lastSt='';showDone({...o,warn:false})}
 function showDone(o){
   const el=document.getElementById('done');if(!el)return;
   el._msg=o;
@@ -613,6 +639,7 @@ function showDone(o){
     +'<div class="steps" id="done-steps"><span class="st" data-i="0">Diterima</span><span class="arw">›</span><span class="st" data-i="1">Dibuat</span><span class="arw">›</span><span class="st" data-i="2">Dalam perjalanan</span><span class="arw">›</span><span class="st" data-i="3">Sampai</span></div>'
     +'<div id="done-status" style="font-size:12px;color:#9A9385;font-weight:700;margin-bottom:14px"></div>'
     +'<button class="go2" onclick="reopenWa()">Buka WhatsApp</button>'
+    +(notifySupported()&&Notification.permission!=='granted'?'<button id="notif-btn" class="alt" style="display:block;margin:6px auto 0" onclick="askNotify()">🔔 Maklumkan saya bila siap</button>':'')
     +'<button class="alt" onclick="closeDone()">Tutup</button>';
   el.classList.add('show');
   if(!o.warn&&o.code)trackOrder(o.code);
@@ -636,7 +663,15 @@ function trackOrder(code){
   _trackUnsub=db.collection('tracking').doc(code).onSnapshot(function(s){
     if(!s.exists)return;
     const d=s.data()||{};
-    paintSteps(d.status||'baru');
+    const ns=d.status||'baru';
+    if(_lastSt&&_lastSt!==ns){
+      const dn=document.getElementById('done');
+      const o=(dn&&dn._msg)||{};
+      fireNotify('Pesanan '+orderRef(o),admStatusText(ns));
+      beep(ns==='done'?1180:760,0.2,0.12);
+    }
+    _lastSt=ns;
+    paintSteps(ns);
     const el=document.getElementById('done');
     if(el&&el._msg)el._msg._st=d.status||'baru';
     const o=loadMyOrder();
@@ -668,13 +703,28 @@ if(f==='all'){
     return{lbl,count:match.length,total};
   });
   h+='<div class="a-stats">'+stats.map(s=>'<div class="a-stat"><div class="label">'+s.lbl+'</div><div class="count">'+s.count+'</div><div class="rev">RM'+s.total.toFixed(2)+'</div></div>').join('')+'</div>';
-}if(!filtered.length){h+='<div style="text-align:center;padding:40px;color:#9A9385;font-weight:700;font-size:15px">'+(f==='all'?'📭 Tiada pesanan':'Tiada pesanan untuk status ini')+'</div>';pg.innerHTML=h;return}filtered.forEach((o,idx)=>{const num=live.indexOf(o)+1;const items=(o.items||[]).map(i=>'<div class="item-line">'+i.qty+'× '+esc(i.name)+(i.adds&&i.adds.length?' <span style="color:#9A9385;font-size:13px">· '+esc(i.adds.join(', '))+'</span>':'')+'</div>').join('');const when=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate().toLocaleString('ms-MY',{hour:'2-digit',minute:'2-digit'})+(timeAgo(o.createdAt.toDate())?' · '+timeAgo(o.createdAt.toDate()):''):'';const isCod=o.delivery!=='pickup';const stCol=o.status==='done'?'#00D4AA':o.status==='processing'?'#FFB347':'#FF6B6B';h+='<div class="a-card" style="border-left:3px solid '+stCol+'"><div class="top"><span><span class="num">#'+num+'</span><span class="nm">'+esc(o.name||'')+'</span>'+(o.room?' <span style="color:#9A9385;font-size:13px">· '+esc(o.room)+'</span>':'')+'</span><span class="ts">'+when+'</span></div>'+(isCod&&o.room?'<div class="room-box">🏠 Blok '+esc(o.room)+'</div>':'')+'<div class="items-list">'+items+'</div>'+'<div class="info-row"><span>⏰ '+esc(o.time||'')+'</span><span>'+(o.payment==='cash'?'💵 Tunai':'📱 QR')+'</span><span style="color:#9A9385">'+(isCod?'📦 COD':'🏪 Pickup')+'</span></div><div class="acts">'+[['baru','Baru'],['processing','Proses'],['done','Siap']].map(([k,l])=>'<button class="st'+(o.status===k?' on':'')+'" onclick="admUpdOrder(\''+o.id+'\',\''+k+'\')">'+l+'</button>').join('')+'<button class="st" onclick="admWaNotif(\''+o.id+'\')" style="background:rgba(37,211,102,0.15);color:#25D366;font-weight:800">📤</button><button class="del" onclick="admDelOrder(\''+o.id+'\')">✕</button></div></div>'});pg.innerHTML=h}
+}if(!filtered.length){h+='<div style="text-align:center;padding:40px;color:#9A9385;font-weight:700;font-size:15px">'+(f==='all'?'📭 Tiada pesanan':'Tiada pesanan untuk status ini')+'</div>';pg.innerHTML=h;return}filtered.forEach((o,idx)=>{const num=live.indexOf(o)+1;const items=(o.items||[]).map(i=>'<div class="item-line">'+i.qty+'× '+esc(i.name)+(i.adds&&i.adds.length?' <span style="color:#9A9385;font-size:13px">· '+esc(i.adds.join(', '))+'</span>':'')+'</div>').join('');const when=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate().toLocaleString('ms-MY',{hour:'2-digit',minute:'2-digit'})+(timeAgo(o.createdAt.toDate())?' · '+timeAgo(o.createdAt.toDate()):''):'';const isCod=o.delivery!=='pickup';const stCol=o.status==='done'?'#00D4AA':o.status==='processing'?'#FFB347':'#FF6B6B';h+='<div class="a-card" style="border-left:3px solid '+stCol+'"><div class="top"><span><span class="num">#'+num+'</span><span class="nm">'+esc(o.name||'')+'</span>'+(o.room?' <span style="color:#9A9385;font-size:13px">· '+esc(o.room)+'</span>':'')+'</span><span class="ts">'+when+'</span></div>'+(isCod&&o.room?'<div class="room-box">🏠 Blok '+esc(o.room)+'</div>':'')+'<div class="items-list">'+items+'</div>'+'<div class="info-row"><span>⏰ '+esc(o.time||'')+'</span><span>'+(o.payment==='cash'?'💵 Tunai':'📱 QR')+'</span><span style="color:#9A9385">'+(isCod?'📦 COD':'🏪 Pickup')+'</span></div><div class="acts">'+[['baru','Baru'],['processing','Proses'],['done','Siap']].map(([k,l])=>'<button class="st'+(o.status===k?' on':'')+'" onclick="admUpdOrder(\''+o.id+'\',\''+k+'\')">'+l+'</button>').join('')+'<button class="st" onclick="admWaNotif(\''+o.id+'\')" title="Maklumkan pelanggan melalui WhatsApp" style="background:rgba(37,211,102,0.15);color:#25D366;font-weight:800">'+(o.phone?'📤 WhatsApp':'📤 Set nombor')+'</button><button class="del" onclick="admDelOrder(\''+o.id+'\')">✕</button></div></div>'});pg.innerHTML=h}
 function admSetFilter(f){_admFilter=f;const pg=document.getElementById('adm-pg');if(admUnsub){admUnsub();admUnsub=null}const db=getDb();if(!db||!isAdmin())return;admUnsub=ordersQ(db).onSnapshot(snap=>{const docs=snap.docs.map(d=>({id:d.id,...d.data()}));_admRenderOrders(pg,docs)})}
 function admUpdOrder(id,status){const db=getDb();if(!db)return;db.collection('orders').doc(id).update({status}).catch(e=>console.warn(e));db.collection('tracking').doc(id).update({status:status,at:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){})}
 function admDelOrder(id){if(!confirm('Padam pesanan ini?\n\nIa boleh dipulihkan dari Firebase Console (status = deleted).'))return;const db=getDb();if(!db)return;db.collection('orders').doc(id).update({status:'deleted',deletedAt:firebase.firestore.FieldValue.serverTimestamp()}).catch(e=>console.warn(e))}
 function admDoSearch(v){_admSearch=v;const pg=document.getElementById('adm-pg');if(admUnsub){admUnsub();admUnsub=null}const db=getDb();if(!db||!isAdmin())return;admUnsub=ordersQ(db).onSnapshot(snap=>{const docs=snap.docs.map(d=>({id:d.id,...d.data()}));_admRenderOrders(pg,docs)})}
 function admBulkDone(){if(!_admVisDocs.length)return;if(!confirm('Tandakan semua '+_admVisDocs.length+' sebagai Siap?'))return;const db=getDb();if(!db)return;_admVisDocs.forEach(function(o){db.collection('orders').doc(o.id).update({status:'done'}).catch(function(){});db.collection('tracking').doc(o.id).update({status:'done',at:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){})});toast('✓ '+_admVisDocs.length+' pesanan ditandakan siap')}
-function admWaNotif(id){const o=_admVisDocs.find(x=>x.id===id);if(!o)return;window.open('https://wa.me/'+WA.replace(/[^0-9]/g,'')+'?text='+encodeURIComponent('Pesanan '+o.name+' siap! Boleh ambil.'),'_blank')}
+function admStatusText(s){return s==='done'?'Siap! Boleh ambil ya 🙏':s==='processing'?'Sedang dalam perjalanan!':'Sedang dibuat...'}
+function admWaNotif(id){
+  const o=_admVisDocs.find(x=>x.id===id);if(!o)return;
+  const st=o.status||'baru';
+  const msg='Hi '+o.name+', pesanan anda '+orderRef(o)+' '+admStatusText(st)+' - MINUM MALAM SISWA';
+  const go=function(num){window.open('https://wa.me/'+num+'?text='+encodeURIComponent(msg),'_blank')};
+  const num=waNum(o.phone);
+  if(num){go(num);return}
+  const v=prompt('Nombor WhatsApp pelanggan (cth 0123456789)\n\nKita akan simpan untuk pesanan ini supaya anda boleh maklumkan sekali klik.')
+  if(!v)return;
+  const n2=waNum(v);
+  if(!n2){toast('Nombor tidak sah');return}
+  const db=getDb();
+  if(db)db.collection('orders').doc(id).update({phone:v.trim()}).catch(function(){});
+  setTimeout(function(){go(n2)},350)
+}
 let _aei=null;
 function admMenu(pg){_aei=null;let h='<div style="max-width:700px">';(MENU||[]).forEach((cat,ci)=>{cat.items.forEach((v,i)=>{const id='c'+ci+'v'+i;const d=isDis(id);const last=i===cat.items.length-1;h+='<div class="a-row" style="'+(d?'opacity:0.4':'')+'"><span class="n" style="'+(d?'text-decoration:line-through':'')+'">'+(v.pop?'🔥 ':'')+esc(v.name)+'</span><span class="p">RM'+v.price.toFixed(2)+'</span><div class="b"><button style="background:rgba(255,255,255,0.05);color:#9A9385" onclick="admMoveMI('+i+',-1)"'+(i===0?' disabled style="opacity:0.3"':'')+'>▲</button><button style="background:rgba(255,255,255,0.05);color:#9A9385" onclick="admMoveMI('+i+',1)"'+(last?' disabled style="opacity:0.3"':'')+'>▼</button><button style="background:'+(d?'rgba(255,107,107,0.15)':'rgba(0,212,170,0.1)')+';color:'+(d?'#FF6B6B':'#00D4AA')+'" onclick="togDis(\''+id+'\');admMenu(document.getElementById(\'adm-pg\'))">'+(d?'✕':'✓')+'</button><button style="background:rgba(0,212,170,0.1);color:#00D4AA" onclick="admEditMI('+i+')">✎</button><button style="background:rgba(255,107,107,0.1);color:#FF6B6B" onclick="admDelMI('+i+')">✕</button></div></div>'})});h+='</div><div class="a-form"><div class="row"><input class="inp" id="am-name" placeholder="Nama minuman" style="flex:1"><input class="inp" id="am-price" placeholder="Harga" type="number" step="0.10" style="max-width:90px"></div><div class="row"><input class="inp" id="am-img" placeholder="URL gambar (pilihan)" style="flex:1"></div><label style="display:flex;align-items:center;gap:6px;font-size:13px;color:#9A9385;font-weight:700;margin-bottom:14px"><input type="checkbox" id="am-pop"> Popular</label><div style="display:flex;gap:8px"><button onclick="admSaveMI()" id="am-save" style="flex:1;background:#00D4AA;color:#000;border:none;font-family:\'Fredoka One\',cursive;font-size:14px;padding:12px;border-radius:10px;cursor:pointer">➕ Tambah</button><button onclick="admCancelMI()" id="am-cancel" style="display:none;background:rgba(255,255,255,0.08);color:#9A9385;border:none;font-size:13px;padding:12px;border-radius:10px;cursor:pointer">Batal</button></div></div>';pg.innerHTML=h}
 function admEditMI(i){const v=MENU[0].items[i];_aei=i;document.getElementById('am-name').value=v.name;document.getElementById('am-price').value=v.price;document.getElementById('am-pop').checked=v.pop||false;document.getElementById('am-img').value=v.img||'';document.getElementById('am-save').textContent='💾 Simpan';document.getElementById('am-cancel').style.display='block'}
