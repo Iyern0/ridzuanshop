@@ -70,6 +70,101 @@ body{font-family:'Nunito',sans-serif;background:#131010;color:#F0F0F0;min-height
 .done .go2:disabled{background:#333;color:#666;box-shadow:none}
 .done .alt{background:none;border:none;color:#9A9385;font-size:13px;font-weight:700;cursor:pointer;text-decoration:underline}
 .warnbox{max-width:400px;font-size:12px;color:#FFB347;font-weight:700;margin-bottom:14px;line-height:1.6}
+
+/* ===== motion system =====================================================
+   Durations stay short and the curves overshoot slightly, which is what
+   reads as "physical" rather than "animated". Everything is disabled under
+   prefers-reduced-motion at the bottom of this block.
+   ======================================================================== */
+:root{
+  --sp:cubic-bezier(0.34,1.56,0.64,1);
+  --eo:cubic-bezier(0.22,1,0.36,1);
+  --eio:cubic-bezier(0.65,0,0.35,1);
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(16px) scale(0.965)}to{opacity:1;transform:none}}
+@keyframes riseIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes popIn{0%{transform:scale(0.9);opacity:0}60%{transform:scale(1.03)}100%{transform:scale(1);opacity:1}}
+@keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.07)}100%{transform:scale(1)}}
+@keyframes tickIn{0%{transform:scale(0.4);opacity:0}55%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+@keyframes sheen{0%{background-position:-220% 0}100%{background-position:220% 0}}
+@keyframes floatUp{from{opacity:0;transform:translateY(24px) scale(0.96)}to{opacity:1;transform:none}}
+
+/* --- cards --- */
+.card{animation:cardIn .5s var(--eo) both;transition:border-color .22s var(--eo),box-shadow .28s var(--eo),transform .18s var(--sp),background .25s var(--eo)}
+.card:active{transform:scale(0.955)}
+.card:hover{border-color:#00D4AA}
+.card.in-cart{animation:pop .34s var(--sp)}
+
+/* --- every control gets a physical press --- */
+button,a.adm-link,.fb{-webkit-tap-highlight-color:transparent;transition:transform .2s var(--sp),background .22s var(--eo),border-color .22s var(--eo),color .22s var(--eo),opacity .22s var(--eo),box-shadow .25s var(--eo)}
+button:active{transform:scale(0.93)}
+button:disabled:active{transform:none}
+.card .quick-add:active{transform:scale(0.8)}
+
+/* --- cart bar rises --- */
+#cart-bar{transform:translateY(115%);transition:transform .45s var(--sp),opacity .3s var(--eo);display:flex;opacity:0;pointer-events:none}
+#cart-bar.show{transform:none;opacity:1;pointer-events:auto}
+
+/* --- bottom sheet + side panel --- */
+.panel{transition:transform .45s var(--sp)}
+.overlay{opacity:0;transition:opacity .3s var(--eo)}
+.overlay.open{opacity:1}
+
+/* --- modals --- */
+.modal .box{animation:in .42s var(--sp) both}
+.modal .bg{animation:fadeIn .25s var(--eo) both}
+.modal{animation:fadeIn .2s var(--eo) both}
+
+/* --- toast --- */
+.toast{transition:opacity .26s var(--eo),transform .4s var(--sp)}
+.toast:not(.show){transform:translateX(-50%) translateY(16px) scale(0.92)}
+
+/* --- chips, slots, blocks pop when chosen --- */
+.chip,.ts button,.block-grid button{transition:transform .22s var(--sp),background .22s var(--eo),border-color .22s var(--eo),color .22s var(--eo)}
+.chip.sel,.ts button.active,.block-grid button.active{animation:pop .32s var(--sp)}
+
+/* --- receipt --- */
+.done{animation:fadeIn .28s var(--eo)}
+.done .tick{animation:tickIn .55s var(--sp) both}
+.done h2{animation:riseIn .42s var(--eo) .07s both}
+.done .code{animation:riseIn .42s var(--eo) .14s both}
+.done .box2{animation:riseIn .48s var(--eo) .2s both}
+.done .steps{animation:riseIn .42s var(--eo) .3s both}
+.done .go2{animation:riseIn .42s var(--eo) .38s both}
+.done .alt{animation:fadeIn .4s var(--eo) .46s both}
+.done .st{transition:background .35s var(--eo),color .35s var(--eo),transform .3s var(--sp)}
+.done .st.on{transform:scale(1.06)}
+
+/* --- my-order + trust --- */
+#my-order{animation:floatUp .45s var(--eo) both}
+.trust span{transition:transform .22s var(--sp),background .25s var(--eo)}
+.trust span:active{transform:scale(0.95)}
+
+/* --- status bar --- */
+.status-bar{animation:riseIn .4s var(--eo) both}
+
+/* --- menu section header --- */
+.sec{animation:fadeIn .5s var(--eo) both}
+
+/* --- admin polish --- */
+.a-card,.a-row,.a-form,.a-stat{transition:transform .2s var(--sp),border-color .22s var(--eo),background .22s var(--eo)}
+.a-card:active{transform:scale(0.99)}
+.a-filter button{transition:transform .2s var(--sp),background .22s var(--eo),border-color .22s var(--eo),color .22s var(--eo)}
+#admin-panel{animation:fadeIn .3s var(--eo)}
+.adm-side nav a{transition:background .22s var(--eo),color .22s var(--eo),border-color .22s var(--eo)}
+.adm-main .pg{animation:fadeIn .32s var(--eo)}
+
+/* --- subtle shine on the primary CTA --- */
+#cartb,#checkout,.ft .go,.done .go2{background-image:linear-gradient(100deg,rgba(255,255,255,0) 30%,rgba(255,255,255,0.28) 50%,rgba(255,255,255,0) 70%);background-size:220% 100%;background-repeat:no-repeat;background-position:-220% 0}
+#cartb:not(:disabled):hover,#checkout:not(:disabled):hover,.ft .go:not(:disabled):hover,.done .go2:not(:disabled):hover{animation:sheen 1.1s var(--eo)}
+
+/* --- respect the user's motion preference --- */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms !important;animation-delay:0ms !important;transition-duration:.001ms !important;scroll-behavior:auto !important}
+  #cart-bar{transform:none;opacity:1;pointer-events:auto}
+}
+
 @media(min-width:700px){.grid{grid-template-columns:repeat(3,1fr);max-width:720px}}
 #cart-bar{position:fixed;bottom:0;left:0;right:0;background:#2A2419;border-top:3px solid #00D4AA;padding:10px 16px 12px;display:none;align-items:center;gap:12px;z-index:200;box-shadow:0 -4px 20px rgba(0,0,0,0.6)}
 #cart-bar.show{display:flex}
@@ -215,6 +310,7 @@ body{font-family:'Nunito',sans-serif;background:#131010;color:#F0F0F0;min-height
 <div class="bd"><div class="empty" id="empty">🧺 Belum ada pesanan</div><div id="items"></div>
 <div class="opt"><div class="l">📋 Menu</div><div id="items-summary" style="font-size:13px;color:#9A9385;font-weight:600;margin-top:4px"></div></div>
 <div class="opt"><div class="l">🚗 Delivery Method</div><div class="dt" id="del"></div></div>
+<div id="cust-note" class="opt" style="display:none;align-items:center;gap:8px;padding:10px 12px;background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.18);border-radius:10px;margin-top:10px"><span style="font-size:12px;color:#00D4AA;font-weight:800">✓ Maklumat anda diingati pada peranti ini</span><button onclick="clearCustomer()" style="margin-left:auto;background:none;border:none;color:#9A9385;font-size:11px;font-weight:800;text-decoration:underline;cursor:pointer;flex-shrink:0">Bukan anda?</button></div>
 <div class="opt"><div class="l">👤 Nama</div><div style="display:flex;gap:8px;margin-top:4px"><input class="inp" id="inp-name2" placeholder="Nama anda" maxlength="25" style="flex:1"></div></div>
 <div class="opt"><div class="l">📱 No. WhatsApp <span style="color:#FFB347">(pilihan — untuk stamp)</span></div><div style="margin-top:4px"><input class="inp" id="inp-phone" placeholder="cth: 0123456789" inputmode="tel" maxlength="20"><div style="font-size:11px;color:#9A9385;font-weight:600;margin-top:6px">Isi untuk kira stamp Beli 5 Percuma 1. Tak diisi pun boleh order.</div></div></div>
 <div class="opt" id="block-section"><div class="l">🏠 Blok</div><div class="block-grid" id="block-grid"></div><div id="room-row" style="display:none;margin-top:8px"><input class="inp" id="inp-room" placeholder="Nombor bilik / unit" maxlength="20"></div></div>
@@ -334,7 +430,9 @@ async function loadConfig(){const d=await fsGet(CONFIG_DOC);if(d){if(d.adds)ADDS
 async function saveConfig(){return await fsSet(CONFIG_DOC,getConfig())}
 async function initConfig(){await loadConfig();const db=getDb();if(db)db.doc(CONFIG_DOC).onSnapshot(snap=>{if(snap.exists){const d=snap.data();if(d.adds)ADDS=d.adds;if(d.slots)SLOTS=d.slots;if(d.dels)DELS=d.dels;if(d.blocks)BLOCKS=d.blocks;if(d.disAdds)disAdds=d.disAdds;if(d.unrTimes)unrTimes=d.unrTimes;if(d.disDel)disDel=d.disDel;if(d.disBlocks)disBlocks=d.disBlocks;if(Array.isArray(d.hours)&&d.hours.length===2){HOURS=d.hours;drawStatus()}if(d.who&&typeof d.who==='object'){WHO=d.who;drawFounder()}draw();drawTimes();drawDel();drawCust()}})}
 
-function draw(){const r=document.getElementById('menu-root');if(MENU&&MENU.length){track('menu_view',true)}if(!MENU||MENU.length===0){r.innerHTML='';upCart();drawLoy();drawDel();return}let h='<div class="grid">';MENU.forEach((cat,ci)=>{cat.items.forEach((v,vi)=>{const id='c'+ci+'v'+vi,d=isDis(id),items=cart[id]||[],cq=items.length;const cheapest=(v.price===CHEAPEST_PRICE);let badge='';if(d)badge='';else if(v.pop)badge='<span class="badge">🔥 Paling Laku</span>';else if(cheapest)badge='<span class="badge-new">💸 Paling Murah</span>';const dot=cq?'<span class="qty">'+cq+'</span>':'',sold=d?'<span class="sold">✕ Habis</span>':'';let e='🧋';if(v.name.includes('Milo'))e='🥤';else if(v.name.includes('Extrajoss'))e='🍹';else if(v.name.includes('Indocafe'))e='☕';else if(v.name.includes('Chocolate'))e='🍫';else if(v.name.includes('Horlicks'))e='🥛';else if(v.name.includes('Hazelnut'))e='🌰';else if(v.name.includes('Mocha'))e='🍵';h+='<div class="card'+(d?' disabled':'')+(cq?' in-cart':'')+(admin?' admin-mode':'')+'" onclick="addToCart(\''+id+'\')"><button class="card-toggle '+(d?'off':'on')+'" onclick="event.stopPropagation();togDis(\''+id+'\')">'+(d?'✕':'✓')+'</button>'+(d?'':'<button class="quick-add" onclick="event.stopPropagation();quickAdd(\''+id+'\')">+</button>')+badge+dot+sold+(v.img?'<img class="photo" src="'+esc(v.img)+'" alt="'+esc(v.name)+'" loading="lazy" onerror="this.style.display=\'none\'">':'<div class="e">'+e+'</div>')+'<div class="n">'+esc(v.name)+'</div><div class="p">RM'+v.price.toFixed(2)+'</div></div>';})});h+='</div>';r.innerHTML=h;upCart();drawLoy();drawDel();}
+let _menuFirst=true;
+setTimeout(function(){_menuFirst=false},1100);
+function draw(){const r=document.getElementById('menu-root');if(MENU&&MENU.length){track('menu_view',true)}if(!MENU||MENU.length===0){r.innerHTML='';upCart();drawLoy();drawDel();return}let h='<div class="grid">';let _ai=0;MENU.forEach((cat,ci)=>{cat.items.forEach((v,vi)=>{const id='c'+ci+'v'+vi,_d=_menuFirst?(' style="animation-delay:'+Math.min(_ai++*38,420)+'ms"'):'',d=isDis(id),items=cart[id]||[],cq=items.length;const cheapest=(v.price===CHEAPEST_PRICE);let badge='';if(d)badge='';else if(v.pop)badge='<span class="badge">🔥 Paling Laku</span>';else if(cheapest)badge='<span class="badge-new">💸 Paling Murah</span>';const dot=cq?'<span class="qty">'+cq+'</span>':'',sold=d?'<span class="sold">✕ Habis</span>':'';let e='🧋';if(v.name.includes('Milo'))e='🥤';else if(v.name.includes('Extrajoss'))e='🍹';else if(v.name.includes('Indocafe'))e='☕';else if(v.name.includes('Chocolate'))e='🍫';else if(v.name.includes('Horlicks'))e='🥛';else if(v.name.includes('Hazelnut'))e='🌰';else if(v.name.includes('Mocha'))e='🍵';h+='<div class="card'+(d?' disabled':'')+(cq?' in-cart':'')+(admin?' admin-mode':'')+'"'+_d+' onclick="addToCart(\''+id+'\')"><button class="card-toggle '+(d?'off':'on')+'" onclick="event.stopPropagation();togDis(\''+id+'\')">'+(d?'✕':'✓')+'</button>'+(d?'':'<button class="quick-add" onclick="event.stopPropagation();quickAdd(\''+id+'\')">+</button>')+badge+dot+sold+(v.img?'<img class="photo" src="'+esc(v.img)+'" alt="'+esc(v.name)+'" loading="lazy" onerror="this.style.display=\'none\'">':'<div class="e">'+e+'</div>')+'<div class="n">'+esc(v.name)+'</div><div class="p">RM'+v.price.toFixed(2)+'</div></div>';})});h+='</div>';r.innerHTML=h;upCart();drawLoy();drawDel();}
 function fmtMin(m){m=((m%1440)+1440)%1440;const h=Math.floor(m/60),mm=m%60,ap=h<12?'AM':'PM';let hh=h%12;if(hh===0)hh=12;return hh+':'+(mm<10?'0':'')+mm+ap}
 function isOpenNow(){const n=new Date(),m=n.getHours()*60+n.getMinutes();const o=HOURS[0],c=HOURS[1];return o<=c?(m>=o&&m<c):(m>=o||m<c)}
 function minsUntilClose(){const n=new Date(),m=n.getHours()*60+n.getMinutes();const c=HOURS[1];let d=c-m;if(d<=0)d+=1440;return d}
@@ -444,7 +542,7 @@ async function sendWa(){
   if(!saved){showDone({...disp,warn:true});return}
   track('order_sent');chime();buzzOk();
   showDone({...disp,warn:false});
-  saveMyOrder(disp);
+  saveMyOrder(disp);saveCustomer();
   window.open(waUrl(msg),'_blank');
   const l=getLoy();l.c++;if(l.c%5===0)setTimeout(()=>toast('Congrats! Minuman percuma seterusnya!'),900);saveLoy(l);drawLoy();
   cart={};saveCart();selTime='';selBlock='';isCod=null;payM='';
@@ -454,6 +552,45 @@ async function sendWa(){
   closeConfirm();closeCart();draw();
 }
 function OrdDisplay(map){return Object.values(map)}
+// ---------------------------------------------------------------------------
+// Per-device customer memory. localStorage only - it never leaves this browser
+// and no other device can see it. We deliberately remember DETAILS (name,
+// number, block, room) but NOT the order options (delivery, payment, time),
+// which stay blank so the customer chooses fresh each time.
+// ---------------------------------------------------------------------------
+function loadCustomer(){try{const c=JSON.parse(localStorage.getItem('mms_cust'));return (c&&c.n)?c:null}catch(e){return null}}
+function saveCustomer(){
+  try{
+    localStorage.setItem('mms_cust',JSON.stringify({
+      n:clip(document.getElementById('inp-name2').value,25),
+      ph:clip(document.getElementById('inp-phone').value,20),
+      block:selBlock||'',
+      room:clip(document.getElementById('inp-room').value,20)
+    }));
+  }catch(e){}
+}
+function clearCustomer(){
+  try{localStorage.removeItem('mms_cust')}catch(e){}
+  const a=document.getElementById('inp-name2');if(a)a.value='';
+  const b=document.getElementById('inp-phone');if(b)b.value='';
+  const c=document.getElementById('inp-room');if(c)c.value='';
+  selBlock='';drawBlocks();
+  const r=document.getElementById('room-row');if(r)r.style.display='none';
+  const w=document.getElementById('cust-note');if(w)w.style.display='none';
+  toast('Maklumat dikosongkan');
+}
+function fillCustomer(){
+  const c=loadCustomer();
+  if(!c)return;
+  const a=document.getElementById('inp-name2');if(a&&c.n)a.value=c.n;
+  const b=document.getElementById('inp-phone');if(b&&c.ph)b.value=c.ph;
+  if(c.block&&BLOCKS.indexOf(c.block)>-1){
+    selBlock=c.block;drawBlocks();
+    const r=document.getElementById('room-row');if(r)r.style.display='block';
+    const rm=document.getElementById('inp-room');if(rm&&c.room)rm.value=c.room;
+  }
+  const w=document.getElementById('cust-note');if(w)w.style.display='flex';
+}
 function saveMyOrder(o){try{localStorage.setItem('mms_last',JSON.stringify({code:o.code,no:o.no,at:Date.now(),total:o.total,items:o.items,isCod:o.isCod,r:o.r,when:o.when,pay:o.pay}));showMyOrderBtn()}catch(e){}}
 function loadMyOrder(){try{const j=JSON.parse(localStorage.getItem('mms_last'));return j&&j.code?j:null}catch(e){return null}}
 function showMyOrderBtn(){const b=document.getElementById('my-order');if(!b)return;const o=loadMyOrder();b.style.display=o?'inline-flex':'none';if(o)b.textContent='📦 Pesanan saya · #'+fmtNo(o.no)}
@@ -651,7 +788,7 @@ function admSignOutNow(){const a=getAuth();if(a)a.signOut().then(()=>{exitAdmin(
 
 
 
-(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await loadMenu();await initConfig();initDis();drawLoy();drawDel();const a=getAuth();if(a)a.onAuthStateChanged(u=>{if(u&&u.email){const e=document.getElementById('admin-email');if(e)e.value=u.email;enterAdmin()}else if(admin){exitAdmin()}})})();
+(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await loadMenu();await initConfig();initDis();fillCustomer();drawLoy();drawDel();const a=getAuth();if(a)a.onAuthStateChanged(u=>{if(u&&u.email){const e=document.getElementById('admin-email');if(e)e.value=u.email;enterAdmin()}else if(admin){exitAdmin()}})})();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
 </script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js')</script>
