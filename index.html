@@ -282,12 +282,151 @@ button:disabled:active{transform:none}
 .a-bulk{margin-bottom:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .a-bulk button{background:#00D4AA;color:#000;border:none;font-family:'Fredoka One',cursive;font-size:14px;padding:12px 24px;border-radius:10px;cursor:pointer}
 .a-search{background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.08);border-radius:10px;color:#F0F0F0;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;padding:12px 16px;width:100%;max-width:400px;margin-bottom:16px;outline:none}
+
+/* ===================== ADMIN — redesigned ===================== */
+#admin-panel{background:#0E0C0B}
+.adm-side{width:236px;background:#141110;border-right:1px solid rgba(255,255,255,0.05)}
+.adm-side .brand{padding:20px 20px 14px;font-size:17px;letter-spacing:.5px;border-bottom:none}
+.adm-side nav{flex:1;overflow-y:auto;padding:0 12px 16px}
+.adm-side nav .grp{font-size:10px;font-weight:800;color:#5E564C;letter-spacing:1.4px;text-transform:uppercase;padding:16px 12px 8px}
+.adm-side nav a{display:flex;align-items:center;gap:12px;padding:11px 12px;margin-bottom:2px;border-radius:10px;font-size:14px;color:#9A9385}
+.adm-side nav a:hover{background:rgba(255,255,255,0.05);color:#F0F0F0}
+.adm-side nav a.active{background:rgba(0,212,170,0.11);color:#00D4AA;box-shadow:inset 0 0 0 1px rgba(0,212,170,0.22)}
+.adm-side nav a .ic{width:22px;text-align:center;font-size:15px;flex-shrink:0}
+.adm-side .toggle{display:flex;align-items:center;justify-content:space-between;width:100%;padding:11px 12px;margin-bottom:2px;border-radius:10px;font-size:14px;color:#9A9385;background:none;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;transition:background .16s,color .16s}
+.adm-side .toggle:hover{background:rgba(255,255,255,0.05);color:#F0F0F0}
+.adm-side .toggle.open{color:#F0F0F0}
+.adm-side .toggle .car{display:inline-block;transition:transform .22s var(--sp);color:#5E564C}
+.adm-side .toggle.open .car{transform:rotate(90deg)}
+.adm-side .subnav{overflow:hidden;max-height:0;transition:max-height .26s var(--sp)}
+.adm-side .subnav.open{max-height:400px}
+.adm-side .exit{padding:14px 12px;border-top:1px solid rgba(255,255,255,0.05);display:flex;flex-direction:column;gap:8px}
+.adm-side .exit button{padding:10px;border-radius:10px;font-size:13px}
+.adm-main .hd{padding:24px 30px 12px;align-items:baseline;flex-wrap:wrap;gap:10px}
+.adm-main .hd h2{font-size:25px;letter-spacing:.5px}
+.adm-main .pg{padding:0 30px 36px}
+.adm-main .pg > *{max-width:920px}
+
+/* ---- orders toolbar: one row, sticky, replaces 4 pills + 3 stat boxes ---- */
+.a-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px;position:sticky;top:0;z-index:5;padding:10px 0 12px;background:linear-gradient(#0E0C0B 74%,rgba(14,12,11,0))}
+.a-seg{display:flex;background:rgba(255,255,255,0.05);border-radius:11px;padding:3px;gap:2px;flex-wrap:wrap}
+.a-seg button{border:none;background:transparent;color:#9A9385;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:9px 15px;border-radius:8px;cursor:pointer;transition:background .16s,color .16s;white-space:nowrap}
+.a-seg button .c{opacity:.5;margin-left:6px}
+.a-seg button:hover{color:#F0F0F0}
+.a-seg button.on{background:#00D4AA;color:#000}
+.a-seg button.on .c{opacity:.7}
+.a-bar .sum{margin-left:auto;font-size:13px;font-weight:700;color:#7A7268;text-align:right}
+.a-bar .sum b{color:#00D4AA;font-family:'Bangers',cursive;font-size:17px;letter-spacing:.5px}
+.a-bar .sum i{font-style:normal;color:#F0F0F0}
+
+/* ---- order card: left status rail, no duplicated block text ---- */
+.a-card{background:#171412;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:0;margin-bottom:12px;overflow:hidden;display:flex;transition:border-color .2s}
+.a-card:hover{border-color:rgba(255,255,255,0.11)}
+.a-card:active{transform:scale(.995)}
+.a-card .rail{width:4px;flex-shrink:0}
+.a-card .body{flex:1;padding:15px 17px;min-width:0}
+.a-card .top{display:flex;align-items:baseline;gap:11px;margin-bottom:9px}
+.a-card .num{font-family:'Bangers',cursive;font-size:20px;color:#00D4AA;letter-spacing:.5px;margin-right:0;flex-shrink:0}
+.a-card .nm{font-size:17px;font-weight:800;color:#F0F0F0;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.a-card .ts{font-size:11px;color:#6B645A;flex-shrink:0}
+.a-card .where{display:inline-flex;align-items:center;gap:7px;background:rgba(255,179,71,0.13);color:#FFB347;font-size:14px;font-weight:800;padding:6px 12px;border-radius:8px;margin-bottom:11px}
+.a-card .items-list{font-size:14px;color:#DCD6CC;line-height:1.6;margin-bottom:12px}
+.a-card .items-list .item-line{display:flex;gap:9px}
+.a-card .items-list .q{font-family:'Bangers',cursive;font-size:17px;color:#00D4AA;min-width:28px;flex-shrink:0}
+.a-card .meta{display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:12px;font-weight:700;color:#8A8377;padding-top:11px;border-top:1px solid rgba(255,255,255,0.05);margin-bottom:13px}
+.a-card .meta .money{margin-left:auto;color:#00D4AA;font-size:15px}
+.a-card .acts{display:flex;gap:8px;align-items:center}
+.a-card .stepper{display:flex;background:rgba(255,255,255,0.05);border-radius:10px;padding:3px;gap:2px}
+.a-card .stepper button{border:none;background:transparent;color:#9A9385;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:9px 15px;border-radius:8px;cursor:pointer;transition:background .16s,color .16s}
+.a-card .stepper button:hover{color:#F0F0F0}
+.a-card .stepper button.on{background:#00D4AA;color:#000}
+.a-card .acts .spacer{flex:1}
+.a-card .acts .ic{width:39px;height:39px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:#9A9385;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .16s,color .16s,border-color .16s}
+.a-card .acts .ic:hover{background:rgba(255,255,255,0.09);color:#F0F0F0}
+.a-card .acts .ic.wa{color:#25D366;border-color:rgba(37,211,102,0.28)}
+.a-card .acts .ic.wa:hover{background:rgba(37,211,102,0.14)}
+.a-card .acts .ic.dl:hover{color:#FF6B6B;border-color:rgba(255,107,107,0.4);background:rgba(255,107,107,0.1)}
+.a-bulk{margin-bottom:14px}
+.a-bulk button{background:rgba(0,212,170,0.12);border:1px solid rgba(0,212,170,0.3);color:#00D4AA;font-size:13px;padding:10px 18px}
+.a-search{margin-bottom:14px}
+.a-empty{text-align:center;padding:56px 20px;color:#6B645A;font-weight:700;font-size:14px}
+.a-empty .big{font-size:40px;display:block;margin-bottom:12px;opacity:.6}
+
+@media(max-width:760px){
+  #admin-panel.show{flex-direction:column}
+  .adm-side{width:100%;flex-direction:column;border-right:none;border-bottom:1px solid rgba(255,255,255,0.05)}
+  .adm-side .brand{padding:12px 14px 6px;font-size:14px}
+  .adm-side nav{padding:0 8px 8px;display:flex;flex-wrap:wrap;gap:6px}
+  .adm-side nav .grp{display:none}
+  .adm-side nav a{margin-bottom:0;padding:9px 12px;font-size:13px}
+  .adm-side .subnav{width:100%;display:flex;flex-wrap:wrap;gap:6px}
+  .adm-side .subnav.open{max-height:none}
+  .adm-side .exit{flex-direction:row;padding:10px}
+  .adm-side .exit button{flex:1;padding:9px;font-size:12px}
+  .adm-main .hd{padding:18px 16px 10px}
+  .adm-main .hd h2{font-size:21px}
+  .adm-main .pg{padding:0 16px 28px}
+  .a-bar{margin-bottom:12px}
+  .a-bar .sum{margin-left:0;width:100%;text-align:left}
+  .a-card .body{padding:13px 14px}
+  /* the spacer must not compete with the stepper for free space, or the three
+     status buttons collapse to about 39px each */
+  .a-card .acts .spacer{display:none}
+  .a-card .stepper{flex:1 1 auto;min-width:0}
+  .a-card .stepper button{flex:1 1 0;min-width:0;padding:11px 8px;font-size:13px}
+}
+@media (prefers-reduced-motion: reduce){
+  .adm-side .subnav{transition:none}
+  .a-card:active{transform:none}
+}
+
+/* ---- row actions: one quiet icon-button, not five colour chips ---- */
+.a-row{padding:11px 0;align-items:center}
+.a-row .n{font-size:14px;color:#E8E2D8}
+.a-row .p{font-size:15px;color:#FFB347}
+.a-row .b{gap:6px}
+.a-row .b button{
+  width:33px;height:33px;border-radius:9px;
+  background:rgba(255,255,255,0.045)!important;
+  border:1px solid rgba(255,255,255,0.07)!important;
+  color:#8A8377!important;
+  font-size:13px;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;
+  transition:background .16s,color .16s,border-color .16s;
+}
+.a-row .b button:hover{background:rgba(255,255,255,0.11)!important;color:#F0F0F0!important;border-color:rgba(255,255,255,0.14)!important}
+.a-row .b button:disabled{opacity:.22;cursor:default}
+.a-row .b button:disabled:hover{background:rgba(255,255,255,0.045)!important;color:#8A8377!important}
+
+/* the availability switch is the one control worth seeing at a glance */
+.a-row .b button[onclick^="togDis"],
+.a-row .b button[onclick^="admTogDis"],
+.a-row .b button[onclick^="admTogBlockDis"]{color:#00D4AA!important;border-color:rgba(0,212,170,0.28)!important;background:rgba(0,212,170,0.09)!important}
+.a-row .b button[onclick^="admTogDis"]:hover,
+.a-row .b button[onclick^="admTogBlockDis"]:hover{background:rgba(0,212,170,0.18)!important}
+
+/* reorder arrows are the quietest thing in the row */
+.a-row .b button[onclick^="admMove"]{color:#5E564C!important;border-color:transparent!important;background:transparent!important}
+.a-row .b button[onclick^="admDel"]{color:#B4707A!important}
+.a-row .b button[onclick^="admDel"]:hover{color:#FF6B6B!important;border-color:rgba(255,107,107,0.35)!important;background:rgba(255,107,107,0.12)!important}
+
+.a-sec{font-size:10px;font-weight:800;color:#5E564C;letter-spacing:1.4px;text-transform:uppercase;padding:22px 0 8px;margin-bottom:2px;border-bottom:1px solid rgba(255,255,255,0.05)}
+.a-sec:first-child{padding-top:4px}
+.a-row.off{opacity:.45}
+.a-row.off .n{text-decoration:line-through}
+
+/* ---- analytics summary (used by the Analitis tab) ---- */
 .a-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
-.a-stat{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px;text-align:center}
-.a-stat .label{font-size:12px;font-weight:800;color:#9A9385;text-transform:uppercase;margin-bottom:6px}
-.a-stat .count{font-family:'Bangers',cursive;font-size:28px;color:#F0F0F0}
-.a-stat .rev{font-family:'Bangers',cursive;font-size:16px;color:#00D4AA;margin-top:4px}
-@media(max-width:500px){.a-stats{grid-template-columns:1fr}}
+.a-stat{background:#171412;border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:16px 18px}
+.a-stat .label{font-size:10px;font-weight:800;color:#5E564C;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:8px}
+.a-stat .count{font-family:'Bangers',cursive;font-size:30px;color:#00D4AA;line-height:1}
+.a-stat .rev{font-size:12px;color:#8A8377;font-weight:700;margin-top:7px}
+@media(max-width:560px){.a-stats{grid-template-columns:1fr}}
+
+/* the funnel bars were tuned against the old palette */
+.fn-row{margin-bottom:13px}
+.fn-bar{height:8px;border-radius:999px;background:rgba(255,255,255,0.06);overflow:hidden}
+.fn-bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#00D4AA,#25D366)}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -336,7 +475,7 @@ button:disabled:active{transform:none}
 <div class="done" id="done"></div>
 <div class="modal" id="admin-login" style="z-index:1100"><div class="bg" onclick="closeAdminLogin()"></div><div class="box" style="max-width:340px;text-align:center"><div style="font-family:'Bangers',cursive;font-size:22px;color:#00D4AA;margin-bottom:4px">🔒 Admin Login</div><div style="font-size:12px;color:#9A9385;font-weight:700;margin-bottom:16px">Akaun admin sah sahaja</div><input class="inp" id="admin-email" type="email" autocomplete="username" inputmode="email" placeholder="admin@email.com" style="margin-bottom:10px;text-align:center"><input class="inp" id="admin-pw" type="password" autocomplete="current-password" placeholder="Password" style="margin-bottom:14px;text-align:center" onkeydown="if(event.key==='Enter')verifyAdminLogin()"><div style="display:flex;gap:8px"><button onclick="verifyAdminLogin()" id="admin-login-btn" style="flex:1;background:#00D4AA;color:#000;border:none;font-family:'Fredoka One',cursive;font-size:14px;padding:12px;border-radius:10px;cursor:pointer">Masuk</button><button onclick="closeAdminLogin()" style="background:rgba(255,255,255,0.08);color:#9A9385;border:none;font-size:13px;padding:12px;border-radius:10px;cursor:pointer">Batal</button></div></div></div>
 </div></div>
-<div id="admin-panel"><div class="adm-side"><div class="brand">🌙 MMS Admin</div><nav id="adm-nav"><a class="active" onclick="switchAdmin('orders')">📥 Pesanan</a><a onclick="switchAdmin('menu')">🧋 Minuman</a><a onclick="switchAdmin('addons')">🍬 Pemanis</a><a onclick="switchAdmin('schedule')">⏰ Masa</a><a onclick="switchAdmin('delivery')">🚗 Penghantaran</a><a onclick="switchAdmin('customers')">👥 Pelanggan</a><a onclick="switchAdmin('stats')">📊 Analitis</a><a onclick="switchAdmin('settings')">⚙️ Settings</a></nav><div class="exit"><button onclick="lockAdmin('🔒 Admin dikunci')">🔒 Kunci</button><button onclick="exitAdmin()">✕ Customer View</button></div></div><div class="adm-main"><div class="hd"><h2 id="adm-hd">📥 Pesanan</h2></div><div class="pg" id="adm-pg"></div></div></div>
+<div id="admin-panel"><div class="adm-side"><div class="brand">🌙 MMS ADMIN</div><nav id="adm-nav"><div class="grp">Operasi Harian</div><a data-tab="orders" class="active"><span class="ic">📥</span>Pesanan</a><a data-tab="customers"><span class="ic">👥</span>Pelanggan</a><a data-tab="stats"><span class="ic">📊</span>Analitis</a><div class="grp">Tetanapan</div><button class="toggle" onclick="admSetupToggle()"><span>⚙️ Menu &amp; Tetapan</span><span class="car">›</span></button><div class="subnav" id="adm-setup"><a data-tab="menu"><span class="ic">🧋</span>Minuman</a><a data-tab="addons"><span class="ic">🍬</span>Pemanis</a><a data-tab="schedule"><span class="ic">⏰</span>Masa</a><a data-tab="delivery"><span class="ic">🚗</span>Penghantaran</a><a data-tab="settings"><span class="ic">⚙️</span>Settings</a></div></nav><div class="exit"><button onclick="lockAdmin('🔒 Admin dikunci')">🔒 Kunci</button><button onclick="exitAdmin()">✕ Customer View</button></div></div><div class="adm-main"><div class="hd"><h2 id="adm-hd">📥 Pesanan</h2></div><div class="pg" id="adm-pg"></div></div></div>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -398,7 +537,7 @@ function lockAdmin(msg){
 }
 function enterAdmin(){
   if(!adminUser()){toast('⛔ Akaun ini bukan admin');return}
-  admin=true;closeAdminLogin();
+  admin=true;closeAdminLogin();admSetupOpen(_admSetupOpen);
   document.getElementById('admin-panel').classList.add('show');
   switchAdmin('orders');paintAdminBtn();bumpIdle();
   toast('🔧 Admin ON');
@@ -738,26 +877,85 @@ function setOrderStatus(id,st){const db=getDb();if(!db)return;db.collection('ord
 document.getElementById('cartb').addEventListener('click',openCart);
 document.querySelector('.hero h1').addEventListener('click',()=>{admClk++;clearTimeout(admTmr);admTmr=setTimeout(()=>{admClk=0},1000);if(admClk>=5){admClk=0;if(!admin)showAdminLogin();else lockAdmin('🔒 已登出 / Logged out')}});
 let admTab='orders',admUnsub=null;
-const ADM_T={orders:'📥 Pesanan',menu:'🧋 Minuman',addons:'🍬 Pemanis',schedule:'⏰ Masa',delivery:'🚗 Penghantaran',customers:'👥 Pelanggan',stats:'📊 Analitis',settings:'⚙️ Settings'};
-function switchAdmin(t){admTab=t;document.getElementById('adm-hd').textContent=ADM_T[t]||t;document.querySelectorAll('#adm-nav a').forEach(a=>{a.classList.toggle('active',a.textContent.trim()===ADM_T[t])});const pg=document.getElementById('adm-pg');if(t==='orders')admOrders(pg);else if(t==='menu')admMenu(pg);else if(t==='addons')admAddons(pg);else if(t==='schedule')admSchedule(pg);else if(t==='delivery')admDelivery(pg);else if(t==='customers')admCustomers(pg);else if(t==='stats')admAnalytics(pg);else if(t==='settings')admSettings(pg)}
-let _admFilter='all',_admSearch='',_admPrevCount=0,_admVisDocs=[];
+const ADM_T={orders:'📥 Pesanan',customers:'👥 Pelanggan',stats:'📊 Analitis',menu:'🧋 Minuman',addons:'🍬 Pemanis',schedule:'⏰ Masa',delivery:'🚗 Penghantaran',settings:'⚙️ Settings'};
+const ADM_SETUP=['menu','addons','schedule','delivery','settings'];
+let _admSetupOpen=false;
+try{_admSetupOpen=localStorage.getItem('mms_adm_setup')==='1'}catch(e){}
+function admSetupOpen(open){
+  _admSetupOpen=open;
+  const b=document.querySelector('.adm-side .toggle'),n=document.getElementById('adm-setup');
+  if(b)b.classList.toggle('open',open);
+  if(n)n.classList.toggle('open',open);
+  try{localStorage.setItem('mms_adm_setup',open?'1':'0')}catch(e){}
+}
+function admSetupToggle(){admSetupOpen(!_admSetupOpen)}
+function switchAdmin(t){admTab=t;document.getElementById('adm-hd').textContent=ADM_T[t]||t;document.querySelectorAll('#adm-nav a').forEach(a=>{a.classList.toggle('active',a.dataset.tab===t)});
+if(ADM_SETUP.indexOf(t)>-1)admSetupOpen(true);const pg=document.getElementById('adm-pg');if(t==='orders')admOrders(pg);else if(t==='menu')admMenu(pg);else if(t==='addons')admAddons(pg);else if(t==='schedule')admSchedule(pg);else if(t==='delivery')admDelivery(pg);else if(t==='customers')admCustomers(pg);else if(t==='stats')admAnalytics(pg);else if(t==='settings')admSettings(pg)}
+let _admFilter='aktif',_admSearch='',_admPrevCount=0,_admVisDocs=[];
 function admBeep(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=880;g.gain.value=0.3;o.start();o.stop(ctx.currentTime+0.15);if(navigator.vibrate)navigator.vibrate(200)}catch(e){}}
 function timeAgo(d){if(!d)return'';const diff=(Date.now()-d.getTime())/1000;if(diff<60)return'Masih baru';if(diff<3600)return Math.floor(diff/60)+' min lalu';if(diff<86400)return Math.floor(diff/3600)+' jam lalu';return Math.floor(diff/86400)+' hari lalu'}
 function admOrders(pg){if(admUnsub){admUnsub();admUnsub=null}_admSearch='';const db=getDb();if(!isAdmin()){pg.innerHTML='<div style="padding:20px;color:#FFB347;font-weight:700">🔒 Login admin diperlukan.</div>';return}if(!db){pg.innerHTML='<div style="padding:20px;color:#FFB347;font-weight:700">⚠ Firebase tidak tersedia.</div>';return}pg.innerHTML='<div style="color:#9A9385;text-align:center;padding:30px">Memuatkan...</div>';admUnsub=ordersQ(db).onSnapshot(snap=>{const docs=snap.docs.map(d=>({id:d.id,...d.data()}));if(docs.length>_admPrevCount&&admTab==='orders'&&document.getElementById('admin-panel').classList.contains('show'))admBeep();_admPrevCount=docs.length;_admRenderOrders(pg,docs)},e=>{pg.innerHTML='<div style="color:#FF6B6B;padding:20px">Error: '+esc(e.message)+'</div>'})}
-function _admRenderOrders(pg,docs){const f=_admFilter;const live=docs.filter(o=>o.status!=='deleted');let filtered=f==='all'?live:live.filter(o=>o.status===f);if(f==='done'&&_admSearch){const q=_admSearch.toLowerCase();filtered=filtered.filter(o=>(o.name||'').toLowerCase().includes(q)||(o.room||'').toLowerCase().includes(q))}_admVisDocs=filtered;const filters=[['all','📅 History'],['baru','🔴 Baru',live.filter(o=>o.status==='baru').length],['processing','🟡 Proses',live.filter(o=>o.status==='processing').length],['done','🟢 Siap',live.filter(o=>o.status==='done').length]];let h='<div class="a-filter">'+filters.map(([k,l,c])=>'<button class="'+(f===k?'on':'')+'" onclick="admSetFilter(\''+k+'\')">'+l+(c!==undefined?' <span style="opacity:0.6">'+c+'</span>':'')+'</button>').join('')+'</div>';
-if(f==='done')h+='<input class="a-search" placeholder="🔍 Cari nama / bilik..." value="'+esc(_admSearch)+'" oninput="admDoSearch(this.value)">';
-if((f==='baru'||f==='processing')&&filtered.length)h+='<div class="a-bulk"><button onclick="admBulkDone()">✅ Tandakan Semua Siap ('+filtered.length+')</button></div>';
-if(f==='all'){
-  const now=new Date(),todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate()),weekStart=new Date(todayStart),monthStart=new Date(now.getFullYear(),now.getMonth(),1);
+function _admSelect(f,live){
+  if(f==='aktif')return live.filter(o=>o.status==='baru'||o.status==='processing');
+  if(f==='all')return live;
+  return live.filter(o=>o.status===f);
+}
+function _admOrderCard(o,idx){
+  const isCod=o.delivery!=='pickup';
+  const stCol=o.status==='done'?'#00D4AA':o.status==='processing'?'#FFB347':'#FF6B6B';
+  const when=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate().toLocaleString('ms-MY',{hour:'2-digit',minute:'2-digit'})+(timeAgo(o.createdAt.toDate())?' · '+timeAgo(o.createdAt.toDate()):''):'';
+  const items=(o.items||[]).map(i=>'<div class="item-line"><span class="q">'+i.qty+'×</span><span>'+esc(i.name)+(i.adds&&i.adds.length?' <span style="color:#8A8377;font-size:12px">· '+esc(i.adds.join(', '))+'</span>':'')+'</span></div>').join('');
+  return '<div class="a-card"><div class="rail" style="background:'+stCol+'"></div><div class="body">'
+   +'<div class="top"><span class="num">#'+(o.no!=null?fmtNo(o.no):idx+1)+'</span><span class="nm">'+esc(o.name||'')+'</span><span class="ts">'+when+'</span></div>'
+   +(isCod&&o.room?'<div class="where">🏠 Blok '+esc(o.room)+'</div>':'')
+   +'<div class="items-list">'+items+'</div>'
+   +'<div class="meta"><span>⏰ '+esc(o.time||'')+'</span><span>'+(o.payment==='cash'?'💵 Tunai':'📱 QR Pay')+'</span><span>'+(isCod?'📦 COD':'🏪 Ambil sendiri')+'</span><span class="money">RM'+Number(o.total||0).toFixed(2)+'</span></div>'
+   +'<div class="acts"><div class="stepper">'
+   +[['baru','Baru'],['processing','Proses'],['done','Siap']].map(x=>'<button class="'+(o.status===x[0]?'on':'')+'" onclick="admUpdOrder(\''+o.id+'\',\''+x[0]+'\')">'+x[1]+'</button>').join('')
+   +'</div>'
+   +'<span class="spacer"></span>'
+   +'<button class="ic wa" onclick="admWaNotif(\''+o.id+'\')" title="'+(o.phone?'Maklumkan pelanggan melalui WhatsApp':'Simpan nombor WhatsApp pelanggan')+'">'+(o.phone?'📤':'📱')+'</button>'
+   +'<button class="ic dl" onclick="admDelOrder(\''+o.id+'\')" title="Padam pesanan ini">✕</button>'
+   +'</div></div></div>';
+}
+function _admRenderOrders(pg,docs){
+  const f=_admFilter;
+  const live=docs.filter(o=>o.status!=='deleted');
+  let filtered=_admSelect(f,live);
+  if(_admSearch&&(f==='done'||f==='all')){
+    const q=_admSearch.toLowerCase();
+    filtered=filtered.filter(o=>(o.name||'').toLowerCase().includes(q)||(o.room||'').toLowerCase().includes(q));
+  }
+  _admVisDocs=filtered;
+  const nB=live.filter(o=>o.status==='baru').length,nP=live.filter(o=>o.status==='processing').length,nD=live.filter(o=>o.status==='done').length;
+  const segs=[['aktif','Aktif',nB+nP],['baru','Baru',nB],['processing','Proses',nP],['done','Siap',nD],['all','Semua',live.length]];
+
+  const now=new Date(),todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate()),weekStart=new Date(todayStart);
   weekStart.setDate(weekStart.getDate()-weekStart.getDay());
-  const stats=[['📅 Hari Ini',todayStart],['📅 Minggu Ini',weekStart],['📅 Bulan Ini',monthStart]].map(([lbl,start])=>{
-    const match=live.filter(o=>{const t=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate():null;return t&&t>=start});
-    const total=match.reduce((s,o)=>s+Number(o.total||0),0);
-    return{lbl,count:match.length,total};
-  });
-  h+='<div class="a-stats">'+stats.map(s=>'<div class="a-stat"><div class="label">'+s.lbl+'</div><div class="count">'+s.count+'</div><div class="rev">RM'+s.total.toFixed(2)+'</div></div>').join('')+'</div>';
-}if(!filtered.length){h+='<div style="text-align:center;padding:40px;color:#9A9385;font-weight:700;font-size:15px">'+(f==='all'?'📭 Tiada pesanan':'Tiada pesanan untuk status ini')+'</div>';pg.innerHTML=h;return}filtered.forEach((o,idx)=>{const num=live.indexOf(o)+1;const items=(o.items||[]).map(i=>'<div class="item-line">'+i.qty+'× '+esc(i.name)+(i.adds&&i.adds.length?' <span style="color:#9A9385;font-size:13px">· '+esc(i.adds.join(', '))+'</span>':'')+'</div>').join('');const when=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate().toLocaleString('ms-MY',{hour:'2-digit',minute:'2-digit'})+(timeAgo(o.createdAt.toDate())?' · '+timeAgo(o.createdAt.toDate()):''):'';const isCod=o.delivery!=='pickup';const stCol=o.status==='done'?'#00D4AA':o.status==='processing'?'#FFB347':'#FF6B6B';h+='<div class="a-card" style="border-left:3px solid '+stCol+'"><div class="top"><span><span class="num">#'+num+'</span><span class="nm">'+esc(o.name||'')+'</span>'+(o.room?' <span style="color:#9A9385;font-size:13px">· '+esc(o.room)+'</span>':'')+'</span><span class="ts">'+when+'</span></div>'+(isCod&&o.room?'<div class="room-box">🏠 Blok '+esc(o.room)+'</div>':'')+'<div class="items-list">'+items+'</div>'+'<div class="info-row"><span>⏰ '+esc(o.time||'')+'</span><span>'+(o.payment==='cash'?'💵 Tunai':'📱 QR')+'</span><span style="color:#9A9385">'+(isCod?'📦 COD':'🏪 Pickup')+'</span></div><div class="acts">'+[['baru','Baru'],['processing','Proses'],['done','Siap']].map(([k,l])=>'<button class="st'+(o.status===k?' on':'')+'" onclick="admUpdOrder(\''+o.id+'\',\''+k+'\')">'+l+'</button>').join('')+'<button class="st" onclick="admWaNotif(\''+o.id+'\')" title="Maklumkan pelanggan melalui WhatsApp" style="background:rgba(37,211,102,0.15);color:#25D366;font-weight:800">'+(o.phone?'📤 WhatsApp':'📤 Set nombor')+'</button><button class="del" onclick="admDelOrder(\''+o.id+'\')">✕</button></div></div>'});pg.innerHTML=h}
-function admSetFilter(f){_admFilter=f;const pg=document.getElementById('adm-pg');if(admUnsub){admUnsub();admUnsub=null}const db=getDb();if(!db||!isAdmin())return;admUnsub=ordersQ(db).onSnapshot(snap=>{const docs=snap.docs.map(d=>({id:d.id,...d.data()}));_admRenderOrders(pg,docs)})}
+  const sum=(start)=>{
+    const m=live.filter(o=>{const t=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate():null;return t&&t>=start});
+    return{n:m.length,v:m.reduce((s,o)=>s+Number(o.total||0),0)};
+  };
+  const T=sum(todayStart),W=sum(weekStart);
+
+  let h='<div class="a-bar"><div class="a-seg">'+segs.map(x=>'<button class="'+(f===x[0]?'on':'')+'" onclick="admSetFilter(\''+x[0]+'\')">'+x[1]+'<span class="c">'+x[2]+'</span></button>').join('')+'</div>'
+   +'<div class="sum">'+(T.n?'Malam ini <b>'+T.n+'</b> pesanan · <b>RM'+T.v.toFixed(2)+'</b>':'Belum ada pesanan malam ini')+(W.n?'<br>Minggu ini <i>'+W.n+'</i> · <i>RM'+W.v.toFixed(2)+'</i>':'')+'</div></div>';
+
+  if(f==='done'||f==='all')h+='<input class="a-search" placeholder="🔍 Cari nama atau blok..." value="'+esc(_admSearch)+'" oninput="admDoSearch(this.value)">';
+  if(f==='aktif'&&filtered.length)h+='<div class="a-bulk"><button onclick="admBulkDone()">✅ Tandakan semua siap ('+filtered.length+')</button></div>';
+
+  if(!filtered.length){
+    h+='<div class="a-empty"><span class="big">'+(f==='aktif'||f==='baru'||f==='processing'?'🎉':'📭')+'</span>'
+      +(f==='aktif'?'Semua pesanan sudah siap. Rehat sebentar.':
+        f==='all'?'Tiada pesanan langsung.':
+        f==='done'?'Tiada pesanan selesai.':
+        'Tiada pesanan untuk status ini.')+'</div>';
+    pg.innerHTML=h;return;
+  }
+  h+=filtered.map(_admOrderCard).join('');
+  pg.innerHTML=h;
+}
+function admSetFilter(f){_admFilter=f;if(f==='done')_admSearch='';const pg=document.getElementById('adm-pg');if(admUnsub){admUnsub();admUnsub=null}const db=getDb();if(!db||!isAdmin())return;admUnsub=ordersQ(db).onSnapshot(snap=>{const docs=snap.docs.map(d=>({id:d.id,...d.data()}));_admRenderOrders(pg,docs)})}
 function admUpdOrder(id,status){const db=getDb();if(!db)return;db.collection('orders').doc(id).update({status}).catch(e=>console.warn(e));db.collection('tracking').doc(id).update({status:status,at:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){})}
 function admDelOrder(id){if(!confirm('Padam pesanan ini?\n\nIa boleh dipulihkan dari Firebase Console (status = deleted).'))return;const db=getDb();if(!db)return;db.collection('orders').doc(id).update({status:'deleted',deletedAt:firebase.firestore.FieldValue.serverTimestamp()}).catch(e=>console.warn(e))}
 function admDoSearch(v){_admSearch=v;const pg=document.getElementById('adm-pg');if(admUnsub){admUnsub();admUnsub=null}const db=getDb();if(!db||!isAdmin())return;admUnsub=ordersQ(db).onSnapshot(snap=>{const docs=snap.docs.map(d=>({id:d.id,...d.data()}));_admRenderOrders(pg,docs)})}
@@ -779,7 +977,7 @@ function admWaNotif(id){
   setTimeout(function(){go(n2)},350)
 }
 let _aei=null;
-function admMenu(pg){_aei=null;let h='<div style="max-width:700px">';(MENU||[]).forEach((cat,ci)=>{cat.items.forEach((v,i)=>{const id='c'+ci+'v'+i;const d=isDis(id);const last=i===cat.items.length-1;h+='<div class="a-row" style="'+(d?'opacity:0.4':'')+'"><span class="n" style="'+(d?'text-decoration:line-through':'')+'">'+(v.pop?'🔥 ':'')+esc(v.name)+'</span><span class="p">RM'+v.price.toFixed(2)+'</span><div class="b"><button style="background:rgba(255,255,255,0.05);color:#9A9385" onclick="admMoveMI('+i+',-1)"'+(i===0?' disabled style="opacity:0.3"':'')+'>▲</button><button style="background:rgba(255,255,255,0.05);color:#9A9385" onclick="admMoveMI('+i+',1)"'+(last?' disabled style="opacity:0.3"':'')+'>▼</button><button style="background:'+(d?'rgba(255,107,107,0.15)':'rgba(0,212,170,0.1)')+';color:'+(d?'#FF6B6B':'#00D4AA')+'" onclick="togDis(\''+id+'\');admMenu(document.getElementById(\'adm-pg\'))">'+(d?'✕':'✓')+'</button><button style="background:rgba(0,212,170,0.1);color:#00D4AA" onclick="admEditMI('+i+')">✎</button><button style="background:rgba(255,107,107,0.1);color:#FF6B6B" onclick="admDelMI('+i+')">✕</button></div></div>'})});h+='</div><div class="a-form"><div class="row"><input class="inp" id="am-name" placeholder="Nama minuman" style="flex:1"><input class="inp" id="am-price" placeholder="Harga" type="number" step="0.10" style="max-width:90px"></div><div class="row"><input class="inp" id="am-img" placeholder="URL gambar (pilihan)" style="flex:1"></div><label style="display:flex;align-items:center;gap:6px;font-size:13px;color:#9A9385;font-weight:700;margin-bottom:14px"><input type="checkbox" id="am-pop"> Popular</label><div style="display:flex;gap:8px"><button onclick="admSaveMI()" id="am-save" style="flex:1;background:#00D4AA;color:#000;border:none;font-family:\'Fredoka One\',cursive;font-size:14px;padding:12px;border-radius:10px;cursor:pointer">➕ Tambah</button><button onclick="admCancelMI()" id="am-cancel" style="display:none;background:rgba(255,255,255,0.08);color:#9A9385;border:none;font-size:13px;padding:12px;border-radius:10px;cursor:pointer">Batal</button></div></div>';pg.innerHTML=h}
+function admMenu(pg){_aei=null;let h='<div style="max-width:700px">';(MENU||[]).forEach((cat,ci)=>{cat.items.forEach((v,i)=>{const id='c'+ci+'v'+i;const d=isDis(id);const last=i===cat.items.length-1;if(i===0&&cat.name)h+='<div class="a-sec">'+esc(cat.name)+'</div>';h+='<div class="a-row" style="'+(d?'opacity:0.4':'')+'"><span class="n" style="'+(d?'text-decoration:line-through':'')+'">'+(v.pop?'🔥 ':'')+esc(v.name)+'</span><span class="p">RM'+v.price.toFixed(2)+'</span><div class="b"><button style="background:rgba(255,255,255,0.05);color:#9A9385" onclick="admMoveMI('+i+',-1)"'+(i===0?' disabled style="opacity:0.3"':'')+'>▲</button><button style="background:rgba(255,255,255,0.05);color:#9A9385" onclick="admMoveMI('+i+',1)"'+(last?' disabled style="opacity:0.3"':'')+'>▼</button><button style="background:'+(d?'rgba(255,107,107,0.15)':'rgba(0,212,170,0.1)')+';color:'+(d?'#FF6B6B':'#00D4AA')+'" onclick="togDis(\''+id+'\');admMenu(document.getElementById(\'adm-pg\'))">'+(d?'✕':'✓')+'</button><button style="background:rgba(0,212,170,0.1);color:#00D4AA" onclick="admEditMI('+i+')">✎</button><button style="background:rgba(255,107,107,0.1);color:#FF6B6B" onclick="admDelMI('+i+')">✕</button></div></div>'})});h+='</div><div class="a-form"><div class="row"><input class="inp" id="am-name" placeholder="Nama minuman" style="flex:1"><input class="inp" id="am-price" placeholder="Harga" type="number" step="0.10" style="max-width:90px"></div><div class="row"><input class="inp" id="am-img" placeholder="URL gambar (pilihan)" style="flex:1"></div><label style="display:flex;align-items:center;gap:6px;font-size:13px;color:#9A9385;font-weight:700;margin-bottom:14px"><input type="checkbox" id="am-pop"> Popular</label><div style="display:flex;gap:8px"><button onclick="admSaveMI()" id="am-save" style="flex:1;background:#00D4AA;color:#000;border:none;font-family:\'Fredoka One\',cursive;font-size:14px;padding:12px;border-radius:10px;cursor:pointer">➕ Tambah</button><button onclick="admCancelMI()" id="am-cancel" style="display:none;background:rgba(255,255,255,0.08);color:#9A9385;border:none;font-size:13px;padding:12px;border-radius:10px;cursor:pointer">Batal</button></div></div>';pg.innerHTML=h}
 function admEditMI(i){const v=MENU[0].items[i];_aei=i;document.getElementById('am-name').value=v.name;document.getElementById('am-price').value=v.price;document.getElementById('am-pop').checked=v.pop||false;document.getElementById('am-img').value=v.img||'';document.getElementById('am-save').textContent='💾 Simpan';document.getElementById('am-cancel').style.display='block'}
 function admDelMI(i){if(!confirm('Padam "'+MENU[0].items[i].name+'"?'))return;MENU[0].items.splice(i,1);admMenu(document.getElementById('adm-pg'));saveMenu();toast('✓ Dipadam')}
 function admSaveMI(){const n=document.getElementById('am-name').value.trim(),p=parseFloat(document.getElementById('am-price').value);if(!n){toast('⚠ Nama');return}if(!p||p<=0){toast('⚠ Harga');return}const item={name:n,price:p,pop:document.getElementById('am-pop').checked};const _img=document.getElementById('am-img').value.trim();if(_img)item.img=_img;if(_aei!==null)MENU[0].items[_aei]=item;else MENU[0].items.push(item);_aei=null;admMenu(document.getElementById('adm-pg'));saveMenu();toast('✓ Disimpan')}
