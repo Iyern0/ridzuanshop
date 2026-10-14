@@ -197,6 +197,7 @@ body{font-family:'Nunito',sans-serif;background:#131010;color:#F0F0F0;min-height
 </head><body>
 <div class="hero"><h1>🌙 <span>MINUM</span> MALAM SISWA</h1><div class="sub">⏰ 10:30PM — 2:00AM · 🚗 COD (RM1) / Free Pickup</div><div class="tags"><span>🧊 Ais</span><span>💝 Harga Mesra</span><span>🔥 Beli 5 Percuma 1</span></div></div>
 <div id="status-bar" class="status-bar"></div>
+<div style="text-align:center;margin-top:12px"><button id="my-order" onclick="openMyOrder()" style="display:none;background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.3);color:#00D4AA;font-weight:800;font-size:13px;padding:9px 18px;border-radius:999px;cursor:pointer">📦 Pesanan saya</button></div>
 <div id="founder" class="founder" style="display:none"></div>
 <div class="trust"><span>⏱ Siap ~15-30 min</span><span>💵 Bayar masa sampai</span><span>🍹 Beli 5 Percuma 1</span><span>🧊 Ais balang</span></div>
 <div class="bar"><span>🎁 Pesanan</span><div class="stamps" id="stamps"></div><span class="count" id="loy-count">0</span></div>
@@ -217,7 +218,7 @@ body{font-family:'Nunito',sans-serif;background:#131010;color:#F0F0F0;min-height
 <div class="opt"><div class="l">👤 Nama</div><div style="display:flex;gap:8px;margin-top:4px"><input class="inp" id="inp-name2" placeholder="Nama anda" maxlength="25" style="flex:1"></div></div>
 <div class="opt"><div class="l">📱 No. WhatsApp <span style="color:#FFB347">(pilihan — untuk stamp)</span></div><div style="margin-top:4px"><input class="inp" id="inp-phone" placeholder="cth: 0123456789" inputmode="tel" maxlength="20"><div style="font-size:11px;color:#9A9385;font-weight:600;margin-top:6px">Isi untuk kira stamp Beli 5 Percuma 1. Tak diisi pun boleh order.</div></div></div>
 <div class="opt" id="block-section"><div class="l">🏠 Blok</div><div class="block-grid" id="block-grid"></div><div id="room-row" style="display:none;margin-top:8px"><input class="inp" id="inp-room" placeholder="Nombor bilik / unit" maxlength="20"></div></div>
-<div class="opt"><div style="display:flex;justify-content:space-between;align-items:center"><div class="l" id="time-label" style="margin:0">⏰ Masa</div><button id="time-toggle" onclick="toggleTimePick()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:#00D4AA;font-size:12px;font-weight:800;padding:6px 14px;border-radius:999px;cursor:pointer">ASAP ▾</button></div><div id="time-pick" style="display:none;margin-top:10px"><div id="time-pickup" style="display:none"><input class="inp" id="pickup-time" placeholder="Cth: 11:00 malam" maxlength="30"></div><div id="pickup-note" style="display:none;font-size:13px;color:#9A9385;font-weight:600;margin-bottom:8px">💬 Akan chat, kalau dah siap</div><div class="ts" id="times"></div></div></div>
+<div class="opt"><div class="l" id="time-label">⏰ Masa</div><div id="time-pick" style="margin-top:10px"><div id="time-pickup" style="display:none"><input class="inp" id="pickup-time" placeholder="Cth: 11:00 malam" maxlength="30"></div><div id="pickup-note" style="display:none;font-size:13px;color:#9A9385;font-weight:600;margin-bottom:8px">💬 Akan chat, kalau dah siap</div><div class="ts" id="times"></div><div id="time-hint" style="font-size:11px;color:#9A9385;font-weight:600;margin-top:8px">Pilih masa penghantaran anda</div></div></div>
 </div>
 <div class="ft"><div class="tr" style="border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:8px;margin-bottom:8px"><span>Subtotal</span><span style="font-family:'Bangers',cursive;font-size:20px" id="sub">RM0.00</span></div>
 <div id="cod-row" class="tr"><span style="font-size:12px;color:#9A9385">📦 COD fee</span><span style="font-family:'Bangers',cursive;font-size:18px;color:#9A9385">RM1.00</span></div>
@@ -227,7 +228,7 @@ body{font-family:'Nunito',sans-serif;background:#131010;color:#F0F0F0;min-height
 <div style="background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.15);border-radius:12px;padding:14px;margin-bottom:14px" id="confirm-items"></div>
 <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px"><div id="confirm-delivery" style="background:rgba(255,179,71,0.1);border:1px solid rgba(255,179,71,0.2);border-radius:8px;padding:8px 14px;font-size:13px;color:#FFB347;font-weight:700"></div><div id="confirm-pay" style="background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.2);border-radius:8px;padding:8px 14px;font-size:13px;color:#00D4AA;font-weight:700"></div></div>
 <div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:14px;margin-bottom:16px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;color:#9A9385;font-weight:700">Subtotal</span><span id="confirm-sub" style="font-size:13px;color:#F0F0F0;font-weight:700"></span></div><div id="confirm-cod" style="display:none;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;color:#9A9385;font-weight:700">📦 COD</span><span style="font-size:13px;color:#F0F0F0;font-weight:700">+RM1.00</span></div><div style="display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08)"><span style="font-family:'Bangers',cursive;font-size:20px;color:#F0F0F0">Jumlah</span><span id="confirm-total" style="font-family:'Bangers',cursive;font-size:24px;color:#00D4AA">RM0.00</span></div></div>
-<div style="margin-bottom:14px"><div class="l" style="font-size:12px;font-weight:800;color:#9A9385;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">💳 Bayar bila sampai</div><div class="dt" id="pay"><button class="active" data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(0,212,170,0.1)"><img src="https://drive.google.com/thumbnail?id=1NNMdTqR5wCahK5bqLOHP996CkzZavfoN&amp;sz=w500" alt="TNG QR" style="width:210px;height:210px;display:block;border-radius:8px"></div><div style="font-size:12px;color:#9A9385;margin-top:8px;font-weight:600">Scan untuk bayar</div></div></div><button onclick="sendWa()" id="wa-send" style="width:100%;background:#25D366;color:#fff;border:none;font-family:'Fredoka One',cursive;font-size:16px;padding:14px;border-radius:12px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,0.3)">Hantar ke WhatsApp</button>
+<div style="margin-bottom:14px"><div class="l" style="font-size:12px;font-weight:800;color:#9A9385;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">💳 Bayar bila sampai</div><div class="dt" id="pay"><button data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(0,212,170,0.1)"><img src="https://drive.google.com/thumbnail?id=1NNMdTqR5wCahK5bqLOHP996CkzZavfoN&amp;sz=w500" alt="TNG QR" style="width:210px;height:210px;display:block;border-radius:8px"></div><div style="font-size:12px;color:#9A9385;margin-top:8px;font-weight:600">Scan untuk bayar</div></div></div><button onclick="sendWa()" id="wa-send" style="width:100%;background:#25D366;color:#fff;border:none;font-family:'Fredoka One',cursive;font-size:16px;padding:14px;border-radius:12px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,0.3)">Hantar ke WhatsApp</button>
 </div></div>
 <div class="page-foot"><i>Minum sedap, harga mesra! 🧡</i><br>© <b>MINUM MALAM SISWA</b></div>
 <div class="toast" id="toast"></div>
@@ -240,7 +241,7 @@ body{font-family:'Nunito',sans-serif;background:#131010;color:#F0F0F0;min-height
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script>
 const SHOP='MINUM MALAM SISWA',WA='601116470212';
-let SLOTS=['11:30PM','12:30AM','1:30AM'],unrTimes=[],selTime='ASAP';
+let SLOTS=['11:30PM','12:30AM','1:30AM'],unrTimes=[],selTime='';
 let HOURS=[1350,120];
 let WHO={n:'',b:'',note:'',img:''};
 const DEFAULT_MENU=[{name:'Minuman',items:[
@@ -255,7 +256,7 @@ let ADDS=[
 {id:'extra_gula',name:'Extra Gula',price:0.50,grp:'e'},{id:'extra_susu',name:'Extra Susu',price:0.50,grp:'e'},{id:'extra_kaw',name:'Extra Kaw',price:0.50,grp:'e'},
 ];
 let DELS=[{t:'cod',l:'📦 COD (+RM1)',f:1},{t:'pickup',l:'🏪 Ambil Sendiri',f:0}];
-let cart={},disAdds=[],disDel=[],isCod=true;
+let cart={},disAdds=[],disDel=[],isCod=null;
 let admin=false,admClk=0,admTmr=null,custItem=null,custAdds=[];
 function enterAdmin(){admin=true;closeAdminLogin();document.getElementById('admin-panel').classList.add('show');switchAdmin('orders');toast('🔧 Admin ON')}
 function exitAdmin(){if(admUnsub){admUnsub();admUnsub=null}admin=false;document.getElementById('admin-panel').classList.remove('show');draw();drawTimes();drawDel();toast('Admin mode OFF')}
@@ -287,6 +288,23 @@ function isAdmin(){const a=getAuth();return !!(a&&a.currentUser)}
 // cookies. A random per-tab id lets us de-duplicate, nothing more. Written to
 // the events collection, readable by the admin only.
 // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Sound + haptics. Audio needs a user gesture first; every call site here is
+// already inside a tap, so the context is allowed to start.
+// ---------------------------------------------------------------------------
+let _actx=null;
+function beep(freq,dur,vol){try{if(!_actx)_actx=new(window.AudioContext||window.webkitAudioContext)();if(_actx.state==='suspended')_actx.resume();const o=_actx.createOscillator(),g=_actx.createGain();o.connect(g);g.connect(_actx.destination);o.type='sine';o.frequency.value=freq||880;const now=_actx.currentTime;g.gain.setValueAtTime(vol||0.10,now);g.gain.exponentialRampToValueAtTime(0.001,now+(dur||0.12));o.start(now);o.stop(now+(dur||0.12))}catch(e){}}
+function buzz(ms){try{if(navigator.vibrate)navigator.vibrate(ms||15)}catch(e){}}
+function chime(){beep(660,0.12,0.11);setTimeout(function(){beep(880,0.14,0.11)},110);setTimeout(function(){beep(1180,0.24,0.09)},230)}
+function buzzOk(){try{if(navigator.vibrate)navigator.vibrate([18,50,18])}catch(e){}}
+
+// ---------------------------------------------------------------------------
+// Per-day order numbering: counters/YYYY-MM-DD, shown as 001, 002, ...
+// Resets by itself at midnight because the date is part of the document id.
+// ---------------------------------------------------------------------------
+function dayKey(d){d=d||new Date();const z=function(n){return n<10?'0'+n:''+n};return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())}
+function fmtNo(n){n=Number(n)||0;return String(n).padStart(3,'0')}
+
 const FUNNEL=['page_view','menu_view','item_open','add_cart','checkout_open','order_sent'];
 let _sid=null;
 function sid(){if(_sid)return _sid;try{_sid=sessionStorage.getItem('mms_sid')||''}catch(e){}if(!_sid)_sid=Date.now().toString(36)+Math.random().toString(36).slice(2,10);try{sessionStorage.setItem('mms_sid',_sid)}catch(e){}return _sid}
@@ -325,31 +343,31 @@ function syncTimeButton(){const b=document.getElementById('time-toggle');if(!b)r
 function toggleTimePick(){const d=document.getElementById('time-pick');if(!d)return;const open=d.style.display==='block';d.style.display=open?'none':'block';if(open)selTime='ASAP';drawTimes();syncTimeButton()}
 function drawStatus(){const el=document.getElementById('status-bar');if(!el)return;const o=HOURS[0],c=HOURS[1];if(isOpenNow()){const left=minsUntilClose();const lft=left<60?left+' minit':Math.floor(left/60)+' jam '+(left%60)+' min';el.className='status-bar open';el.innerHTML='<span class="dot"></span> BUKA SEKARANG · tutup dalam '+lft+' ('+fmtMin(c)+')'}else{el.className='status-bar closed';el.innerHTML='<span class="dot"></span> TUTUP · buka '+fmtMin(o)+' — anda masih boleh lihat menu'}window._statusTmr=setTimeout(drawStatus,30000)}
 function drawTimes(){document.getElementById('times').innerHTML=SLOTS.map(t=>{const u=unrTimes.includes(t),a=selTime===t?' active':'';return'<button class="t-btn'+a+(u?' unavail':'')+(admin?' admin-mode':'')+'" onclick="selT(\''+t+'\')"'+(u&&!admin?' disabled':'')+'>'+t+'</button>'}).join('')}
-function selT(t){if(!admin){document.getElementById('time-pick').style.display='none'}if(admin){const i=unrTimes.indexOf(t);if(i>-1)unrTimes.splice(i,1);else unrTimes.push(t);saveConfig();drawTimes();return}if(unrTimes.includes(t)){toast('❌ Waktu tidak tersedia');return}selTime=t;drawTimes()}
+function selT(t){if(admin){const i=unrTimes.indexOf(t);if(i>-1)unrTimes.splice(i,1);else unrTimes.push(t);saveConfig();drawTimes();return}if(unrTimes.includes(t)){toast('❌ Waktu tidak tersedia');return}selTime=t;drawTimes()}
 function drawCust(){if(!custItem||!MENU[custItem.ci]||!MENU[custItem.ci].items[custItem.vi]){closeCust();return}const sw=document.getElementById('c-sweet'),lv=document.getElementById('c-level'),ex=document.getElementById('c-extra');sw.innerHTML='';lv.innerHTML='';ex.innerHTML='';ADDS.forEach(a=>{const s=custAdds.includes(a.id),d=disAdds.includes(a.id);const ch='<span class="chip'+(s?' sel':'')+(d?' dis':'')+'" onclick="togC(\''+a.id+'\')">'+esc(a.name)+(a.price>0?' <span style="color:#FFB347">+RM'+a.price.toFixed(2)+'</span>':'')+'</span>';if(a.grp==='s')sw.innerHTML+=ch;else if(a.grp==='l')lv.innerHTML+=ch;else ex.innerHTML+=ch;});const at=custAdds.reduce((s,id)=>{const a=findAdd(id);return s+(a?a.price:0)},0);document.getElementById('c-price').textContent=(at+(custItem?MENU[custItem.ci].items[custItem.vi].price:0)).toFixed(2);}
 let _addClicks={},_addTmr={};
 function togC(addId){if(disAdds.includes(addId)&&!admin)return;const a=findAdd(addId);if(!a)return;if(admin){_addClicks[addId]=(_addClicks[addId]||0)+1;clearTimeout(_addTmr[addId]);_addTmr[addId]=setTimeout(()=>{_addClicks[addId]=0},2000);if(_addClicks[addId]>=4){_addClicks[addId]=0;if(disAdds.includes(addId)){disAdds=disAdds.filter(x=>x!==addId);toast('✓ '+a.name+' diaktifkan')}else{disAdds.push(addId);toast('❌ '+a.name+' dilumpuhkan')}saveConfig();drawCust();return}}const idx=custAdds.indexOf(addId);if(idx>-1){custAdds.splice(idx,1)}else{if(a.grp==='s'||a.grp==='l'){custAdds=custAdds.filter(id=>{const x=findAdd(id);return x&&x.grp!==a.grp})}custAdds.push(addId)}drawCust()}
 function openCust(ci,vi){track('item_open');custItem={ci,vi};custAdds=[];document.getElementById('c-title').textContent=MENU[ci].items[vi].name;drawCust();document.getElementById('cust').style.display='flex'}
 function closeCust(){custItem=null;custAdds=[];document.getElementById('cust').style.display='none'}
-function confirmCust(){if(!custItem)return;const hasSweet=custAdds.some(id=>{const a=findAdd(id);return a&&a.grp==='s'});const anySweetAvail=ADDS.some(a=>a.grp==='s'&&!disAdds.includes(a.id));if(!hasSweet&&anySweetAvail){toast('⚠ Sila pilih pemanis');return}const id='c'+custItem.ci+'v'+custItem.vi;if(!cart[id])cart[id]=[];cart[id].push({adds:[...custAdds]});saveCart();track('add_cart');closeCust();draw();toast('✓ Ditambah')}
+function confirmCust(){if(!custItem)return;const hasSweet=custAdds.some(id=>{const a=findAdd(id);return a&&a.grp==='s'});const anySweetAvail=ADDS.some(a=>a.grp==='s'&&!disAdds.includes(a.id));if(!hasSweet&&anySweetAvail){toast('⚠ Sila pilih pemanis');return}const id='c'+custItem.ci+'v'+custItem.vi;if(!cart[id])cart[id]=[];cart[id].push({adds:[...custAdds]});saveCart();track('add_cart');buzz(15);closeCust();draw();toast('✓ Ditambah')}
 function defaultAdds(){const out=[];const s=ADDS.find(a=>a.grp==='s'&&!disAdds.includes(a.id));const l=ADDS.find(a=>a.grp==='l'&&!disAdds.includes(a.id));if(s)out.push(s.id);if(l)out.push(l.id);return out}
-function quickAdd(id){if(isDis(id)){toast('Item habis');return}const m=id.match(/c(\d+)v(\d+)/);if(!m)return;const ci=parseInt(m[1]),vi=parseInt(m[2]);if(!MENU[ci]||!MENU[ci].items[vi])return;if(!cart[id])cart[id]=[];cart[id].push({adds:defaultAdds()});saveCart();track('add_cart');draw();toast(esc(MENU[ci].items[vi].name)+' ditambah')}
+function quickAdd(id){if(isDis(id)){toast('Item habis');return}const m=id.match(/c(\d+)v(\d+)/);if(!m)return;const ci=parseInt(m[1]),vi=parseInt(m[2]);if(!MENU[ci]||!MENU[ci].items[vi])return;if(!cart[id])cart[id]=[];cart[id].push({adds:[]});saveCart();track('add_cart');buzz(12);draw();toast(esc(MENU[ci].items[vi].name)+' ditambah')}
 function addToCart(id){if(isDis(id)){toast('❌ Item habis');return}const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;openCust(ci,vi)}
 function remInst(key,idx){if(cart[key]){cart[key].splice(idx,1);if(cart[key].length===0)delete cart[key];saveCart();draw()}}
-function upCart(){const e=Object.entries(cart);let totalItems=0;e.forEach(([_,v])=>totalItems+=v.length);const bar=document.getElementById('cart-bar');if(totalItems>0){bar.classList.add('show');document.getElementById('cart-count').textContent=totalItems+' item(s)';}else{bar.classList.remove('show');}document.getElementById('checkout').disabled=totalItems===0;drawTimes();drawDel();syncTimeButton();let total=0,html='';e.forEach(([id,items])=>{if(!MENU)return;const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;const item=MENU[ci].items[vi];items.forEach((inst,i)=>{const ac=inst.adds.reduce((s,aid)=>{const a=findAdd(aid);return s+(a?a.price:0)},0);total+=item.price+ac;const al=inst.adds.map(aid=>{const a=findAdd(aid);return a?a.name:''}).filter(Boolean).join(', ');html+='<div class="item"><div class="ii"><div class="nm">'+item.name+'</div><div class="sb">RM'+(item.price+ac).toFixed(2)+(al?' <span style="color:#9A9385">· '+al+'</span>':'')+'</div></div><div class="iq"><button onclick="remInst(\''+id+'\','+i+')" style="color:#FF6B6B">−</button><button onclick="addToCart(\''+id+'\')" style="color:#00D4AA">+</button></div></div>';});});document.getElementById('items').innerHTML=html;document.getElementById('items-summary').textContent=totalItems+' item(s) · RM'+total.toFixed(2);const cod=isCod?1:0;document.getElementById('sub').textContent='RM'+total.toFixed(2);document.getElementById('total').textContent='RM'+(total+cod).toFixed(2);document.getElementById('cart-total').textContent='RM'+(total+cod).toFixed(2);document.getElementById('empty').style.display=totalItems?'none':'block';document.getElementById('cod-row').style.display=isCod?'flex':'none';}
+function upCart(){const e=Object.entries(cart);let totalItems=0;e.forEach(([_,v])=>totalItems+=v.length);const bar=document.getElementById('cart-bar');if(totalItems>0){bar.classList.add('show');document.getElementById('cart-count').textContent=totalItems+' item(s)';}else{bar.classList.remove('show');}document.getElementById('checkout').disabled=totalItems===0;drawTimes();drawDel();syncTimeButton();let total=0,html='';e.forEach(([id,items])=>{if(!MENU)return;const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;const item=MENU[ci].items[vi];items.forEach((inst,i)=>{const ac=inst.adds.reduce((s,aid)=>{const a=findAdd(aid);return s+(a?a.price:0)},0);total+=item.price+ac;const al=inst.adds.map(aid=>{const a=findAdd(aid);return a?a.name:''}).filter(Boolean).join(', ');html+='<div class="item"><div class="ii"><div class="nm">'+item.name+'</div><div class="sb">RM'+(item.price+ac).toFixed(2)+(al?' <span style="color:#9A9385">· '+al+'</span>':'')+'</div></div><div class="iq"><button onclick="remInst(\''+id+'\','+i+')" style="color:#FF6B6B">−</button><button onclick="addToCart(\''+id+'\')" style="color:#00D4AA">+</button></div></div>';});});document.getElementById('items').innerHTML=html;document.getElementById('items-summary').textContent=totalItems+' item(s) · RM'+total.toFixed(2);const cod=(isCod===true?1:0);document.getElementById('sub').textContent='RM'+total.toFixed(2);document.getElementById('total').textContent='RM'+(total+cod).toFixed(2);document.getElementById('cart-total').textContent='RM'+(total+cod).toFixed(2);document.getElementById('empty').style.display=totalItems?'none':'block';document.getElementById('cod-row').style.display=isCod===true?'flex':'none';}
 function openCart(){document.getElementById('overlay').classList.add('open');document.getElementById('panel').classList.add('open')}
 function closeCart(){document.getElementById('overlay').classList.remove('open');document.getElementById('panel').classList.remove('open')}
-function drawDel(){document.getElementById('del').innerHTML=DELS.map(d=>{const di=disDel.includes(d.t),a=(isCod&&d.t==='cod')||(!isCod&&d.t==='pickup');return'<button class="dt-btn'+(a?' active':'')+(di?' unavail':'')+(admin?' admin-mode':'')+'" data-type="'+d.t+'">'+esc(d.l)+'</button>'}).join('')}
+function drawDel(){document.getElementById('del').innerHTML=DELS.map(d=>{const di=disDel.includes(d.t),a=(isCod===true&&d.t==='cod')||(isCod===false&&d.t==='pickup');return'<button class="dt-btn'+(a?' active':'')+(di?' unavail':'')+(admin?' admin-mode':'')+'" data-type="'+d.t+'">'+esc(d.l)+'</button>'}).join('')}
 let selBlock='';
-document.getElementById('del').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=b.dataset.type;if(admin){const i=disDel.indexOf(t);if(i>-1)disDel.splice(i,1);else disDel.push(t);saveConfig();drawDel();return}if(disDel.includes(t)){toast('❌ Tidak tersedia');return}document.querySelectorAll('#del button').forEach(b=>b.classList.remove('active'));b.classList.add('active');isCod=t==='cod';document.getElementById('times').style.display=isCod?'flex':'none';document.getElementById('time-pickup').style.display=isCod?'none':'block';document.getElementById('block-section').style.display=isCod?'block':'none';document.getElementById('pickup-note').style.display=isCod?'none':'block';setTimeout(()=>document.getElementById('inp-name2').focus(),100);document.getElementById('time-label').textContent=isCod?'⏰ Masa Penghantaran':'⏰ Masa Ambil';if(!isCod){selTime=document.getElementById('pickup-time').value.trim()||'(nyatakan masa)';selBlock='';const _cb=document.getElementById('inp-custom-block');if(_cb)_cb.value=''}else selTime='';drawTimes();drawBlocks();upCart();});
+document.getElementById('del').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=b.dataset.type;if(admin){const i=disDel.indexOf(t);if(i>-1)disDel.splice(i,1);else disDel.push(t);saveConfig();drawDel();return}if(disDel.includes(t)){toast('❌ Tidak tersedia');return}document.querySelectorAll('#del button').forEach(b=>b.classList.remove('active'));b.classList.add('active');isCod=t==='cod';document.getElementById('time-pickup').style.display=isCod?'none':'block';document.getElementById('block-section').style.display=isCod?'block':'none';document.getElementById('pickup-note').style.display=isCod?'none':'block';setTimeout(()=>document.getElementById('inp-name2').focus(),100);document.getElementById('time-label').textContent=isCod?'⏰ Masa Penghantaran':'⏰ Masa Ambil';if(!isCod){selTime=document.getElementById('pickup-time').value.trim()||'(nyatakan masa)';selBlock='';const _cb=document.getElementById('inp-custom-block');if(_cb)_cb.value=''}else selTime='';drawTimes();drawBlocks();upCart();});
 let BLOCKS=['Intan','Delima','Baiduri','Kristal A','Kristal B','Nilam','Zamrud'];let disBlocks=[];
 function drawBlocks(){const g=document.getElementById('block-grid');g.innerHTML=BLOCKS.map(b=>{const dis=disBlocks.includes(b);return'<button onclick="pickBlock(\''+b+'\')"'+(selBlock===b?' class="active"':'')+(dis?' style="opacity:0.3;cursor:not-allowed;text-decoration:line-through"':'')+'>'+esc(b)+'</button>'}).join('')}
 function pickBlock(b){if(disBlocks.includes(b)){toast('❌ Blok tidak tersedia');return}selBlock=b;drawBlocks();upCart();document.getElementById('room-row').style.display='block';setTimeout(()=>document.getElementById('inp-room').focus(),100)}
 document.getElementById('pickup-time').addEventListener('input',function(){selTime=this.value.trim()||'(nyatakan masa)'});
-let payM='cash';
+let payM='';
 document.getElementById('pay').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;document.querySelectorAll('#pay button').forEach(b=>b.classList.remove('active'));b.classList.add('active');payM=b.dataset.method;document.getElementById('qr-section').style.display=payM==='qr'?'block':'none'});
 function closeConfirm(){document.getElementById('confirm-modal').style.display='none'}
-document.getElementById('checkout').addEventListener('click',function(){const e=Object.entries(cart);let totalItems=0;e.forEach(([_,v])=>totalItems+=v.length);if(totalItems===0){toast('⚠ Tiada pesanan');return}const n=document.getElementById('inp-name2').value.trim(),r=isCod?(selBlock==='other'?((document.getElementById('inp-custom-block')||{}).value||'').trim():selBlock):'';if(!n){highlight('inp-name2','⚠ Sila masukkan nama');return}if(isCod&&!selBlock){toast('⚠ Sila pilih blok');return}if(isCod&&selBlock&&!document.getElementById('inp-room').value.trim()){toast('⚠ Sila masukkan nombor bilik');return}if(!selTime){toast('⚠ Sila pilih masa');return}let html='',total=0,idx=0;e.forEach(([id,items])=>{const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;const item=MENU[ci].items[vi];items.forEach(inst=>{idx++;const ac=inst.adds.reduce((s,aid)=>{const a=findAdd(aid);return s+(a?a.price:0)},0);total+=item.price+ac;const al=inst.adds.map(aid=>{const a=findAdd(aid);return a?a.name:''}).filter(Boolean).join(', ');const emoji=item.name.includes('Milo')?'🥤':item.name.includes('Extrajoss')?'🍹':item.name.includes('Indocafe')?'☕':item.name.includes('Chocolate')?'🍫':item.name.includes('Horlicks')?'🥛':item.name.includes('Hazelnut')?'🌰':item.name.includes('Mocha')?'🍵':'🧋';html+='<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="font-size:20px">'+emoji+'</span><div style="flex:1"><div style="font-weight:800;font-size:14px;color:#F0F0F0">'+item.name+'</div>'+(al?'<div style="font-size:11px;color:#9A9385;margin-top:2px">➕ '+al+'</div>':'')+'</div><span style="font-family:\'Bangers\',cursive;font-size:18px;color:#00D4AA">RM'+(item.price+ac).toFixed(2)+'</span></div>';});});document.getElementById('confirm-items').innerHTML=html;document.getElementById('confirm-delivery').innerHTML='🚗 '+(isCod?'COD (+RM1)':'Ambil Sendiri')+' · ⏰ '+esc(selTime)+' · 👤 '+esc(n)+(isCod?' '+esc(r):'');document.getElementById('confirm-pay').innerHTML='💳 '+(payM==='cash'?'💵 Tunai':'📱 QR Pay');document.getElementById('confirm-sub').textContent='RM'+total.toFixed(2);document.getElementById('confirm-cod').style.display=isCod?'flex':'none';document.getElementById('confirm-total').textContent='RM'+(total+(isCod?1:0)).toFixed(2);document.getElementById('confirm-modal').style.display='flex';});
+document.getElementById('checkout').addEventListener('click',function(){const e=Object.entries(cart);let totalItems=0;e.forEach(([_,v])=>totalItems+=v.length);if(totalItems===0){toast('⚠ Tiada pesanan');return}if(isCod===null){toast('⚠ Sila pilih cara penghantaran');return}if(!payM){toast('⚠ Sila pilih cara bayar');return}const n=document.getElementById('inp-name2').value.trim(),r=isCod?(selBlock==='other'?((document.getElementById('inp-custom-block')||{}).value||'').trim():selBlock):'';if(!n){highlight('inp-name2','⚠ Sila masukkan nama');return}if(isCod&&!selBlock){toast('⚠ Sila pilih blok');return}if(isCod&&selBlock&&!document.getElementById('inp-room').value.trim()){toast('⚠ Sila masukkan nombor bilik');return}if(!selTime){toast('⚠ Sila pilih masa');return}let html='',total=0,idx=0;e.forEach(([id,items])=>{const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;const item=MENU[ci].items[vi];items.forEach(inst=>{idx++;const ac=inst.adds.reduce((s,aid)=>{const a=findAdd(aid);return s+(a?a.price:0)},0);total+=item.price+ac;const al=inst.adds.map(aid=>{const a=findAdd(aid);return a?a.name:''}).filter(Boolean).join(', ');const emoji=item.name.includes('Milo')?'🥤':item.name.includes('Extrajoss')?'🍹':item.name.includes('Indocafe')?'☕':item.name.includes('Chocolate')?'🍫':item.name.includes('Horlicks')?'🥛':item.name.includes('Hazelnut')?'🌰':item.name.includes('Mocha')?'🍵':'🧋';html+='<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="font-size:20px">'+emoji+'</span><div style="flex:1"><div style="font-weight:800;font-size:14px;color:#F0F0F0">'+item.name+'</div>'+(al?'<div style="font-size:11px;color:#9A9385;margin-top:2px">➕ '+al+'</div>':'')+'</div><span style="font-family:\'Bangers\',cursive;font-size:18px;color:#00D4AA">RM'+(item.price+ac).toFixed(2)+'</span></div>';});});document.getElementById('confirm-items').innerHTML=html;document.getElementById('confirm-delivery').innerHTML='🚗 '+(isCod?'COD (+RM1)':'Ambil Sendiri')+' · ⏰ '+esc(selTime)+' · 👤 '+esc(n)+(isCod?' '+esc(r):'');document.getElementById('confirm-pay').innerHTML='💳 '+(payM==='cash'?'💵 Tunai':'📱 QR Pay');document.getElementById('confirm-sub').textContent='RM'+total.toFixed(2);document.getElementById('confirm-cod').style.display=isCod?'flex':'none';document.getElementById('confirm-total').textContent='RM'+(total+(isCod?1:0)).toFixed(2);document.getElementById('confirm-modal').style.display='flex';});
 function clip(s,max){return String(s==null?'':s).trim().slice(0,max)}
 function saveCart(){try{localStorage.setItem('mms_cart',JSON.stringify(cart))}catch(e){}}
 function loadCart(){try{const c=JSON.parse(localStorage.getItem('mms_cart'));if(c&&typeof c==='object'){cart=c;return true}}catch(e){}return false}
@@ -389,13 +407,21 @@ async function sendWa(){
   const payload={name:n,room:r,delivery:isCod?'cod':'pickup',time:clip(when,40),payment:payM,items:Object.values(ordMap).slice(0,50),subtotal:+(total-cod).toFixed(2),total:+total.toFixed(2),status:'baru'};
   if(phone)payload.phone=phone;
 
-  let code=null,saved=false;
+  let code=null,saved=false,orderNo=null;
   const db=getDb();
   if(db){
     for(let attempt=0;attempt<3&&!saved;attempt++){
       code=orderCode();
       try{
-        await db.collection('orders').doc(code).set({...payload,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+        await db.runTransaction(async function(tx){
+          const cRef=db.collection('counters').doc(dayKey());
+          const cs=await tx.get(cRef);
+          const n=(cs.exists?(cs.data().n||0):0)+1;
+          tx.set(cRef,{n:n});
+          tx.set(db.collection('orders').doc(code),{...payload,no:n,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+          tx.set(db.collection('tracking').doc(code),{status:'baru',no:n,at:firebase.firestore.FieldValue.serverTimestamp()});
+          orderNo=n
+        });
         saved=true
       }catch(e){console.warn('order write gagal ('+code+'):',e)}
     }
@@ -403,7 +429,7 @@ async function sendWa(){
 
   _sending=false;btn.disabled=false;btn.textContent='Hantar ke WhatsApp';
 
-  if(code)msg+='No. Pesanan: #'+code+'\n';
+  if(orderNo)msg+='No. Pesanan: #'+fmtNo(orderNo)+'\n';
   Object.values(ordMap).forEach(o=>{
     const al=o.adds.join(', ');
     msg+=o.qty+'x '+o.name+' = RM'+o.price.toFixed(2)+(o.adds.length?' ('+al+')':'')+'\n'
@@ -414,25 +440,32 @@ async function sendWa(){
   msg+='\nNama: '+n+(isCod?' ('+r+')':'');
   msg+='\nJumlah: RM'+total.toFixed(2);
 
-  if(!saved){showDone({code:code,items:OrdDisplay(ordMap),total:total,isCod:isCod,r:r,n:n,when:when,warn:true});return}
-  track('order_sent');
-  showDone({code:code,items:OrdDisplay(ordMap),total:total,isCod:isCod,r:r,n:n,when:when,warn:false});
+  const disp={code:code,no:orderNo,items:OrdDisplay(ordMap),total:total,isCod:isCod,r:r,n:n,when:when,pay:payM};
+  if(!saved){showDone({...disp,warn:true});return}
+  track('order_sent');chime();buzzOk();
+  showDone({...disp,warn:false});
+  saveMyOrder(disp);
   window.open(waUrl(msg),'_blank');
   const l=getLoy();l.c++;if(l.c%5===0)setTimeout(()=>toast('Congrats! Minuman percuma seterusnya!'),900);saveLoy(l);drawLoy();
-  cart={};saveCart();selTime='ASAP';selBlock='';
+  cart={};saveCart();selTime='';selBlock='';isCod=null;payM='';
   const pt=document.getElementById('pickup-time');if(pt)pt.value='';
   const ph=document.getElementById('inp-phone');if(ph)ph.value='';
   const rr=document.getElementById('room-row');if(rr)rr.style.display='none';
   closeConfirm();closeCart();draw();
 }
 function OrdDisplay(map){return Object.values(map)}
+function saveMyOrder(o){try{localStorage.setItem('mms_last',JSON.stringify({code:o.code,no:o.no,at:Date.now(),total:o.total,items:o.items,isCod:o.isCod,r:o.r,when:o.when,pay:o.pay}));showMyOrderBtn()}catch(e){}}
+function loadMyOrder(){try{const j=JSON.parse(localStorage.getItem('mms_last'));return j&&j.code?j:null}catch(e){return null}}
+function showMyOrderBtn(){const b=document.getElementById('my-order');if(!b)return;const o=loadMyOrder();b.style.display=o?'inline-flex':'none';if(o)b.textContent='📦 Pesanan saya · #'+fmtNo(o.no)}
+function openMyOrder(){const o=loadMyOrder();if(!o)return;showDone({...o,warn:false})}
 function showDone(o){
   const el=document.getElementById('done');if(!el)return;
   el._msg=o;
   const rows=(o.items||[]).map(i=>'<div class="r"><span>'+i.qty+'x '+esc(i.name)+(i.adds&&i.adds.length?' <span style="color:#9A9385">· '+esc(i.adds.join(', '))+'</span>':'')+'</span><b>RM'+(i.price*i.qty).toFixed(2)+'</b></div>').join('');
   el.innerHTML='<div class="tick">'+(o.warn?'⚠':'✓')+'</div>'
     +'<h2>'+(o.warn?'Pesanan disimpan':'Pesanan Diterima')+'</h2>'
-    +(o.code?'<div class="code">#'+esc(o.code)+'</div>':'')
+    +'<div class="code">'+(o.no?'Pesanan #'+fmtNo(o.no):(o.code?'#'+esc(o.code):''))+'</div>'
+    +(o.no?'<div style="font-size:11px;color:#9A9385;font-weight:700;margin-bottom:14px">Kod: '+esc(o.code||'')+'</div>':'')
     +(o.warn?'<div class="warnbox">Rekod dalam sistem gagal, tapi WhatsApp tetap dibuka. Tekan hantar dalam WhatsApp supaya pesanan anda diterima.</div>':'')
     +'<div class="box2">'+rows
       +'<div class="r" style="border-top:1px solid rgba(255,255,255,0.08);margin-top:6px;padding-top:8px"><span>Jumlah</span><b style="color:#00D4AA;font-size:16px">RM'+Number(o.total).toFixed(2)+'</b></div>'
@@ -440,10 +473,38 @@ function showDone(o){
       +(o.isCod?'<div class="r"><span>Lokasi</span><b>'+esc(o.r)+'</b></div>':'')
       +'<div class="r"><span>Masa</span><b>'+esc(fmtTimeLabel(o.when))+'</b></div>'
     +'</div>'
-    +'<div class="steps"><span class="st on">Diterima</span><span class="arw">›</span><span class="st">Dibuat</span><span class="arw">›</span><span class="st">Dalam perjalanan</span><span class="arw">›</span><span class="st">Sampai</span></div>'
+    +'<div class="steps" id="done-steps"><span class="st" data-i="0">Diterima</span><span class="arw">›</span><span class="st" data-i="1">Dibuat</span><span class="arw">›</span><span class="st" data-i="2">Dalam perjalanan</span><span class="arw">›</span><span class="st" data-i="3">Sampai</span></div>'
+    +'<div id="done-status" style="font-size:12px;color:#9A9385;font-weight:700;margin-bottom:14px"></div>'
     +'<button class="go2" onclick="reopenWa()">Buka WhatsApp</button>'
     +'<button class="alt" onclick="closeDone()">Tutup</button>';
   el.classList.add('show');
+  if(!o.warn&&o.code)trackOrder(o.code);
+  paintSteps(o.warn?'':(o._st||'baru'));
+}
+const STEPS=['baru','processing','sampai_processing','done'];
+function paintSteps(st){
+  const order={baru:'Diterima',processing:'Dalam perjalanan',done:'Sampai'};
+  const rank={baru:0,processing:2,done:3};
+  let r=rank[st];
+  if(r===undefined)r=0;
+  const el=document.getElementById('done-steps');
+  if(el)Array.prototype.forEach.call(el.querySelectorAll('.st'),function(s){const i=Number(s.dataset.i);s.classList.toggle('on',i<=r)});
+  const lab=document.getElementById('done-status');
+  if(lab)lab.textContent=(st==='done'?'Siap! Terima kasih 🍹':st==='processing'?'Sedang dibuat / dalam perjalanan':'Menunggu pengesahan penjual');
+}
+let _trackUnsub=null;
+function trackOrder(code){
+  if(_trackUnsub){_trackUnsub();_trackUnsub=null}
+  const db=getDb();if(!db||!code)return;
+  _trackUnsub=db.collection('tracking').doc(code).onSnapshot(function(s){
+    if(!s.exists)return;
+    const d=s.data()||{};
+    paintSteps(d.status||'baru');
+    const el=document.getElementById('done');
+    if(el&&el._msg)el._msg._st=d.status||'baru';
+    const o=loadMyOrder();
+    if(o&&o.code===code){o._st=d.status;try{localStorage.setItem('mms_last',JSON.stringify(o))}catch(e){}}
+  },function(){});
 }
 function reopenWa(){const o=document.getElementById('done')._msg;if(!o)return;let msg='Hi '+SHOP+'! Pesanan:\n';if(o.code)msg+='No. Pesanan: #'+o.code+'\n';(o.items||[]).forEach(i=>{msg+=i.qty+'x '+i.name+' = RM'+(i.price*i.qty).toFixed(2)+(i.adds&&i.adds.length?' ('+i.adds.join(', ')+')':'')+'\n'});msg+='\nJumlah: RM'+Number(o.total).toFixed(2);window.open(waUrl(msg),'_blank')}
 function closeDone(){const el=document.getElementById('done');if(el)el.classList.remove('show')}
@@ -472,10 +533,10 @@ if(f==='all'){
   h+='<div class="a-stats">'+stats.map(s=>'<div class="a-stat"><div class="label">'+s.lbl+'</div><div class="count">'+s.count+'</div><div class="rev">RM'+s.total.toFixed(2)+'</div></div>').join('')+'</div>';
 }if(!filtered.length){h+='<div style="text-align:center;padding:40px;color:#9A9385;font-weight:700;font-size:15px">'+(f==='all'?'📭 Tiada pesanan':'Tiada pesanan untuk status ini')+'</div>';pg.innerHTML=h;return}filtered.forEach((o,idx)=>{const num=live.indexOf(o)+1;const items=(o.items||[]).map(i=>'<div class="item-line">'+i.qty+'× '+esc(i.name)+(i.adds&&i.adds.length?' <span style="color:#9A9385;font-size:13px">· '+esc(i.adds.join(', '))+'</span>':'')+'</div>').join('');const when=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate().toLocaleString('ms-MY',{hour:'2-digit',minute:'2-digit'})+(timeAgo(o.createdAt.toDate())?' · '+timeAgo(o.createdAt.toDate()):''):'';const isCod=o.delivery!=='pickup';const stCol=o.status==='done'?'#00D4AA':o.status==='processing'?'#FFB347':'#FF6B6B';h+='<div class="a-card" style="border-left:3px solid '+stCol+'"><div class="top"><span><span class="num">#'+num+'</span><span class="nm">'+esc(o.name||'')+'</span>'+(o.room?' <span style="color:#9A9385;font-size:13px">· '+esc(o.room)+'</span>':'')+'</span><span class="ts">'+when+'</span></div>'+(isCod&&o.room?'<div class="room-box">🏠 Blok '+esc(o.room)+'</div>':'')+'<div class="items-list">'+items+'</div>'+'<div class="info-row"><span>⏰ '+esc(o.time||'')+'</span><span>'+(o.payment==='cash'?'💵 Tunai':'📱 QR')+'</span><span style="color:#9A9385">'+(isCod?'📦 COD':'🏪 Pickup')+'</span></div><div class="acts">'+[['baru','Baru'],['processing','Proses'],['done','Siap']].map(([k,l])=>'<button class="st'+(o.status===k?' on':'')+'" onclick="admUpdOrder(\''+o.id+'\',\''+k+'\')">'+l+'</button>').join('')+'<button class="st" onclick="admWaNotif(\''+o.id+'\')" style="background:rgba(37,211,102,0.15);color:#25D366;font-weight:800">📤</button><button class="del" onclick="admDelOrder(\''+o.id+'\')">✕</button></div></div>'});pg.innerHTML=h}
 function admSetFilter(f){_admFilter=f;const pg=document.getElementById('adm-pg');if(admUnsub){admUnsub();admUnsub=null}const db=getDb();if(!db||!isAdmin())return;admUnsub=ordersQ(db).onSnapshot(snap=>{const docs=snap.docs.map(d=>({id:d.id,...d.data()}));_admRenderOrders(pg,docs)})}
-function admUpdOrder(id,status){const db=getDb();if(!db)return;db.collection('orders').doc(id).update({status}).catch(e=>console.warn(e))}
+function admUpdOrder(id,status){const db=getDb();if(!db)return;db.collection('orders').doc(id).update({status}).catch(e=>console.warn(e));db.collection('tracking').doc(id).update({status:status,at:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){})}
 function admDelOrder(id){if(!confirm('Padam pesanan ini?\n\nIa boleh dipulihkan dari Firebase Console (status = deleted).'))return;const db=getDb();if(!db)return;db.collection('orders').doc(id).update({status:'deleted',deletedAt:firebase.firestore.FieldValue.serverTimestamp()}).catch(e=>console.warn(e))}
 function admDoSearch(v){_admSearch=v;const pg=document.getElementById('adm-pg');if(admUnsub){admUnsub();admUnsub=null}const db=getDb();if(!db||!isAdmin())return;admUnsub=ordersQ(db).onSnapshot(snap=>{const docs=snap.docs.map(d=>({id:d.id,...d.data()}));_admRenderOrders(pg,docs)})}
-function admBulkDone(){if(!_admVisDocs.length)return;if(!confirm('Tandakan semua '+_admVisDocs.length+' sebagai Siap?'))return;const db=getDb();if(!db)return;_admVisDocs.forEach(o=>db.collection('orders').doc(o.id).update({status:'done'}));toast('✓ '+_admVisDocs.length+' pesanan ditandakan siap')}
+function admBulkDone(){if(!_admVisDocs.length)return;if(!confirm('Tandakan semua '+_admVisDocs.length+' sebagai Siap?'))return;const db=getDb();if(!db)return;_admVisDocs.forEach(function(o){db.collection('orders').doc(o.id).update({status:'done'}).catch(function(){});db.collection('tracking').doc(o.id).update({status:'done',at:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){})});toast('✓ '+_admVisDocs.length+' pesanan ditandakan siap')}
 function admWaNotif(id){const o=_admVisDocs.find(x=>x.id===id);if(!o)return;window.open('https://wa.me/'+WA.replace(/[^0-9]/g,'')+'?text='+encodeURIComponent('Pesanan '+o.name+' siap! Boleh ambil.'),'_blank')}
 let _aei=null;
 function admMenu(pg){_aei=null;let h='<div style="max-width:700px">';(MENU||[]).forEach((cat,ci)=>{cat.items.forEach((v,i)=>{const id='c'+ci+'v'+i;const d=isDis(id);const last=i===cat.items.length-1;h+='<div class="a-row" style="'+(d?'opacity:0.4':'')+'"><span class="n" style="'+(d?'text-decoration:line-through':'')+'">'+(v.pop?'🔥 ':'')+esc(v.name)+'</span><span class="p">RM'+v.price.toFixed(2)+'</span><div class="b"><button style="background:rgba(255,255,255,0.05);color:#9A9385" onclick="admMoveMI('+i+',-1)"'+(i===0?' disabled style="opacity:0.3"':'')+'>▲</button><button style="background:rgba(255,255,255,0.05);color:#9A9385" onclick="admMoveMI('+i+',1)"'+(last?' disabled style="opacity:0.3"':'')+'>▼</button><button style="background:'+(d?'rgba(255,107,107,0.15)':'rgba(0,212,170,0.1)')+';color:'+(d?'#FF6B6B':'#00D4AA')+'" onclick="togDis(\''+id+'\');admMenu(document.getElementById(\'adm-pg\'))">'+(d?'✕':'✓')+'</button><button style="background:rgba(0,212,170,0.1);color:#00D4AA" onclick="admEditMI('+i+')">✎</button><button style="background:rgba(255,107,107,0.1);color:#FF6B6B" onclick="admDelMI('+i+')">✕</button></div></div>'})});h+='</div><div class="a-form"><div class="row"><input class="inp" id="am-name" placeholder="Nama minuman" style="flex:1"><input class="inp" id="am-price" placeholder="Harga" type="number" step="0.10" style="max-width:90px"></div><div class="row"><input class="inp" id="am-img" placeholder="URL gambar (pilihan)" style="flex:1"></div><label style="display:flex;align-items:center;gap:6px;font-size:13px;color:#9A9385;font-weight:700;margin-bottom:14px"><input type="checkbox" id="am-pop"> Popular</label><div style="display:flex;gap:8px"><button onclick="admSaveMI()" id="am-save" style="flex:1;background:#00D4AA;color:#000;border:none;font-family:\'Fredoka One\',cursive;font-size:14px;padding:12px;border-radius:10px;cursor:pointer">➕ Tambah</button><button onclick="admCancelMI()" id="am-cancel" style="display:none;background:rgba(255,255,255,0.08);color:#9A9385;border:none;font-size:13px;padding:12px;border-radius:10px;cursor:pointer">Batal</button></div></div>';pg.innerHTML=h}
@@ -590,7 +651,7 @@ function admSignOutNow(){const a=getAuth();if(a)a.signOut().then(()=>{exitAdmin(
 
 
 
-(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();await loadMenu();await initConfig();initDis();drawLoy();drawDel();const a=getAuth();if(a)a.onAuthStateChanged(u=>{if(u&&u.email){const e=document.getElementById('admin-email');if(e)e.value=u.email;enterAdmin()}else if(admin){exitAdmin()}})})();
+(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await loadMenu();await initConfig();initDis();drawLoy();drawDel();const a=getAuth();if(a)a.onAuthStateChanged(u=>{if(u&&u.email){const e=document.getElementById('admin-email');if(e)e.value=u.email;enterAdmin()}else if(admin){exitAdmin()}})})();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
 </script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js')</script>

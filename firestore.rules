@@ -39,15 +39,18 @@ service cloud.firestore {
 
       return d.keys().hasAll([
             'name', 'delivery', 'time', 'payment',
-            'items', 'subtotal', 'total', 'status', 'createdAt'
+            'items', 'subtotal', 'total', 'status', 'createdAt', 'no'
           ])
           && d.keys().hasOnly([
             'name', 'room', 'delivery', 'time', 'payment',
-            'items', 'subtotal', 'total', 'status', 'createdAt', 'phone'
+            'items', 'subtotal', 'total', 'status', 'createdAt', 'phone', 'no'
           ])
 
           // who it is from
           && d.name is string && d.name.size() >= 2 && d.name.size() <= 40
+
+          // per-day order number, assigned from the counters/ document
+          && d.no is int && d.no >= 1 && d.no <= 9999
 
           // optional WhatsApp number, used only for the loyalty stamp count
           // NOTE: use hasAny() - the `in` operator works on lists, not maps.
@@ -100,6 +103,44 @@ service cloud.firestore {
     match /orders/{orderId} {
       allow create: if validOrder();
       allow read, update, delete: if isAdmin();
+    }
+
+    // ------------------------------------------------------------------
+    // Daily order counter, one document per calendar day: counters/2026-10-14
+    //
+    // The customer's browser increments this inside a transaction and stamps
+    // the resulting number onto their order, so numbering runs 001, 002, ...
+    // and resets naturally at midnight (a new day is simply a new document).
+    //
+    // Rules make it strictly monotonic: it can be created at 1 and only ever
+    // go UP by exactly one. It can never be reset, decremented or jumped.
+    // Somebody could still burn numbers by calling the counter without
+    // ordering, which is a cosmetic nuisance, not a leak or a takeover.
+    // ------------------------------------------------------------------
+    match /counters/{day} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['n'])
+                   && request.resource.data.n == 1;
+      allow update: if request.resource.data.keys().hasOnly(['n'])
+                   && request.resource.data.n == resource.data.n + 1;
+      allow delete: if false;
+    }
+
+    // ------------------------------------------------------------------
+    // Public order tracking, keyed by the customer's secret 6-char code.
+    //
+    // Deliberately does NOT live on the order document: that would mean making
+    // the order world-readable to let a customer watch their own status. This
+    // carries status only - no name, no room, no items.
+    //
+    // A customer may create their own entry (status locked to 'baru'), but
+    // only the admin may ever change it.
+    // ------------------------------------------------------------------
+    match /tracking/{code} {
+      allow read: if true;
+      allow create: if request.resource.data.keys().hasOnly(['status', 'no', 'at'])
+                   && request.resource.data.status == 'baru';
+      allow update, delete: if isAdmin();
     }
 
     // ------------------------------------------------------------------
