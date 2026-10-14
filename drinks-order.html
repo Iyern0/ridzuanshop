@@ -12,8 +12,6 @@ body{font-family:'Nunito',sans-serif;background:#131010;color:#F0F0F0;min-height
 .hero{background:linear-gradient(160deg,#131010 0%,#1E1913 50%,#131010 100%);border-bottom:3px solid #00D4AA;padding:32px 20px 24px;text-align:center}
 .hero h1{font-family:'Bangers',cursive;font-size:clamp(40px,12vw,64px);color:#F0F0F0;text-shadow:0 0 20px rgba(0,212,170,0.3),3px 3px 0 rgba(0,0,0,0.5);letter-spacing:2px}
 .hero h1 span{color:#00D4AA}.hero .sub{font-size:13px;color:#9A9385;margin-top:6px;font-weight:700}
-.hero .tags{display:flex;justify-content:center;gap:6px;margin-top:10px;flex-wrap:wrap}
-.hero .tags span{background:rgba(0,212,170,0.08);border:1px solid rgba(0,212,170,0.2);padding:5px 14px;border-radius:999px;font-size:12px;font-weight:700;color:#00D4AA}
 .bar{background:#1E1913;border-bottom:1px solid rgba(255,255,255,0.08);padding:12px 16px;display:flex;align-items:center;justify-content:center;gap:12px;font-size:12px;color:#9A9385;font-weight:700}
 .bar .stamps{display:flex;gap:5px}.bar .stamp{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:12px}
 .bar .stamp.filled{background:#00D4AA;border-color:#00D4AA}.bar .count{font-family:'Bangers',cursive;font-size:22px;color:#00D4AA}
@@ -44,8 +42,6 @@ body{font-family:'Nunito',sans-serif;background:#131010;color:#F0F0F0;min-height
 .status-bar .dot{width:9px;height:9px;border-radius:50%;background:currentColor;flex-shrink:0}
 .status-bar.open .dot{animation:pulse 1.8s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.45;transform:scale(0.8)}}
-.trust{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;padding:10px 16px 2px;max-width:640px;margin:0 auto}
-.trust span{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:999px;padding:5px 12px;font-size:11px;font-weight:700;color:#9A9AB0}
 .badge-new{position:absolute;top:-5px;right:-5px;background:#FFB347;color:#000;font-size:9px;font-weight:900;padding:2px 8px;border-radius:999px}
 .founder{display:flex;align-items:center;gap:12px;max-width:640px;margin:14px auto 0;padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px}
 .founder img{width:46px;height:46px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #00D4AA}
@@ -141,8 +137,6 @@ button:disabled:active{transform:none}
 
 /* --- my-order + trust --- */
 #my-order{animation:floatUp .45s var(--eo) both}
-.trust span{transition:transform .22s var(--sp),background .25s var(--eo)}
-.trust span:active{transform:scale(0.95)}
 
 /* --- status bar --- */
 .status-bar{animation:riseIn .4s var(--eo) both}
@@ -427,17 +421,25 @@ button:disabled:active{transform:none}
 .fn-row{margin-bottom:13px}
 .fn-bar{height:8px;border-radius:999px;background:rgba(255,255,255,0.06);overflow:hidden}
 .fn-bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#00D4AA,#25D366)}
+
+.a-bulk button.danger{background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.3);color:#FF6B6B}
+.a-bulk button.danger:hover{background:rgba(255,107,107,0.2)}
+/* "Tutup" is now the only secondary action on the receipt, so give it the
+   weight of a button rather than a bare underlined word. */
+.done .alt{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.11);color:#D8D2C8;border-radius:10px;padding:11px 26px;font-size:14px;text-decoration:none;margin-top:4px}
+.done .alt:hover{background:rgba(255,255,255,0.11);color:#F0F0F0}
+#toast-act{font-family:'Nunito',sans-serif}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="theme-color" content="#00D4AA">
 </head><body>
-<div class="hero"><h1>🌙 <span>MINUM</span> MALAM SISWA</h1><div class="sub">⏰ 10:30PM — 2:00AM · 🚗 COD (RM1) / Free Pickup</div><div class="tags"><span>🧊 Ais</span><span>💝 Harga Mesra</span><span>🔥 Beli 5 Percuma 1</span></div></div>
+<div class="hero"><h1>🌙 <span>MINUM</span> MALAM SISWA</h1><div class="sub">⏰ 10:30PM — 2:00AM · 🚗 COD (RM1) / Free Pickup</div></div>
 <div id="status-bar" class="status-bar"></div>
 <div style="text-align:center;margin-top:12px"><button id="my-order" onclick="openMyOrder()" style="display:none;background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.3);color:#00D4AA;font-weight:800;font-size:13px;padding:9px 18px;border-radius:999px;cursor:pointer">📦 Pesanan saya</button></div>
-<div style="text-align:center;margin-top:8px"><button id="admin-btn" onclick="enterAdmin()" style="display:none;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.14);color:#8A8377;font-weight:800;font-size:12px;padding:7px 14px;border-radius:999px;cursor:pointer">🔧 Admin</button></div>
+<div id="admin-btn-wrap" style="text-align:center;margin-top:8px;display:none"><button id="admin-btn" onclick="enterAdmin()" style="display:none;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.14);color:#8A8377;font-weight:800;font-size:12px;padding:7px 14px;border-radius:999px;cursor:pointer">🔧 Admin</button></div>
 <div id="founder" class="founder" style="display:none"></div>
-<div class="trust"><span>⏱ Siap ~15-30 min</span><span>💵 Bayar masa sampai</span><span>🍹 Beli 5 Percuma 1</span><span>🧊 Ais balang</span></div>
+
 <div class="bar"><span>🎁 Pesanan</span><div class="stamps" id="stamps"></div><span class="count" id="loy-count">0</span></div>
 <div class="sec"><h2>🧋 <span>Minuman</span></h2><div class="l"></div></div>
 <div id="menu-root"></div>
@@ -513,7 +515,11 @@ function adminUser(){
 }
 function paintAdminBtn(){
   const b=document.getElementById('admin-btn');
-  if(b)b.style.display=adminUser()?'inline-flex':'none';
+  const w=document.getElementById('admin-btn-wrap');
+  const show=adminUser();
+  if(b)b.style.display=show?'inline-flex':'none';
+  // collapse the wrapper too, or it leaves a gap above the menu for customers
+  if(w)w.style.display=show?'block':'none';
 }
 function bumpIdle(){
   if(!admin)return;
@@ -588,6 +594,14 @@ function getLoy(){try{return JSON.parse(localStorage.getItem('mms_loy'))||{c:0}}
 function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
 function drawLoy(){const l=getLoy();document.getElementById('loy-count').textContent=l.c;const p=l.c%5,s=document.getElementById('stamps');let h='';for(let i=0;i<5;i++)h+='<div class="stamp'+(i<p?' filled':'')+'">'+(i<p?'⭐':'')+'</div>';s.innerHTML=h}
 function toast(m){const t=document.getElementById('toast');t.innerHTML=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2000)}
+function toastAction(msg,label,fn){
+  const t=document.getElementById('toast');
+  t.innerHTML=esc(msg)+' <button id="toast-act" style="background:#00D4AA;color:#000;border:none;font-size:13px;font-weight:800;padding:6px 14px;border-radius:8px;cursor:pointer;margin-left:10px">'+esc(label)+'</button>';
+  t.classList.add('show');clearTimeout(t._t);
+  const b=document.getElementById('toast-act');
+  if(b)b.onclick=function(){try{fn()}catch(e){}};
+  t._t=setTimeout(()=>t.classList.remove('show'),8000);
+}
 function highlight(id,msg){const el=document.getElementById(id);el.style.borderColor='#FF6B6B';el.style.boxShadow='0 0 12px rgba(255,107,107,0.4)';el.focus();toast(msg);setTimeout(()=>{el.style.borderColor='';el.style.boxShadow=''},2000)}
 function waUrl(t){return'https://wa.me/'+WA.replace(/[^0-9]/g,'')+'?text='+encodeURIComponent(t)}
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
@@ -892,7 +906,7 @@ function showDone(o){
     +'<div class="steps" id="done-steps"><span class="st" data-i="0">Diterima</span><span class="arw">›</span><span class="st" data-i="1">Dibuat</span><span class="arw">›</span><span class="st" data-i="2">Dalam perjalanan</span><span class="arw">›</span><span class="st" data-i="3">Sampai</span></div>'
     +'<div id="done-status" style="font-size:12px;color:#9A9385;font-weight:700;margin-bottom:14px"></div>'
     +'<button class="go2" onclick="reopenWa()">Buka WhatsApp</button>'
-    +'<div class="done-note">U0001F514 You&rsquo;ll be notified when it&rsquo;s on the way</div>'
+    +'<div class="done-note">🔔 You&rsquo;ll be notified when it&rsquo;s on the way</div>'
     +'<button class="alt" onclick="closeDone()">Tutup</button>';
   el.classList.add('show');
   if(!o.warn&&o.code)trackOrder(o.code);
@@ -1010,6 +1024,7 @@ function _admRenderOrders(pg,docs){
 
   if(f==='done'||f==='all')h+='<input class="a-search" placeholder="🔍 Cari nama atau blok..." value="'+esc(_admSearch)+'" oninput="admDoSearch(this.value)">';
   if(f==='aktif'&&filtered.length)h+='<div class="a-bulk"><button onclick="admBulkDone()">✅ Tandakan semua siap ('+filtered.length+')</button></div>';
+  if((f==='done'||f==='all')&&filtered.some(function(o){return o.status==='done'}))h+='<div class="a-bulk"><button class="danger" onclick="admBulkDelDone()">🗑 Padam yang sudah siap ('+filtered.filter(function(o){return o.status==='done'}).length+')</button></div>';
 
   if(!filtered.length){
     h+='<div class="a-empty"><span class="big">'+(f==='aktif'||f==='baru'||f==='processing'?'🎉':'📭')+'</span>'
@@ -1024,7 +1039,39 @@ function _admRenderOrders(pg,docs){
 }
 function admSetFilter(f){_admFilter=f;if(f==='done')_admSearch='';const pg=document.getElementById('adm-pg');if(admUnsub){admUnsub();admUnsub=null}const db=getDb();if(!db||!isAdmin())return;admUnsub=ordersQ(db).onSnapshot(snap=>{const docs=snap.docs.map(d=>({id:d.id,...d.data()}));_admRenderOrders(pg,docs)})}
 function admUpdOrder(id,status){const db=getDb();if(!db)return;db.collection('orders').doc(id).update({status}).catch(e=>console.warn(e));db.collection('tracking').doc(id).update({status:status,at:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){})}
-function admDelOrder(id){if(!confirm('Padam pesanan ini?\n\nIa boleh dipulihkan dari Firebase Console (status = deleted).'))return;const db=getDb();if(!db)return;db.collection('orders').doc(id).update({status:'deleted',deletedAt:firebase.firestore.FieldValue.serverTimestamp()}).catch(e=>console.warn(e))}
+function admDelOrder(id){
+  const o=_admVisDocs.find(function(x){return x.id===id});
+  const prev=o?(o.status||'baru'):'baru';
+  const who=o&&o.name?('"'+o.name+'"'):'ini';
+  if(!confirm('Padam pesanan '+who+'?\n\nBoleh dibuang semula jika tersalah.'))return;
+  const db=getDb();if(!db)return;
+  db.collection('orders').doc(id).update({status:'deleted',deletedAt:firebase.firestore.FieldValue.serverTimestamp()})
+   .then(function(){
+    toastAction('Pesanan dipadam','Buang',function(){
+      db.collection('orders').doc(id).update({status:prev}).catch(function(){});
+      toast('Pesanan dikembalikan');
+    });
+   })
+   .catch(function(){toast('Gagal padam - cuba lagi')});
+}
+
+// Clear out everything already finished. Soft delete, so undo restores the
+// exact status each order had rather than guessing.
+function admBulkDelDone(){
+  const done=_admVisDocs.filter(function(o){return o.status==='done'});
+  if(!done.length){toast('Tiada pesanan siap dipadam');return}
+  if(!confirm('Padam '+done.length+' pesanan yang sudah siap?\n\nBoleh dibuang semula jika tersalah.'))return;
+  const db=getDb();if(!db)return;
+  const prev=done.map(function(o){return {id:o.id,status:o.status}});
+  Promise.all(done.map(function(o){
+    return db.collection('orders').doc(o.id).update({status:'deleted',deletedAt:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){});
+  })).then(function(){
+    toastAction(done.length+' pesanan siap dipadam','Buang',function(){
+      prev.forEach(function(p){db.collection('orders').doc(p.id).update({status:p.status}).catch(function(){})});
+      toast(prev.length+' pesanan dikembalikan');
+    });
+  });
+}
 function admDoSearch(v){_admSearch=v;const pg=document.getElementById('adm-pg');if(admUnsub){admUnsub();admUnsub=null}const db=getDb();if(!db||!isAdmin())return;admUnsub=ordersQ(db).onSnapshot(snap=>{const docs=snap.docs.map(d=>({id:d.id,...d.data()}));_admRenderOrders(pg,docs)})}
 function admBulkDone(){if(!_admVisDocs.length)return;if(!confirm('Tandakan semua '+_admVisDocs.length+' sebagai Siap?'))return;const db=getDb();if(!db)return;_admVisDocs.forEach(function(o){db.collection('orders').doc(o.id).update({status:'done'}).catch(function(){});db.collection('tracking').doc(o.id).update({status:'done',at:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){})});toast('✓ '+_admVisDocs.length+' pesanan ditandakan siap')}
 function admStatusText(s){return s==='done'?'Siap! Boleh ambil ya 🙏':s==='processing'?'Sedang dalam perjalanan!':'Sedang dibuat...'}
