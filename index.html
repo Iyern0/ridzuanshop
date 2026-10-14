@@ -84,6 +84,9 @@ body{font-family:'Nunito',sans-serif;background:#131010;color:#F0F0F0;min-height
 @keyframes cardIn{from{opacity:0;transform:translateY(16px) scale(0.965)}to{opacity:1;transform:none}}
 @keyframes riseIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes doneAlert{from{box-shadow:inset 0 0 0 3px rgba(0,212,170,0)}to{box-shadow:inset 0 0 0 3px rgba(0,212,170,1)}}
+.done-note{margin:14px auto 0;font-size:12px;font-weight:800;color:#00D4AA;max-width:280px}
+.done.alert{animation:doneAlert .4s ease-out;box-shadow:inset 0 0 0 3px rgba(0,212,170,.85)}
 @keyframes popIn{0%{transform:scale(0.9);opacity:0}60%{transform:scale(1.03)}100%{transform:scale(1);opacity:1}}
 @keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.07)}100%{transform:scale(1)}}
 @keyframes tickIn{0%{transform:scale(0.4);opacity:0}55%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
@@ -293,6 +296,7 @@ button:disabled:active{transform:none}
 <div class="hero"><h1>🌙 <span>MINUM</span> MALAM SISWA</h1><div class="sub">⏰ 10:30PM — 2:00AM · 🚗 COD (RM1) / Free Pickup</div><div class="tags"><span>🧊 Ais</span><span>💝 Harga Mesra</span><span>🔥 Beli 5 Percuma 1</span></div></div>
 <div id="status-bar" class="status-bar"></div>
 <div style="text-align:center;margin-top:12px"><button id="my-order" onclick="openMyOrder()" style="display:none;background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.3);color:#00D4AA;font-weight:800;font-size:13px;padding:9px 18px;border-radius:999px;cursor:pointer">📦 Pesanan saya</button></div>
+<div style="text-align:center;margin-top:8px"><button id="admin-btn" onclick="enterAdmin()" style="display:none;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.14);color:#8A8377;font-weight:800;font-size:12px;padding:7px 14px;border-radius:999px;cursor:pointer">🔧 Admin</button></div>
 <div id="founder" class="founder" style="display:none"></div>
 <div class="trust"><span>⏱ Siap ~15-30 min</span><span>💵 Bayar masa sampai</span><span>🍹 Beli 5 Percuma 1</span><span>🧊 Ais balang</span></div>
 <div class="bar"><span>🎁 Pesanan</span><div class="stamps" id="stamps"></div><span class="count" id="loy-count">0</span></div>
@@ -332,7 +336,7 @@ button:disabled:active{transform:none}
 <div class="done" id="done"></div>
 <div class="modal" id="admin-login" style="z-index:1100"><div class="bg" onclick="closeAdminLogin()"></div><div class="box" style="max-width:340px;text-align:center"><div style="font-family:'Bangers',cursive;font-size:22px;color:#00D4AA;margin-bottom:4px">🔒 Admin Login</div><div style="font-size:12px;color:#9A9385;font-weight:700;margin-bottom:16px">Akaun admin sah sahaja</div><input class="inp" id="admin-email" type="email" autocomplete="username" inputmode="email" placeholder="admin@email.com" style="margin-bottom:10px;text-align:center"><input class="inp" id="admin-pw" type="password" autocomplete="current-password" placeholder="Password" style="margin-bottom:14px;text-align:center" onkeydown="if(event.key==='Enter')verifyAdminLogin()"><div style="display:flex;gap:8px"><button onclick="verifyAdminLogin()" id="admin-login-btn" style="flex:1;background:#00D4AA;color:#000;border:none;font-family:'Fredoka One',cursive;font-size:14px;padding:12px;border-radius:10px;cursor:pointer">Masuk</button><button onclick="closeAdminLogin()" style="background:rgba(255,255,255,0.08);color:#9A9385;border:none;font-size:13px;padding:12px;border-radius:10px;cursor:pointer">Batal</button></div></div></div>
 </div></div>
-<div id="admin-panel"><div class="adm-side"><div class="brand">🌙 MMS Admin</div><nav id="adm-nav"><a class="active" onclick="switchAdmin('orders')">📥 Pesanan</a><a onclick="switchAdmin('menu')">🧋 Minuman</a><a onclick="switchAdmin('addons')">🍬 Pemanis</a><a onclick="switchAdmin('schedule')">⏰ Masa</a><a onclick="switchAdmin('delivery')">🚗 Penghantaran</a><a onclick="switchAdmin('customers')">👥 Pelanggan</a><a onclick="switchAdmin('stats')">📊 Analitis</a><a onclick="switchAdmin('settings')">⚙️ Settings</a></nav><div class="exit"><button onclick="exitAdmin()">✕ Customer View</button></div></div><div class="adm-main"><div class="hd"><h2 id="adm-hd">📥 Pesanan</h2></div><div class="pg" id="adm-pg"></div></div></div>
+<div id="admin-panel"><div class="adm-side"><div class="brand">🌙 MMS Admin</div><nav id="adm-nav"><a class="active" onclick="switchAdmin('orders')">📥 Pesanan</a><a onclick="switchAdmin('menu')">🧋 Minuman</a><a onclick="switchAdmin('addons')">🍬 Pemanis</a><a onclick="switchAdmin('schedule')">⏰ Masa</a><a onclick="switchAdmin('delivery')">🚗 Penghantaran</a><a onclick="switchAdmin('customers')">👥 Pelanggan</a><a onclick="switchAdmin('stats')">📊 Analitis</a><a onclick="switchAdmin('settings')">⚙️ Settings</a></nav><div class="exit"><button onclick="lockAdmin('🔒 Admin dikunci')">🔒 Kunci</button><button onclick="exitAdmin()">✕ Customer View</button></div></div><div class="adm-main"><div class="hd"><h2 id="adm-hd">📥 Pesanan</h2></div><div class="pg" id="adm-pg"></div></div></div>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -355,8 +359,50 @@ let ADDS=[
 let DELS=[{t:'cod',l:'📦 COD (+RM1)',f:1},{t:'pickup',l:'🏪 Ambil Sendiri',f:0}];
 let cart={},disAdds=[],disDel=[],isCod=null;
 let admin=false,admClk=0,admTmr=null,custItem=null,custAdds=[];
-function enterAdmin(){admin=true;closeAdminLogin();document.getElementById('admin-panel').classList.add('show');switchAdmin('orders');toast('🔧 Admin ON')}
-function exitAdmin(){if(admUnsub){admUnsub();admUnsub=null}admin=false;document.getElementById('admin-panel').classList.remove('show');draw();drawTimes();drawDel();toast('Admin mode OFF')}
+
+// Must match isAdmin() in firestore.rules. Change both together.
+const ADMIN_EMAIL='zjasneh5@gmail.com';
+
+// Auto-lock after this long with no interaction, so a phone left on the table
+// stops being an open dashboard.
+const IDLE_LOCK_MS=15*60*1000;
+let _idleT=null;
+
+function adminUser(){
+  const a=getAuth();const u=a&&a.currentUser;
+  return (u&&u.email&&String(u.email).toLowerCase()===ADMIN_EMAIL)?u:null;
+}
+function paintAdminBtn(){
+  const b=document.getElementById('admin-btn');
+  if(b)b.style.display=adminUser()?'inline-flex':'none';
+}
+function bumpIdle(){
+  if(!admin)return;
+  clearTimeout(_idleT);
+  _idleT=setTimeout(function(){lockAdmin('🔒 Auto-kunci (15 min idle)')},IDLE_LOCK_MS);
+}
+function closeAdminPanel(){
+  if(admUnsub){admUnsub();admUnsub=null}
+  admin=false;clearTimeout(_idleT);
+  const p=document.getElementById('admin-panel');if(p)p.classList.remove('show');
+  paintAdminBtn();
+  draw();drawTimes();drawDel();
+}
+// Close the dashboard but stay signed in, so the 🔧 button comes back.
+function exitAdmin(){closeAdminPanel();toast('Customer view')}
+// Sign out entirely - the next tap needs the password again.
+function lockAdmin(msg){
+  const a=getAuth();
+  const after=function(){closeAdminPanel();toast(msg||'🔒 Admin dikunci')};
+  if(a)a.signOut().then(after).catch(after);else after();
+}
+function enterAdmin(){
+  if(!adminUser()){toast('⛔ Akaun ini bukan admin');return}
+  admin=true;closeAdminLogin();
+  document.getElementById('admin-panel').classList.add('show');
+  switchAdmin('orders');paintAdminBtn();bumpIdle();
+  toast('🔧 Admin ON');
+}
 function closeAdminLogin(){document.getElementById('admin-login').style.display='none'}
 function showAdminLogin(){closeCart();closeCust();closeConfirm();document.getElementById('admin-login').style.display='flex';const e=document.getElementById('admin-email');if(e){e.value='';setTimeout(()=>e.focus(),60)}}
 const AUTH_ERR={'auth/invalid-email':'Email tidak sah','auth/missing-password':'Masukkan password','auth/wrong-password':'Email atau password salah','auth/invalid-credential':'Email atau password salah','auth/invalid-login-credentials':'Email atau password salah','auth/user-not-found':'Email atau password salah','auth/user-disabled':'Akaun dinyahaktifkan','auth/too-many-requests':'Terlalu banyak cubaan. Tunggu sebentar.','auth/operation-not-allowed':'Email/Password belum diaktifkan dalam Firebase Console','auth/network-request-failed':'Tiada internet. Periksa sambungan.','auth/user-token-expired':'Sesi tamat. Cuba lagi.','auth/internal-error':'Ralat pelayan. Cuba lagi.'};
@@ -378,7 +424,7 @@ const FB_READY=!!(FIREBASE_CONFIG.apiKey&&FIREBASE_CONFIG.apiKey.indexOf('PASTE'
 let _db=null,_auth=null;
 function getDb(){try{if(!FB_READY)return null;if(_db)return _db;firebase.initializeApp(FIREBASE_CONFIG);_db=firebase.firestore();return _db}catch(e){console.warn('Firebase init gagal:',e);return null}}
 function getAuth(){try{if(!FB_READY||!firebase.auth)return null;if(!_auth)_auth=firebase.auth();return _auth}catch(e){console.warn('Auth gagal:',e);return null}}
-function isAdmin(){const a=getAuth();return !!(a&&a.currentUser)}
+function isAdmin(){return !!adminUser()}
 
 // ---------------------------------------------------------------------------
 // Funnel analytics. Anonymous step counters only: no names, phones, IPs or
@@ -598,27 +644,33 @@ function fillCustomer(){
 }
 function saveMyOrder(o){try{localStorage.setItem('mms_last',JSON.stringify({code:o.code,no:o.no,at:Date.now(),total:o.total,items:o.items,isCod:o.isCod,r:o.r,when:o.when,pay:o.pay}));showMyOrderBtn()}catch(e){}}
 function loadMyOrder(){try{const j=JSON.parse(localStorage.getItem('mms_last'));return j&&j.code?j:null}catch(e){return null}}
-let _notifOn=false,_lastSt='';
+let _lastSt='';
 function notifySupported(){return typeof window.Notification!=='undefined'}
-function askNotify(){
-  if(!notifySupported()){toast('Browser ini tidak menyokong notifikasi');return}
-  try{
-    Notification.requestPermission().then(function(p){
-      if(p==='granted'){
-        _notifOn=true;
-        toast('🔔 Aktif — kami akan maklumkan');
-        const b=document.getElementById('notif-btn');if(b)b.style.display='none';
-      }else toast('Notifikasi ditolak');
-    });
-  }catch(e){toast('Notifikasi tidak tersedia')}
+
+// Asked once per device. If the browser ignores or refuses, nothing breaks.
+function autoAskNotify(){
+  if(!notifySupported())return;
+  let asked=false;
+  try{asked=localStorage.getItem('mms_notif_asked')==='1'}catch(e){}
+  if(asked||Notification.permission!=='default')return;
+  try{localStorage.setItem('mms_notif_asked','1')}catch(e){}
+  try{Notification.requestPermission().then(function(){}).catch(function(){})}catch(e){}
 }
 function fireNotify(title,body){
   try{
-    if(!_notifOn)return;
     if(!notifySupported()||Notification.permission!=='granted')return;
     if(document.visibilityState==='visible')return;
     new Notification(title,{body:body,tag:'mms-order',renotify:false});
   }catch(e){}
+}
+// The guaranteed part: sound, vibration and a visible highlight. Requires no
+// permission, works in every browser, and is what most customers will actually
+// experience.
+function alertDone(st){
+  try{beep(st==='done'?1180:760,0.2,0.12)}catch(e){}
+  try{if(navigator.vibrate)navigator.vibrate(st==='done'?[70,60,70,60,140]:[50,60,110])}catch(e){}
+  const el=document.getElementById('done');
+  if(el){el.classList.remove('alert');void el.offsetWidth;el.classList.add('alert')}
 }
 function showMyOrderBtn(){const b=document.getElementById('my-order');if(!b)return;const o=loadMyOrder();b.style.display=o?'inline-flex':'none';if(o)b.textContent='📦 Pesanan saya · #'+fmtNo(o.no)}
 function openMyOrder(){const o=loadMyOrder();if(!o)return;_lastSt='';showDone({...o,warn:false})}
@@ -640,10 +692,11 @@ function showDone(o){
     +'<div class="steps" id="done-steps"><span class="st" data-i="0">Diterima</span><span class="arw">›</span><span class="st" data-i="1">Dibuat</span><span class="arw">›</span><span class="st" data-i="2">Dalam perjalanan</span><span class="arw">›</span><span class="st" data-i="3">Sampai</span></div>'
     +'<div id="done-status" style="font-size:12px;color:#9A9385;font-weight:700;margin-bottom:14px"></div>'
     +'<button class="go2" onclick="reopenWa()">Buka WhatsApp</button>'
-    +(notifySupported()&&Notification.permission!=='granted'?'<button id="notif-btn" class="alt" style="display:block;margin:6px auto 0" onclick="askNotify()">🔔 Maklumkan saya bila siap</button>':'')
+    +'<div class="done-note">U0001F514 You&rsquo;ll be notified when it&rsquo;s on the way</div>'
     +'<button class="alt" onclick="closeDone()">Tutup</button>';
   el.classList.add('show');
   if(!o.warn&&o.code)trackOrder(o.code);
+  autoAskNotify();
   paintSteps(o.warn?'':(o._st||'baru'));
 }
 const STEPS=['baru','processing','sampai_processing','done'];
@@ -669,7 +722,7 @@ function trackOrder(code){
       const dn=document.getElementById('done');
       const o=(dn&&dn._msg)||{};
       fireNotify('Pesanan '+orderRef(o),admStatusText(ns));
-      beep(ns==='done'?1180:760,0.2,0.12);
+      alertDone(ns);
     }
     _lastSt=ns;
     paintSteps(ns);
@@ -683,8 +736,7 @@ function reopenWa(){const o=document.getElementById('done')._msg;if(!o)return;le
 function closeDone(){const el=document.getElementById('done');if(el)el.classList.remove('show')}
 function setOrderStatus(id,st){const db=getDb();if(!db)return;db.collection('orders').doc(id).update({status:st}).catch(e=>console.warn('Firestore update gagal:',e))}
 document.getElementById('cartb').addEventListener('click',openCart);
-document.querySelector('.hero h1').addEventListener('click',()=>{admClk++;clearTimeout(admTmr);admTmr=setTimeout(()=>{admClk=0},1000);if(admClk>=5){admClk=0;if(!admin)showAdminLogin();else{const a=getAuth();if(a)a.signOut().then(()=>{exitAdmin();toast('🔒 已登出 / Logged out')})}}});
-function exitAdmin(){if(admUnsub){admUnsub();admUnsub=null}admin=false;document.getElementById('admin-panel').classList.remove('show');toast('Admin mode OFF')}
+document.querySelector('.hero h1').addEventListener('click',()=>{admClk++;clearTimeout(admTmr);admTmr=setTimeout(()=>{admClk=0},1000);if(admClk>=5){admClk=0;if(!admin)showAdminLogin();else lockAdmin('🔒 已登出 / Logged out')}});
 let admTab='orders',admUnsub=null;
 const ADM_T={orders:'📥 Pesanan',menu:'🧋 Minuman',addons:'🍬 Pemanis',schedule:'⏰ Masa',delivery:'🚗 Penghantaran',customers:'👥 Pelanggan',stats:'📊 Analitis',settings:'⚙️ Settings'};
 function switchAdmin(t){admTab=t;document.getElementById('adm-hd').textContent=ADM_T[t]||t;document.querySelectorAll('#adm-nav a').forEach(a=>{a.classList.toggle('active',a.textContent.trim()===ADM_T[t])});const pg=document.getElementById('adm-pg');if(t==='orders')admOrders(pg);else if(t==='menu')admMenu(pg);else if(t==='addons')admAddons(pg);else if(t==='schedule')admSchedule(pg);else if(t==='delivery')admDelivery(pg);else if(t==='customers')admCustomers(pg);else if(t==='stats')admAnalytics(pg);else if(t==='settings')admSettings(pg)}
@@ -839,7 +891,16 @@ function admSignOutNow(){const a=getAuth();if(a)a.signOut().then(()=>{exitAdmin(
 
 
 
-(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await loadMenu();await initConfig();initDis();fillCustomer();drawLoy();drawDel();const a=getAuth();if(a)a.onAuthStateChanged(u=>{if(u&&u.email){const e=document.getElementById('admin-email');if(e)e.value=u.email;enterAdmin()}else if(admin){exitAdmin()}})})();
+(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await loadMenu();await initConfig();initDis();fillCustomer();drawLoy();drawDel();const a=getAuth();
+if(a)a.onAuthStateChanged(function(u){
+  // Deliberately does NOT call enterAdmin(). A remembered session must never
+  // open the dashboard by itself - it only offers the 🔧 button.
+  if(u&&u.email){const e=document.getElementById('admin-email');if(e)e.value=u.email}
+  else if(admin)closeAdminPanel();
+  paintAdminBtn();
+});
+['pointerdown','keydown','wheel'].forEach(function(ev){window.addEventListener(ev,bumpIdle,{passive:true})});
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')bumpIdle()});})();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
 </script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js')</script>
