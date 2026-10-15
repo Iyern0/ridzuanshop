@@ -435,6 +435,19 @@ button:disabled:active{transform:none}
 .a-card .paid-btn{width:39px;height:39px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:#FFB347;font-size:16px;cursor:pointer;flex-shrink:0;transition:.16s}
 .a-card .paid-btn:hover{background:rgba(0,212,170,0.14);border-color:rgba(0,212,170,0.3);color:#00D4AA}
 .warnText{color:#FFB347}
+
+.claimbtn{display:inline-flex;align-items:center;justify-content:center;background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.3);color:#00D4AA;font-weight:800;font-size:14px;padding:12px 24px;border-radius:12px;cursor:pointer;margin-bottom:10px;width:100%}
+.claimbtn:hover{background:rgba(0,212,170,0.18)}
+.a-card .claim-note{background:rgba(0,168,255,0.1);border:1px solid rgba(0,168,255,0.28);color:#5AC8FA;font-size:11px;font-weight:800;padding:4px 10px;border-radius:7px;margin-bottom:10px}
+.a-card .acts .claim-btn2{background:rgba(0,168,255,0.12);border:1px solid rgba(0,168,255,0.3);color:#5AC8FA;font-size:12px;font-weight:800;padding:9px 13px;border-radius:10px;cursor:pointer;flex-shrink:0}
+.a-card .acts .claim-btn2:hover{background:rgba(0,168,255,0.22)}
+#claim-view{position:fixed;inset:0;z-index:1300;display:none;align-items:center;justify-content:center;padding:20px}
+#claim-view .cv-bg{position:absolute;inset:0;background:rgba(0,0,0,0.85)}
+#claim-view .cv-box{position:relative;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;background:#171412;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:16px}
+#claim-view .cv-hd{display:flex;justify-content:space-between;align-items:center;font-weight:800;color:#F0F0F0;margin-bottom:12px}
+#claim-view .cv-hd button{background:rgba(255,255,255,0.08);border:none;color:#F0F0F0;font-size:15px;width:32px;height:32px;border-radius:50%;cursor:pointer}
+#claim-view img{width:100%;border-radius:10px;display:block}
+#claim-view .cv-ref{margin-top:12px;font-size:13px;font-weight:800;color:#00D4AA;word-break:break-all}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -479,6 +492,7 @@ button:disabled:active{transform:none}
 <button onclick="sendWa()" id="wa-send" style="width:100%;background:#25D366;color:#fff;border:none;font-family:'Fredoka One',cursive;font-size:16px;padding:14px;border-radius:12px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,0.3)">Hantar Pesanan</button>
 </div></div>
 <div class="page-foot"><i>Minum sedap, harga mesra! 🧡</i><br>© <b>MINUM MALAM SISWA</b></div>
+<div id="claim-view"></div>
 <div class="toast" id="toast"></div>
 <div class="done" id="done"></div>
 <div class="modal" id="admin-login" style="z-index:1100"><div class="bg" onclick="closeAdminLogin()"></div><div class="box" style="max-width:340px;text-align:center"><div style="font-family:'Bangers',cursive;font-size:22px;color:#00D4AA;margin-bottom:4px">🔒 Admin Login</div><div style="font-size:12px;color:#9A9385;font-weight:700;margin-bottom:16px">Akaun admin sah sahaja</div><input class="inp" id="admin-email" type="email" autocomplete="username" inputmode="email" placeholder="admin@email.com" style="margin-bottom:10px;text-align:center"><input class="inp" id="admin-pw" type="password" autocomplete="current-password" placeholder="Password" style="margin-bottom:14px;text-align:center" onkeydown="if(event.key==='Enter')verifyAdminLogin()"><div style="display:flex;gap:8px"><button onclick="verifyAdminLogin()" id="admin-login-btn" style="flex:1;background:#00D4AA;color:#000;border:none;font-family:'Fredoka One',cursive;font-size:14px;padding:12px;border-radius:10px;cursor:pointer">Masuk</button><button onclick="closeAdminLogin()" style="background:rgba(255,255,255,0.08);color:#9A9385;border:none;font-size:13px;padding:12px;border-radius:10px;cursor:pointer">Batal</button></div></div></div>
@@ -535,8 +549,40 @@ function bumpIdle(){
 
 // Watch orders for the whole admin session, not just while the Orders tab is
 // open, so an arriving order is announced from any screen.
-let _admWatch=null,_admSeen=0;
-function admStopWatch(){if(_admWatch){_admWatch();_admWatch=null}_admSeen=0}
+let _admWatch=null,_admSeen=0,_admClaims={},_admClaimUnsub=null;
+function admWatchClaims(){
+  if(_admClaimUnsub||!isAdmin())return;
+  const db=getDb();if(!db)return;
+  _admClaimUnsub=db.collection('payments').orderBy('at','desc').limit(100).onSnapshot(function(snap){
+    const m={};
+    snap.docs.forEach(function(d){const f=d.data()||{};m[d.id]={at:f.at,img:f.img,ref:f.ref||''}});
+    _admClaims=m;
+    const pg=document.getElementById('adm-pg');
+    if(pg&&admTab==='orders')_admRenderOrders(pg,_admOrdersCache||[]);
+  },function(){});
+}
+function admStopClaims(){if(_admClaimUnsub){_admClaimUnsub();_admClaimUnsub=null}_admClaims={}}
+function closeClaimView(){const m=document.getElementById('claim-view');if(m)m.style.display='none'}
+function admViewClaim(id){
+  const box=document.getElementById('claim-view');
+  const c=_admClaims[id];
+  if(!box||!c)return;
+  box.style.display='flex';
+  box.innerHTML='<div class="cv-bg" onclick="closeClaimView()"></div><div class="cv-box"><div class="cv-hd">📎 Resit bayaran<button onclick="closeClaimView()">✕</button></div>'
+   +(c.img&&c.img.length>40?'<img src="'+esc(c.img)+'" alt="Resit bayaran">':'<div style="padding:30px;text-align:center;color:#9A9385;font-weight:700">Pelanggan hantar rujukan sahaja, tiada gambar.</div>')
+   +(c.ref?'<div class="cv-ref">DuitNow ref: '+esc(c.ref)+'</div>':'')+'</div>';
+  // cached snapshot already holds the image; this is only a fallback
+  if(!c.img||c.img.length<=40){
+    const db=getDb();
+    if(db)db.collection('payments').doc(id).get().then(function(s){
+      if(s.exists){const f=s.data()||{};c.img=f.img||'';c.ref=f.ref||c.ref;
+        const im=box.querySelector('img');
+        if(im&&f.img)im.src=f.img;
+      }
+    }).catch(function(){});
+  }
+}
+function admStopWatch(){if(_admWatch){_admWatch();_admWatch=null}_admSeen=0;admStopClaims()}
 function admWatchOrders(){
   if(_admWatch||!isAdmin())return;
   const db=getDb();if(!db)return;
@@ -586,7 +632,7 @@ function lockAdmin(msg){
 function enterAdmin(){
   if(!adminUser()){toast('⛔ Akaun ini bukan admin');return}
   admin=true;closeAdminLogin();admSetupOpen(_admSetupOpen);
-  admStopWatch();setTimeout(admWatchOrders,1200);
+  admStopWatch();setTimeout(admWatchOrders,1200);setTimeout(admWatchClaims,1800);
   document.getElementById('admin-panel').classList.add('show');
   switchAdmin('orders');paintAdminBtn();bumpIdle();
   toast('🔧 Admin ON');
@@ -638,6 +684,46 @@ function orderRef(o){if(!o)return'#';if(o.no)return'#'+fmtNo(o.no);if(o.code)ret
 // Deliberately omits the customer's name and number - this text passes through
 // a third-party server, and a block plus an order number is enough to act on.
 const NTFY_TOPIC='i7dhNJBSvkZgHKbSZUApcTymTMYSBVU8xTLRHamG';
+function shrinkImage(file,maxPx,quality){
+  return new Promise(function(resolve,reject){
+    if(!file||!/^image\//.test(file.type)){reject(new Error('Bukan gambar'));return}
+    const fr=new FileReader();
+    fr.onerror=function(){reject(new Error('Gagal baca fail'))};
+    fr.onload=function(){
+      const img=new Image();
+      img.onerror=function(){reject(new Error('Gagal buka gambar'))};
+      img.onload=function(){
+        let w=img.width,h=img.height;
+        const sc=Math.min(1,maxPx/Math.max(w,h));
+        w=Math.max(1,Math.round(w*sc));h=Math.max(1,Math.round(h*sc));
+        const c=document.createElement('canvas');c.width=w;c.height=h;
+        const cx=c.getContext('2d');
+        cx.fillStyle='#fff';cx.fillRect(0,0,w,h);
+        cx.drawImage(img,0,0,w,h);
+        try{resolve(c.toDataURL('image/jpeg',quality||0.72))}catch(e){reject(e)}
+      };
+      img.src=fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+function notifyOwnerClaim(o,hasImg){
+  try{
+    if(typeof fetch!=='function')return;
+    const title='Bayaran? Pesanan '+(o.no?'#'+fmtNo(o.no):'?')+(o.room?(' - Blok '+o.room):' - ambil sendiri');
+    const body=(hasImg?'Resit dilampirkan':'Tiada resit, minta!');
+    var ctrl=null;
+    try{if(typeof AbortController!=='undefined')ctrl=new AbortController()}catch(e){}
+    var timer=null;
+    if(ctrl){timer=setTimeout(function(){try{ctrl.abort()}catch(e){}},6000)}
+    fetch('https://ntfy.sh/'+NTFY_TOPIC,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain; charset=utf-8','Title':title,'Priority':'urgent','Tags':'money_with_wings'},
+      body:body,
+      signal:ctrl?ctrl.signal:undefined
+    }).catch(function(){}).then(function(){if(timer)clearTimeout(timer)},function(){if(timer)clearTimeout(timer)});
+  }catch(e){}
+}
 function notifyOwner(o){
   try{
     if(typeof fetch!=='function')return;
@@ -862,7 +948,7 @@ function fillCustomer(){
   }
   const w=document.getElementById('cust-note');if(w)w.style.display='flex';
 }
-function saveMyOrder(o){try{localStorage.setItem('mms_last',JSON.stringify({code:o.code,no:o.no,at:Date.now(),total:o.total,items:o.items,isCod:o.isCod,r:o.r,when:o.when,pay:o.pay}));showMyOrderBtn()}catch(e){}}
+function saveMyOrder(o){try{localStorage.setItem('mms_last',JSON.stringify({code:o.code,no:o.no,at:Date.now(),total:o.total,items:o.items,isCod:o.isCod,r:o.r,when:o.when,pay:o.pay,_claim:!!o._claim,_claimRef:o._claimRef||''}));showMyOrderBtn()}catch(e){}}
 function loadMyOrder(){try{const j=JSON.parse(localStorage.getItem('mms_last'));return j&&j.code?j:null}catch(e){return null}}
 let _lastSt='';
 function notifySupported(){return typeof window.Notification!=='undefined'}
@@ -912,12 +998,21 @@ function showDone(o){
     +'<div class="steps" id="done-steps"><span class="st" data-i="0">Diterima</span><span class="arw">›</span><span class="st" data-i="1">Dibuat</span><span class="arw">›</span><span class="st" data-i="2">Dalam perjalanan</span><span class="arw">›</span><span class="st" data-i="3">Sampai</span></div>'
     +'<div id="done-status" style="font-size:12px;color:#9A9385;font-weight:700;margin-bottom:10px"></div>'
     +'<div id="paid-mark" style="display:none;background:rgba(0,212,170,0.12);border:1px solid rgba(0,212,170,0.3);border-radius:10px;padding:10px;margin-bottom:14px;font-size:13px;font-weight:800;color:#00D4AA">✓ Bayaran diterima</div>'
+    +'<div id="claim-state" style="display:none;background:rgba(255,179,71,0.12);border:1px solid rgba(255,179,71,0.3);border-radius:10px;padding:10px;margin-bottom:12px;font-size:13px;font-weight:800;color:#FFB347">⏳ Menunggu penjual semak bayaran anda</div>'
+    +'<div id="claim-panel" style="display:none;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px;margin-bottom:12px;text-align:left">'
+    +'<div style="font-size:12px;font-weight:800;color:#9A9385;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px">Resit bayaran</div>'
+    +'<input type="file" id="claim-file" accept="image/*" style="width:100%;font-size:12px;color:#9A9385;margin-bottom:10px">'
+    +'<input class="inp" id="claim-ref" placeholder="DuitNow ref (pilihan)" maxlength="40" style="width:100%;margin-bottom:10px">'
+    +'<div style="display:flex;gap:8px"><button id="claim-send" onclick="sendClaim()" style="flex:1;background:#00D4AA;color:#000;border:none;font-weight:800;font-size:13px;padding:11px;border-radius:10px;cursor:pointer">Hantar resit</button>'
+    +'<button onclick="claimCancel()" style="background:rgba(255,255,255,0.08);color:#9A9385;border:none;font-size:13px;padding:11px 16px;border-radius:10px;cursor:pointer">Batal</button></div></div>'
+    +'<button id="claim-btn" class="claimbtn" onclick="claimOpen()" style="display:none">💰 Saya dah bayar</button>'
     +'<button class="go2" onclick="closeDone()">Selesai</button>'
     +'<div class="done-note">🔔 You&rsquo;ll be notified when it&rsquo;s on the way</div>'
     +'<button class="alt" onclick="reopenWa()">Simpan resit ke WhatsApp (pilihan)</button>';
   el.classList.add('show');
   if(!o.warn&&o.code)trackOrder(o.code);
   autoAskNotify();
+  paintClaim();
   paintSteps(o.warn?'':(o._st||'baru'));
 }
 const STEPS=['baru','processing','sampai_processing','done'];
@@ -959,6 +1054,60 @@ function trackOrder(code){
   },function(){});
 }
 function reopenWa(){const o=document.getElementById('done')._msg;if(!o)return;let msg='Hi '+SHOP+'! Pesanan:\n';if(o.code)msg+='No. Pesanan: #'+o.code+'\n';(o.items||[]).forEach(i=>{msg+=i.qty+'x '+i.name+' = RM'+(i.price*i.qty).toFixed(2)+(i.adds&&i.adds.length?' ('+i.adds.join(', ')+')':'')+'\n'});msg+='\nJumlah: RM'+Number(o.total).toFixed(2);window.open(waUrl(msg),'_blank')}
+function claimOpen(){
+  const p=document.getElementById('claim-panel');
+  if(p)p.style.display='block';
+}
+function claimCancel(){
+  const p=document.getElementById('claim-panel');
+  if(p)p.style.display='none';
+}
+async function sendClaim(){
+  const dn=document.getElementById('done');
+  const o=(dn&&dn._msg)||{};
+  if(!o.code){toast('Rujukan pesanan tidak dijumpai');return}
+  const btn=document.getElementById('claim-send');
+  const fileIn=document.getElementById('claim-file');
+  const refIn=document.getElementById('claim-ref');
+  btn.disabled=true;btn.textContent='Menghantar...';
+  const db=getDb();
+  if(!db){btn.disabled=false;btn.textContent='Hantar resit';toast('Tiada sambungan');return}
+  let img='';
+  try{
+    const f=fileIn&&fileIn.files&&fileIn.files[0];
+    if(f){
+      toast('Memproses gambar...');
+      img=await shrinkImage(f,1000,0.72);
+      // the rules cap this at 700000 chars, so check before spending a write
+      if(img.length>680000){btn.disabled=false;btn.textContent='Hantar resit';toast('Gambar terlalu besar - guna gambar lain');return}
+    }
+  }catch(e){
+    btn.disabled=false;btn.textContent='Hantar resit';toast('Gambar tidak boleh dibaca');return;
+  }
+  const ref=(refIn&&refIn.value||'').trim().slice(0,40);
+  const payload={img:img||'data:image/jpeg;base64,',at:firebase.firestore.FieldValue.serverTimestamp()};
+  if(ref)payload.ref=ref;
+  db.collection('payments').doc(o.code).set(payload).then(function(){
+    o._claim=true;o._claimRef=ref;dn._msg=o;
+    saveMyOrder(o);
+    claimCancel();
+    paintClaim();
+    toast('✓ Resit dihantar - penjual akan semak');
+    notifyOwnerClaim(o,!!img);
+  }).catch(function(err){
+    console.warn('claim gagal:',err);
+    btn.disabled=false;btn.textContent='Hantar resit';
+    toast('Gagal hantar resit');
+  });
+}
+function paintClaim(){
+  const dn=document.getElementById('done');
+  const o=(dn&&dn._msg)||{};
+  const b=document.getElementById('claim-btn');
+  const st=document.getElementById('claim-state');
+  if(st)st.style.display=(o._claim&&o.pay==='qr')?'block':'none';
+  if(b)b.style.display=(o.pay==='qr'&&!o._claim)?'inline-flex':'none';
+}
 function closeDone(){const el=document.getElementById('done');if(el)el.classList.remove('show')}
 function setOrderStatus(id,st){const db=getDb();if(!db)return;db.collection('orders').doc(id).update({status:st}).catch(e=>console.warn('Firestore update gagal:',e))}
 document.getElementById('cartb').addEventListener('click',openCart);
@@ -996,6 +1145,7 @@ function _admSelect(f,live){
 function _admOrderCard(o,idx){
   const isCod=o.delivery!=='pickup';
   const stCol=o.status==='done'?'#00D4AA':o.status==='processing'?'#FFB347':'#FF6B6B';
+  const cl=_admClaims[o.id];
   const when=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate().toLocaleString('ms-MY',{hour:'2-digit',minute:'2-digit'})+(timeAgo(o.createdAt.toDate())?' · '+timeAgo(o.createdAt.toDate()):''):'';
   const items=(o.items||[]).map(i=>'<div class="item-line"><span class="q">'+i.qty+'×</span><span>'+esc(i.name)+(i.adds&&i.adds.length?' <span style="color:#8A8377;font-size:12px">· '+esc(i.adds.join(', '))+'</span>':'')+'</span></div>').join('');
   return '<div class="a-card"><div class="rail" style="background:'+stCol+'"></div><div class="body">'
@@ -1005,7 +1155,10 @@ function _admOrderCard(o,idx){
    +'<div class="meta"><span>⏰ '+esc(o.time||'')+'</span><span>'+(o.payment==='cash'?'💵 Tunai':'📱 QR Pay')+'</span><span>'+(isCod?'📦 COD':'🏪 Ambil sendiri')+'</span>'
    +(o.paid?'<span class="paid on">✓ Bayar '+(o.paidAt&&o.paidAt.toDate?o.paidAt.toDate().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'}):'')+'</span>':'<span class="paid" title="Tekan bila sudah terima bayaran">💰 Belum bayar</span>')
    +'<span class="money">RM'+Number(o.total||0).toFixed(2)+'</span></div>'
-   +'<div class="acts"><button class="paid-btn" onclick="admTogglePaid(\''+o.id+'\')" title="Tanda bayaran">'+(o.paid?'✓':'💰')+'</button><div class="stepper">'
+   +(cl?'<div class="claim-note">📎 Resit dilampirkan'+(cl.at&&cl.at.toDate?' '+cl.at.toDate().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'}):'')+(cl.ref?(' · ref '+esc(cl.ref)):'')+'</div>':'')
+   +'<div class="acts">'
+   +(cl?'<button class="claim-btn2" onclick="admViewClaim(\''+o.id+'\')">📎 Lihat</button>':'')
+   +'<button class="paid-btn" onclick="admTogglePaid(\''+o.id+'\')" title="Tanda bayaran">'+(o.paid?'✓':'💰')+'</button><div class="stepper">'
    +[['baru','Baru'],['processing','Proses'],['done','Siap']].map(x=>'<button class="'+(o.status===x[0]?'on':'')+'" onclick="admUpdOrder(\''+o.id+'\',\''+x[0]+'\')">'+x[1]+'</button>').join('')
    +'</div>'
    +'<span class="spacer"></span>'
@@ -1021,7 +1174,7 @@ function _admRenderOrders(pg,docs){
     const q=_admSearch.toLowerCase();
     filtered=filtered.filter(o=>(o.name||'').toLowerCase().includes(q)||(o.room||'').toLowerCase().includes(q));
   }
-  _admVisDocs=filtered;
+  _admVisDocs=filtered;_admOrdersCache=docs;
   const nB=live.filter(o=>o.status==='baru').length,nP=live.filter(o=>o.status==='processing').length,nD=live.filter(o=>o.status==='done').length;
   const segs=[['aktif','Aktif',nB+nP],['baru','Baru',nB],['processing','Proses',nP],['done','Siap',nD],['all','Semua',live.length]];
 
