@@ -482,6 +482,28 @@ button:disabled:active{transform:none}
   .a-seg.del{width:100%}
   .a-seg.del button{flex:1}
 }
+
+/* ---- drink sheet: one oval per option ---- */
+.cgrp{margin-bottom:20px}
+.cgrp-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px}
+.cgrp-h span{font-size:14px;font-weight:800;color:#F0F0F0;letter-spacing:.2px}
+.cgrp-h b{font-size:10px;font-weight:800;color:#6B645A;letter-spacing:1.1px;text-transform:uppercase;white-space:nowrap}
+.copts{display:grid;grid-template-columns:1fr;gap:8px}
+.opt-btn{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:#1E1913;border:1.5px solid rgba(255,255,255,0.09);border-radius:999px;padding:12px 18px 12px 14px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;color:#E8E2D8;cursor:pointer;transition:transform .2s var(--sp),background .2s var(--eo),border-color .2s var(--eo),color .2s var(--eo)}
+.opt-btn:hover{border-color:rgba(0,212,170,0.45);background:#221C15}
+.opt-btn:active{transform:scale(0.975)}
+.opt-btn .ob-dot{width:19px;height:19px;border-radius:50%;border:2px solid rgba(255,255,255,0.2);flex-shrink:0;transition:background .2s var(--eo),border-color .2s var(--eo)}
+.opt-btn.sel{background:rgba(0,212,170,0.14);border-color:#00D4AA;color:#00D4AA}
+.opt-btn.sel .ob-dot{background:#00D4AA;border-color:#00D4AA;box-shadow:inset 0 0 0 3px #171412}
+.opt-btn.dis{opacity:.32;cursor:not-allowed;text-decoration:line-through}
+.opt-btn.dis:hover{border-color:rgba(255,255,255,0.09);background:#1E1913}
+/* the name wraps rather than truncating - "Con..." tells a customer nothing */
+.opt-btn .ob-name{flex:1;min-width:0;line-height:1.35;white-space:normal;overflow-wrap:break-word}
+.opt-btn .ob-price{flex-shrink:0;font-size:12px;font-weight:800;color:#FFB347}
+.opt-btn .ob-price.free{color:#6B645A;font-weight:700}
+/* receipt button in the orders list */
+.o-clam{background:rgba(0,168,255,0.14);border:1px solid rgba(0,168,255,0.32);color:#5AC8FA;font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;padding:5px 10px;border-radius:999px;cursor:pointer;flex-shrink:0;transition:background .16s}
+.o-clam:hover{background:rgba(0,168,255,0.26)}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -498,9 +520,9 @@ button:disabled:active{transform:none}
 <div id="menu-root"></div>
 <div id="cart-bar"><div class="info"><div class="count" id="cart-count">0 items</div><div class="total" id="cart-total">RM0.00</div></div><button id="cartb">Review Order</button></div>
 <div class="modal" id="cust"><div class="bg" onclick="closeCust()"></div><div class="box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-family:'Bangers',cursive;font-size:22px;color:#00D4AA">✨ <span id="c-title" style="font-family:'Nunito',sans-serif;font-weight:800;font-size:18px;color:#F0F0F0">Drink</span></span><button onclick="closeCust()" style="background:none;border:none;color:#9A9385;font-size:20px;cursor:pointer">✕</button></div>
-<div style="margin-bottom:6px;font-size:12px;font-weight:800;color:#9A9385;text-transform:uppercase">🍬 Pemanis</div><div style="margin-bottom:10px" id="c-sweet"></div>
-<div style="margin-bottom:6px;font-size:12px;font-weight:800;color:#9A9385;text-transform:uppercase">🌿 Tahap Kemanisan</div><div style="margin-bottom:10px" id="c-level"></div>
-<div style="margin-bottom:6px;font-size:12px;font-weight:800;color:#9A9385;text-transform:uppercase">➕ Add-on</div><div style="margin-bottom:20px" id="c-extra"></div>
+<div class="cgrp"><div class="cgrp-h"><span>🍬 Pemanis</span><b>pilih satu</b></div><div class="copts" id="c-sweet"></div></div>
+<div class="cgrp"><div class="cgrp-h"><span>🌿 Tahap Kemanisan</span><b>pilih satu</b></div><div class="copts" id="c-level"></div></div>
+<div class="cgrp"><div class="cgrp-h"><span>➕ Tambahan</span><b>pilihan</b></div><div class="copts" id="c-extra"></div></div>
 <button onclick="confirmCust()" style="width:100%;background:#00D4AA;color:#000;border:none;font-family:'Fredoka One',cursive;font-size:15px;padding:12px;border-radius:10px;cursor:pointer">+ Add to Cart · RM<span id="c-price">0.00</span></button>
 </div></div>
 <div class="overlay" id="overlay"><div class="bg" onclick="closeCart()"></div></div>
@@ -846,7 +868,11 @@ function toggleTimePick(){const d=document.getElementById('time-pick');if(!d)ret
 function drawStatus(){const el=document.getElementById('status-bar');if(!el)return;const o=HOURS[0],c=HOURS[1];if(isOpenNow()){const left=minsUntilClose();const lft=left<60?left+' minit':Math.floor(left/60)+' jam '+(left%60)+' min';el.className='status-bar open';el.innerHTML='<span class="dot"></span> BUKA SEKARANG · tutup dalam '+lft+' ('+fmtMin(c)+')'}else{el.className='status-bar closed';el.innerHTML='<span class="dot"></span> TUTUP · buka '+fmtMin(o)+' — anda masih boleh lihat menu'}window._statusTmr=setTimeout(drawStatus,30000)}
 function drawTimes(){document.getElementById('times').innerHTML=SLOTS.map(t=>{const u=unrTimes.includes(t),a=selTime===t?' active':'';return'<button class="t-btn'+a+(u?' unavail':'')+(admin?' admin-mode':'')+'" onclick="selT(\''+t+'\')"'+(u&&!admin?' disabled':'')+'>'+t+'</button>'}).join('')}
 function selT(t){if(admin){const i=unrTimes.indexOf(t);if(i>-1)unrTimes.splice(i,1);else unrTimes.push(t);saveConfig();drawTimes();return}if(unrTimes.includes(t)){toast('❌ Waktu tidak tersedia');return}selTime=t;drawTimes()}
-function drawCust(){if(!custItem||!MENU[custItem.ci]||!MENU[custItem.ci].items[custItem.vi]){closeCust();return}const sw=document.getElementById('c-sweet'),lv=document.getElementById('c-level'),ex=document.getElementById('c-extra');sw.innerHTML='';lv.innerHTML='';ex.innerHTML='';ADDS.forEach(a=>{const s=custAdds.includes(a.id),d=disAdds.includes(a.id);const ch='<span class="chip'+(s?' sel':'')+(d?' dis':'')+'" onclick="togC(\''+a.id+'\')">'+esc(a.name)+(a.price>0?' <span style="color:#FFB347">+RM'+a.price.toFixed(2)+'</span>':'')+'</span>';if(a.grp==='s')sw.innerHTML+=ch;else if(a.grp==='l')lv.innerHTML+=ch;else ex.innerHTML+=ch;});const at=custAdds.reduce((s,id)=>{const a=findAdd(id);return s+(a?a.price:0)},0);document.getElementById('c-price').textContent=(at+(custItem?MENU[custItem.ci].items[custItem.vi].price:0)).toFixed(2);}
+function drawCust(){if(!custItem||!MENU[custItem.ci]||!MENU[custItem.ci].items[custItem.vi]){closeCust();return}const sw=document.getElementById('c-sweet'),lv=document.getElementById('c-level'),ex=document.getElementById('c-extra');sw.innerHTML='';lv.innerHTML='';ex.innerHTML='';ADDS.forEach(a=>{const s=custAdds.includes(a.id),d=disAdds.includes(a.id);const ch='<button type="button" class="opt-btn'+(s?' sel':'')+(d?' dis':'')+'" onclick="togC(\''+a.id+'\')">'
+    +'<span class="ob-dot"></span>'
+    +'<span class="ob-name">'+esc(a.name)+'</span>'
+    +(a.price>0?'<span class="ob-price">+RM'+a.price.toFixed(2)+'</span>':'<span class="ob-price free">percuma</span>')
+    +'</button>';if(a.grp==='s')sw.innerHTML+=ch;else if(a.grp==='l')lv.innerHTML+=ch;else ex.innerHTML+=ch;});const at=custAdds.reduce((s,id)=>{const a=findAdd(id);return s+(a?a.price:0)},0);document.getElementById('c-price').textContent=(at+(custItem?MENU[custItem.ci].items[custItem.vi].price:0)).toFixed(2);}
 let _addClicks={},_addTmr={};
 function togC(addId){if(disAdds.includes(addId)&&!admin)return;const a=findAdd(addId);if(!a)return;if(admin){_addClicks[addId]=(_addClicks[addId]||0)+1;clearTimeout(_addTmr[addId]);_addTmr[addId]=setTimeout(()=>{_addClicks[addId]=0},2000);if(_addClicks[addId]>=4){_addClicks[addId]=0;if(disAdds.includes(addId)){disAdds=disAdds.filter(x=>x!==addId);toast('✓ '+a.name+' diaktifkan')}else{disAdds.push(addId);toast('❌ '+a.name+' dilumpuhkan')}saveConfig();drawCust();return}}const idx=custAdds.indexOf(addId);if(idx>-1){custAdds.splice(idx,1)}else{if(a.grp==='s'||a.grp==='l'){custAdds=custAdds.filter(id=>{const x=findAdd(id);return x&&x.grp!==a.grp})}custAdds.push(addId)}drawCust()}
 function openCust(ci,vi){track('item_open');custItem={ci,vi};custAdds=[];document.getElementById('c-title').textContent=MENU[ci].items[vi].name;drawCust();document.getElementById('cust').style.display='flex'}
@@ -1198,7 +1224,7 @@ function _admOrderRow(o,idx){
       :'<span class="o-num legacy">'+(o.createdAt&&o.createdAt.toDate?o.createdAt.toDate().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'}):'•')+'</span>')
    +'<span class="o-nm">'+esc(o.name||'')+'</span>'
    +(isCod&&o.room?'<span class="o-where">🏠 '+esc(o.room)+'</span>':'<span class="o-where muted">🏪 Ambil sendiri</span>')
-   +(cl?'<span class="o-clam" title="Resit dihantar">📎</span>':'')
+   +(cl?'<button class="o-clam" onclick="event.stopPropagation();admViewClaim(\''+o.id+'\')" title="Lihat resit bayaran pelanggan">📎 Resit</button>':'')
    +'<span class="o-money">RM'+Number(o.total||0).toFixed(2)+'</span></div>'
    +'<div class="o-ctrls" onclick="event.stopPropagation()">'
    +(o.status==='deleted'
