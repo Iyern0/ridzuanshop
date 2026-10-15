@@ -142,8 +142,6 @@ button:disabled:active{transform:none}
 .sec{animation:fadeIn .5s var(--eo) both}
 
 /* --- admin polish --- */
-.a-card,.a-row,.a-form,.a-stat{transition:transform .2s var(--sp),border-color .22s var(--eo),background .22s var(--eo)}
-.a-card:active{transform:scale(0.99)}
 .a-filter button{transition:transform .2s var(--sp),background .22s var(--eo),border-color .22s var(--eo),color .22s var(--eo)}
 #admin-panel{animation:fadeIn .3s var(--eo)}
 .adm-side nav a{transition:background .22s var(--eo),color .22s var(--eo),border-color .22s var(--eo)}
@@ -233,18 +231,6 @@ button:disabled:active{transform:none}
 .adm-main .hd{padding:14px 16px}
 .adm-main .pg{padding:14px 16px}
 }
-.a-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:14px 16px;margin-bottom:12px}
-.a-card .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.a-card .nm{font-weight:800;font-size:14px}.a-card .ts{font-size:11px;color:#9A9385}
-.a-card .it{font-size:13px;color:#bbb;margin-bottom:4px}
-.a-card .mt{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.a-card .pr{font-family:'Bangers',cursive;font-size:18px;color:#00D4AA}
-.a-card .note{font-size:11px;color:#9A9385;margin-bottom:8px}
-.a-card .acts{display:flex;gap:6px}
-.a-card .acts button{padding:7px 14px;border-radius:8px;border:none;font-size:12px;font-weight:800;cursor:pointer;transition:all .12s}
-.a-card .acts .st{background:rgba(255,255,255,0.05);color:#9A9385}
-.a-card .acts .st.on{background:#00D4AA;color:#000}
-.a-card .acts .del{background:rgba(255,107,107,0.12);color:#FF6B6B;margin-left:auto}
 .a-sec{font-size:11px;font-weight:800;color:#9A9385;text-transform:uppercase;letter-spacing:0.5px;padding:14px 0 6px;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:8px}
 .a-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
 .a-row .n{flex:1;font-weight:700;font-size:14px}
@@ -263,13 +249,6 @@ button:disabled:active{transform:none}
 .a-filter{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
 .a-filter button{padding:12px 22px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:#9A9385;font-size:14px;font-weight:800;cursor:pointer;transition:all .15s}
 .a-filter button.on{border-color:#00D4AA;background:rgba(0,212,170,0.12);color:#00D4AA}
-.a-card .num{font-family:'Bangers',cursive;font-size:18px;color:#00D4AA;margin-right:8px}
-.a-card .room-box{color:#FFB347;font-family:'Fredoka One',cursive;font-size:16px;padding:10px 16px;border-radius:10px;margin:8px 0;font-weight:700;display:inline-block}
-.a-card .items-list{font-size:15px;color:#F0F0F0;line-height:1.8}
-.a-card .acts .st{padding:10px 18px;font-size:13px;font-weight:800;border-radius:10px}
-.a-card .acts .st.on{box-shadow:0 2px 8px rgba(0,212,170,0.3)}
-.a-card .acts .del{padding:10px 14px;font-size:13px}
-.a-card .info-row{display:flex;gap:10px;align-items:center;margin-bottom:8px;flex-wrap:wrap;font-size:13px;color:#9A9385}
 .a-bulk{margin-bottom:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .a-bulk button{background:#00D4AA;color:#000;border:none;font-family:'Fredoka One',cursive;font-size:14px;padding:12px 24px;border-radius:10px;cursor:pointer}
 .a-search{background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.08);border-radius:10px;color:#F0F0F0;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;padding:12px 16px;width:100%;max-width:400px;margin-bottom:16px;outline:none}
@@ -309,34 +288,9 @@ button:disabled:active{transform:none}
 .a-bar .sum{margin-left:auto;font-size:13px;font-weight:700;color:#7A7268;text-align:right}
 .a-bar .sum b{color:#00D4AA;font-family:'Bangers',cursive;font-size:17px;letter-spacing:.5px}
 .a-bar .sum i{font-style:normal;color:#F0F0F0}
+.a-bar .sum span{display:block}
 
 /* ---- order card: left status rail, no duplicated block text ---- */
-.a-card{background:#171412;border:1px solid rgba(255,255,255,0.06);border-radius:16px;padding:0;margin-bottom:12px;overflow:hidden;display:flex;transition:border-color .2s}
-.a-card:hover{border-color:rgba(255,255,255,0.11)}
-.a-card:active{transform:scale(.995)}
-.a-card .rail{width:4px;flex-shrink:0}
-.a-card .body{flex:1;padding:15px 17px;min-width:0}
-.a-card .top{display:flex;align-items:baseline;gap:11px;margin-bottom:9px}
-.a-card .num{font-family:'Bangers',cursive;font-size:20px;color:#00D4AA;letter-spacing:.5px;margin-right:0;flex-shrink:0}
-.a-card .nm{font-size:17px;font-weight:800;color:#F0F0F0;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.a-card .ts{font-size:11px;color:#6B645A;flex-shrink:0}
-.a-card .where{display:inline-flex;align-items:center;gap:7px;background:rgba(255,179,71,0.13);color:#FFB347;font-size:14px;font-weight:800;padding:6px 12px;border-radius:8px;margin-bottom:11px}
-.a-card .items-list{font-size:14px;color:#DCD6CC;line-height:1.6;margin-bottom:12px}
-.a-card .items-list .item-line{display:flex;gap:9px}
-.a-card .items-list .q{font-family:'Bangers',cursive;font-size:17px;color:#00D4AA;min-width:28px;flex-shrink:0}
-.a-card .meta{display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:12px;font-weight:700;color:#8A8377;padding-top:11px;border-top:1px solid rgba(255,255,255,0.05);margin-bottom:13px}
-.a-card .meta .money{margin-left:auto;color:#00D4AA;font-size:15px}
-.a-card .acts{display:flex;gap:8px;align-items:center}
-.a-card .stepper{display:flex;background:rgba(255,255,255,0.05);border-radius:10px;padding:3px;gap:2px}
-.a-card .stepper button{border:none;background:transparent;color:#9A9385;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:9px 15px;border-radius:8px;cursor:pointer;transition:background .16s,color .16s}
-.a-card .stepper button:hover{color:#F0F0F0}
-.a-card .stepper button.on{background:#00D4AA;color:#000}
-.a-card .acts .spacer{flex:1}
-.a-card .acts .ic{width:39px;height:39px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:#9A9385;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .16s,color .16s,border-color .16s}
-.a-card .acts .ic:hover{background:rgba(255,255,255,0.09);color:#F0F0F0}
-.a-card .acts .ic.wa{color:#25D366;border-color:rgba(37,211,102,0.28)}
-.a-card .acts .ic.wa:hover{background:rgba(37,211,102,0.14)}
-.a-card .acts .ic.dl:hover{color:#FF6B6B;border-color:rgba(255,107,107,0.4);background:rgba(255,107,107,0.1)}
 .a-bulk{margin-bottom:14px}
 .a-bulk button{background:rgba(0,212,170,0.12);border:1px solid rgba(0,212,170,0.3);color:#00D4AA;font-size:13px;padding:10px 18px}
 .a-search{margin-bottom:14px}
@@ -357,18 +311,14 @@ button:disabled:active{transform:none}
   .adm-main .hd{padding:18px 16px 10px}
   .adm-main .hd h2{font-size:21px}
   .adm-main .pg{padding:0 16px 28px}
-  .a-bar{margin-bottom:12px}
-  .a-bar .sum{margin-left:0;width:100%;text-align:left}
-  .a-card .body{padding:13px 14px}
+  .a-bar{margin-bottom:10px;padding:6px 0 8px}
+  .a-bar .sum{margin-left:0;width:100%;text-align:left;display:flex;gap:14px;flex-wrap:wrap;font-size:12px}
+  .a-bar .sum span{display:inline}
   /* the spacer must not compete with the stepper for free space, or the three
      status buttons collapse to about 39px each */
-  .a-card .acts .spacer{display:none}
-  .a-card .stepper{flex:1 1 auto;min-width:0}
-  .a-card .stepper button{flex:1 1 0;min-width:0;padding:11px 8px;font-size:13px}
 }
 @media (prefers-reduced-motion: reduce){
   .adm-side .subnav{transition:none}
-  .a-card:active{transform:none}
 }
 
 /* ---- row actions: one quiet icon-button, not five colour chips ---- */
@@ -427,17 +377,10 @@ button:disabled:active{transform:none}
 .done .alt:hover{background:rgba(255,255,255,0.11);color:#F0F0F0}
 #toast-act{font-family:'Nunito',sans-serif}
 
-.a-card .paid{font-size:12px;font-weight:800;padding:4px 10px;border-radius:7px;background:rgba(255,179,71,0.13);color:#FFB347;cursor:pointer}
-.a-card .paid.on{background:rgba(0,212,170,0.13);color:#00D4AA;cursor:default}
-.a-card .paid-btn{width:39px;height:39px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);color:#FFB347;font-size:16px;cursor:pointer;flex-shrink:0;transition:.16s}
-.a-card .paid-btn:hover{background:rgba(0,212,170,0.14);border-color:rgba(0,212,170,0.3);color:#00D4AA}
 .warnText{color:#FFB347}
 
 .filelbl{display:block;text-align:center;background:rgba(255,255,255,0.06);border:1px dashed rgba(255,255,255,0.22);color:#D8D2C8;font-weight:800;font-size:13px;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:10px}
 .filelbl:hover{background:rgba(255,255,255,0.1);border-color:rgba(0,212,170,0.45)}
-.a-card .claim-note{background:rgba(0,168,255,0.1);border:1px solid rgba(0,168,255,0.28);color:#5AC8FA;font-size:11px;font-weight:800;padding:4px 10px;border-radius:7px;margin-bottom:10px}
-.a-card .acts .claim-btn2{background:rgba(0,168,255,0.12);border:1px solid rgba(0,168,255,0.3);color:#5AC8FA;font-size:12px;font-weight:800;padding:9px 13px;border-radius:10px;cursor:pointer;flex-shrink:0}
-.a-card .acts .claim-btn2:hover{background:rgba(0,168,255,0.22)}
 #claim-view{position:fixed;inset:0;z-index:1300;display:none;align-items:center;justify-content:center;padding:20px}
 #claim-view .cv-bg{position:absolute;inset:0;background:rgba(0,0,0,0.85)}
 #claim-view .cv-box{position:relative;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;background:#171412;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:16px}
@@ -445,6 +388,73 @@ button:disabled:active{transform:none}
 #claim-view .cv-hd button{background:rgba(255,255,255,0.08);border:none;color:#F0F0F0;font-size:15px;width:32px;height:32px;border-radius:50%;cursor:pointer}
 #claim-view img{width:100%;border-radius:10px;display:block}
 #claim-view .cv-ref{margin-top:12px;font-size:13px;font-weight:800;color:#00D4AA;word-break:break-all}
+
+/* ===================== order rows ===================== */
+.o-row{background:#171412;border:1px solid rgba(255,255,255,0.06);border-radius:12px;margin-bottom:8px;overflow:hidden;cursor:pointer;transition:border-color .16s,background .16s}
+.o-row:hover{border-color:rgba(255,255,255,0.13);background:#1B1815}
+.o-row.is-done{opacity:.72}
+.o-main{display:flex;align-items:center;gap:10px;padding:12px 14px 8px}
+.o-rail{width:3px;height:26px;border-radius:2px;flex-shrink:0}
+.o-num{font-family:'Bangers',cursive;font-size:18px;color:#00D4AA;flex-shrink:0;letter-spacing:.5px}
+.o-num.legacy{font-family:'Nunito',sans-serif;font-size:12px;color:#6B645A;font-weight:800}
+.o-nm{font-weight:800;font-size:15px;color:#F0F0F0;flex-shrink:0;max-width:34%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.o-where{font-size:13px;font-weight:700;color:#FFB347;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.o-where.muted{color:#6B645A}
+.o-clam{font-size:13px;flex-shrink:0}
+.o-money{font-size:15px;font-weight:800;color:#00D4AA;flex-shrink:0;font-family:'Bangers',cursive;letter-spacing:.5px}
+.o-ctrls{display:flex;align-items:center;gap:8px;padding:0 14px 11px}
+.o-step{display:flex;background:rgba(255,255,255,0.05);border-radius:9px;padding:2px;gap:2px}
+.o-step button{border:none;background:transparent;color:#9A9385;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;padding:7px 13px;border-radius:7px;cursor:pointer;transition:background .16s,color .16s}
+.o-step button:hover{color:#F0F0F0}
+.o-step button.on{background:#00D4AA;color:#000}
+.o-step.big{margin-bottom:16px}
+.o-step.big button{flex:1;padding:12px 8px;font-size:14px}
+.o-paid{margin-left:auto;background:rgba(255,179,71,0.12);border:1px solid rgba(255,179,71,0.3);color:#FFB347;font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;padding:7px 12px;border-radius:9px;cursor:pointer;flex-shrink:0;transition:.16s}
+.o-paid:hover{background:rgba(255,179,71,0.2)}
+.o-paid.on{background:rgba(0,212,170,0.13);border-color:rgba(0,212,170,0.32);color:#00D4AA}
+.o-more{color:#4E4840;font-size:18px;font-weight:800;flex-shrink:0;padding:0 2px}
+.o-foot{text-align:center;color:#5E564C;font-size:12px;font-weight:700;padding:14px 0 4px}
+
+/* ===================== detail panel ===================== */
+#adm-detail{position:fixed;inset:0;z-index:1250;display:none;align-items:center;justify-content:center;padding:20px}
+#adm-detail .d-bg{position:absolute;inset:0;background:rgba(0,0,0,0.8)}
+#adm-detail .d-box{position:relative;background:#171412;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:20px;width:100%;max-width:460px;max-height:88vh;overflow-y:auto;animation:in .22s var(--eo)}
+#adm-detail .d-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:4px}
+#adm-detail .d-t{font-size:19px;font-weight:800;color:#F0F0F0}
+#adm-detail .d-hd button{background:rgba(255,255,255,0.07);border:none;color:#F0F0F0;font-size:15px;width:34px;height:34px;border-radius:50%;cursor:pointer;flex-shrink:0}
+#adm-detail .d-when{font-size:12px;color:#6B645A;font-weight:700;margin-bottom:16px}
+#adm-detail .d-sec{font-size:10px;font-weight:800;color:#5E564C;letter-spacing:1.4px;text-transform:uppercase;margin:18px 0 8px}
+#adm-detail .d-items{background:rgba(255,255,255,0.03);border-radius:10px;padding:12px 14px}
+#adm-detail .d-it{display:flex;gap:10px;font-size:14px;color:#DCD6CC;line-height:1.6}
+#adm-detail .d-q{font-family:'Bangers',cursive;font-size:16px;color:#00D4AA;min-width:26px;flex-shrink:0}
+#adm-detail .d-add{display:block;font-size:12px;color:#8A8377}
+#adm-detail .d-grid>div{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px}
+#adm-detail .d-grid span{color:#8A8377;font-weight:700}
+#adm-detail .d-grid b{color:#F0F0F0;font-weight:800;text-align:right;word-break:break-word}
+#adm-detail .d-total{display:flex;justify-content:space-between;align-items:center;padding:14px 0 4px}
+#adm-detail .d-total span{font-size:13px;color:#8A8377;font-weight:800}
+#adm-detail .d-total b{font-family:'Bangers',cursive;font-size:26px;color:#00D4AA;letter-spacing:.5px}
+#adm-detail .d-claim{margin:14px 0;background:rgba(0,168,255,0.09);border:1px solid rgba(0,168,255,0.26);border-radius:10px;padding:12px}
+#adm-detail .d-claim div{font-size:12px;font-weight:800;color:#5AC8FA;margin-bottom:10px}
+#adm-detail .d-claim button{width:100%;background:rgba(0,168,255,0.16);border:1px solid rgba(0,168,255,0.35);color:#5AC8FA;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:10px;border-radius:9px;cursor:pointer}
+#adm-detail .d-paid{width:100%;margin-top:16px;background:rgba(255,179,71,0.12);border:1px solid rgba(255,179,71,0.3);color:#FFB347;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;padding:13px;border-radius:10px;cursor:pointer}
+#adm-detail .d-paid.on{background:rgba(0,212,170,0.13);border-color:rgba(0,212,170,0.32);color:#00D4AA}
+#adm-detail .d-acts{display:flex;gap:8px;margin-top:10px}
+#adm-detail .d-wa{flex:1;background:rgba(37,211,102,0.14);border:1px solid rgba(37,211,102,0.32);color:#25D366;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:12px;border-radius:10px;cursor:pointer}
+#adm-detail .d-del{background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.28);color:#FF6B6B;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:12px 16px;border-radius:10px;cursor:pointer}
+@media(max-width:760px){
+  .o-main{flex-wrap:nowrap;gap:8px;padding:11px 12px 6px}
+  .o-num{font-size:17px}
+  .o-nm{max-width:38%}
+  .o-where{flex:1;min-width:0}
+  .o-ctrls{flex-wrap:nowrap;gap:6px;padding:0 12px 10px}
+  .o-step{flex:1;min-width:0}
+  .o-step button{flex:1;padding:8px 4px;font-size:12px}
+  .o-paid{margin-left:0;padding:8px 11px}
+  .o-paid .plb{display:none}
+  .o-paid .pic{font-size:14px}
+  .o-more{display:none}
+}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -490,6 +500,7 @@ button:disabled:active{transform:none}
 </div></div>
 <div class="page-foot"><i>Minum sedap, harga mesra! 🧡</i><br>© <b>MINUM MALAM SISWA</b></div>
 <div id="claim-view"></div>
+<div id="adm-detail"></div>
 <div class="toast" id="toast"></div>
 <div class="done" id="done"></div>
 <div class="modal" id="admin-login" style="z-index:1100"><div class="bg" onclick="closeAdminLogin()"></div><div class="box" style="max-width:340px;text-align:center"><div style="font-family:'Bangers',cursive;font-size:22px;color:#00D4AA;margin-bottom:4px">🔒 Admin Login</div><div style="font-size:12px;color:#9A9385;font-weight:700;margin-bottom:16px">Akaun admin sah sahaja</div><input class="inp" id="admin-email" type="email" autocomplete="username" inputmode="email" placeholder="admin@email.com" style="margin-bottom:10px;text-align:center"><input class="inp" id="admin-pw" type="password" autocomplete="current-password" placeholder="Password" style="margin-bottom:14px;text-align:center" onkeydown="if(event.key==='Enter')verifyAdminLogin()"><div style="display:flex;gap:8px"><button onclick="verifyAdminLogin()" id="admin-login-btn" style="flex:1;background:#00D4AA;color:#000;border:none;font-family:'Fredoka One',cursive;font-size:14px;padding:12px;border-radius:10px;cursor:pointer">Masuk</button><button onclick="closeAdminLogin()" style="background:rgba(255,255,255,0.08);color:#9A9385;border:none;font-size:13px;padding:12px;border-radius:10px;cursor:pointer">Batal</button></div></div></div>
@@ -1136,29 +1147,65 @@ function _admSelect(f,live){
   if(f==='all')return live;
   return live.filter(o=>o.status===f);
 }
-function _admOrderCard(o,idx){
+function _admOrderRow(o,idx){
   const isCod=o.delivery!=='pickup';
-  const stCol=o.status==='done'?'#00D4AA':o.status==='processing'?'#FFB347':'#FF6B6B';
   const cl=_admClaims[o.id];
-  const when=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate().toLocaleString('ms-MY',{hour:'2-digit',minute:'2-digit'})+(timeAgo(o.createdAt.toDate())?' · '+timeAgo(o.createdAt.toDate()):''):'';
-  const items=(o.items||[]).map(i=>'<div class="item-line"><span class="q">'+i.qty+'×</span><span>'+esc(i.name)+(i.adds&&i.adds.length?' <span style="color:#8A8377;font-size:12px">· '+esc(i.adds.join(', '))+'</span>':'')+'</span></div>').join('');
-  return '<div class="a-card"><div class="rail" style="background:'+stCol+'"></div><div class="body">'
-   +'<div class="top"><span class="num">#'+(o.no!=null?fmtNo(o.no):idx+1)+'</span><span class="nm">'+esc(o.name||'')+'</span><span class="ts">'+when+'</span></div>'
-   +(isCod&&o.room?'<div class="where">🏠 Blok '+esc(o.room)+'</div>':'')
-   +'<div class="items-list">'+items+'</div>'
-   +'<div class="meta"><span>⏰ '+esc(o.time||'')+'</span><span>'+(o.payment==='cash'?'💵 Tunai':'📱 QR Pay')+'</span><span>'+(isCod?'📦 COD':'🏪 Ambil sendiri')+'</span>'
-   +(o.paid?'<span class="paid on">✓ Bayar '+(o.paidAt&&o.paidAt.toDate?o.paidAt.toDate().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'}):'')+'</span>':'<span class="paid" title="Tekan bila sudah terima bayaran">💰 Belum bayar</span>')
-   +'<span class="money">RM'+Number(o.total||0).toFixed(2)+'</span></div>'
-   +(cl?'<div class="claim-note">📎 Resit dilampirkan'+(cl.at&&cl.at.toDate?' '+cl.at.toDate().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'}):'')+'</div>':'')
-   +'<div class="acts">'
-   +(cl?'<button class="claim-btn2" onclick="admViewClaim(\''+o.id+'\')">📎 Lihat</button>':'')
-   +'<button class="paid-btn" onclick="admTogglePaid(\''+o.id+'\')" title="Tanda bayaran">'+(o.paid?'✓':'💰')+'</button><div class="stepper">'
-   +[['baru','Baru'],['processing','Proses'],['done','Siap']].map(x=>'<button class="'+(o.status===x[0]?'on':'')+'" onclick="admUpdOrder(\''+o.id+'\',\''+x[0]+'\')">'+x[1]+'</button>').join('')
+  const stCol=o.status==='done'?'#00D4AA':o.status==='processing'?'#FFB347':'#FF6B6B';
+  return '<div class="o-row'+(o.status==='done'?' is-done':'')+'" onclick="admOpenDetail(\''+o.id+'\')">'
+   +'<div class="o-main"><span class="o-rail" style="background:'+stCol+'"></span>'
+   +(o.no!=null
+      ?'<span class="o-num">#'+fmtNo(o.no)+'</span>'
+      :'<span class="o-num legacy">'+(o.createdAt&&o.createdAt.toDate?o.createdAt.toDate().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'}):'•')+'</span>')
+   +'<span class="o-nm">'+esc(o.name||'')+'</span>'
+   +(isCod&&o.room?'<span class="o-where">🏠 '+esc(o.room)+'</span>':'<span class="o-where muted">🏪 Ambil sendiri</span>')
+   +(cl?'<span class="o-clam" title="Resit dihantar">📎</span>':'')
+   +'<span class="o-money">RM'+Number(o.total||0).toFixed(2)+'</span></div>'
+   +'<div class="o-ctrls" onclick="event.stopPropagation()">'
+   +'<div class="o-step">'+[['baru','Baru'],['processing','Proses'],['done','Siap']].map(function(x){return '<button class="'+(o.status===x[0]?'on':'')+'" onclick="admUpdOrder(\''+o.id+'\',\''+x[0]+'\')">'+x[1]+'</button>'}).join('')+'</div>'
+   +'<button class="o-paid'+(o.paid?' on':'')+'" onclick="admTogglePaid(\''+o.id+'\')" title="'+(o.paid?'Sudah bayar':'Tanda sudah bayar')+'"><span class="pic">'+(o.paid?'✓':'💰')+'</span><span class="plb">'+(o.paid?'Bayar':'Belum bayar')+'</span></button>'
+   +'<span class="o-more">›</span></div></div>';
+}
+function admOpenDetail(id){
+  const o=_admVisDocs.find(function(x){return x.id===id});
+  const box=document.getElementById('adm-detail');
+  if(!o||!box)return;
+  box._id=id;
+  const isCod=o.delivery!=='pickup';
+  const cl=_admClaims[id];
+  const dt=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate():null;
+  const when=dt?dt.toLocaleString('ms-MY',{hour:'2-digit',minute:'2-digit'})+(timeAgo(dt)?' · '+timeAgo(dt):''):'';
+  const items=(o.items||[]).map(function(i){
+    return '<div class="d-it"><span class="d-q">'+i.qty+'×</span><span>'+esc(i.name)
+      +(i.adds&&i.adds.length?'<span class="d-add">'+esc(i.adds.join(', '))+'</span>':'')+'</span></div>';
+  }).join('');
+  box.innerHTML='<div class="d-bg" onclick="closeDetail()"></div><div class="d-box">'
+   +'<div class="d-hd"><span class="d-t">#'+(o.no!=null?fmtNo(o.no):'')+' '+esc(o.name||'')+'</span><button onclick="closeDetail()">✕</button></div>'
+   +(when?'<div class="d-when">'+when+'</div>':'')
+   +'<div class="o-step big">'+[['baru','Baru'],['processing','Proses'],['done','Siap']].map(function(x){return '<button class="'+(o.status===x[0]?'on':'')+'" onclick="admUpdOrder(\''+o.id+'\',\''+x[0]+'\')">'+x[1]+'</button>'}).join('')+'</div>'
+   +'<div class="d-sec">Minuman</div><div class="d-items">'+items+'</div>'
+   +'<div class="d-sec">Butiran</div>'
+   +'<div class="d-grid">'
+   +'<div><span>Masa</span><b>'+esc(o.time||'-')+'</b></div>'
+   +'<div><span>Bayar</span><b>'+(o.payment==='cash'?'💵 Tunai':'📱 QR Pay')+'</b></div>'
+   +'<div><span>Hantar</span><b>'+(isCod?'📦 COD':'🏪 Ambil sendiri')+'</b></div>'
+   +(isCod&&o.room?'<div><span>Lokasi</span><b>🏠 '+esc(o.room)+'</b></div>':'')
+   +'<div><span>Nama</span><b>'+esc(o.name||'-')+'</b></div>'
+   +(o.phone?'<div><span>WhatsApp</span><b>'+esc(o.phone)+'</b></div>':'')
+   +'<div><span>Kod</span><b>'+esc(o.id)+'</b></div>'
    +'</div>'
-   +'<span class="spacer"></span>'
-   +'<button class="ic wa" onclick="admWaNotif(\''+o.id+'\')" title="'+(o.phone?'Maklumkan pelanggan melalui WhatsApp':'Simpan nombor WhatsApp pelanggan')+'">'+(o.phone?'📤':'📱')+'</button>'
-   +'<button class="ic dl" onclick="admDelOrder(\''+o.id+'\')" title="Padam pesanan ini">✕</button>'
-   +'</div></div></div>';
+   +'<div class="d-total"><span>Jumlah</span><b>RM'+Number(o.total||0).toFixed(2)+'</b></div>'
+   +(cl?'<div class="d-claim"><div>📎 Pelanggan hantar resit bayaran'+(cl.at&&cl.at.toDate?' · '+cl.at.toDate().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'}):'')+'</div><button onclick="admViewClaim(\''+o.id+'\')">Lihat resit</button></div>':'')
+   +'<button class="d-paid'+(o.paid?' on':'')+'" onclick="admTogglePaid(\''+o.id+'\')">'+(o.paid?'✓ Sudah dibayar':'💰 Tanda sudah dibayar')+'</button>'
+   +'<div class="d-acts">'
+   +(o.phone?'<button class="d-wa" onclick="admWaNotif(\''+o.id+'\')">📤 WhatsApp pelanggan</button>':'<button class="d-wa" onclick="admWaNotif(\''+o.id+'\')">📱 Simpan nombor &amp; maklumkan</button>')
+   +'<button class="d-del" onclick="admDelOrder(\''+o.id+'\');closeDetail()">🗑 Padam</button>'
+   +'</div></div>';
+  box.style.display='flex';
+}
+function closeDetail(){const b=document.getElementById('adm-detail');if(b){b.style.display='none';b._id=null}}
+function admRefreshDetail(){
+  const b=document.getElementById('adm-detail');
+  if(b&&b.style.display!=='none'&&b._id)admOpenDetail(b._id);
 }
 function _admRenderOrders(pg,docs){
   const f=_admFilter;
@@ -1182,7 +1229,11 @@ function _admRenderOrders(pg,docs){
   const unpaid=live.filter(function(o){return !o.paid&&o.status!=='done'}).length;
 
   let h='<div class="a-bar"><div class="a-seg">'+segs.map(x=>'<button class="'+(f===x[0]?'on':'')+'" onclick="admSetFilter(\''+x[0]+'\')">'+x[1]+'<span class="c">'+x[2]+'</span></button>').join('')+'</div>'
-   +'<div class="sum">'+(T.n?'Malam ini <b>'+T.n+'</b> pesanan · <b>RM'+T.v.toFixed(2)+'</b>':'Belum ada pesanan malam ini')+(W.n?'<br>Minggu ini <i>'+W.n+'</i> · <i>RM'+W.v.toFixed(2)+'</i>':'')+(unpaid?'<br><span class="warnText">'+unpaid+' belum bayar</span>':'')+'</div></div>';
+   +'<div class="sum">'
+   +'<span>'+(T.n?'Malam ini <b>'+T.n+'</b> · <b>RM'+T.v.toFixed(2)+'</b>':'Belum ada pesanan malam ini')+'</span>'
+   +(W.n?'<span>Minggu ini <i>'+W.n+'</i> · <i>RM'+W.v.toFixed(2)+'</i></span>':'')
+   +(unpaid?'<span class="warnText">'+unpaid+' belum bayar</span>':'')
+   +'</div></div>';
 
   if(f==='done'||f==='all')h+='<input class="a-search" placeholder="🔍 Cari nama atau blok..." value="'+esc(_admSearch)+'" oninput="admDoSearch(this.value)">';
   if(f==='aktif'&&filtered.length)h+='<div class="a-bulk"><button onclick="admBulkDone()">✅ Tandakan semua siap ('+filtered.length+')</button></div>';
@@ -1196,8 +1247,10 @@ function _admRenderOrders(pg,docs){
         'Tiada pesanan untuk status ini.')+'</div>';
     pg.innerHTML=h;return;
   }
-  h+=filtered.map(_admOrderCard).join('');
+  h+=filtered.map(_admOrderRow).join('');
+  h+='<div class="o-foot">'+filtered.length+' pesanan</div>';
   pg.innerHTML=h;
+  admRefreshDetail();
 }
 function admSetFilter(f){_admFilter=f;if(f==='done')_admSearch='';const pg=document.getElementById('adm-pg');if(admUnsub){admUnsub();admUnsub=null}const db=getDb();if(!db||!isAdmin())return;admUnsub=ordersQ(db).onSnapshot(snap=>{const docs=snap.docs.map(d=>({id:d.id,...d.data()}));_admRenderOrders(pg,docs)})}
 function admUpdOrder(id,status){const db=getDb();if(!db)return;db.collection('orders').doc(id).update({status}).catch(e=>console.warn(e));db.collection('tracking').doc(id).update({status:status,at:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){})}
