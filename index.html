@@ -479,7 +479,7 @@ button:disabled:active{transform:none}
 <div class="opt"><div class="l">📱 No. WhatsApp <span style="color:#FFB347">(pilihan — untuk stamp)</span></div><div style="margin-top:4px"><input class="inp" id="inp-phone" placeholder="cth: 0123456789" inputmode="tel" maxlength="20"><div style="font-size:11px;color:#9A9385;font-weight:600;margin-top:6px">Isi untuk kira stamp Beli 5 Percuma 1. Tak diisi pun boleh order.</div></div></div>
 <div class="opt" id="block-section"><div class="l">🏠 Blok</div><div class="block-grid" id="block-grid"></div><div id="room-row" style="display:none;margin-top:8px"><input class="inp" id="inp-room" placeholder="Nombor bilik / unit" maxlength="20"></div></div>
 <div class="opt"><div class="l" id="time-label">⏰ Masa</div><div id="time-pick" style="margin-top:10px"><div id="time-pickup" style="display:none"><input class="inp" id="pickup-time" placeholder="Cth: 11:00 malam" maxlength="30"></div><div id="pickup-note" style="display:none;font-size:13px;color:#9A9385;font-weight:600;margin-bottom:8px">💬 Akan chat, kalau dah siap</div><div class="ts" id="times"></div><div id="time-hint" style="font-size:11px;color:#9A9385;font-weight:600;margin-top:8px">Pilih masa penghantaran anda</div></div></div>
-<div class="opt" id="pay-section"><div class="l">💳 Bayar</div><div class="dt" id="pay"><button data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(0,212,170,0.1)"><img src="https://drive.google.com/thumbnail?id=1NNMdTqR5wCahK5bqLOHP996CkzZavfoN&amp;sz=w500" alt="TNG QR" style="width:210px;height:210px;display:block;border-radius:8px"></div><div style="font-size:12px;color:#9A9385;margin-top:8px;font-weight:600">Scan untuk bayar</div></div></div>
+<div class="opt" id="pay-section"><div class="l">💳 Bayar</div><div class="dt" id="pay"><button data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(0,212,170,0.1)"><img src="qr-duitnow.jpg" alt="DuitNow QR" style="width:210px;height:210px;display:block;border-radius:8px"></div><div style="font-size:12px;color:#9A9385;margin-top:8px;font-weight:600">Scan untuk bayar</div></div></div>
 </div>
 <div class="ft"><div class="tr" style="border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:8px;margin-bottom:8px"><span>Subtotal</span><span style="font-family:'Bangers',cursive;font-size:20px" id="sub">RM0.00</span></div>
 <div id="cod-row" class="tr"><span style="font-size:12px;color:#9A9385">📦 COD fee</span><span style="font-family:'Bangers',cursive;font-size:18px;color:#9A9385">RM1.00</span></div>
@@ -555,7 +555,7 @@ function admWatchClaims(){
   const db=getDb();if(!db)return;
   _admClaimUnsub=db.collection('payments').orderBy('at','desc').limit(100).onSnapshot(function(snap){
     const m={};
-    snap.docs.forEach(function(d){const f=d.data()||{};m[d.id]={at:f.at,img:f.img,ref:f.ref||''}});
+    snap.docs.forEach(function(d){const f=d.data()||{};m[d.id]={at:f.at,img:f.img}});
     _admClaims=m;
     const pg=document.getElementById('adm-pg');
     if(pg&&admTab==='orders')_admRenderOrders(pg,_admOrdersCache||[]);
@@ -570,12 +570,12 @@ function admViewClaim(id){
   box.style.display='flex';
   box.innerHTML='<div class="cv-bg" onclick="closeClaimView()"></div><div class="cv-box"><div class="cv-hd">📎 Resit bayaran<button onclick="closeClaimView()">✕</button></div>'
    +(c.img&&c.img.length>40?'<img src="'+esc(c.img)+'" alt="Resit bayaran">':'<div style="padding:30px;text-align:center;color:#9A9385;font-weight:700">Pelanggan hantar rujukan sahaja, tiada gambar.</div>')
-   +(c.ref?'<div class="cv-ref">DuitNow ref: '+esc(c.ref)+'</div>':'')+'</div>';
+   '</div>';
   // cached snapshot already holds the image; this is only a fallback
   if(!c.img||c.img.length<=40){
     const db=getDb();
     if(db)db.collection('payments').doc(id).get().then(function(s){
-      if(s.exists){const f=s.data()||{};c.img=f.img||'';c.ref=f.ref||c.ref;
+      if(s.exists){const f=s.data()||{};c.img=f.img||'';
         const im=box.querySelector('img');
         if(im&&f.img)im.src=f.img;
       }
@@ -948,7 +948,7 @@ function fillCustomer(){
   }
   const w=document.getElementById('cust-note');if(w)w.style.display='flex';
 }
-function saveMyOrder(o){try{localStorage.setItem('mms_last',JSON.stringify({code:o.code,no:o.no,at:Date.now(),total:o.total,items:o.items,isCod:o.isCod,r:o.r,when:o.when,pay:o.pay,_claim:!!o._claim,_claimRef:o._claimRef||''}));showMyOrderBtn()}catch(e){}}
+function saveMyOrder(o){try{localStorage.setItem('mms_last',JSON.stringify({code:o.code,no:o.no,at:Date.now(),total:o.total,items:o.items,isCod:o.isCod,r:o.r,when:o.when,pay:o.pay,_claim:!!o._claim}));showMyOrderBtn()}catch(e){}}
 function loadMyOrder(){try{const j=JSON.parse(localStorage.getItem('mms_last'));return j&&j.code?j:null}catch(e){return null}}
 let _lastSt='';
 function notifySupported(){return typeof window.Notification!=='undefined'}
@@ -1002,8 +1002,7 @@ function showDone(o){
     +'<div id="claim-panel" style="display:none;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px;margin-bottom:12px;text-align:left">'
     +'<div style="font-size:12px;font-weight:800;color:#9A9385;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px">Resit bayaran</div>'
     +'<input type="file" id="claim-file" accept="image/*" style="width:100%;font-size:12px;color:#9A9385;margin-bottom:10px">'
-    +'<input class="inp" id="claim-ref" placeholder="DuitNow ref (pilihan)" maxlength="40" style="width:100%;margin-bottom:10px">'
-    +'<div style="display:flex;gap:8px"><button id="claim-send" onclick="sendClaim()" style="flex:1;background:#00D4AA;color:#000;border:none;font-weight:800;font-size:13px;padding:11px;border-radius:10px;cursor:pointer">Hantar resit</button>'
+    +'<div style="display:flex;gap:8px;margin-top:10px"><button id="claim-send" onclick="sendClaim()" style="flex:1;background:#00D4AA;color:#000;border:none;font-weight:800;font-size:13px;padding:11px;border-radius:10px;cursor:pointer">Hantar resit</button>'
     +'<button onclick="claimCancel()" style="background:rgba(255,255,255,0.08);color:#9A9385;border:none;font-size:13px;padding:11px 16px;border-radius:10px;cursor:pointer">Batal</button></div></div>'
     +'<button id="claim-btn" class="claimbtn" onclick="claimOpen()" style="display:none">💰 Saya dah bayar</button>'
     +'<button class="go2" onclick="closeDone()">Selesai</button>'
@@ -1068,7 +1067,6 @@ async function sendClaim(){
   if(!o.code){toast('Rujukan pesanan tidak dijumpai');return}
   const btn=document.getElementById('claim-send');
   const fileIn=document.getElementById('claim-file');
-  const refIn=document.getElementById('claim-ref');
   btn.disabled=true;btn.textContent='Menghantar...';
   const db=getDb();
   if(!db){btn.disabled=false;btn.textContent='Hantar resit';toast('Tiada sambungan');return}
@@ -1084,11 +1082,9 @@ async function sendClaim(){
   }catch(e){
     btn.disabled=false;btn.textContent='Hantar resit';toast('Gambar tidak boleh dibaca');return;
   }
-  const ref=(refIn&&refIn.value||'').trim().slice(0,40);
   const payload={img:img||'data:image/jpeg;base64,',at:firebase.firestore.FieldValue.serverTimestamp()};
-  if(ref)payload.ref=ref;
   db.collection('payments').doc(o.code).set(payload).then(function(){
-    o._claim=true;o._claimRef=ref;dn._msg=o;
+    o._claim=true;dn._msg=o;
     saveMyOrder(o);
     claimCancel();
     paintClaim();
@@ -1155,7 +1151,7 @@ function _admOrderCard(o,idx){
    +'<div class="meta"><span>⏰ '+esc(o.time||'')+'</span><span>'+(o.payment==='cash'?'💵 Tunai':'📱 QR Pay')+'</span><span>'+(isCod?'📦 COD':'🏪 Ambil sendiri')+'</span>'
    +(o.paid?'<span class="paid on">✓ Bayar '+(o.paidAt&&o.paidAt.toDate?o.paidAt.toDate().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'}):'')+'</span>':'<span class="paid" title="Tekan bila sudah terima bayaran">💰 Belum bayar</span>')
    +'<span class="money">RM'+Number(o.total||0).toFixed(2)+'</span></div>'
-   +(cl?'<div class="claim-note">📎 Resit dilampirkan'+(cl.at&&cl.at.toDate?' '+cl.at.toDate().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'}):'')+(cl.ref?(' · ref '+esc(cl.ref)):'')+'</div>':'')
+   +(cl?'<div class="claim-note">📎 Resit dilampirkan'+(cl.at&&cl.at.toDate?' '+cl.at.toDate().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'}):'')+'</div>':'')
    +'<div class="acts">'
    +(cl?'<button class="claim-btn2" onclick="admViewClaim(\''+o.id+'\')">📎 Lihat</button>':'')
    +'<button class="paid-btn" onclick="admTogglePaid(\''+o.id+'\')" title="Tanda bayaran">'+(o.paid?'✓':'💰')+'</button><div class="stepper">'
