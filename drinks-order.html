@@ -504,6 +504,16 @@ button:disabled:active{transform:none}
 /* receipt button in the orders list */
 .o-clam{background:rgba(0,168,255,0.14);border:1px solid rgba(0,168,255,0.32);color:#5AC8FA;font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;padding:5px 10px;border-radius:999px;cursor:pointer;flex-shrink:0;transition:background .16s}
 .o-clam:hover{background:rgba(0,168,255,0.26)}
+
+.a-receipt{display:flex;align-items:center;gap:6px;background:rgba(0,168,255,0.12);border:1px solid rgba(0,168,255,0.32);color:#5AC8FA;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:9px 14px;border-radius:11px;cursor:pointer;transition:background .16s}
+.a-receipt:hover{background:rgba(0,168,255,0.24)}
+.a-receipt.on{background:#5AC8FA;color:#0B1620}
+.a-receipt .c{opacity:.6;margin-left:2px}
+/* a slow pulse so a waiting receipt is noticed without hunting for it */
+.a-receipt:not(.on){animation:recPulse 2.4s ease-in-out infinite}
+@keyframes recPulse{0%,100%{box-shadow:0 0 0 0 rgba(0,168,255,0)}50%{box-shadow:0 0 0 4px rgba(0,168,255,0.18)}}
+@media (prefers-reduced-motion: reduce){.a-receipt:not(.on){animation:none}}
+.o-del svg{vertical-align:-2px}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -1204,7 +1214,7 @@ function admSetupOpen(open){
 function admSetupToggle(){admSetupOpen(!_admSetupOpen)}
 function switchAdmin(t){admTab=t;document.getElementById('adm-hd').textContent=ADM_T[t]||t;document.querySelectorAll('#adm-nav a').forEach(a=>{a.classList.toggle('active',a.dataset.tab===t)});
 if(ADM_SETUP.indexOf(t)>-1)admSetupOpen(true);const pg=document.getElementById('adm-pg');if(t==='orders')admOrders(pg);else if(t==='menu')admMenu(pg);else if(t==='addons')admAddons(pg);else if(t==='schedule')admSchedule(pg);else if(t==='delivery')admDelivery(pg);else if(t==='customers')admCustomers(pg);else if(t==='stats')admAnalytics(pg);else if(t==='settings')admSettings(pg)}
-let _admFilter='aktif',_admDelFilter='all',_admSearch='',_admPrevCount=0,_admVisDocs=[];
+let _admFilter='aktif',_admDelFilter='all',_admClaimOnly=false,_admSearch='',_admPrevCount=0,_admVisDocs=[];
 function admBeep(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=880;g.gain.value=0.3;o.start();o.stop(ctx.currentTime+0.15);if(navigator.vibrate)navigator.vibrate(200)}catch(e){}}
 function timeAgo(d){if(!d)return'';const diff=(Date.now()-d.getTime())/1000;if(diff<60)return'Masih baru';if(diff<3600)return Math.floor(diff/60)+' min lalu';if(diff<86400)return Math.floor(diff/3600)+' jam lalu';return Math.floor(diff/86400)+' hari lalu'}
 function admOrders(pg){if(admUnsub){admUnsub();admUnsub=null}_admSearch='';const db=getDb();if(!isAdmin()){pg.innerHTML='<div style="padding:20px;color:#FFB347;font-weight:700">🔒 Login admin diperlukan.</div>';return}if(!db){pg.innerHTML='<div style="padding:20px;color:#FFB347;font-weight:700">⚠ Firebase tidak tersedia.</div>';return}pg.innerHTML='<div style="color:#9A9385;text-align:center;padding:30px">Memuatkan...</div>';admUnsub=ordersQ(db).onSnapshot(snap=>{const docs=snap.docs.map(d=>({id:d.id,...d.data()}));_admPrevCount=docs.length;_admRenderOrders(pg,docs)},e=>{pg.innerHTML='<div style="color:#FF6B6B;padding:20px">Error: '+esc(e.message)+'</div>'})}
@@ -1232,7 +1242,7 @@ function _admOrderRow(o,idx){
       +'<span class="o-note">dipadam'+(o.prevStatus?' · asalnya '+(o.prevStatus==='done'?'Siap':o.prevStatus==='processing'?'Proses':'Baru'):'')+'</span>'
      :'<div class="o-step">'+[['baru','Baru'],['processing','Proses'],['done','Siap']].map(function(x){return '<button class="'+(o.status===x[0]?'on':'')+'" onclick="admUpdOrder(\''+o.id+'\',\''+x[0]+'\')">'+x[1]+'</button>'}).join('')+'</div>'
       +'<button class="o-paid'+(o.paid?' on':'')+'" onclick="admTogglePaid(\''+o.id+'\')" title="'+(o.paid?'Sudah bayar':'Tanda sudah bayar')+'"><span class="pic">'+(o.paid?'✓':'💰')+'</span><span class="plb">'+(o.paid?'Bayar':'Belum bayar')+'</span></button>'
-      +'<button class="o-del" onclick="event.stopPropagation();admDelOrder(\''+o.id+'\')" title="Padam pesanan ini">🗑</button>')
+      +'<button class="o-del" onclick="event.stopPropagation();admDelOrder(\''+o.id+'\')" title="Padam pesanan ini"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>')
    +'<span class="o-more">›</span></div></div>';
 }
 function admOpenDetail(id){
@@ -1286,6 +1296,8 @@ function _admRenderOrders(pg,docs){
   const nStatus=filtered.length;
   const nCod=filtered.filter(hasCod).length,nPick=nStatus-nCod;
   if(_admDelFilter!=='all')filtered=filtered.filter(function(o){return (_admDelFilter==='cod')===hasCod(o)});
+  const nReceipt=filtered.filter(function(o){return !!_admClaims[o.id]}).length;
+  if(_admClaimOnly)filtered=filtered.filter(function(o){return !!_admClaims[o.id]});
   if(_admSearch&&(f==='done'||f==='all')){
     const q=_admSearch.toLowerCase();
     filtered=filtered.filter(o=>(o.name||'').toLowerCase().includes(q)||(o.room||'').toLowerCase().includes(q));
@@ -1307,10 +1319,12 @@ function _admRenderOrders(pg,docs){
   const dsegs=[['all','Semua',nStatus],['cod','📦 COD',nCod],['pickup','🏪 Ambil',nPick]];
   let h='<div class="a-bar"><div class="a-seg">'+segs.map(x=>'<button class="'+(f===x[0]?'on':'')+'" onclick="admSetFilter(\''+x[0]+'\')">'+x[1]+'<span class="c">'+x[2]+'</span></button>').join('')+'</div>'
    +'<div class="a-seg del"><span class="dlb">Hantar</span>'+dsegs.map(x=>'<button class="'+(_admDelFilter===x[0]?'on':'')+'" onclick="admSetDelFilter(\''+x[0]+'\')">'+x[1]+'<span class="c">'+x[2]+'</span></button>').join('')+'</div>'
+   +(nReceipt?'<button class="a-receipt'+(nReceipt&&_admClaimOnly?' on':'')+'" onclick="admClaimFilter()" title="Tunjuk pesanan yang ada resit">📎 Resit<span class="c">'+nReceipt+'</span></button>':'')
    +'<div class="sum">'
    +'<span>'+(T.n?'Malam ini <b>'+T.n+'</b> · <b>RM'+T.v.toFixed(2)+'</b>':'Belum ada pesanan malam ini')+'</span>'
    +(W.n?'<span>Minggu ini <i>'+W.n+'</i> · <i>RM'+W.v.toFixed(2)+'</i></span>':'')
    +(unpaid?'<span class="warnText">'+unpaid+' belum bayar</span>':'')
+   +(nReceipt&&!_admClaimOnly?'<span class="warnText">📎 '+nReceipt+' resit perlu semak</span>':'')
    +'</div></div>';
 
   if(f==='done'||f==='all')h+='<input class="a-search" placeholder="🔍 Cari nama atau blok..." value="'+esc(_admSearch)+'" oninput="admDoSearch(this.value)">';
@@ -1331,6 +1345,7 @@ function _admRenderOrders(pg,docs){
   pg.innerHTML=h;
   admRefreshDetail();
 }
+function admClaimFilter(){_admClaimOnly=!_admClaimOnly;const pg=document.getElementById('adm-pg');if(pg)_admRenderOrders(pg,_admOrdersCache||[])}
 function admSetDelFilter(d){_admDelFilter=d;const pg=document.getElementById('adm-pg');if(pg)_admRenderOrders(pg,_admOrdersCache||[])}
 function admSetFilter(f){_admFilter=f;if(f==='done')_admSearch='';const pg=document.getElementById('adm-pg');if(admUnsub){admUnsub();admUnsub=null}const db=getDb();if(!db||!isAdmin())return;admUnsub=ordersQ(db).onSnapshot(snap=>{const docs=snap.docs.map(d=>({id:d.id,...d.data()}));_admRenderOrders(pg,docs)})}
 function admUpdOrder(id,status){const db=getDb();if(!db)return;db.collection('orders').doc(id).update({status}).catch(e=>console.warn(e));db.collection('tracking').doc(id).update({status:status,at:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){})}
