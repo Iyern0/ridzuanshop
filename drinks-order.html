@@ -787,11 +787,11 @@ function shrinkImage(file,maxPx,quality){
     fr.readAsDataURL(file);
   });
 }
-function notifyOwnerClaim(o,hasImg){
+function notifyOwnerClaim(o){
   try{
     if(typeof fetch!=='function')return;
     const title='Bayaran? Pesanan '+(o.no?'#'+fmtNo(o.no):'?')+(o.room?(' - Blok '+o.room):' - ambil sendiri');
-    const body=(hasImg?'Resit dilampirkan':'Tiada resit, minta!');
+    const body='Resit dilampirkan - semak';
     var ctrl=null;
     try{if(typeof AbortController!=='undefined')ctrl=new AbortController()}catch(e){}
     var timer=null;
@@ -1086,7 +1086,7 @@ function showDone(o){
     +'<div style="font-size:12px;font-weight:800;color:#00D4AA;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">💰 Bayar sekarang</div>'
     +'<div style="font-size:12px;color:#9A9385;font-weight:600;margin-bottom:12px;line-height:1.5">Scan QR di atas, kemudian hantar gambar resit supaya penjual boleh sahkan bayaran anda.</div>'
     +'<input type="file" id="claim-file" accept="image/*" style="display:none" onchange="claimPicked()">'
-    +'<label for="claim-file" class="filelbl">📎 Pilih gambar resit</label>'
+    +'<label for="claim-file" class="filelbl">📎 Pilih gambar resit <span style="color:#FF6B6B">(wajib)</span></label>'
     +'<div id="claim-file-name" style="display:none;font-size:12px;color:#00D4AA;font-weight:700;margin-bottom:10px">✓ Gambar dipilih</div>'
     +'<button id="claim-send" onclick="sendClaim()" style="width:100%;background:#00D4AA;color:#000;border:none;font-weight:800;font-size:14px;padding:13px;border-radius:10px;cursor:pointer">Saya dah bayar</button></div>'
     +'<button class="go2" onclick="closeDone()">Selesai</button>'
@@ -1150,28 +1150,35 @@ async function sendClaim(){
   const btn=document.getElementById('claim-send');
   const fileIn=document.getElementById('claim-file');
   const btnLabel='Saya dah bayar';
+  const f=fileIn&&fileIn.files&&fileIn.files[0];
+  // No proof, no alert. Refuse before anything is written, so an empty tap
+  // cannot reach the seller at all.
+  if(!f){
+    const lbl=document.querySelector('.filelbl');
+    if(lbl){lbl.style.borderColor='#FF6B6B';setTimeout(function(){lbl.style.borderColor=''},1600)}
+    toast('📎 Pilih gambar resit dahulu');
+    return;
+  }
   btn.disabled=true;btn.textContent='Menghantar...';
   const db=getDb();
   if(!db){btn.disabled=false;btn.textContent=btnLabel;toast('Tiada sambungan');return}
   let img='';
   try{
-    const f=fileIn&&fileIn.files&&fileIn.files[0];
-    if(f){
-      toast('Memproses gambar...');
-      img=await shrinkImage(f,1000,0.72);
-      // the rules cap this at 700000 chars, so check before spending a write
-      if(img.length>680000){btn.disabled=false;btn.textContent=btnLabel;toast('Gambar terlalu besar - guna gambar lain');return}
-    }
+    toast('Memproses gambar...');
+    img=await shrinkImage(f,1000,0.72);
+    // the rules cap this at 700000 chars, so check before spending a write
+    if(img.length>680000){btn.disabled=false;btn.textContent=btnLabel;toast('Gambar terlalu besar - guna gambar lain');return}
+    if(img.length<2000){btn.disabled=false;btn.textContent=btnLabel;toast('Gambar kelihatan kosong -Cuba gambar lain');return}
   }catch(e){
     btn.disabled=false;btn.textContent=btnLabel;toast('Gambar tidak boleh dibaca');return;
   }
-  const payload={img:img||'data:image/jpeg;base64,',at:firebase.firestore.FieldValue.serverTimestamp()};
+  const payload={img:img,at:firebase.firestore.FieldValue.serverTimestamp()};
   db.collection('payments').doc(o.code).set(payload).then(function(){
     o._claim=true;dn._msg=o;
     saveMyOrder(o);
     paintClaim();
     toast('✓ Resit dihantar - penjual akan semak');
-    notifyOwnerClaim(o,!!img);
+    notifyOwnerClaim({no:o.no,room:o.r});
   }).catch(function(err){
     console.warn('claim gagal:',err);
     btn.disabled=false;btn.textContent=btnLabel;
