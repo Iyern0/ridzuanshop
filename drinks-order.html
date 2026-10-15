@@ -33,8 +33,6 @@ body{font-family:'Nunito',sans-serif;background:#131010;color:#F0F0F0;min-height
 .card-toggle.on{background:#00D4AA;color:#000;border-color:#00D4AA}
 .card-toggle.off{background:#FF6B6B;color:#fff;border-color:#FF6B6B}
 .card-toggle:active{transform:scale(0.9)}
-.quick-add{position:absolute;bottom:8px;right:8px;width:34px;height:34px;border-radius:50%;border:none;background:#00D4AA;color:#000;font-size:22px;font-weight:900;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,212,170,0.35);z-index:6}
-.quick-add:active{transform:scale(0.88)}
 .card .sold{bottom:8px;right:8px}
 .status-bar{display:flex;align-items:center;justify-content:center;gap:8px;padding:9px 16px;font-size:13px;font-weight:800;letter-spacing:0.2px}
 .status-bar.open{background:linear-gradient(90deg,rgba(0,212,170,0.18),rgba(0,212,170,0.06));color:#00D4AA;border-bottom:1px solid rgba(0,212,170,0.25)}
@@ -99,7 +97,6 @@ body{font-family:'Nunito',sans-serif;background:#131010;color:#F0F0F0;min-height
 button,a.adm-link,.fb{-webkit-tap-highlight-color:transparent;transition:transform .2s var(--sp),background .22s var(--eo),border-color .22s var(--eo),color .22s var(--eo),opacity .22s var(--eo),box-shadow .25s var(--eo)}
 button:active{transform:scale(0.93)}
 button:disabled:active{transform:none}
-.card .quick-add:active{transform:scale(0.8)}
 
 /* --- cart bar rises --- */
 #cart-bar{transform:translateY(115%);transition:transform .45s var(--sp),opacity .3s var(--eo);display:flex;opacity:0;pointer-events:none}
@@ -788,7 +785,7 @@ async function initConfig(){await loadConfig();const db=getDb();if(db)db.doc(CON
 
 let _menuFirst=true;
 setTimeout(function(){_menuFirst=false},1100);
-function draw(){const r=document.getElementById('menu-root');if(MENU&&MENU.length){track('menu_view',true)}if(!MENU||MENU.length===0){r.innerHTML='';upCart();drawLoy();drawDel();return}let h='<div class="grid">';let _ai=0;MENU.forEach((cat,ci)=>{cat.items.forEach((v,vi)=>{const id='c'+ci+'v'+vi,_d=_menuFirst?(' style="animation-delay:'+Math.min(_ai++*38,420)+'ms"'):'',d=isDis(id),items=cart[id]||[],cq=items.length;const cheapest=(v.price===CHEAPEST_PRICE);let badge='';if(d)badge='';else if(v.pop)badge='<span class="badge">🔥 Paling Laku</span>';else if(cheapest)badge='<span class="badge-new">💸 Paling Murah</span>';const dot=cq?'<span class="qty">'+cq+'</span>':'',sold=d?'<span class="sold">✕ Habis</span>':'';let e='🧋';if(v.name.includes('Milo'))e='🥤';else if(v.name.includes('Extrajoss'))e='🍹';else if(v.name.includes('Indocafe'))e='☕';else if(v.name.includes('Chocolate'))e='🍫';else if(v.name.includes('Horlicks'))e='🥛';else if(v.name.includes('Hazelnut'))e='🌰';else if(v.name.includes('Mocha'))e='🍵';h+='<div class="card'+(d?' disabled':'')+(cq?' in-cart':'')+(admin?' admin-mode':'')+'"'+_d+' onclick="addToCart(\''+id+'\')"><button class="card-toggle '+(d?'off':'on')+'" onclick="event.stopPropagation();togDis(\''+id+'\')">'+(d?'✕':'✓')+'</button>'+(d?'':'<button class="quick-add" onclick="event.stopPropagation();quickAdd(\''+id+'\')">+</button>')+badge+dot+sold+(v.img?'<img class="photo" src="'+esc(v.img)+'" alt="'+esc(v.name)+'" loading="lazy" onerror="this.style.display=\'none\'">':'<div class="e">'+e+'</div>')+'<div class="n">'+esc(v.name)+'</div><div class="p">RM'+v.price.toFixed(2)+'</div></div>';})});h+='</div>';r.innerHTML=h;upCart();drawLoy();drawDel();}
+function draw(){const r=document.getElementById('menu-root');if(MENU&&MENU.length){track('menu_view',true)}if(!MENU||MENU.length===0){r.innerHTML='';upCart();drawLoy();drawDel();return}let h='<div class="grid">';let _ai=0;MENU.forEach((cat,ci)=>{cat.items.forEach((v,vi)=>{const id='c'+ci+'v'+vi,_d=_menuFirst?(' style="animation-delay:'+Math.min(_ai++*38,420)+'ms"'):'',d=isDis(id),items=cart[id]||[],cq=items.length;const cheapest=(v.price===CHEAPEST_PRICE);let badge='';if(d)badge='';else if(v.pop)badge='<span class="badge">🔥 Paling Laku</span>';else if(cheapest)badge='<span class="badge-new">💸 Paling Murah</span>';const dot=cq?'<span class="qty">'+cq+'</span>':'',sold=d?'<span class="sold">✕ Habis</span>':'';let e='🧋';if(v.name.includes('Milo'))e='🥤';else if(v.name.includes('Extrajoss'))e='🍹';else if(v.name.includes('Indocafe'))e='☕';else if(v.name.includes('Chocolate'))e='🍫';else if(v.name.includes('Horlicks'))e='🥛';else if(v.name.includes('Hazelnut'))e='🌰';else if(v.name.includes('Mocha'))e='🍵';h+='<div class="card'+(d?' disabled':'')+(cq?' in-cart':'')+(admin?' admin-mode':'')+'"'+_d+' onclick="addToCart(\''+id+'\')"><button class="card-toggle '+(d?'off':'on')+'" onclick="event.stopPropagation();togDis(\''+id+'\')">'+(d?'✕':'✓')+'</button>'+badge+dot+sold+(v.img?'<img class="photo" src="'+esc(v.img)+'" alt="'+esc(v.name)+'" loading="lazy" onerror="this.style.display=\'none\'">':'<div class="e">'+e+'</div>')+'<div class="n">'+esc(v.name)+'</div><div class="p">RM'+v.price.toFixed(2)+'</div></div>';})});h+='</div>';r.innerHTML=h;upCart();drawLoy();drawDel();}
 function fmtMin(m){m=((m%1440)+1440)%1440;const h=Math.floor(m/60),mm=m%60,ap=h<12?'AM':'PM';let hh=h%12;if(hh===0)hh=12;return hh+':'+(mm<10?'0':'')+mm+ap}
 function isOpenNow(){const n=new Date(),m=n.getHours()*60+n.getMinutes();const o=HOURS[0],c=HOURS[1];return o<=c?(m>=o&&m<c):(m>=o||m<c)}
 function minsUntilClose(){const n=new Date(),m=n.getHours()*60+n.getMinutes();const c=HOURS[1];let d=c-m;if(d<=0)d+=1440;return d}
@@ -805,7 +802,6 @@ function openCust(ci,vi){track('item_open');custItem={ci,vi};custAdds=[];documen
 function closeCust(){custItem=null;custAdds=[];document.getElementById('cust').style.display='none'}
 function confirmCust(){if(!custItem)return;const hasSweet=custAdds.some(id=>{const a=findAdd(id);return a&&a.grp==='s'});const anySweetAvail=ADDS.some(a=>a.grp==='s'&&!disAdds.includes(a.id));if(!hasSweet&&anySweetAvail){toast('⚠ Sila pilih pemanis');return}const id='c'+custItem.ci+'v'+custItem.vi;if(!cart[id])cart[id]=[];cart[id].push({adds:[...custAdds]});saveCart();track('add_cart');buzz(15);closeCust();draw();toast('✓ Ditambah')}
 function defaultAdds(){const out=[];const s=ADDS.find(a=>a.grp==='s'&&!disAdds.includes(a.id));const l=ADDS.find(a=>a.grp==='l'&&!disAdds.includes(a.id));if(s)out.push(s.id);if(l)out.push(l.id);return out}
-function quickAdd(id){if(isDis(id)){toast('Item habis');return}const m=id.match(/c(\d+)v(\d+)/);if(!m)return;const ci=parseInt(m[1]),vi=parseInt(m[2]);if(!MENU[ci]||!MENU[ci].items[vi])return;if(!cart[id])cart[id]=[];cart[id].push({adds:[]});saveCart();track('item_open');track('add_cart');buzz(12);draw();toast(esc(MENU[ci].items[vi].name)+' ditambah')}
 function addToCart(id){if(isDis(id)){toast('❌ Item habis');return}const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;openCust(ci,vi)}
 function remInst(key,idx){if(cart[key]){cart[key].splice(idx,1);if(cart[key].length===0)delete cart[key];saveCart();draw()}}
 function upCart(){const e=Object.entries(cart);let totalItems=0;e.forEach(([_,v])=>totalItems+=v.length);const bar=document.getElementById('cart-bar');if(totalItems>0){bar.classList.add('show');document.getElementById('cart-count').textContent=totalItems+' item(s)';}else{bar.classList.remove('show');}document.getElementById('checkout').disabled=totalItems===0;drawTimes();drawDel();syncTimeButton();let total=0,html='';e.forEach(([id,items])=>{if(!MENU)return;const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;const item=MENU[ci].items[vi];items.forEach((inst,i)=>{const ac=inst.adds.reduce((s,aid)=>{const a=findAdd(aid);return s+(a?a.price:0)},0);total+=item.price+ac;const al=inst.adds.map(aid=>{const a=findAdd(aid);return a?a.name:''}).filter(Boolean).join(', ');html+='<div class="item"><div class="ii"><div class="nm">'+item.name+'</div><div class="sb">RM'+(item.price+ac).toFixed(2)+(al?' <span style="color:#9A9385">· '+al+'</span>':'')+'</div></div><div class="iq"><button onclick="remInst(\''+id+'\','+i+')" style="color:#FF6B6B">−</button><button onclick="addToCart(\''+id+'\')" style="color:#00D4AA">+</button></div></div>';});});document.getElementById('items').innerHTML=html;document.getElementById('items-summary').textContent=totalItems+' item(s) · RM'+total.toFixed(2);const cod=(isCod===true?1:0);document.getElementById('sub').textContent='RM'+total.toFixed(2);document.getElementById('total').textContent='RM'+(total+cod).toFixed(2);document.getElementById('cart-total').textContent='RM'+(total+cod).toFixed(2);document.getElementById('empty').style.display=totalItems?'none':'block';document.getElementById('cod-row').style.display=isCod===true?'flex':'none';}
@@ -895,7 +891,7 @@ async function sendWa(){
   msg+='\nJumlah: RM'+total.toFixed(2);
 
   const disp={code:code,no:orderNo,items:OrdDisplay(ordMap),total:total,isCod:isCod,r:r,n:n,when:when,pay:payM};
-  if(!saved){showDone({...disp,warn:true});return}
+  if(!saved){showDone({...disp,warn:true});window.open(waUrl(msg),'_blank');return}
   track('order_sent');chime();buzzOk();
   notifyOwner({no:orderNo,items:ordMap?Object.keys(ordMap).map(function(k){return ordMap[k]}):[],total:total,room:r,time:when,payment:payM});
   showDone({...disp,warn:false});
@@ -988,7 +984,7 @@ function showDone(o){
     +'<h2>'+(o.warn?'Pesanan disimpan':'Pesanan Diterima')+'</h2>'
     +'<div class="code">'+(o.no?'Pesanan #'+fmtNo(o.no):(o.code?'#'+esc(o.code):''))+'</div>'
     +(o.no?'<div style="font-size:11px;color:#9A9385;font-weight:700;margin-bottom:14px">Kod: '+esc(o.code||'')+'</div>':'')
-    +(o.warn?'<div class="warnbox">Rekod dalam sistem gagal, tapi WhatsApp tetap dibuka. Tekan hantar dalam WhatsApp supaya pesanan anda diterima.</div>':'')
+    +(o.warn?'<div class="warnbox">Rekod pesanan gagal disimpan. Hantar melalui WhatsApp supaya penjual tetap terima pesanan anda.</div>':'')
     +'<div class="box2">'+rows
       +'<div class="r" style="border-top:1px solid rgba(255,255,255,0.08);margin-top:6px;padding-top:8px"><span>Jumlah</span><b style="color:#00D4AA;font-size:16px">RM'+Number(o.total).toFixed(2)+'</b></div>'
       +'<div class="r"><span>Penghantaran</span><b>'+(o.isCod?'COD (+RM1)':'Ambil sendiri')+'</b></div>'
@@ -1007,7 +1003,7 @@ function showDone(o){
     +'<button id="claim-btn" class="claimbtn" onclick="claimOpen()" style="display:none">💰 Saya dah bayar</button>'
     +'<button class="go2" onclick="closeDone()">Selesai</button>'
     +'<div class="done-note">🔔 You&rsquo;ll be notified when it&rsquo;s on the way</div>'
-    +'<button class="alt" onclick="reopenWa()">Simpan resit ke WhatsApp (pilihan)</button>';
+    +(o.warn?'<button class="alt" onclick="reopenWa()">Hantar melalui WhatsApp</button>':'');
   el.classList.add('show');
   if(!o.warn&&o.code)trackOrder(o.code);
   autoAskNotify();
