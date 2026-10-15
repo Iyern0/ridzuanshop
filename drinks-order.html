@@ -433,8 +433,8 @@ button:disabled:active{transform:none}
 .a-card .paid-btn:hover{background:rgba(0,212,170,0.14);border-color:rgba(0,212,170,0.3);color:#00D4AA}
 .warnText{color:#FFB347}
 
-.claimbtn{display:inline-flex;align-items:center;justify-content:center;background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.3);color:#00D4AA;font-weight:800;font-size:14px;padding:12px 24px;border-radius:12px;cursor:pointer;margin-bottom:10px;width:100%}
-.claimbtn:hover{background:rgba(0,212,170,0.18)}
+.filelbl{display:block;text-align:center;background:rgba(255,255,255,0.06);border:1px dashed rgba(255,255,255,0.22);color:#D8D2C8;font-weight:800;font-size:13px;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:10px}
+.filelbl:hover{background:rgba(255,255,255,0.1);border-color:rgba(0,212,170,0.45)}
 .a-card .claim-note{background:rgba(0,168,255,0.1);border:1px solid rgba(0,168,255,0.28);color:#5AC8FA;font-size:11px;font-weight:800;padding:4px 10px;border-radius:7px;margin-bottom:10px}
 .a-card .acts .claim-btn2{background:rgba(0,168,255,0.12);border:1px solid rgba(0,168,255,0.3);color:#5AC8FA;font-size:12px;font-weight:800;padding:9px 13px;border-radius:10px;cursor:pointer;flex-shrink:0}
 .a-card .acts .claim-btn2:hover{background:rgba(0,168,255,0.22)}
@@ -996,11 +996,12 @@ function showDone(o){
     +'<div id="paid-mark" style="display:none;background:rgba(0,212,170,0.12);border:1px solid rgba(0,212,170,0.3);border-radius:10px;padding:10px;margin-bottom:14px;font-size:13px;font-weight:800;color:#00D4AA">✓ Bayaran diterima</div>'
     +'<div id="claim-state" style="display:none;background:rgba(255,179,71,0.12);border:1px solid rgba(255,179,71,0.3);border-radius:10px;padding:10px;margin-bottom:12px;font-size:13px;font-weight:800;color:#FFB347">⏳ Menunggu penjual semak bayaran anda</div>'
     +'<div id="claim-panel" style="display:none;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px;margin-bottom:12px;text-align:left">'
-    +'<div style="font-size:12px;font-weight:800;color:#9A9385;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px">Resit bayaran</div>'
-    +'<input type="file" id="claim-file" accept="image/*" style="width:100%;font-size:12px;color:#9A9385;margin-bottom:10px">'
-    +'<div style="display:flex;gap:8px;margin-top:10px"><button id="claim-send" onclick="sendClaim()" style="flex:1;background:#00D4AA;color:#000;border:none;font-weight:800;font-size:13px;padding:11px;border-radius:10px;cursor:pointer">Hantar resit</button>'
-    +'<button onclick="claimCancel()" style="background:rgba(255,255,255,0.08);color:#9A9385;border:none;font-size:13px;padding:11px 16px;border-radius:10px;cursor:pointer">Batal</button></div></div>'
-    +'<button id="claim-btn" class="claimbtn" onclick="claimOpen()" style="display:none">💰 Saya dah bayar</button>'
+    +'<div style="font-size:12px;font-weight:800;color:#00D4AA;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">💰 Bayar sekarang</div>'
+    +'<div style="font-size:12px;color:#9A9385;font-weight:600;margin-bottom:12px;line-height:1.5">Scan QR di atas, kemudian hantar gambar resit supaya penjual boleh sahkan bayaran anda.</div>'
+    +'<input type="file" id="claim-file" accept="image/*" style="display:none" onchange="claimPicked()">'
+    +'<label for="claim-file" class="filelbl">📎 Pilih gambar resit</label>'
+    +'<div id="claim-file-name" style="display:none;font-size:12px;color:#00D4AA;font-weight:700;margin-bottom:10px">✓ Gambar dipilih</div>'
+    +'<button id="claim-send" onclick="sendClaim()" style="width:100%;background:#00D4AA;color:#000;border:none;font-weight:800;font-size:14px;padding:13px;border-radius:10px;cursor:pointer">Saya dah bayar</button></div>'
     +'<button class="go2" onclick="closeDone()">Selesai</button>'
     +'<div class="done-note">🔔 You&rsquo;ll be notified when it&rsquo;s on the way</div>'
     +(o.warn?'<button class="alt" onclick="reopenWa()">Hantar melalui WhatsApp</button>':'');
@@ -1049,13 +1050,11 @@ function trackOrder(code){
   },function(){});
 }
 function reopenWa(){const o=document.getElementById('done')._msg;if(!o)return;let msg='Hi '+SHOP+'! Pesanan:\n';if(o.code)msg+='No. Pesanan: #'+o.code+'\n';(o.items||[]).forEach(i=>{msg+=i.qty+'x '+i.name+' = RM'+(i.price*i.qty).toFixed(2)+(i.adds&&i.adds.length?' ('+i.adds.join(', ')+')':'')+'\n'});msg+='\nJumlah: RM'+Number(o.total).toFixed(2);window.open(waUrl(msg),'_blank')}
-function claimOpen(){
-  const p=document.getElementById('claim-panel');
-  if(p)p.style.display='block';
-}
-function claimCancel(){
-  const p=document.getElementById('claim-panel');
-  if(p)p.style.display='none';
+function claimPicked(){
+  const f=document.getElementById('claim-file');
+  const n=document.getElementById('claim-file-name');
+  const has=!!(f&&f.files&&f.files[0]);
+  if(n){n.style.display=has?'block':'none';if(has)n.textContent='✓ '+f.files[0].name.slice(0,35)}
 }
 async function sendClaim(){
   const dn=document.getElementById('done');
@@ -1063,9 +1062,10 @@ async function sendClaim(){
   if(!o.code){toast('Rujukan pesanan tidak dijumpai');return}
   const btn=document.getElementById('claim-send');
   const fileIn=document.getElementById('claim-file');
+  const btnLabel='Saya dah bayar';
   btn.disabled=true;btn.textContent='Menghantar...';
   const db=getDb();
-  if(!db){btn.disabled=false;btn.textContent='Hantar resit';toast('Tiada sambungan');return}
+  if(!db){btn.disabled=false;btn.textContent=btnLabel;toast('Tiada sambungan');return}
   let img='';
   try{
     const f=fileIn&&fileIn.files&&fileIn.files[0];
@@ -1073,32 +1073,34 @@ async function sendClaim(){
       toast('Memproses gambar...');
       img=await shrinkImage(f,1000,0.72);
       // the rules cap this at 700000 chars, so check before spending a write
-      if(img.length>680000){btn.disabled=false;btn.textContent='Hantar resit';toast('Gambar terlalu besar - guna gambar lain');return}
+      if(img.length>680000){btn.disabled=false;btn.textContent=btnLabel;toast('Gambar terlalu besar - guna gambar lain');return}
     }
   }catch(e){
-    btn.disabled=false;btn.textContent='Hantar resit';toast('Gambar tidak boleh dibaca');return;
+    btn.disabled=false;btn.textContent=btnLabel;toast('Gambar tidak boleh dibaca');return;
   }
   const payload={img:img||'data:image/jpeg;base64,',at:firebase.firestore.FieldValue.serverTimestamp()};
   db.collection('payments').doc(o.code).set(payload).then(function(){
     o._claim=true;dn._msg=o;
     saveMyOrder(o);
-    claimCancel();
     paintClaim();
     toast('✓ Resit dihantar - penjual akan semak');
     notifyOwnerClaim(o,!!img);
   }).catch(function(err){
     console.warn('claim gagal:',err);
-    btn.disabled=false;btn.textContent='Hantar resit';
+    btn.disabled=false;btn.textContent=btnLabel;
     toast('Gagal hantar resit');
   });
 }
 function paintClaim(){
   const dn=document.getElementById('done');
   const o=(dn&&dn._msg)||{};
-  const b=document.getElementById('claim-btn');
+  const qr=o.pay==='qr';
+  const panel=document.getElementById('claim-panel');
   const st=document.getElementById('claim-state');
-  if(st)st.style.display=(o._claim&&o.pay==='qr')?'block':'none';
-  if(b)b.style.display=(o.pay==='qr'&&!o._claim)?'inline-flex':'none';
+  // QR customers are prompted for the receipt straight away; cash customers
+  // see neither, because they pay when the drink is handed over.
+  if(panel)panel.style.display=(qr&&!o._claim)?'block':'none';
+  if(st)st.style.display=(qr&&o._claim)?'block':'none';
 }
 function closeDone(){const el=document.getElementById('done');if(el)el.classList.remove('show')}
 function setOrderStatus(id,st){const db=getDb();if(!db)return;db.collection('orders').doc(id).update({status:st}).catch(e=>console.warn('Firestore update gagal:',e))}
