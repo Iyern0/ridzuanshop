@@ -565,7 +565,7 @@ button:disabled:active{transform:none}
 <div class="done" id="done"></div>
 <div class="modal" id="admin-login" style="z-index:1100"><div class="bg" onclick="closeAdminLogin()"></div><div class="box" style="max-width:340px;text-align:center"><div style="font-family:'Bangers',cursive;font-size:22px;color:#00D4AA;margin-bottom:4px">🔒 Admin Login</div><div style="font-size:12px;color:#9A9385;font-weight:700;margin-bottom:16px">Akaun admin sah sahaja</div><input class="inp" id="admin-email" type="email" autocomplete="username" inputmode="email" placeholder="admin@email.com" style="margin-bottom:10px;text-align:center"><input class="inp" id="admin-pw" type="password" autocomplete="current-password" placeholder="Password" style="margin-bottom:14px;text-align:center" onkeydown="if(event.key==='Enter')verifyAdminLogin()"><div style="display:flex;gap:8px"><button onclick="verifyAdminLogin()" id="admin-login-btn" style="flex:1;background:#00D4AA;color:#000;border:none;font-family:'Fredoka One',cursive;font-size:14px;padding:12px;border-radius:10px;cursor:pointer">Masuk</button><button onclick="closeAdminLogin()" style="background:rgba(255,255,255,0.08);color:#9A9385;border:none;font-size:13px;padding:12px;border-radius:10px;cursor:pointer">Batal</button></div></div></div>
 </div></div>
-<div id="admin-panel"><div class="adm-side"><div class="brand">🌙 MMS ADMIN</div><nav id="adm-nav"><div class="grp">Operasi Harian</div><a data-tab="orders" class="active"><span class="ic">📥</span>Pesanan</a><a data-tab="customers"><span class="ic">👥</span>Pelanggan</a><a data-tab="stats"><span class="ic">📊</span>Analitis</a><div class="grp">Tetanapan</div><button class="toggle" onclick="admSetupToggle()"><span>⚙️ Menu &amp; Tetapan</span><span class="car">›</span></button><div class="subnav" id="adm-setup"><a data-tab="menu"><span class="ic">🧋</span>Minuman</a><a data-tab="addons"><span class="ic">🍬</span>Pemanis</a><a data-tab="schedule"><span class="ic">⏰</span>Masa</a><a data-tab="delivery"><span class="ic">🚗</span>Penghantaran</a><a data-tab="settings"><span class="ic">⚙️</span>Settings</a></div></nav><div class="exit"><button onclick="lockAdmin('🔒 Admin dikunci')">🔒 Kunci</button><button onclick="exitAdmin()">✕ Customer View</button></div></div><div class="adm-main"><div class="hd"><h2 id="adm-hd">📥 Pesanan</h2></div><div class="pg" id="adm-pg"></div></div></div>
+<div id="admin-panel"><div class="adm-side"><div class="brand">🌙 MMS ADMIN</div><nav id="adm-nav"><div class="grp">Operasi Harian</div><a data-tab="orders" class="active"><span class="ic">📥</span>Pesanan</a><a data-tab="customers"><span class="ic">👥</span>Pelanggan</a><a data-tab="receipts"><span class="ic">📎</span>Resit</a><a data-tab="stats"><span class="ic">📊</span>Analitis</a><div class="grp">Tetanapan</div><button class="toggle" onclick="admSetupToggle()"><span>⚙️ Menu &amp; Tetapan</span><span class="car">›</span></button><div class="subnav" id="adm-setup"><a data-tab="menu"><span class="ic">🧋</span>Minuman</a><a data-tab="addons"><span class="ic">🍬</span>Pemanis</a><a data-tab="schedule"><span class="ic">⏰</span>Masa</a><a data-tab="delivery"><span class="ic">🚗</span>Penghantaran</a><a data-tab="settings"><span class="ic">⚙️</span>Settings</a></div></nav><div class="exit"><button onclick="lockAdmin('🔒 Admin dikunci')">🔒 Kunci</button><button onclick="exitAdmin()">✕ Customer View</button></div></div><div class="adm-main"><div class="hd"><h2 id="adm-hd">📥 Pesanan</h2></div><div class="pg" id="adm-pg"></div></div></div>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -617,17 +617,70 @@ function bumpIdle(){
 
 // Watch orders for the whole admin session, not just while the Orders tab is
 // open, so an arriving order is announced from any screen.
-let _admWatch=null,_admSeen=0,_admClaims={},_admClaimUnsub=null;
+let _admWatch=null,_admSeen=0,_admSeenSet=false,_admClaimLoading=true,_admPhoneCount=0,_admClaims={},_admClaimUnsub=null;
 function admWatchClaims(){
   if(_admClaimUnsub||!isAdmin())return;
   const db=getDb();if(!db)return;
-  _admClaimUnsub=db.collection('payments').orderBy('at','desc').limit(100).onSnapshot(function(snap){
+  // Raised from 100: this is a view in its own right now, and a receipt past
+  // that limit would be invisible with no way to tell it was there.
+  _admClaimUnsub=db.collection('payments').orderBy('at','desc').limit(300).onSnapshot(function(snap){
     const m={};
     snap.docs.forEach(function(d){const f=d.data()||{};m[d.id]={at:f.at,img:f.img}});
-    _admClaims=m;
+    _admClaims=m;_admClaimLoading=false;
     const pg=document.getElementById('adm-pg');
-    if(pg&&admTab==='orders')_admRenderOrders(pg,_admOrdersCache||[]);
-  },function(){});
+    if(!pg)return;
+    if(admTab==='receipts')admReceipts(pg);
+    else if(admTab==='orders')_admRenderOrders(pg,_admOrdersCache||[]);
+  },function(){_admClaimLoading=false});
+}
+
+// Every receipt, newest first, whether or not its order still exists.
+function admReceipts(pg){
+  const db=getDb();
+  if(!db){pg.innerHTML='<div style="padding:20px;color:#FFB347;font-weight:700">Firebase tidak tersedia.</div>';return}
+  if(!isAdmin()){pg.innerHTML='<div style="padding:20px;color:#FFB347;font-weight:700">🔒 Login admin diperlukan.</div>';return}
+  admWatchClaims();
+  if(!admUnsub)admOrders(pg);   // needed to resolve receipt -> order name
+  const ids=Object.keys(_admClaims);
+  if(!ids.length){
+    pg.innerHTML=(_admClaimLoading
+      ?'<div style="color:#9A9385;text-align:center;padding:30px">Memuatkan...</div>'
+      :'<div class="a-empty"><span class="big">📭</span>Tiada resit lagi.<br><br><span style="font-size:13px">Resit muncul di sini bila pelanggan menekan &ldquo;Saya dah bayar&rdquo;.</span></div>');
+    return;
+  }
+  const ord={};
+  (_admOrdersCache||[]).forEach(function(o){ord[o.id]=o});
+  ids.sort(function(a,b){
+    const ta=_admClaims[a].at,tb=_admClaims[b].at;
+    return ((tb&&tb.toDate?tb.toDate():0)-(ta&&ta.toDate?ta.toDate():0));
+  });
+  const rows=ids.map(function(id){
+    const c=_admClaims[id],o=ord[id];
+    const at=c.at&&c.at.toDate?c.at.toDate():null;
+    const when=at?at.toLocaleString('ms-MY',{hour:'2-digit',minute:'2-digit'})+' · '+timeAgo(at):'';
+    const who=o
+      ?'<b style="color:'+(o.status==='deleted'?'#FFB347':'#00D4AA')+'">#'+(o.no!=null?fmtNo(o.no):'?')+' '+esc(o.name||'?')+'</b>'
+       +'<div style="font-size:11px;color:#9A9385;font-weight:700;margin-top:2px">'
+       +(o.delivery==='pickup'?'🏪 Ambil sendiri':'🏠 '+esc(o.room||'-'))+' · RM'+Number(o.total||0).toFixed(2)+'</div>'
+       +(o.status==='deleted'
+         ?'<div style="font-size:11px;color:#FFB347;font-weight:800;margin-top:3px">🗑 Pesanan ini dipadam — pulihkan dalam tab Pesanan › 🗑 Dipadam</div>'
+         :'')
+      :'<b style="color:#FFB347">Pesanan tidak dijumpai</b>'
+       +'<div style="font-size:11px;color:#9A9385;font-weight:700;margin-top:2px">Rujukan <span style="color:#00D4AA">'+esc(id)+'</span> · pesanan asal sudah dipadam</div>';
+    return '<div class="a-row" style="align-items:flex-start;cursor:pointer" onclick="admViewClaim(\''+id+'\')">'
+      +'<span class="n">'+who+'<div style="font-size:11px;color:#9A9385;font-weight:700;margin-top:3px">'+when+'</div></span>'
+      +'<span style="display:flex;gap:10px;align-items:center;flex-shrink:0">'
+      +(o&&o.paid
+        ?'<span style="font-size:11px;color:#00D4AA;font-weight:800">✓ Sudah ditanda bayar</span>'
+        :'<span style="font-size:11px;color:#FFB347;font-weight:800">Belum ditanda bayar</span>')
+      +'<button class="o-clam" onclick="event.stopPropagation();admViewClaim(\''+id+'\')">📎 Buka resit</button>'
+      +'</span></div>';
+  });
+  pg.innerHTML='<div style="max-width:760px">'
+    +'<div class="a-sec">📎 '+ids.length+' resit</div>'
+    +rows.join('')
+    +'<div style="margin-top:16px;padding:14px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;font-size:12px;color:#9A9385;line-height:1.7">Tekan mana-mana baris untuk melihat gambar resit penuh. Resit kekal di sini walaupun pesanan asal sudah dipadam.</div>'
+    +'</div>';
 }
 function admStopClaims(){if(_admClaimUnsub){_admClaimUnsub();_admClaimUnsub=null}_admClaims={}}
 function closeClaimView(){const m=document.getElementById('claim-view');if(m)m.style.display='none'}
@@ -650,13 +703,18 @@ function admViewClaim(id){
     }).catch(function(){});
   }
 }
-function admStopWatch(){if(_admWatch){_admWatch();_admWatch=null}_admSeen=0;admStopClaims()}
+function admStopWatch(){if(_admWatch){_admWatch();_admWatch=null}_admSeen=0;_admSeenSet=false;admStopClaims()}
 function admWatchOrders(){
   if(_admWatch||!isAdmin())return;
   const db=getDb();if(!db)return;
   const q=db.collection('orders').orderBy('createdAt','desc').limit(ORDER_LIMIT);
   _admWatch=q.onSnapshot(function(snap){
     const n=snap.size;
+    // The first snapshot only establishes where we are now. Announcing it
+    // meant every single login alerted, whether or not anything had come in.
+    if(!_admSeenSet){_admSeenSet=true;_admSeen=n;return}
+    // A status edit or a paid toggle does not change the document count, so
+    // it cannot reach this branch. Only a genuinely new order does.
     if(n>_admSeen&&snap.docs.length){
       const d=snap.docs[0].data()||{};
       admIncoming(d);
@@ -1207,7 +1265,7 @@ document.getElementById('adm-nav').addEventListener('click',function(e){
 });
 document.querySelector('.hero h1').addEventListener('click',()=>{admClk++;clearTimeout(admTmr);admTmr=setTimeout(()=>{admClk=0},1000);if(admClk>=5){admClk=0;if(!admin)showAdminLogin();else lockAdmin('🔒 已登出 / Logged out')}});
 let admTab='orders',admUnsub=null;
-const ADM_T={orders:'📥 Pesanan',customers:'👥 Pelanggan',stats:'📊 Analitis',menu:'🧋 Minuman',addons:'🍬 Pemanis',schedule:'⏰ Masa',delivery:'🚗 Penghantaran',settings:'⚙️ Settings'};
+const ADM_T={orders:'📥 Pesanan',customers:'👥 Pelanggan',receipts:'📎 Resit Bayaran',stats:'📊 Analitis',menu:'🧋 Minuman',addons:'🍬 Pemanis',schedule:'⏰ Masa',delivery:'🚗 Penghantaran',settings:'⚙️ Settings'};
 const ADM_SETUP=['menu','addons','schedule','delivery','settings'];
 let _admSetupOpen=false;
 try{_admSetupOpen=localStorage.getItem('mms_adm_setup')==='1'}catch(e){}
@@ -1220,7 +1278,7 @@ function admSetupOpen(open){
 }
 function admSetupToggle(){admSetupOpen(!_admSetupOpen)}
 function switchAdmin(t){admTab=t;document.getElementById('adm-hd').textContent=ADM_T[t]||t;document.querySelectorAll('#adm-nav a').forEach(a=>{a.classList.toggle('active',a.dataset.tab===t)});
-if(ADM_SETUP.indexOf(t)>-1)admSetupOpen(true);const pg=document.getElementById('adm-pg');if(t==='orders')admOrders(pg);else if(t==='menu')admMenu(pg);else if(t==='addons')admAddons(pg);else if(t==='schedule')admSchedule(pg);else if(t==='delivery')admDelivery(pg);else if(t==='customers')admCustomers(pg);else if(t==='stats')admAnalytics(pg);else if(t==='settings')admSettings(pg)}
+if(ADM_SETUP.indexOf(t)>-1)admSetupOpen(true);const pg=document.getElementById('adm-pg');if(t==='orders')admOrders(pg);else if(t==='menu')admMenu(pg);else if(t==='addons')admAddons(pg);else if(t==='schedule')admSchedule(pg);else if(t==='delivery')admDelivery(pg);else if(t==='customers')admCustomers(pg);else if(t==='receipts')admReceipts(pg);else if(t==='stats')admAnalytics(pg);else if(t==='settings')admSettings(pg)}
 let _admFilter='aktif',_admDelFilter='all',_admClaimOnly=false,_admSearch='',_admPrevCount=0,_admVisDocs=[];
 function admBeep(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=880;g.gain.value=0.3;o.start();o.stop(ctx.currentTime+0.15);if(navigator.vibrate)navigator.vibrate(200)}catch(e){}}
 function timeAgo(d){if(!d)return'';const diff=(Date.now()-d.getTime())/1000;if(diff<60)return'Masih baru';if(diff<3600)return Math.floor(diff/60)+' min lalu';if(diff<86400)return Math.floor(diff/3600)+' jam lalu';return Math.floor(diff/86400)+' hari lalu'}
@@ -1476,10 +1534,17 @@ function admCustomers(pg){
   if(!db){pg.innerHTML='<div style="padding:20px;color:#FFB347;font-weight:700">Firebase tidak tersedia.</div>';return}
   pg.innerHTML='<div style="color:#9A9385;text-align:center;padding:30px">Memuatkan...</div>';
   db.collection('orders').limit(2000).get().then(function(snap){
-    const byPhone={};
-    snap.forEach(function(d){const o=d.data();if(o.status==='deleted')return;const p=(o.phone||'').replace(/[^0-9]/g,'');if(!p)return;if(!byPhone[p])byPhone[p]={phone:o.phone,n:o.name,count:0,spend:0,last:null};byPhone[p].count++;byPhone[p].spend+=Number(o.total||0);const t2=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate():null;if(t2&&(!byPhone[p].last||t2>byPhone[p].last))byPhone[p].last=t2;if(o.name)byPhone[p].n=o.name});
+    const byPhone={};let nPhone=0;
+    snap.forEach(function(d){const o=d.data();if(o.status==='deleted')return;if(o.phone)nPhone++;const p=(o.phone||'').replace(/[^0-9]/g,'');if(!p)return;if(!byPhone[p])byPhone[p]={phone:o.phone,n:o.name,count:0,spend:0,last:null};byPhone[p].count++;byPhone[p].spend+=Number(o.total||0);const t2=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate():null;if(t2&&(!byPhone[p].last||t2>byPhone[p].last))byPhone[p].last=t2;if(o.name)byPhone[p].n=o.name});
     const rows=Object.values(byPhone).sort(function(a,b){return b.count-a.count});
+    _admPhoneCount=nPhone;
     let h='<div style="max-width:700px">';
+    h+='<div style="margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">'
+      +(nPhone
+        ?'<button onclick="admAskPurgePhones()" style="background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.25);color:#FF6B6B;font-weight:800;font-size:12px;padding:9px 16px;border-radius:10px;cursor:pointer">🔒 Padam nombor telefon ('+nPhone+')</button>'
+         +'<span style="font-size:11px;color:#9A9385;font-weight:700">Buang semua nombor telefon. Pesanan dan nama kekal, senarai Pelanggan jadi kosong.</span>'
+        :'<span style="font-size:12px;color:#00D4AA;font-weight:800">✓ Tiada nombor telefon disimpan</span>')
+      +'</div>';
     if(!rows.length){h+='<div style="text-align:center;padding:40px;color:#9A9385;font-weight:700;font-size:15px">Belum ada nombor telefon dikumpul.<br><br><span style="font-size:13px">Ia diisi oleh pelanggan (pilihan) semasa order.</span></div>';pg.innerHTML=h+'</div>';return}
     h+='<div class="a-sec">Stamps — '+rows.length+' pelanggan</div>';
     rows.forEach(function(c){
@@ -1494,6 +1559,50 @@ function admCustomers(pg){
   }).catch(function(e){pg.innerHTML='<div style="color:#FF6B6B;padding:20px">Gagal baca: '+esc(e.message)+'</div>'});
 }
 let _anWin=1;
+async function admResetAnalytics(){
+  const db=getDb();if(!db)return;
+  toast('Memadam...');
+  let last=null,total=0;
+  // Paginate by document id. Pulling the whole collection and slicing it in
+  // memory fails past a few hundred docs and trips the 500-op batch limit.
+  for(;;){
+    let q=db.collection('events').orderBy('__name__').limit(400);
+    if(last)q=q.startAfter(last);
+    const snap=await q.get();
+    if(snap.empty)break;
+    const b=db.batch();
+    snap.docs.forEach(function(d){b.delete(d.ref)});
+    await b.commit();
+    last=snap.docs[snap.docs.length-1];
+    total+=snap.docs.length;
+    toast('Memadam... '+total);
+  }
+  toast(total?('🗑 Analitik direset - '+total+' rekod dihapus'):'Tiada rekod analitik untuk dipadam');
+  switchAdmin('stats');
+}
+function admAskResetAnalytics(){
+  admConfirm('Padam SEMUA rekod analitik, termasuk page view, troli, checkout dan order. Ini tidak boleh dibatalkan. Nombor pesanan kekal.','Ya, reset analitik',admResetAnalytics);
+}
+async function admPurgePhones(){
+  const db=getDb();if(!db)return;
+  toast('Mencari nombor telefon...');
+  const snap=await db.collection('orders').limit(2000).get();
+  const targets=snap.docs.filter(function(d){const o=d.data();return o.status!=='deleted'&&o.phone});
+  if(!targets.length){toast('Tiada nombor telefon untuk dipadam');return}
+  let done=0;
+  for(let i=0;i<targets.length;i+=400){
+    const b=db.batch();
+    targets.slice(i,i+400).forEach(function(d){b.update(d.ref,{phone:firebase.firestore.FieldValue.delete()})});
+    await b.commit();
+    done+=Math.min(i+400,targets.length)-i;
+    toast('Memadam... '+done+'/'+targets.length);
+  }
+  toast('🔒 '+done+' nombor telefon dipadam');
+  switchAdmin('customers');
+}
+function admAskPurgePhones(){
+  admConfirm('Padam nombor telefon dari '+_admPhoneCount+' pesanan? Senarai Pelanggan akan jadi kosong. Pesanan dan nama pelanggan kekal.','Ya, padam nombor',admPurgePhones);
+}
 const AN_LBL={page_view:'Buka laman',menu_view:'Nampak menu',item_open:'Buka minuman',add_cart:'Masuk troli',checkout_open:'Buka checkout',order_sent:'Hantar order'};
 function admAnalytics(pg){
   const db=getDb();
@@ -1501,6 +1610,9 @@ function admAnalytics(pg){
   const wins=[[1,'Hari ini'],[7,'7 hari'],[30,'30 hari'],[0,'Semua']];
   let h='<div style="max-width:760px">';
   h+='<div class="a-filter">'+wins.map(function(w){return '<button class="'+(_anWin===w[0]?'on':'')+'" onclick="admAnWin('+w[0]+')">'+w[1]+'</button>'}).join('')+'</div>';
+  h+='<div style="margin-top:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">'
+    +'<button onclick="admAskResetAnalytics()" style="background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.25);color:#FF6B6B;font-weight:800;font-size:12px;padding:9px 16px;border-radius:10px;cursor:pointer">🗑 Reset analitik</button>'
+    +'<span style="font-size:11px;color:#9A9385;font-weight:700">Kosongkan semua angka. Nombor pesanan kekal.</span></div>';
   h+='<div id="an-body"><div style="color:#9A9385;text-align:center;padding:30px">Memuatkan...</div></div></div>';
   pg.innerHTML=h;
   const start=_anWin===0?new Date(0):new Date(Date.now()-_anWin*86400000);

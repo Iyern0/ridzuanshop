@@ -180,7 +180,11 @@ service cloud.firestore {
     //   * anyone may append an event (that is how we count anonymous
     //     visitors at all - they are not signed in)
     //   * only the admin may read them back
-    //   * nobody may edit or delete history
+    //   * nobody may EDIT history - that would let somebody quietly edit
+    //     the numbers rather than having to inject fake events
+    //   * the admin may DELETE, because the counts are only meaningful if
+    //     the owner can clear them. This is their own traffic data and
+    //     self-service deletion beats asking someone else for a console.
     //
     // The field list is closed, so this collection cannot be used as free
     // storage. A determined person could inflate the counts; that costs us
@@ -199,7 +203,11 @@ service cloud.firestore {
     match /events/{eventId} {
       allow create: if validEvent();
       allow read: if isAdmin();
-      allow update, delete: if false;
+      allow update: if false;
+      // Self-service reset from the admin panel. Admin-only, so this widens
+      // the blast radius to exactly the one account that already owns this
+      // data.
+      allow delete: if isAdmin();
     }
 
     // ------------------------------------------------------------------
