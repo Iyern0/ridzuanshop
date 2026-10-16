@@ -819,6 +819,31 @@ never from a stub that stands in for the network.
 **Status:** ✅ confirmed — send proven end to end; the phone side depends on the owner being
 subscribed to the new topic
 
+### 2026-10-16 15:25 — The fix proven on the deployed build, not just locally
+
+**What happened:** The corrected alert code was pushed (`4ebaeef..62ad3ac`), Pages flipped on
+attempt 3 (187,784 → 188,868 bytes), and the live build was checked: 8 of 8 markers pass —
+`asciiHeader` present, the title built ASCII, no emoji left in any header, the catches warning,
+and the receipt-at-checkout, claim-on-dispatch, returning-customer and 19px price behaviour all
+still intact. Live `sw.js` reads `v9-20261016`.
+**Then the send itself was proven from the far end, on the live origin.** A tab was navigated to
+`https://iyern0.github.io/ridzuanshop/`, and `notifyOwnerClaim({no:998})` was called there — so
+the real CSP, the real origin and the real deployed file were in play, not a local copy. The
+fetch did not reject, and polling the topic showed it arrived:
+`2026-10-16T07:24:57Z  "#998 COD - bayaran perlu semak"`. The new topic now holds two messages,
+both test sends, and between them they prove the browser's send path end to end.
+**Deliberately done this way** because the earlier verification for this same feature used an
+intercepted `fetch`, which bypasses header construction and therefore could not see the failure
+it was supposed to catch. Checking from the receiving end is the only thing that would have
+caught it, so that is what this one does.
+**Still open:** whether the owner's phone is subscribed to the new topic. The topic having the
+message proves the sending side; a test labelled `#999` and `#998` should have buzzed, and if
+neither did, the subscription is the remaining step. The `members` rules are also still
+unpublished.
+
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `WORKLOG.md`, `fb-admin-setup/poll-ntfy.js`
+**Status:** ✅ confirmed on the live deployment
+
 ---
 
 ## Withdrawn results
