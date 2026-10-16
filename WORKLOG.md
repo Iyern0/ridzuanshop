@@ -453,6 +453,85 @@ with the owner rather than deciding it here.
 **Artefacts:** `drinks-order.html`, `index.html`, `fb-admin-setup/n37-detail-tidy.js`
 **Status:** ⚠️ provisional — the three edits are confirmed; the fate of the `paid` flag is open
 
+### 2026-10-16 12:31 — Opening a receipt settles the paid flag (decision Q11)
+
+**What happened:** Removing the paid button left the `paid` flag with no writer, so three
+things that read it were frozen. The owner chose: opening a receipt is the payment check, so
+opening one settles the flag.
+**Found / changed:** `admSettlePaid(id)` writes `{paid:true,paidAt}` to `orders/{id}` and
+`tracking/{id}` — the same pair the deleted toggle wrote. Called from `admViewClaim`, right
+after `markClaimSeen`, so the glow and the flag settle on the same gesture. Quiet on failure:
+this is a side effect of opening something, and opening it must not fail because a background
+write did.
+**Verified server-side, not through the UI:** `orders/6B89AE.paid = true` and
+`tracking/6B89AE.paid = true` read back over REST. The UI could not be trusted here, because
+the function sets `o.paid` locally first so the count agrees without waiting for the round
+trip — that optimistic flag would have hidden a failed write. The real receipt `9RFMYB` was
+left `UNSEEN` throughout.
+**Artefacts:** `drinks-order.html`, `index.html`, `fb-admin-setup/n38-settle-paid.js`
+**Status:** ✅ confirmed
+
+### 2026-10-16 12:33 — A time is now required, and nothing can store a placeholder again
+
+**What happened:** The owner asked for the root cause of the `(nyatakan masa)` orders: the
+customer must be prompted for a time, and no order goes through without one.
+**Found / changed:** The pickup path was writing a sentence into the time field whenever a
+customer chose no slot and typed nothing — `|| '(nyatakan masa)'`, later `|| '(state a time)'`.
+That fallback is gone, so an empty box means no time was chosen rather than a time called
+"(state a time)". The custom box is now a real answer for **both** delivery methods and is
+never hidden, the unset label reads "⏰ When to deliver?", and the old "Choose when you want
+it" hint gives way to the prompt from decision Q1/Q2 in amber: "Order for later? 👇" for COD,
+"Coming later? 👇" for pickup. Two consistency fixes fell out of it: picking a slot clears a
+typed time, and typing a time unlights the chosen slot, because a slot and a typed time are
+two answers to one question. The gate exists in `#checkout` **and** in `sendWa`, the second
+being the last thing before anything is written — a gate in one place and not the other is
+exactly how an order got stored with a sentence for a time. The refusal calls
+`highlight('pickup-time', …)`, which focuses the box as well as glowing it red, so being
+refused puts the caret where the answer goes.
+**Verified (real clicks, live):** T1, no time → confirm modal never opened, toast "⚠ Please
+choose a time first", box outlined `rgba(255,107,107,0.4)`. T2, modal open with the time
+blanked behind its back → the write path refused too (`_sending: false`, no done screen). T3,
+time typed as `2:15AM` → order `6B89AE` created, stored `time = 2:15AM`. Then read back over
+REST: the orders collection held **exactly one** new document, so neither refusal wrote
+anything. Counter went 1 → 2 as expected.
+**Artefacts:** `drinks-order.html`, `index.html`, `fb-admin-setup/n39-time-required.js`
+**Status:** ✅ confirmed
+
+### 2026-10-16 12:35 — The item list stopped being a wall of text
+
+**What happened:** The owner asked for the `Minuman` block in the order detail panel to be
+legible at a glance: "not in simple 1 liner like this".
+**Found / changed:** It was rendering `1× Extrajoss Mangga Normal (100%), No Sugar/Condensed
+Milk, Kaw` — the add-ons joined into a comma run. Now one card per drink: a teal quantity
+badge, the drink name at 16px Plus Jakarta 800 with its emoji, **each add-on its own pill
+chip**, and the line's own price. That last one earns its place: the order that prompted the
+complaint totals RM3.00 from a RM2.50 drink, and nothing on screen explained the missing 50
+sen until the line price showed it. `drinkEmoji()` is new and the checkout's inline
+emoji chain now calls it, so the panel and the customer's receipt agree. Also confirmed the
+paid button stays gone from the panel.
+**Verified (real clicks, live):** grid columns measured `34px 278px 56px`, radius 12px,
+padding 11px 13px; badge `1×` on `rgba(0,212,170,0.12)`; name `Plus Jakarta Sans 800 16px`;
+three chips all `border-radius: 999px` reading `Normal (100%)`, `No Sugar/Condensed Milk`,
+`Kaw`; line price `RM3.00`.
+**Note:** the customer's own done screen still joins add-ons with commas (line 1260), and the
+WhatsApp text still does (lines 1144, 1390). Left alone — the complaint was about the seller's
+panel, and the customer is looking at drinks they chose themselves.
+**Artefacts:** `drinks-order.html`, `index.html`, `fb-admin-setup/n40-item-cards.js`
+**Status:** ✅ confirmed
+
+### 2026-10-16 12:36 — Test data removed
+
+**What happened:** The time-enforcement test left one order, one tracking row and one receipt
+in the live project.
+**Changed:** Deleted `orders/6B89AE`, `tracking/6B89AE`, `payments/6B89AE`, and reset
+`counters/2026-10-16` from 2 back to **1** (today's one real order is `3B9UL8` / #001). Read
+back: 22 orders, 2 receipts (both real), counter `n=1`. Browser-side test keys `mms_last`,
+`mms_cart`, `mms_seen_claims` and `mms_cust` (which held the literal name "TESTTIME") were
+cleared. `mms_loy` on this browser still carries one extra stamp from the test order — cosmetic,
+device-local, and left rather than guessed at.
+**Artefacts:** `fb-admin-setup/cleanup-test.js`, `fb-admin-setup/claim-test.js`
+**Status:** ✅ confirmed
+
 ---
 
 ## Withdrawn results
