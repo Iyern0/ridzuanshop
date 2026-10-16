@@ -57,9 +57,22 @@ body{font-family:'Nunito',sans-serif;background:#131010;color:#F0F0F0;min-height
 .done .box2 .r{display:flex;justify-content:space-between;font-size:13px;color:#C8C8D8;padding:5px 0}
 .done .box2 .r b{color:#F0F0F0}
 .done .steps{display:flex;align-items:center;gap:6px;justify-content:center;margin:14px 0 20px;flex-wrap:wrap}
-.done .st{padding:5px 12px;border-radius:999px;font-size:11px;font-weight:800;background:rgba(255,255,255,0.05);color:#666}
-.done .st.on{background:rgba(0,212,170,0.15);color:#00D4AA}
-.done .arw{color:#444;font-size:11px}
+/* overflow:hidden clips the light wave to the pill, and flex:0 0 auto stops the
+   pills shrinking into their own clip on a narrow screen - overflow:hidden
+   drops the automatic min-width, so without this the text can be cut off. */
+.done .st{position:relative;overflow:hidden;flex:0 0 auto;padding:5px 12px;border-radius:999px;font-size:11px;font-weight:800;
+  background:rgba(255,255,255,0.05);color:#666;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.06);
+  transition:background .45s var(--eo),color .45s var(--eo),box-shadow .45s var(--eo)}
+/* Every reached step fills solid, the frontier included, so the row reads left
+   to right as a fill line. The frontier is set apart by its ring and its
+   breathing, never by being darker: a gap in the fill made the row look like
+   it had gone backwards. */
+.done .st.on{background:#00D4AA;color:#06302A;box-shadow:inset 0 0 0 1px #00D4AA}
+.done .st.cur{background:#00E9C0;color:#04241E}
+.done .arw{color:#4A4A4A;font-size:13px;font-weight:800;line-height:1;transition:color .45s var(--eo),transform .45s var(--sp)}
+.done .arw.on{color:#00E9C0}
+#done-status{transition:opacity .3s var(--eo),transform .3s var(--sp)}
+#done-status.swap{opacity:0;transform:translateY(4px)}
 .done .go2{width:100%;max-width:400px;background:#25D366;color:#fff;border:none;font-family:'Fredoka One',cursive;font-size:16px;padding:14px;border-radius:12px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,0.3);margin-bottom:10px}
 .done .go2:disabled{background:#333;color:#666;box-shadow:none}
 .done .alt{background:none;border:none;color:#9A9385;font-size:13px;font-weight:700;cursor:pointer;text-decoration:underline}
@@ -127,10 +140,50 @@ button:disabled:active{transform:none}
 .done .code{animation:riseIn .42s var(--eo) .14s both}
 .done .box2{animation:riseIn .48s var(--eo) .2s both}
 .done .steps{animation:riseIn .42s var(--eo) .3s both}
+
+/* --- order stepper: constant, unhurried motion while the order is live ---
+   A light wave crosses each pill on a stagger, so four separate loops read as
+   one movement travelling left to right. Only transform, opacity and
+   background are touched, which keeps it smooth on a phone.
+   ---------------------------------------------------------------------- */
+@keyframes stWave{0%{transform:translateX(-160%) skewX(-20deg)}26%,100%{transform:translateX(420%) skewX(-20deg)}}
+.done .st::after{content:'';position:absolute;top:-3px;bottom:-3px;left:0;width:30%;pointer-events:none;
+  background:linear-gradient(100deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0.42) 50%,rgba(255,255,255,0) 100%);
+  transform:translateX(-160%) skewX(-20deg);animation:stWave 3.6s var(--eo) infinite}
+.done .st[data-i="1"]::after{animation-delay:.2s}
+.done .st[data-i="2"]::after{animation-delay:.4s}
+.done .st[data-i="3"]::after{animation-delay:.6s}
+/* The frontier step breathes and throws a halo. The halo is a box-shadow on
+   the pill itself, which its own overflow:hidden does not clip. */
+@keyframes stBreathe{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+@keyframes stHalo{
+  0%{box-shadow:inset 0 0 0 1px #00E9C0,0 0 0 2px rgba(0,212,170,0.75),0 0 12px 1px rgba(0,212,170,0.4)}
+  76%{box-shadow:inset 0 0 0 1px #00E9C0,0 0 0 11px rgba(0,212,170,0),0 0 18px 3px rgba(0,212,170,0.14)}
+  100%{box-shadow:inset 0 0 0 1px #00E9C0,0 0 0 2px rgba(0,212,170,0.75),0 0 12px 1px rgba(0,212,170,0.4)}}
+.done .st.cur{animation:stBreathe 2.6s var(--eo) infinite,stHalo 2.6s var(--eo) infinite}
+/* One-shot arrival, staggered from JS. Declared after .cur so that during the
+   pop it replaces the breathing, then hands back to it. */
+@keyframes stPop{0%{transform:scale(0.8)}58%{transform:scale(1.15)}100%{transform:scale(1)}}
+.done .st.pop{animation:stPop .62s var(--sp) both}
+/* the chevron leaving the frontier keeps nudging, so the row has direction */
+@keyframes arwGo{0%,100%{transform:translateX(0);opacity:.62}50%{transform:translateX(3px);opacity:1}}
+.done .arw.next{animation:arwGo 1.6s var(--eo) infinite}
+/* Landed: the motion stops, the row settles, and the last step blooms once. */
+@keyframes stFinish{
+  0%{box-shadow:inset 0 0 0 1px #00D4AA,0 0 0 0 rgba(0,212,170,0.55)}
+  100%{box-shadow:inset 0 0 0 1px #00D4AA,0 0 0 20px rgba(0,212,170,0)}}
+.done .steps.fin .st::after{animation:none;opacity:0}
+.done .steps.fin .st:last-child{animation:stFinish 1s var(--eo) 1 both}
+
+@media (prefers-reduced-motion: reduce){
+  /* the blanket rule above only shortens durations, and a shortened infinite
+     loop still spins, so these are switched off outright */
+  .done .st,.done .st::after,.done .arw,.done .steps.fin .st:last-child{animation:none !important}
+  .done .st::after{opacity:0}
+}
 .done .go2{animation:riseIn .42s var(--eo) .38s both}
 .done .alt{animation:fadeIn .4s var(--eo) .46s both}
-.done .st{transition:background .35s var(--eo),color .35s var(--eo),transform .3s var(--sp)}
-.done .st.on{transform:scale(1.06)}
+
 
 /* --- my-order + trust --- */
 #my-order{animation:floatUp .45s var(--eo) both}
@@ -545,7 +598,7 @@ button:disabled:active{transform:none}
 <div class="opt"><div class="l">📱 No. WhatsApp <span style="color:#FFB347">(pilihan — untuk stamp)</span></div><div style="margin-top:4px"><input class="inp" id="inp-phone" placeholder="cth: 0123456789" inputmode="tel" maxlength="20"><div style="font-size:11px;color:#9A9385;font-weight:600;margin-top:6px">Isi untuk kira stamp Beli 5 Percuma 1. Tak diisi pun boleh order.</div></div></div>
 <div class="opt" id="block-section"><div class="l">🏠 Blok</div><div class="block-grid" id="block-grid"></div><div id="room-row" style="display:none;margin-top:8px"><input class="inp" id="inp-room" placeholder="Nombor bilik / unit" maxlength="20"></div></div>
 <div class="opt"><div class="l" id="time-label">⏰ Masa</div><div id="time-pick" style="margin-top:10px"><div id="time-pickup" style="display:none"><input class="inp" id="pickup-time" placeholder="Cth: 11:00 malam" maxlength="30"></div><div id="pickup-note" style="display:none;font-size:13px;color:#9A9385;font-weight:600;margin-bottom:8px">💬 Akan chat, kalau dah siap</div><div class="ts" id="times"></div><div id="time-hint" style="font-size:11px;color:#9A9385;font-weight:600;margin-top:8px">Pilih masa penghantaran anda</div></div></div>
-<div class="opt" id="pay-section"><div class="l">💳 Bayar</div><div class="dt" id="pay"><button data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(0,212,170,0.1)"><img src="qr-duitnow.jpg" alt="DuitNow QR" style="width:210px;height:210px;display:block;border-radius:8px"></div><div style="font-size:12px;color:#9A9385;margin-top:8px;font-weight:600">Scan untuk bayar</div><div style="font-size:12px;color:#FFB347;margin-top:10px;font-weight:700;line-height:1.5;max-width:260px;margin-left:auto;margin-right:auto">📎 Selepas hantar pesanan, anda akan diminta hantar gambar resit.</div></div></div>
+<div class="opt" id="pay-section"><div class="l">💳 Bayar</div><div class="dt" id="pay"><button data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(0,212,170,0.1)"><img src="qr-duitnow.jpg" alt="DuitNow QR" style="width:210px;height:210px;display:block;border-radius:8px"></div><div style="font-size:12px;color:#9A9385;margin-top:8px;font-weight:600">Scan untuk bayar</div><div id="qr-claim-slot" style="margin-top:14px"></div></div></div>
 </div>
 <div class="ft"><div class="tr" style="border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:8px;margin-bottom:8px"><span>Subtotal</span><span style="font-family:'Bangers',cursive;font-size:20px" id="sub">RM0.00</span></div>
 <div id="cod-row" class="tr"><span style="font-size:12px;color:#9A9385">📦 COD fee</span><span style="font-family:'Bangers',cursive;font-size:18px;color:#9A9385">RM1.00</span></div>
@@ -967,6 +1020,13 @@ async function sendWa(){
   if(_sending)return;
   const items=Object.values(cart).reduce((s,v)=>s+v.length,0);
   if(!items){toast('Tiada item dalam bakul');closeConfirm();return}
+  // The checkout button refuses these already, but this is the last gate before
+  // anything is written. A guard that lives in one place and not the other is
+  // how an order gets created for a customer who never chose a delivery method
+  // or a way to pay - it silently became an "ambil sendiri" order, and the
+  // seller had no idea how it was meant to arrive.
+  if(isCod===null){toast('⚠ Sila pilih cara penghantaran');closeConfirm();return}
+  if(!payM){toast('⚠ Sila pilih cara bayar');closeConfirm();return}
   const btn=document.getElementById('wa-send');
   const n=clip(document.getElementById('inp-name2').value,40);
   const roomIn=clip(document.getElementById('inp-room').value,20);
@@ -1029,17 +1089,33 @@ async function sendWa(){
   msg+='\nNama: '+n+(isCod?' ('+r+')':'');
   msg+='\nJumlah: RM'+total.toFixed(2);
 
-  const disp={code:code,no:orderNo,items:OrdDisplay(ordMap),total:total,isCod:isCod,r:r,n:n,when:when,pay:payM};
+  // A resit attached under the QR rides up with the order. It was held back
+  // because there was no order to attach it to; now there is, so it goes in and
+  // the seller is told once. _claim marks it so the done screen shows the
+  // waiting state rather than asking for the same resit a second time.
+  const proof=(payM==='qr'&&stagedProof)?stagedProof:'';
+  const disp={code:code,no:orderNo,items:OrdDisplay(ordMap),total:total,isCod:isCod,r:r,n:n,when:when,pay:payM,_claim:!!proof};
   if(!saved){showDone({...disp,warn:true});window.open(waUrl(msg),'_blank');return}
   track('order_sent');chime();buzzOk();
-  // Deliberately no push to the seller here. An order arriving is not the
-  // thing they need to act on - a payment claim is. Sending both meant two
-  // notifications per order, which is how the one that matters gets ignored.
+  // Deliberately no push to the seller for the order itself. An order arriving
+  // is not the thing they need to act on - a payment claim is. Sending both
+  // meant two notifications per order, which is how the one that matters gets
+  // ignored.
   showDone({...disp,warn:false});
   saveMyOrder(disp);saveCustomer();
+  if(proof)submitClaim(code,proof,orderNo,r);
   toast('✓ Pesanan dihantar!');
   const l=getLoy();l.c++;if(l.c%5===0)setTimeout(()=>toast('Congrats! Minuman percuma seterusnya!'),900);saveLoy(l);drawLoy();
   cart={};saveCart();selTime='';selBlock='';isCod=null;payM='';
+  // The checkout receipt block goes back to blank for the next order, and the
+  // payment choice is cleared on screen as well as in state so the QR section
+  // does not linger showing a resit that has already been sent.
+  stagedProof='';
+  const qs=document.getElementById('qr-section');if(qs)qs.style.display='none';
+  document.querySelectorAll('#pay button').forEach(function(b){b.classList.remove('active')});
+  const qf=document.getElementById('qr-claim-file');if(qf)qf.value='';
+  const qn=document.getElementById('qr-claim-file-name');
+  if(qn){qn.style.display='none';qn.textContent='✓ Resit dipilih'}
   const pt=document.getElementById('pickup-time');if(pt)pt.value='';
   const ph=document.getElementById('inp-phone');if(ph)ph.value='';
   const rr=document.getElementById('room-row');if(rr)rr.style.display='none';
@@ -1132,17 +1208,11 @@ function showDone(o){
       +(o.isCod?'<div class="r"><span>Lokasi</span><b>'+esc(o.r)+'</b></div>':'')
       +'<div class="r"><span>Masa</span><b>'+esc(fmtTimeLabel(o.when))+'</b></div>'
     +'</div>'
-    +'<div class="steps" id="done-steps"><span class="st" data-i="0">Diterima</span><span class="arw">›</span><span class="st" data-i="1">Dibuat</span><span class="arw">›</span><span class="st" data-i="2">Dalam perjalanan</span><span class="arw">›</span><span class="st" data-i="3">Sampai</span></div>'
+    +stepsHtml(o)
     +'<div id="done-status" style="font-size:12px;color:#9A9385;font-weight:700;margin-bottom:10px"></div>'
     +'<div id="paid-mark" style="display:none;background:rgba(0,212,170,0.12);border:1px solid rgba(0,212,170,0.3);border-radius:10px;padding:10px;margin-bottom:14px;font-size:13px;font-weight:800;color:#00D4AA">✓ Bayaran diterima</div>'
     +'<div id="claim-state" style="display:none;background:rgba(255,179,71,0.12);border:1px solid rgba(255,179,71,0.3);border-radius:10px;padding:10px;margin-bottom:12px;font-size:13px;font-weight:800;color:#FFB347">⏳ Menunggu penjual semak bayaran anda</div>'
-    +'<div id="claim-panel" style="display:none;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px;margin-bottom:12px;text-align:left">'
-    +'<div style="font-size:12px;font-weight:800;color:#00D4AA;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">💰 Bayar sekarang</div>'
-    +'<div style="font-size:12px;color:#9A9385;font-weight:600;margin-bottom:12px;line-height:1.5">Scan QR di atas, kemudian hantar resit (gambar atau PDF) supaya penjual boleh sahkan bayaran anda.</div>'
-    +'<input type="file" id="claim-file" accept="image/*,application/pdf" style="display:none" onchange="claimPicked()">'
-    +'<label for="claim-file" class="filelbl">📎 Pilih resit — gambar atau PDF <span style="color:#FF6B6B">(wajib)</span></label>'
-    +'<div id="claim-file-name" style="display:none;font-size:12px;color:#00D4AA;font-weight:700;margin-bottom:10px">✓ Gambar dipilih</div>'
-    +'<button id="claim-send" onclick="sendClaim()" style="width:100%;background:#00D4AA;color:#000;border:none;font-weight:800;font-size:14px;padding:13px;border-radius:10px;cursor:pointer">Saya dah bayar</button></div>'
+    +claimBlockHtml('')
     +'<button class="go2" onclick="closeDone()">Selesai</button>'
     +'<div class="done-note">🔔 You&rsquo;ll be notified when it&rsquo;s on the way</div>'
     +(o.warn?'<button class="alt" onclick="reopenWa()">Hantar melalui WhatsApp</button>':'');
@@ -1152,16 +1222,82 @@ function showDone(o){
   paintClaim();
   paintSteps(o.warn?'':(o._st||'baru'));
 }
-const STEPS=['baru','processing','sampai_processing','done'];
+// The four pills map onto three real statuses, so processing has to light
+// Dibuat and Dalam perjalanan together - the order is being made and carried
+// at once. The stagger below is what stops that double-light looking like a
+// jump: the two steps pop one after the other.
+// The strip follows the delivery method. An order being ridden out ends when it
+// arrives; one being collected ends when the customer comes for it. Both open
+// the same way, so only the tail differs.
+//
+// processing lights two steps on a COD order, because one status has to cover
+// making the drink and carrying it and there is no separate button for the
+// ride. On a pickup order making it is the whole job, so it lights one.
+const STEP_SETS={
+  cod:{labels:['Diterima','Dibuat','Dalam perjalanan','Sampai'],
+       rank:{baru:0,processing:2,done:3},
+       text:['Menunggu pengesahan penjual','Sedang dibuat','Sedang dibuat / dalam perjalanan','Siap! Terima kasih 🍹']},
+  ambil:{labels:['Diterima','Dibuat','Sila ambil'],
+       rank:{baru:0,processing:1,done:2},
+       text:['Menunggu pengesahan penjual','Sedang dibuat','Siap! Sila ambil 🍹']}
+};
+function stepKey(o){return (o&&o.isCod)?'cod':'ambil'}
+function stepsHtml(o){
+  const k=stepKey(o),L=STEP_SETS[k].labels;
+  // data-mode is what paintSteps reads back, so the labels and the ranks can
+  // never drift apart
+  return '<div class="steps" id="done-steps" data-mode="'+k+'">'
+    +L.map(function(t,i){return (i?'<span class="arw">›</span>':'')+'<span class="st" data-i="'+i+'">'+t+'</span>'}).join('')
+    +'</div>';
+}
+let _labSwapT=null;
 function paintSteps(st){
-  const order={baru:'Diterima',processing:'Dalam perjalanan',done:'Sampai'};
-  const rank={baru:0,processing:2,done:3};
-  let r=rank[st];
-  if(r===undefined)r=0;
   const el=document.getElementById('done-steps');
-  if(el)Array.prototype.forEach.call(el.querySelectorAll('.st'),function(s){const i=Number(s.dataset.i);s.classList.toggle('on',i<=r)});
+  if(!el)return;
+  const set=STEP_SETS[el.dataset.mode]||STEP_SETS.cod;
+  let r=set.rank[st];
+  if(r===undefined)r=0;
+  // the last step of whichever set is in play is the one that means landed
+  const fin=(r>=set.labels.length-1);
+  const hadRank=el.dataset.rank!==undefined;
+  const prev=hadRank?Number(el.dataset.rank):r;
+  let prevLit=false,prevCur=false;
+  Array.prototype.forEach.call(el.children,function(k){
+    if(k.classList.contains('arw')){
+      // a chevron lights once the step behind it is reached, and the one
+      // leaving the frontier keeps nudging so the row has a direction
+      k.classList.toggle('on',prevLit);
+      k.classList.toggle('next',prevCur&&!fin);
+      return;
+    }
+    const i=Number(k.dataset.i);
+    const lit=i<=r;
+    const cur=lit&&i===r&&!fin;
+    k.classList.toggle('on',lit);
+    k.classList.toggle('cur',cur);
+    if(lit&&hadRank&&i>prev){
+      k.classList.remove('pop');
+      void k.offsetWidth;
+      k.style.animationDelay=((i-prev-1)*0.12)+'s';
+      k.classList.add('pop');
+      setTimeout(function(){k.classList.remove('pop');k.style.animationDelay=''},900);
+    }
+    prevLit=lit;prevCur=cur;
+  });
+  // added once, so the settle plays when the order lands and not again on
+  // every later snapshot
+  if(fin&&!el.classList.contains('fin'))el.classList.add('fin');
+  else if(!fin)el.classList.remove('fin');
+  el.dataset.rank=String(r);
   const lab=document.getElementById('done-status');
-  if(lab)lab.textContent=(st==='done'?'Siap! Terima kasih 🍹':st==='processing'?'Sedang dibuat / dalam perjalanan':'Menunggu pengesahan penjual');
+  if(lab){
+    const txt=set.text[r]||set.text[0];
+    if(lab.textContent!==txt){
+      clearTimeout(_labSwapT);
+      lab.classList.add('swap');
+      _labSwapT=setTimeout(function(){lab.textContent=txt;lab.classList.remove('swap')},170);
+    }
+  }
 }
 let _trackUnsub=null;
 function trackOrder(code){
@@ -1174,7 +1310,7 @@ function trackOrder(code){
     if(_lastSt&&_lastSt!==ns){
       const dn=document.getElementById('done');
       const o=(dn&&dn._msg)||{};
-      fireNotify('Pesanan '+orderRef(o),admStatusText(ns));
+      fireNotify('Pesanan '+orderRef(o),admStatusText(ns,!!o.isCod));
       alertDone(ns);
     }
     _lastSt=ns;
@@ -1191,58 +1327,109 @@ function trackOrder(code){
   },function(){});
 }
 function reopenWa(){const o=document.getElementById('done')._msg;if(!o)return;let msg='Hi '+SHOP+'! Pesanan:\n';if(o.code)msg+='No. Pesanan: #'+o.code+'\n';(o.items||[]).forEach(i=>{msg+=i.qty+'x '+i.name+' = RM'+(i.price*i.qty).toFixed(2)+(i.adds&&i.adds.length?' ('+i.adds.join(', ')+')':'')+'\n'});msg+='\nJumlah: RM'+Number(o.total).toFixed(2);window.open(waUrl(msg),'_blank')}
-function claimPicked(){
-  const f=document.getElementById('claim-file');
-  const n=document.getElementById('claim-file-name');
+// ---------------------------------------------------------------------------
+// One receipt block, two placements. Under the QR at checkout, where the
+// customer is already looking at the code they have to pay, and on the done
+// screen as the fallback for anyone who did not attach one there. Built once
+// and injected twice, so the two copies cannot drift apart.
+//
+// p is the id prefix: '' on the done screen, 'qr-' at checkout.
+// ---------------------------------------------------------------------------
+function claimBlockHtml(p){
+  p=p||'';
+  // The done-screen copy is shown and hidden by paintClaim, which knows whether
+  // a resit is still outstanding. The checkout copy is always shown, because the
+  // QR section it lives in is what gets hidden.
+  const box=p?'block':'none';
+  return '<div id="'+p+'claim-panel" style="display:'+box+';background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px;margin-bottom:12px;text-align:left">'
+    +'<div style="font-size:12px;font-weight:800;color:#00D4AA;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">💰 Bayar sekarang</div>'
+    +'<div style="font-size:12px;color:#9A9385;font-weight:600;margin-bottom:12px;line-height:1.5">Scan QR di atas, kemudian hantar resit (gambar atau PDF) supaya penjual boleh sahkan bayaran anda.</div>'
+    +'<input type="file" id="'+p+'claim-file" accept="image/*,application/pdf" style="display:none" onchange="claimPicked(\''+p+'\')">'
+    +'<label for="'+p+'claim-file" class="filelbl">📎 Pilih resit — gambar atau PDF <span style="color:#FF6B6B">(wajib)</span></label>'
+    +'<div id="'+p+'claim-file-name" style="display:none;font-size:12px;color:#00D4AA;font-weight:700;margin-bottom:10px">✓ Resit dipilih</div>'
+    +'<button id="'+p+'claim-send" onclick="sendClaim(\''+p+'\')" style="width:100%;background:#00D4AA;color:#000;border:none;font-weight:800;font-size:14px;padding:13px;border-radius:10px;cursor:pointer">Saya dah bayar</button></div>';
+}
+(function(){
+  const slot=document.getElementById('qr-claim-slot');
+  if(slot)slot.innerHTML=claimBlockHtml('qr-');
+})();
+// Held in memory only, and only until the order exists. Nothing is written and
+// the seller is not told at this point; the file is simply waiting with the
+// order. A refresh means picking it again, which is the right trade for not
+// parking a customer's receipt in localStorage.
+let stagedProof='';
+function claimPicked(p){
+  p=p||'';
+  const f=document.getElementById(p+'claim-file');
+  const n=document.getElementById(p+'claim-file-name');
   const has=!!(f&&f.files&&f.files[0]);
   if(n){n.style.display=has?'block':'none';if(has)n.textContent='✓ '+f.files[0].name.slice(0,35)}
+  // un-picking at checkout drops the staged copy, so an order can never carry a
+  // proof the customer backed out of
+  if(p&&!has)stagedProof='';
 }
-async function sendClaim(){
-  const dn=document.getElementById('done');
-  const o=(dn&&dn._msg)||{};
-  if(!o.code){toast('Rujukan pesanan tidak dijumpai');return}
-  const btn=document.getElementById('claim-send');
-  const fileIn=document.getElementById('claim-file');
+// Turns a picked file into a data URL, or throws the message to show the
+// customer. Shared by both placements.
+async function readProof(f){
+  const pdf=isPdfFile(f);
+  if(pdf&&f.size>PDF_MAX_BYTES)throw new Error('❌ PDF terlalu besar (maks 480KB) - hantar sebagai gambar, atau PDF yang lebih kecil');
+  toast(pdf?'Memproses PDF...':'Memproses gambar...');
+  const img=pdf?await fileToDataUrl(f):await shrinkImage(f,1000,0.72);
+  // the rules cap this at 700000 chars, so check before spending a write
+  if(img.length>680000)throw new Error((pdf?'PDF':'Gambar')+' terlalu besar - guna fail lain');
+  if(!pdf&&img.length<2000)throw new Error('Gambar kelihatan kosong -Cuba gambar lain');
+  return img;
+}
+// The single place a claim is written. Both routes end up here, so the promise
+// the seller leans on - told only once proof is attached AND the customer has
+// said they paid - holds no matter which placement they used.
+function submitClaim(code,img,no,room,onDone){
+  const db=getDb();
+  if(!db||!code||!img){if(onDone)onDone(false);return}
+  db.collection('payments').doc(code).set({img:img,at:firebase.firestore.FieldValue.serverTimestamp()})
+    .then(function(){notifyOwnerClaim({no:no,room:room});if(onDone)onDone(true)})
+    .catch(function(err){console.warn('claim gagal:',err);if(onDone)onDone(false)});
+}
+async function sendClaim(p){
+  p=p||'';
+  const atCheckout=!!p;
+  const btn=document.getElementById(p+'claim-send');
+  const fileIn=document.getElementById(p+'claim-file');
   const btnLabel='Saya dah bayar';
   const f=fileIn&&fileIn.files&&fileIn.files[0];
-  // No proof, no alert. Refuse before anything is written, so an empty tap
-  // cannot reach the seller at all.
+  // No proof, no alert. Refuse before anything is written or staged, so an
+  // empty tap cannot reach the seller at all.
   if(!f){
-    const lbl=document.querySelector('.filelbl');
+    const panel=document.getElementById(p+'claim-panel');
+    const lbl=panel?panel.querySelector('.filelbl'):null;
     if(lbl){lbl.style.borderColor='#FF6B6B';setTimeout(function(){lbl.style.borderColor=''},1600)}
-    toast('📎 Pilih gambar resit dahulu');
+    toast('📎 Pilih resit dahulu');
     return;
   }
-  btn.disabled=true;btn.textContent='Menghantar...';
-  const db=getDb();
-  if(!db){btn.disabled=false;btn.textContent=btnLabel;toast('Tiada sambungan');return}
+  const dn=document.getElementById('done');
+  const o=(dn&&dn._msg)||{};
+  if(!atCheckout&&!o.code){toast('Rujukan pesanan tidak dijumpai');return}
+  btn.disabled=true;btn.textContent=atCheckout?'Menyediakan...':'Menghantar...';
   let img='';
-  const pdf=isPdfFile(f);
-  if(pdf&&f.size>PDF_MAX_BYTES){
+  try{img=await readProof(f)}
+  catch(e){btn.disabled=false;btn.textContent=btnLabel;toast(String((e&&e.message)||'Fail tidak boleh dibaca'));return}
+  if(atCheckout){
+    // The order does not exist yet, so there is nothing to attach the proof to.
+    // It waits here and goes up with the order instead.
+    stagedProof=img;
     btn.disabled=false;btn.textContent=btnLabel;
-    toast('❌ PDF terlalu besar (maks 480KB) - hantar sebagai gambar, atau PDF yang lebih kecil');
+    const n=document.getElementById(p+'claim-file-name');
+    if(n){n.style.display='block';n.textContent='✓ Resit sedia — tekan Hantar Pesanan'}
+    toast('✓ Resit sedia — tekan Hantar Pesanan');
     return;
   }
-  try{
-    toast(pdf?'Memproses PDF...':'Memproses gambar...');
-    img=pdf?await fileToDataUrl(f):await shrinkImage(f,1000,0.72);
-    // the rules cap this at 700000 chars, so check before spending a write
-    if(img.length>680000){btn.disabled=false;btn.textContent=btnLabel;toast((pdf?'PDF':'Gambar')+' terlalu besar - guna fail lain');return}
-    if(!pdf&&img.length<2000){btn.disabled=false;btn.textContent=btnLabel;toast('Gambar kelihatan kosong -Cuba gambar lain');return}
-  }catch(e){
-    btn.disabled=false;btn.textContent=btnLabel;toast('Fail tidak boleh dibaca');return;
-  }
-  const payload={img:img,at:firebase.firestore.FieldValue.serverTimestamp()};
-  db.collection('payments').doc(o.code).set(payload).then(function(){
+  submitClaim(o.code,img,o.no,o.r,function(ok){
+    btn.disabled=false;btn.textContent=btnLabel;
+    if(!ok){toast('Gagal hantar resit');return}
     o._claim=true;dn._msg=o;
     saveMyOrder(o);
     paintClaim();
     toast('✓ Resit dihantar - penjual akan semak');
-    notifyOwnerClaim({no:o.no,room:o.r});
-  }).catch(function(err){
-    console.warn('claim gagal:',err);
-    btn.disabled=false;btn.textContent=btnLabel;
-    toast('Gagal hantar resit');
   });
 }
 function paintClaim(){
@@ -1489,11 +1676,18 @@ function admBulkDelDone(){
 }
 function admDoSearch(v){_admSearch=v;const pg=document.getElementById('adm-pg');if(admUnsub){admUnsub();admUnsub=null}const db=getDb();if(!db||!isAdmin())return;admUnsub=ordersQ(db).onSnapshot(snap=>{const docs=snap.docs.map(d=>({id:d.id,...d.data()}));_admRenderOrders(pg,docs)})}
 function admBulkDone(){if(!_admVisDocs.length)return;admConfirm('Tandakan semua '+_admVisDocs.length+' sebagai Siap?','Ya, tandakan',function(){const db=getDb();if(!db)return;_admVisDocs.forEach(function(o){db.collection('orders').doc(o.id).update({status:'done'}).catch(function(){});db.collection('tracking').doc(o.id).update({status:'done',at:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){})});toast('✓ '+_admVisDocs.length+' pesanan ditandakan siap')})}
-function admStatusText(s){return s==='done'?'Siap! Boleh ambil ya 🙏':s==='processing'?'Sedang dalam perjalanan!':'Sedang dibuat...'}
+// isCod defaults to true so a caller that forgets still gets delivery wording
+// rather than telling a delivery customer to come and collect.
+function admStatusText(s,isCod){
+  if(isCod===undefined)isCod=true;
+  if(s==='done')return isCod?'Pesanan sampai! Terima kasih 🙏':'Siap! Boleh ambil ya 🙏';
+  if(s==='processing')return isCod?'Sedang dalam perjalanan!':'Sedang dibuat...';
+  return 'Sedang dibuat...';
+}
 function admWaNotif(id){
   const o=_admVisDocs.find(x=>x.id===id);if(!o)return;
   const st=o.status||'baru';
-  const msg='Hi '+o.name+', pesanan anda '+orderRef(o)+' '+admStatusText(st)+' - MINUM MALAM SISWA';
+  const msg='Hi '+o.name+', pesanan anda '+orderRef(o)+' '+admStatusText(st,o.delivery!=='pickup')+' - MINUM MALAM SISWA';
   const go=function(num){window.open('https://wa.me/'+num+'?text='+encodeURIComponent(msg),'_blank')};
   const num=waNum(o.phone);
   if(num){go(num);return}
