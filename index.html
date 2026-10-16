@@ -262,7 +262,10 @@ button:disabled:active{transform:none}
 #admin-panel{display:none;position:fixed;inset:0;z-index:1000;background:#131010;color:#F0F0F0}
 #admin-panel.show{display:flex}
 .adm-side{width:220px;background:#191510;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;flex-shrink:0}
-.adm-side .brand{padding:22px 18px;font-family:var(--fd);font-weight:800;font-size:19px;color:#00D4AA;border-bottom:1px solid rgba(255,255,255,0.06)}
+.adm-side .brand{padding:22px 18px;font-family:var(--fd);font-weight:800;font-size:19px;color:#00D4AA;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between}
+.adm-side .brand .x{display:none;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);color:#F0F0F0;font-size:15px;font-weight:800;width:34px;height:34px;border-radius:9px;cursor:pointer;flex-shrink:0}
+@media (max-width:760px){.adm-side .brand .x{display:block}}
+html[data-mob="1"] .adm-side .brand .x{display:block}
 .adm-side nav{flex:1;overflow-y:auto;padding:12px 0}
 .adm-side nav a{display:flex;align-items:center;gap:10px;padding:14px 18px;font-size:14px;font-weight:700;color:#9A9385;cursor:pointer;transition:all .15s;border-left:3px solid transparent;text-decoration:none}
 .adm-side nav a:hover{background:rgba(255,255,255,0.03);color:#F0F0F0}
@@ -284,7 +287,7 @@ button:disabled:active{transform:none}
   .adm-burger{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;flex-shrink:0;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:#F0F0F0;font-size:17px;cursor:pointer}
   /* flex-shrink:0 alone was not enough: the sidebar is a flex child of the
      panel, so it has to leave the flow entirely to stop reserving its width. */
-  .adm-side{position:fixed;left:0;top:0;bottom:0;z-index:900;width:252px;transform:translateX(-100%);transition:transform .24s var(--sp);box-shadow:0 0 40px rgba(0,0,0,0.7)}
+  .adm-side{position:fixed;left:0;top:0;bottom:0;z-index:900;width:min(252px,80vw);transform:translateX(-100%);transition:transform .24s var(--sp);box-shadow:0 0 40px rgba(0,0,0,0.7)}
   .adm-side.open{transform:none}
   .adm-backdrop.show{display:block}
   .a-bar.fold{display:none}
@@ -296,7 +299,7 @@ html[data-mob="1"] .adm-main .hd{padding:12px 13px;gap:10px;justify-content:flex
 html[data-mob="1"] .adm-main .hd h2{font-size:19px;cursor:pointer}
 html[data-mob="1"] .adm-main .hd h2:after{content:" ▾";font-size:12px;color:#6B645A}
 html[data-mob="1"] .adm-burger{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;flex-shrink:0;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:#F0F0F0;font-size:17px;cursor:pointer}
-html[data-mob="1"] .adm-side{position:fixed;left:0;top:0;bottom:0;z-index:900;width:252px;transform:translateX(-100%);box-shadow:0 0 40px rgba(0,0,0,0.7)}
+html[data-mob="1"] .adm-side{position:fixed;left:0;top:0;bottom:0;z-index:900;width:min(252px,80vw);transform:translateX(-100%);box-shadow:0 0 40px rgba(0,0,0,0.7)}
 html[data-mob="1"] .adm-side.open{transform:none}
 html[data-mob="1"] .adm-backdrop.show{display:block}
 html[data-mob="1"] .a-bar.fold{display:none}
@@ -671,7 +674,7 @@ html[data-mob="1"] .o-row{margin-bottom:9px}
 <div class="done" id="done"></div>
 <div class="modal" id="admin-login" style="z-index:1100"><div class="bg" onclick="closeAdminLogin()"></div><div class="box" style="max-width:340px;text-align:center"><div style="font-family:var(--fd);font-weight:800;font-size:24px;color:#00D4AA;margin-bottom:4px">🔒 Admin Login</div><div style="font-size:13px;color:#9A9385;font-weight:700;margin-bottom:16px">Akaun admin sah sahaja</div><input class="inp" id="admin-email" type="email" autocomplete="username" inputmode="email" placeholder="admin@email.com" style="margin-bottom:10px;text-align:center"><input class="inp" id="admin-pw" type="password" autocomplete="current-password" placeholder="Password" style="margin-bottom:14px;text-align:center" onkeydown="if(event.key==='Enter')verifyAdminLogin()"><div style="display:flex;gap:8px"><button onclick="verifyAdminLogin()" id="admin-login-btn" style="flex:1;background:#00D4AA;color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:15px;padding:12px;border-radius:10px;cursor:pointer">Masuk</button><button onclick="closeAdminLogin()" style="background:rgba(255,255,255,0.08);color:#9A9385;border:none;font-size:14px;padding:12px;border-radius:10px;cursor:pointer">Batal</button></div></div></div>
 </div></div>
-<div id="admin-panel"><div class="adm-side"><div class="brand">🌙 MMS ADMIN</div><nav id="adm-nav"><div class="grp">Operasi Harian</div><a data-tab="orders" class="active"><span class="ic">📥</span>Pesanan</a><a data-tab="customers"><span class="ic">👥</span>Pelanggan</a><a data-tab="receipts"><span class="ic">📎</span>Resit</a><a data-tab="stats"><span class="ic">📊</span>Analitis</a><div class="grp">Tetanapan</div><button class="toggle" onclick="admSetupToggle()"><span>⚙️ Menu &amp; Tetapan</span><span class="car">›</span></button><div class="subnav" id="adm-setup"><a data-tab="menu"><span class="ic">🧋</span>Minuman</a><a data-tab="addons"><span class="ic">🍬</span>Pemanis</a><a data-tab="schedule"><span class="ic">⏰</span>Masa</a><a data-tab="delivery"><span class="ic">🚗</span>Penghantaran</a><a data-tab="settings"><span class="ic">⚙️</span>Settings</a></div></nav><div class="exit"><button onclick="lockAdmin('🔒 Admin dikunci')">🔒 Kunci</button><button onclick="exitAdmin()">✕ Customer View</button></div></div><div class="adm-main"><div class="hd"><button class="adm-burger" onclick="admToggleSide()" title="Menu">☰</button><h2 id="adm-hd" onclick="admToggleBar()" title="Tunjuk atau sembunyi tapisan">📥 Pesanan</h2></div><div class="pg" id="adm-pg"></div></div><div class="adm-backdrop" id="adm-backdrop" onclick="admToggleSide(0)"></div></div>
+<div id="admin-panel"><div class="adm-side"><div class="brand"><span>🌙 MMS ADMIN</span><button class="x" onclick="admCloseSide()" title="Tutup menu">✕</button></div><nav id="adm-nav"><div class="grp">Operasi Harian</div><a data-tab="orders" class="active"><span class="ic">📥</span>Pesanan</a><a data-tab="customers"><span class="ic">👥</span>Pelanggan</a><a data-tab="receipts"><span class="ic">📎</span>Resit</a><a data-tab="stats"><span class="ic">📊</span>Analitis</a><div class="grp">Tetanapan</div><button class="toggle" onclick="admSetupToggle()"><span>⚙️ Menu &amp; Tetapan</span><span class="car">›</span></button><div class="subnav" id="adm-setup"><a data-tab="menu"><span class="ic">🧋</span>Minuman</a><a data-tab="addons"><span class="ic">🍬</span>Pemanis</a><a data-tab="schedule"><span class="ic">⏰</span>Masa</a><a data-tab="delivery"><span class="ic">🚗</span>Penghantaran</a><a data-tab="settings"><span class="ic">⚙️</span>Settings</a></div></nav><div class="exit"><button onclick="lockAdmin('🔒 Admin dikunci')">🔒 Kunci</button><button onclick="exitAdmin()">✕ Customer View</button></div></div><div class="adm-main"><div class="hd"><button class="adm-burger" onclick="admToggleSide()" title="Menu">☰</button><h2 id="adm-hd" onclick="admToggleBar()" title="Tunjuk atau sembunyi tapisan">📥 Pesanan</h2></div><div class="pg" id="adm-pg"></div></div><div class="adm-backdrop" id="adm-backdrop" onclick="admToggleSide(0)"></div></div>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -949,6 +952,7 @@ function admToggleSide(open){
 // Taking a tab should put the drawer away - it has done its job, and on a phone
 // it would otherwise sit over the screen the owner just navigated to.
 function admCloseSide(){admToggleSide(0)}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')admCloseSide()});
 function closeAdminLogin(){document.getElementById('admin-login').style.display='none'}
 function showAdminLogin(){closeCart();closeCust();closeConfirm();document.getElementById('admin-login').style.display='flex';const e=document.getElementById('admin-email');if(e){e.value='';setTimeout(()=>e.focus(),60)}}
 const AUTH_ERR={'auth/invalid-email':'Email tidak sah','auth/missing-password':'Masukkan password','auth/wrong-password':'Email atau password salah','auth/invalid-credential':'Email atau password salah','auth/invalid-login-credentials':'Email atau password salah','auth/user-not-found':'Email atau password salah','auth/user-disabled':'Akaun dinyahaktifkan','auth/too-many-requests':'Terlalu banyak cubaan. Tunggu sebentar.','auth/operation-not-allowed':'Email/Password belum diaktifkan dalam Firebase Console','auth/network-request-failed':'Tiada internet. Periksa sambungan.','auth/user-token-expired':'Sesi tamat. Cuba lagi.','auth/internal-error':'Ralat pelayan. Cuba lagi.'};
@@ -1759,7 +1763,9 @@ document.getElementById('cartb').addEventListener('click',openCart);
 // restructured - the items carry data-tab and nothing else.
 document.getElementById('adm-nav').addEventListener('click',function(e){
   var a=e.target.closest?e.target.closest('a[data-tab]'):null;
-  if(a)switchAdmin(a.dataset.tab);
+  // Taking a tab must put the drawer away. Without this the drawer stayed open
+  // over the screen the owner had just navigated to, with no obvious way back.
+  if(a){switchAdmin(a.dataset.tab);admCloseSide();}
 });
 document.querySelector('.hero h1').addEventListener('click',()=>{admClk++;clearTimeout(admTmr);admTmr=setTimeout(()=>{admClk=0},1000);if(admClk>=5){admClk=0;if(admin)lockAdmin('🔒 Admin dikunci');else if(adminUser())enterAdmin();else showAdminLogin()}});
 let admTab='orders',admUnsub=null;
