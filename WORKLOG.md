@@ -739,6 +739,35 @@ predates both this change and the one it reverses).
 `cleanup-mx37a2.js`
 **Status:** ✅ confirmed locally
 
+### 2026-10-16 15:17 — PUSHED: the checkout receipt and the returning customer are live
+
+**What happened:** The owner asked for the push. Three commits went out and Pages served the new
+build inside 90 seconds.
+**Push:** `d12dd4c..4ebaeef  main -> main`. Live site flipped on attempt 3 of the poll
+(186,440 → 187,784 bytes). Live `sw.js` reads `v8-20261016`.
+**Verified live — 15 of 15 markers:** the receipt block is at checkout again and the done screen
+no longer asks; the staged proof and the claim-on-dispatch are back; `sendClaim`'s checkout branch
+is back; the menu price is 19px; the prompt returns per order (`mms_stamp_skip`, `stampSkipped`)
+and accepting is permanent (`stampAccepted`); the name field can be hidden and the note names the
+customer; "Disimpan sebagai" is present; the time is still required; the block chips survive; the
+new ntfy topic is in and the old one is gone.
+**Pre-push checks:** only the four intended files in the diff, `index.html` hash-equal to
+`drinks-order.html`, and the untracked files (`transit-widget/DESIGN.md`, `.agents/`, `.claude/`,
+`CLAUDE.md` and others) left untouched, so the owner's other work did not ride along.
+**For the customer to see any of it:** the service worker cache name changed, so an already-open
+tab keeps running the old JavaScript until it is reloaded. Nothing to do for anyone arriving
+fresh.
+**Still open after this push:**
+- The `members` rules are still unpublished, so stamp numbers are saved on the customer's device
+  and ride their next order, but no member records reach the seller.
+- The receipt's "(wajib)" label is still not enforced. It matters more now that there is no
+  done-screen fallback: a QR customer who skips the receipt at checkout has no way to attach one
+  afterwards, so that order arrives unpaid and unproofed with no alert.
+- The Firebase Auth password for `zjasneh5@gmail.com` is unchanged.
+
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `WORKLOG.md`
+**Status:** ✅ confirmed — live URL `https://iyern0.github.io/ridzuanshop/`
+
 ---
 
 ## Withdrawn results
