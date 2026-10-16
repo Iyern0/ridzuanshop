@@ -298,6 +298,122 @@ screenshot "doesn't show the change".
 **Artefacts:** `drinks-order.html`, `index.html`
 **Status:** ✅ confirmed
 
+### 2026-10-16 12:21 — Two new requests grilled: custom time, and the stamp ask moved after payment
+
+**What happened:** Two UI changes were asked for in quick succession, both under-specified,
+so both were worked as decision trees — nine questions across three rounds — before any code
+was written. Nothing is built yet.
+
+**Found (facts, checked rather than assumed):**
+- **The custom-time box already exists** (`#pickup-time`, placeholder "e.g. 11:00 PM"). It is
+  only *hidden* for delivery orders. So the first request is "show it for delivery too", not
+  "build an input", and the `#pickup-note`/`#time-pickup` display pair on line 1016 is what
+  controls it.
+- **The loyalty stamp counter is per-device localStorage** (`mms_loy`, via
+  `getLoy`/`saveLoy`/`drawLoy`), incremented once per placed order at line 1120. It is not
+  server-side, so "your progress" needs no lookup and cannot leak.
+- **`orders` is create-only for the public and admin-only for update**, so a phone number
+  collected *after* payment can never be attached to the order just placed. This constraint
+  shaped the entire design of the second request.
+- The label the owner quoted as "WHEN TO DELIVER?" **does not exist anywhere in the file**.
+  The code says "⏰ When?" until a delivery method is chosen, then "When did you want it?"
+  (COD) or "When are you coming?" (pickup).
+- There is no existing popup to reuse for the stamp ask, but `autoAskNotify` already
+  establishes the "asked once per device" pattern (`mms_notif_asked`), which the new prompt
+  will mirror.
+
+**Decisions (the owner's):**
+1. The custom-time box shows for **both** modes — a COD customer currently has no way to name
+   a time at all, which was the real gap.
+2. The new prompt **replaces** the "Choose when you want it" hint rather than stacking on it.
+3. The unset label becomes "⏰ When to deliver?".
+4. The stamp popup appears on the **done screen, once per device**, flagged the instant they
+   either give a number or tap "not interested".
+5. The number goes to a new **admin-read-only `members/{phone}`** collection holding number,
+   name and date. This needs a rules publish to work; until then the write is refused
+   harmlessly and the number is still saved on the device, so the customer sees nothing break.
+6. The popup only shows when **no receipt is outstanding** on the done screen, because that
+   upload is the one thing on that screen the customer has to finish.
+7. **A time is now required** — the `'(state a time)'` placeholder is retired, and the
+   "⚠ Please choose a time" warning finally fires for pickup too.
+8. Popup copy in **Malay**, matching the done screen and the stamp text it replaces.
+
+**Note:** the progress the popup shows is and will remain the device's own count. A
+server-readable stamp lookup is rejected because Firestore cannot scope a read to "your own"
+row without a login, so any public lookup keyed by phone number could be enumerated to
+discover who the customers are.
+
+**Status:** ⚠️ provisional — awaiting the owner's go before building
+
+### 2026-10-16 12:24 — Ninth decision: the number rides on the next order
+
+**What happened:** While planning the implementation, reading the admin code showed a
+consequence the earlier decisions had not accounted for.
+
+**Found / changed:** `admCustomers` (line 1741) builds its list **from the phone stored on
+each order** — it aggregates order count, spend and last-order date per number. Doing the
+number collection after payment means orders stop carrying a phone, so that tab would have
+gone dark for every new customer: numbers would still arrive once the rules publish, but with
+no order history attached, because `members/{phone}` holds only number, name and date.
+
+**Decision:** The number saved on the device by the popup is also carried silently onto that
+customer's **next order**, exactly as the form does today. Their first order carries no
+number, every order after it does, so the Customers tab keeps its totals. No rules change is
+needed for this — `phone` is already an allowed optional field on an order. The popup's copy
+will say plainly that the number is remembered for next time, so nothing is hidden from the
+customer.
+
+**Status:** ⚠️ provisional — awaiting the owner's go before building
+
+### 2026-10-16 12:26 — Block chips under the order search, and a search that can actually be typed
+
+**What happened:** Clicking the order-list search box now reveals a row of block chips, so the
+list can be narrowed to one block without typing anything. Typing a name still works — which
+it did not before.
+
+**Found (a real bug, in the way of the request):** `admDoSearch` rebuilt the panel from
+`pg.innerHTML` on every keystroke, which discards the input element and with it the caret.
+Measured it directly: after one dispatched input event, `sameNode: false`, `stillFocused:
+false`. The value survived (it is re-rendered from `_admSearch`) but the second key went to
+the page body, so a name search was one character long per click.
+
+**Changed:**
+- `blockOf(o)` recovers a block from an order. **There is no block field on an order** — the
+  block list is glued onto the room string at checkout (`selBlock` + `' '` + `roomIn`, line
+  1045), so the configured names are matched as prefixes, longest winning, with a fallback to
+  everything before the trailing room number for a free-typed block.
+- `blockBarHtml(pool)` renders the chips. Counts come from a captured `blockPool` — the list
+  *before* the text search is applied — so the numbers hold still while a name is typed,
+  instead of collapsing toward zero. Ordering follows `BLOCKS` order, not the order the
+  orders happen to arrive in. An active block is always offered back even at zero, or
+  narrowing to a block whose orders had all finished would leave no chip to clear it with.
+- Chips carry an **index** into `_blkNames`, never the block name, so a name with an
+  apostrophe in it cannot break out of the handler attribute.
+- Closing is a document-level `mousedown` (capture) that ignores clicks inside the search box
+  or the chip row. Hiding on `blur` would have swallowed the tap that chose the block, since
+  blur fires first. An active block holds the row open, because hiding it would leave the list
+  narrowed with nothing on screen explaining why.
+- `admDoSearch` now re-renders from `_admOrdersCache` instead of tearing down and rebuilding
+  the Firestore listener on every keystroke.
+- `admRefocusSearch(pg,had)` puts the caret back at both `pg.innerHTML` exits, with the
+  focus state captured *before* the rebuild.
+- The empty state distinguishes "no orders" from "nothing matches this filter".
+
+**Verified (real clicks, live):** bar hidden before the click, `flex` after. Chips read
+`Semua 19 · Intan 9 · Delima 2 · Kristal B 1 · Zamrud 2` against 19 rows. Derivation checked
+per order: `Kristal B 11 -> Kristal B` (longest match, not `Kristal A`), `Zamrud 4-1/1 ->
+Zamrud`, `Intan sdsd -> Intan`, `Delima 11 -> Delima`. Picking Zamrud gave 2 rows; picking
+Intan gave 9. Typing `zul` with Intan active gave 2 rows and, critically,
+`focusKept: true`, `valueAccumulated: true`, caret at end. Clicking outside with a block
+active left the row open; clearing with Semua restored 19 rows and the next outside click hid
+it.
+
+**Note:** the chips only exist on the Siap and Semua views, because the search box itself only
+exists there.
+
+**Artefacts:** `drinks-order.html`, `index.html`, `fb-admin-setup/n36-block-chips.js`
+**Status:** ✅ confirmed
+
 ---
 
 ## Withdrawn results

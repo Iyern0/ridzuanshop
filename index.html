@@ -306,6 +306,14 @@ button:disabled:active{transform:none}
 .a-bulk{margin-bottom:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .a-bulk button{background:#00D4AA;color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:15px;padding:12px 24px;border-radius:10px;cursor:pointer}
 .a-search{background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.08);border-radius:10px;color:#F0F0F0;font-family:var(--fb);font-size:16px;font-weight:700;padding:12px 16px;width:100%;max-width:400px;margin-bottom:16px;outline:none}
+/* Block chips, under the search box. Hidden until the box is clicked so the
+   list stays uncluttered. The counts come from the current status and delivery
+   filters, before any typed name narrows it, so they hold still while typing. */
+.a-blocks{display:none;flex-wrap:wrap;gap:8px;margin:-8px 0 16px;align-items:center}
+.a-blocks .blk{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:999px;color:#C9C3B8;font-family:var(--fb);font-size:13px;font-weight:800;padding:7px 13px;cursor:pointer;transition:background .16s,color .16s,border-color .16s}
+.a-blocks .blk:hover{background:rgba(255,255,255,0.1);color:#F0F0F0}
+.a-blocks .blk.on{background:rgba(0,212,170,0.16);border-color:rgba(0,212,170,0.42);color:#00D4AA}
+.a-blocks .blk .c{font-family:var(--fd);font-weight:800;font-size:12px;margin-left:7px;opacity:.85}
 
 /* ===================== ADMIN — redesigned ===================== */
 #admin-panel{background:#0E0C0B}
@@ -1481,6 +1489,10 @@ function admSetupToggle(){admSetupOpen(!_admSetupOpen)}
 function switchAdmin(t){admTab=t;document.getElementById('adm-hd').textContent=ADM_T[t]||t;document.querySelectorAll('#adm-nav a').forEach(a=>{a.classList.toggle('active',a.dataset.tab===t)});
 if(ADM_SETUP.indexOf(t)>-1)admSetupOpen(true);const pg=document.getElementById('adm-pg');if(t==='orders')admOrders(pg);else if(t==='menu')admMenu(pg);else if(t==='addons')admAddons(pg);else if(t==='schedule')admSchedule(pg);else if(t==='delivery')admDelivery(pg);else if(t==='customers')admCustomers(pg);else if(t==='receipts')admReceipts(pg);else if(t==='stats')admAnalytics(pg);else if(t==='settings')admSettings(pg)}
 let _admFilter='aktif',_admDelFilter='all',_admClaimOnly=false,_admSearch='',_admPrevCount=0,_admVisDocs=[];
+// Block filter for the order list. Set by the chips under the search box, so a
+// block can be picked without typing anything. _blkOpen is "the search box has
+// been clicked", which is what reveals the row.
+let _admBlockFilter='',_blkNames=[],_blkOpen=false;
 function admBeep(){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=880;g.gain.value=0.3;o.start();o.stop(ctx.currentTime+0.15);if(navigator.vibrate)navigator.vibrate(200)}catch(e){}}
 function timeAgo(d){if(!d)return'';const diff=(Date.now()-d.getTime())/1000;if(diff<60)return'Masih baru';if(diff<3600)return Math.floor(diff/60)+' min lalu';if(diff<86400)return Math.floor(diff/3600)+' jam lalu';return Math.floor(diff/86400)+' hari lalu'}
 function admOrders(pg){if(admUnsub){admUnsub();admUnsub=null}_admSearch='';const db=getDb();if(!isAdmin()){pg.innerHTML='<div style="padding:20px;color:#FFB347;font-weight:700">🔒 Login admin diperlukan.</div>';return}if(!db){pg.innerHTML='<div style="padding:20px;color:#FFB347;font-weight:700">⚠ Firebase tidak tersedia.</div>';return}pg.innerHTML='<div style="color:#9A9385;text-align:center;padding:30px">Memuatkan...</div>';admUnsub=ordersQ(db).onSnapshot(snap=>{const docs=snap.docs.map(d=>({id:d.id,...d.data()}));_admPrevCount=docs.length;_admRenderOrders(pg,docs)},e=>{pg.innerHTML='<div style="color:#FF6B6B;padding:20px">Error: '+esc(e.message)+'</div>'})}
@@ -1565,10 +1577,18 @@ function _admRenderOrders(pg,docs){
   // "perlu semak" is allowed to mean what it says: receipts you have not opened.
   const nUnseen=filtered.filter(function(o){return _admClaims[o.id]&&!_seenClaims[o.id]}).length;
   if(_admClaimOnly)filtered=filtered.filter(function(o){return !!_admClaims[o.id]});
+  // The chip counts are taken here, before the typed name narrows anything, so
+  // the numbers do not collapse as a search is typed.
+  const blockPool=filtered;
+  // Whether the search box holds the caret right now. The rows are rebuilt from
+  // scratch below, which throws the input away, so this has to be remembered
+  // before that happens or typing can only ever be one character long.
+  const hadSearchFocus=!!(document.activeElement&&document.activeElement.classList&&document.activeElement.classList.contains('a-search'));
   if(_admSearch&&(f==='done'||f==='all')){
     const q=_admSearch.toLowerCase();
     filtered=filtered.filter(o=>(o.name||'').toLowerCase().includes(q)||(o.room||'').toLowerCase().includes(q));
   }
+  if(_admBlockFilter)filtered=filtered.filter(function(o){return blockOf(o)===_admBlockFilter});
   _admVisDocs=filtered;_admOrdersCache=docs;
   const nB=live.filter(o=>o.status==='baru').length,nP=live.filter(o=>o.status==='processing').length,nD=live.filter(o=>o.status==='done').length;
   const segs=[['aktif','Aktif',nB+nP],['baru','Baru',nB],['processing','Proses',nP],['done','Siap',nD],['all','Semua',live.length]];
@@ -1594,7 +1614,7 @@ function _admRenderOrders(pg,docs){
    +(nUnseen&&!_admClaimOnly?'<span class="warnText">📎 '+nUnseen+' resit perlu semak</span>':'')
    +'</div></div>';
 
-  if(f==='done'||f==='all')h+='<input class="a-search" placeholder="🔍 Cari nama atau blok..." value="'+esc(_admSearch)+'" oninput="admDoSearch(this.value)">';
+  if(f==='done'||f==='all')h+='<input class="a-search" placeholder="🔍 Cari nama atau blok..." value="'+esc(_admSearch)+'" oninput="admDoSearch(this.value)" onfocus="admOpenBlocks()" onclick="admOpenBlocks()">'+blockBarHtml(blockPool);
   if(f==='deleted'&&filtered.length)h+='<div class="a-bulk"><button onclick="admRestoreAll()">↩ Pulihkan semua ('+filtered.length+')</button></div>';
   if(f==='aktif'&&filtered.length)h+='<div class="a-bulk"><button onclick="admBulkDone()">✅ Tandakan semua siap ('+filtered.length+')</button></div>';
   if((f==='done'||f==='all')&&filtered.some(function(o){return o.status==='done'}))h+='<div class="a-bulk"><button class="danger" onclick="admBulkDelDone()">🗑 Padam yang sudah siap ('+filtered.filter(function(o){return o.status==='done'}).length+')</button></div>';
@@ -1602,14 +1622,15 @@ function _admRenderOrders(pg,docs){
   if(!filtered.length){
     h+='<div class="a-empty"><span class="big">'+(f==='aktif'||f==='baru'||f==='processing'?'🎉':'📭')+'</span>'
       +(f==='aktif'?'Semua pesanan sudah siap. Rehat sebentar.':
-        f==='all'?'Tiada pesanan langsung.':
+        f==='all'?((_admSearch||_admBlockFilter)?'Tiada pesanan padan dengan tapisan ini.':'Tiada pesanan langsung.'):
         f==='done'?'Tiada pesanan selesai.':
         'Tiada pesanan untuk status ini.')+'</div>';
-    pg.innerHTML=h;return;
+    pg.innerHTML=h;admRefocusSearch(pg,hadSearchFocus);return;
   }
   h+=filtered.map(_admOrderRow).join('');
   h+='<div class="o-foot">'+filtered.length+' pesanan</div>';
   pg.innerHTML=h;
+  admRefocusSearch(pg,hadSearchFocus);
   admRefreshDetail();
 }
 function admClaimFilter(){_admClaimOnly=!_admClaimOnly;const pg=document.getElementById('adm-pg');if(pg)_admRenderOrders(pg,_admOrdersCache||[])}
@@ -1687,7 +1708,95 @@ function admBulkDelDone(){
     });
   });
 }
-function admDoSearch(v){_admSearch=v;const pg=document.getElementById('adm-pg');if(admUnsub){admUnsub();admUnsub=null}const db=getDb();if(!db||!isAdmin())return;admUnsub=ordersQ(db).onSnapshot(snap=>{const docs=snap.docs.map(d=>({id:d.id,...d.data()}));_admRenderOrders(pg,docs)})}
+// ---------------------------------------------------------------------------
+// Blocks in the order list.
+//
+// There is no block field on an order: the seller's block list is glued onto
+// the room string at checkout ("Kristal B" + "11" -> "Kristal B 11"). So the
+// block is recovered by matching the configured names, longest match winning so
+// that "Kristal B" cannot be mistaken for a shorter prefix. A free-typed block
+// ("Lain lain") falls back to everything before the trailing room number.
+// ---------------------------------------------------------------------------
+function blockOf(o){
+  const room=String((o&&o.room)||'').trim();
+  if(!room)return '';
+  let best='';
+  for(let i=0;i<BLOCKS.length;i++){
+    const b=BLOCKS[i];
+    if(!b)continue;
+    if(room===b||room.indexOf(b+' ')===0){if(b.length>best.length)best=b}
+  }
+  if(best)return best;
+  const m=room.match(/^(.*?)\s+\S+$/);
+  return (m?m[1]:room).slice(0,30);
+}
+// The row is built from blockPool, the list captured before the typed name was
+// applied, so the counts describe the view rather than the search.
+function blockBarHtml(pool){
+  const counts={};
+  (pool||[]).forEach(function(o){const b=blockOf(o);if(b)counts[b]=(counts[b]||0)+1});
+  _blkNames=Object.keys(counts);
+  // An active block is always offered back, even at zero, or narrowing to a
+  // block whose orders all finished would leave no chip left to clear it with.
+  if(_admBlockFilter&&_blkNames.indexOf(_admBlockFilter)<0)_blkNames.push(_admBlockFilter);
+  if(!_blkNames.length)return '';
+  _blkNames.sort(function(a,b){const ia=BLOCKS.indexOf(a),ib=BLOCKS.indexOf(b);if(ia<0&&ib<0)return a.localeCompare(b);if(ia<0)return 1;if(ib<0)return -1;return ia-ib});
+  return '<div class="a-blocks" id="adm-blocks" style="display:'+((_blkOpen||_admBlockFilter)?'flex':'none')+'">'
+    +'<button class="blk'+(!_admBlockFilter?' on':'')+'" onclick="admPickBlock(-1)">Semua<span class="c">'+(pool||[]).length+'</span></button>'
+    // Chips carry an index, never the block name, so a name with an apostrophe
+    // in it cannot break out of the handler.
+    +_blkNames.map(function(b,i){
+      return '<button class="blk'+(_admBlockFilter===b?' on':'')+'" onclick="admPickBlock('+i+')">'+esc(b)+'<span class="c">'+(counts[b]||0)+'</span></button>'
+    }).join('')
+    +'</div>';
+}
+function admPickBlock(i){
+  _admBlockFilter=i<0?'':(_blkNames[i]||'');
+  _blkOpen=true;
+  const pg=document.getElementById('adm-pg');
+  if(pg)_admRenderOrders(pg,_admOrdersCache||[]);
+}
+function admOpenBlocks(){
+  _blkOpen=true;
+  const b=document.getElementById('adm-blocks');
+  if(b)b.style.display='flex';
+}
+function admCloseBlocks(){
+  if(!_blkOpen)return;
+  _blkOpen=false;
+  // An active block holds the row open. Hiding it would leave the list narrowed
+  // with nothing on screen explaining why, or offering a way back out.
+  if(_admBlockFilter)return;
+  const b=document.getElementById('adm-blocks');
+  if(b)b.style.display='none';
+}
+// Registered once for the session. Closing on "the click was somewhere else"
+// rather than on blur is what lets a chip's own click land: blur fires first,
+// and hiding the row on blur would swallow the tap that chose the block.
+document.addEventListener('mousedown',function(e){
+  const el=e.target;
+  if(!el||!el.closest)return;
+  if(el.closest('#adm-search')||el.closest('#adm-blocks'))return;
+  admCloseBlocks();
+},true);
+// The list is rebuilt from innerHTML on every keystroke, which discards the
+// input element and with it the caret. Without this, a search is one character
+// long and the second key lands on the page.
+function admRefocusSearch(pg,had){
+  if(!had)return;
+  const si=pg.querySelector('input.a-search');
+  if(!si)return;
+  si.focus();
+  try{si.setSelectionRange(si.value.length,si.value.length)}catch(e){}
+}
+function admDoSearch(v){
+  _admSearch=v;
+  // Re-render from the documents the listener already delivered. Rebuilding the
+  // listener on every keystroke was slow, and its fresh snapshot then arrived
+  // after the next character had already been typed.
+  const pg=document.getElementById('adm-pg');
+  if(pg)_admRenderOrders(pg,_admOrdersCache||[]);
+}
 function admBulkDone(){if(!_admVisDocs.length)return;admConfirm('Tandakan semua '+_admVisDocs.length+' sebagai Siap?','Ya, tandakan',function(){const db=getDb();if(!db)return;_admVisDocs.forEach(function(o){db.collection('orders').doc(o.id).update({status:'done'}).catch(function(){});db.collection('tracking').doc(o.id).update({status:'done',at:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){})});toast('✓ '+_admVisDocs.length+' pesanan ditandakan siap')})}
 // isCod defaults to true so a caller that forgets still gets delivery wording
 // rather than telling a delivery customer to come and collect.
