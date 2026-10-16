@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ms">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://drive.google.com https://lh3.googleusercontent.com https://*.googleusercontent.com; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://ntfy.sh; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://drive.google.com https://lh3.googleusercontent.com https://*.googleusercontent.com; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://ntfy.sh; worker-src 'self' blob:; frame-src blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="robots" content="noindex, nofollow">
 <title>MINUM MALAM SISWA — Order</title>
@@ -615,9 +615,9 @@ function bumpIdle(){
   _idleT=setTimeout(function(){lockAdmin('🔒 Auto-kunci (15 min idle)')},IDLE_LOCK_MS);
 }
 
-// Watch orders for the whole admin session, not just while the Orders tab is
-// open, so an arriving order is announced from any screen.
-let _admWatch=null,_admSeen=0,_admSeenSet=false,_admClaimLoading=true,_admPhoneCount=0,_admClaims={},_admClaimUnsub=null;
+// Watch receipts for the whole admin session, not just while the Resit tab is
+// open, so a receipt that arrives is on screen the moment you look.
+let _admClaimLoading=true,_admPhoneCount=0,_admClaims={},_admClaimUnsub=null;
 function admWatchClaims(){
   if(_admClaimUnsub||!isAdmin())return;
   const db=getDb();if(!db)return;
@@ -683,62 +683,52 @@ function admReceipts(pg){
     +'</div>';
 }
 function admStopClaims(){if(_admClaimUnsub){_admClaimUnsub();_admClaimUnsub=null}_admClaims={}}
-function closeClaimView(){const m=document.getElementById('claim-view');if(m)m.style.display='none'}
+let _claimBlobUrl='';
+function closeClaimView(){
+  const m=document.getElementById('claim-view');
+  if(m)m.style.display='none';
+  // blob URLs pin the whole file in memory until revoked
+  if(_claimBlobUrl){try{URL.revokeObjectURL(_claimBlobUrl)}catch(e){};_claimBlobUrl=''}
+}
 function admViewClaim(id){
   const box=document.getElementById('claim-view');
   const c=_admClaims[id];
   if(!box||!c)return;
   box.style.display='flex';
+  let media;
+  if(c.img&&claimIsPdf(c.img)){
+    // An <img> silently shows nothing for a PDF, so a data URL would look like
+    // an empty receipt. A blob URL renders in the browser's PDF viewer and can
+    // also be saved, which is what you actually want for an archived receipt.
+    let url='';
+    try{url=URL.createObjectURL(dataUrlToBlob(c.img));_claimBlobUrl=url}catch(e){}
+    media=url
+      ?'<iframe src="'+url+'" title="Resit PDF" style="width:100%;height:70vh;border:0;border-radius:10px;background:#fff"></iframe>'
+       +'<a href="'+url+'" download="resit-'+esc(id)+'.pdf" style="display:block;margin-top:10px;text-align:center;background:rgba(0,212,170,0.12);border:1px solid rgba(0,212,170,0.3);color:#00D4AA;font-weight:800;font-size:13px;padding:11px;border-radius:10px;text-decoration:none">⬇ Muat turun PDF</a>'
+      :'<div style="padding:30px;text-align:center;color:#FFB347;font-weight:700">PDF tidak boleh dipaparkan. Cuba muat turun dari konsol.</div>';
+  }else if(c.img&&c.img.length>40){
+    media='<img src="'+esc(c.img)+'" alt="Resit bayaran">';
+  }else{
+    media='<div style="padding:30px;text-align:center;color:#9A9385;font-weight:700">Pelanggan hantar rujukan sahaja, tiada gambar.</div>';
+  }
   box.innerHTML='<div class="cv-bg" onclick="closeClaimView()"></div><div class="cv-box"><div class="cv-hd">📎 Resit bayaran<button onclick="closeClaimView()">✕</button></div>'
-   +(c.img&&c.img.length>40?'<img src="'+esc(c.img)+'" alt="Resit bayaran">':'<div style="padding:30px;text-align:center;color:#9A9385;font-weight:700">Pelanggan hantar rujukan sahaja, tiada gambar.</div>')
+   +media
    '</div>';
   // cached snapshot already holds the image; this is only a fallback
   if(!c.img||c.img.length<=40){
     const db=getDb();
     if(db)db.collection('payments').doc(id).get().then(function(s){
-      if(s.exists){const f=s.data()||{};c.img=f.img||'';
-        const im=box.querySelector('img');
-        if(im&&f.img)im.src=f.img;
+      if(s.exists){const f=s.data()||{};
+        if(f.img){c.img=f.img;admViewClaim(id)}
       }
     }).catch(function(){});
   }
 }
-function admStopWatch(){if(_admWatch){_admWatch();_admWatch=null}_admSeen=0;_admSeenSet=false;admStopClaims()}
-function admWatchOrders(){
-  if(_admWatch||!isAdmin())return;
-  const db=getDb();if(!db)return;
-  const q=db.collection('orders').orderBy('createdAt','desc').limit(ORDER_LIMIT);
-  _admWatch=q.onSnapshot(function(snap){
-    const n=snap.size;
-    // The first snapshot only establishes where we are now. Announcing it
-    // meant every single login alerted, whether or not anything had come in.
-    if(!_admSeenSet){_admSeenSet=true;_admSeen=n;return}
-    // A status edit or a paid toggle does not change the document count, so
-    // it cannot reach this branch. Only a genuinely new order does.
-    if(n>_admSeen&&snap.docs.length){
-      const d=snap.docs[0].data()||{};
-      admIncoming(d);
-    }
-    _admSeen=n;
-  },function(){});
-}
-function admIncoming(d){
-  try{
-    beep(1180,0.16,0.13);
-    setTimeout(function(){beep(880,0.22,0.11)},150);
-    if(navigator.vibrate)navigator.vibrate([90,60,90]);
-  }catch(e){}
-  try{
-    if(typeof window.Notification!=='undefined'&&Notification.permission==='granted'){
-      const drinks=(d.items||[]).reduce(function(s,i){return s+Number(i.qty||0)},0);
-      new Notification('Pesanan baharu!',{
-        body:(d.room?('Blok '+d.room+' · '):'')+drinks+' minuman · RM'+Number(d.total||0).toFixed(2),
-        tag:'mms-new-order',renotify:true
-      });
-    }
-  }catch(e){}
-  if(admin)toast('🔔 Pesanan baharu masuk!');
-}
+// The seller is told about a payment claim, not about an order landing. A new
+// order still appears at the top of the list the instant it is written (the
+// orders listener is untouched), it just does not make a sound. If you ever
+// want the in-app chime back while the panel is open, this is the seam.
+function admStopWatch(){admStopClaims()}
 function closeAdminPanel(){
   if(admUnsub){admUnsub();admUnsub=null}
   admStopWatch();
@@ -758,7 +748,7 @@ function lockAdmin(msg){
 function enterAdmin(){
   if(!adminUser()){toast('⛔ Akaun ini bukan admin');return}
   admin=true;closeAdminLogin();admSetupOpen(_admSetupOpen);
-  admStopWatch();setTimeout(admWatchOrders,1200);setTimeout(admWatchClaims,1800);
+  admStopWatch();setTimeout(admWatchClaims,1800);
   document.getElementById('admin-panel').classList.add('show');
   switchAdmin('orders');paintAdminBtn();bumpIdle();
   toast('🔧 Admin ON');
@@ -822,6 +812,29 @@ function orderRef(o){if(!o)return'#';if(o.no)return'#'+fmtNo(o.no);if(o.code)ret
 // Deliberately omits the customer's name and number - this text passes through
 // a third-party server, and a block plus an order number is enough to act on.
 const NTFY_TOPIC='i7dhNJBSvkZgHKbSZUApcTymTMYSBVU8xTLRHamG';
+// Read any file as a data URL, unchanged. Used for PDFs, which we cannot
+// rasterise in the browser without shipping a PDF library.
+function fileToDataUrl(file){
+  return new Promise(function(resolve,reject){
+    const fr=new FileReader();
+    fr.onerror=function(){reject(new Error('Gagal baca fail'))};
+    fr.onload=function(){resolve(String(fr.result||''))};
+    fr.readAsDataURL(file);
+  });
+}
+// base64 inflates by ~4/3, and the rules cap the stored string at 700000
+// characters. 480 KB of PDF stays comfortably inside that.
+const PDF_MAX_BYTES=480000;
+function isPdfFile(f){return !!f&&(/^application\/pdf$/i.test(f.type)||/\.pdf$/i.test(f.name||''))}
+function dataUrlToBlob(u){
+  const s=String(u||''),i=s.indexOf(',');
+  const mime=(s.slice(0,i).match(/^data:([^;]+)/)||[])[1]||'application/octet-stream';
+  const bin=atob(s.slice(i+1));
+  const arr=new Uint8Array(bin.length);
+  for(let k=0;k<bin.length;k++)arr[k]=bin.charCodeAt(k);
+  return new Blob([arr],{type:mime});
+}
+function claimIsPdf(v){return /^data:application\/pdf/i.test(String(v||''))}
 function shrinkImage(file,maxPx,quality){
   return new Promise(function(resolve,reject){
     if(!file||!/^image\//.test(file.type)){reject(new Error('Bukan gambar'));return}
@@ -857,25 +870,6 @@ function notifyOwnerClaim(o){
     fetch('https://ntfy.sh/'+NTFY_TOPIC,{
       method:'POST',
       headers:{'Content-Type':'text/plain; charset=utf-8','Title':title,'Priority':'urgent','Tags':'money_with_wings'},
-      body:body,
-      signal:ctrl?ctrl.signal:undefined
-    }).catch(function(){}).then(function(){if(timer)clearTimeout(timer)},function(){if(timer)clearTimeout(timer)});
-  }catch(e){}
-}
-function notifyOwner(o){
-  try{
-    if(typeof fetch!=='function')return;
-    const n=Number(o.no)||0;
-    const drinks=(o.items||[]).reduce(function(s,i){return s+Number(i.qty||0)},0);
-    const title='Pesanan '+(n?'#'+fmtNo(n):'baharu')+' - '+(o.room?('Blok '+o.room):'Ambil sendiri');
-    const body=drinks+' minuman · RM'+Number(o.total||0).toFixed(2)+' · '+String(o.time||'')+' · '+(o.payment==='cash'?'Tunai':'QR Pay');
-    var ctrl=null;
-    try{if(typeof AbortController!=='undefined')ctrl=new AbortController()}catch(e){}
-    var timer=null;
-    if(ctrl){timer=setTimeout(function(){try{ctrl.abort()}catch(e){}},6000)}
-    fetch('https://ntfy.sh/'+NTFY_TOPIC,{
-      method:'POST',
-      headers:{'Content-Type':'text/plain; charset=utf-8','Title':title,'Priority':'urgent','Tags':'package'},
       body:body,
       signal:ctrl?ctrl.signal:undefined
     }).catch(function(){}).then(function(){if(timer)clearTimeout(timer)},function(){if(timer)clearTimeout(timer)});
@@ -1038,7 +1032,9 @@ async function sendWa(){
   const disp={code:code,no:orderNo,items:OrdDisplay(ordMap),total:total,isCod:isCod,r:r,n:n,when:when,pay:payM};
   if(!saved){showDone({...disp,warn:true});window.open(waUrl(msg),'_blank');return}
   track('order_sent');chime();buzzOk();
-  notifyOwner({no:orderNo,items:ordMap?Object.keys(ordMap).map(function(k){return ordMap[k]}):[],total:total,room:r,time:when,payment:payM});
+  // Deliberately no push to the seller here. An order arriving is not the
+  // thing they need to act on - a payment claim is. Sending both meant two
+  // notifications per order, which is how the one that matters gets ignored.
   showDone({...disp,warn:false});
   saveMyOrder(disp);saveCustomer();
   toast('✓ Pesanan dihantar!');
@@ -1142,9 +1138,9 @@ function showDone(o){
     +'<div id="claim-state" style="display:none;background:rgba(255,179,71,0.12);border:1px solid rgba(255,179,71,0.3);border-radius:10px;padding:10px;margin-bottom:12px;font-size:13px;font-weight:800;color:#FFB347">⏳ Menunggu penjual semak bayaran anda</div>'
     +'<div id="claim-panel" style="display:none;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px;margin-bottom:12px;text-align:left">'
     +'<div style="font-size:12px;font-weight:800;color:#00D4AA;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">💰 Bayar sekarang</div>'
-    +'<div style="font-size:12px;color:#9A9385;font-weight:600;margin-bottom:12px;line-height:1.5">Scan QR di atas, kemudian hantar gambar resit supaya penjual boleh sahkan bayaran anda.</div>'
-    +'<input type="file" id="claim-file" accept="image/*" style="display:none" onchange="claimPicked()">'
-    +'<label for="claim-file" class="filelbl">📎 Pilih gambar resit <span style="color:#FF6B6B">(wajib)</span></label>'
+    +'<div style="font-size:12px;color:#9A9385;font-weight:600;margin-bottom:12px;line-height:1.5">Scan QR di atas, kemudian hantar resit (gambar atau PDF) supaya penjual boleh sahkan bayaran anda.</div>'
+    +'<input type="file" id="claim-file" accept="image/*,application/pdf" style="display:none" onchange="claimPicked()">'
+    +'<label for="claim-file" class="filelbl">📎 Pilih resit — gambar atau PDF <span style="color:#FF6B6B">(wajib)</span></label>'
     +'<div id="claim-file-name" style="display:none;font-size:12px;color:#00D4AA;font-weight:700;margin-bottom:10px">✓ Gambar dipilih</div>'
     +'<button id="claim-send" onclick="sendClaim()" style="width:100%;background:#00D4AA;color:#000;border:none;font-weight:800;font-size:14px;padding:13px;border-radius:10px;cursor:pointer">Saya dah bayar</button></div>'
     +'<button class="go2" onclick="closeDone()">Selesai</button>'
@@ -1221,14 +1217,20 @@ async function sendClaim(){
   const db=getDb();
   if(!db){btn.disabled=false;btn.textContent=btnLabel;toast('Tiada sambungan');return}
   let img='';
+  const pdf=isPdfFile(f);
+  if(pdf&&f.size>PDF_MAX_BYTES){
+    btn.disabled=false;btn.textContent=btnLabel;
+    toast('❌ PDF terlalu besar (maks 480KB) - hantar sebagai gambar, atau PDF yang lebih kecil');
+    return;
+  }
   try{
-    toast('Memproses gambar...');
-    img=await shrinkImage(f,1000,0.72);
+    toast(pdf?'Memproses PDF...':'Memproses gambar...');
+    img=pdf?await fileToDataUrl(f):await shrinkImage(f,1000,0.72);
     // the rules cap this at 700000 chars, so check before spending a write
-    if(img.length>680000){btn.disabled=false;btn.textContent=btnLabel;toast('Gambar terlalu besar - guna gambar lain');return}
-    if(img.length<2000){btn.disabled=false;btn.textContent=btnLabel;toast('Gambar kelihatan kosong -Cuba gambar lain');return}
+    if(img.length>680000){btn.disabled=false;btn.textContent=btnLabel;toast((pdf?'PDF':'Gambar')+' terlalu besar - guna fail lain');return}
+    if(!pdf&&img.length<2000){btn.disabled=false;btn.textContent=btnLabel;toast('Gambar kelihatan kosong -Cuba gambar lain');return}
   }catch(e){
-    btn.disabled=false;btn.textContent=btnLabel;toast('Gambar tidak boleh dibaca');return;
+    btn.disabled=false;btn.textContent=btnLabel;toast('Fail tidak boleh dibaca');return;
   }
   const payload={img:img,at:firebase.firestore.FieldValue.serverTimestamp()};
   db.collection('payments').doc(o.code).set(payload).then(function(){
@@ -1263,7 +1265,7 @@ document.getElementById('adm-nav').addEventListener('click',function(e){
   var a=e.target.closest?e.target.closest('a[data-tab]'):null;
   if(a)switchAdmin(a.dataset.tab);
 });
-document.querySelector('.hero h1').addEventListener('click',()=>{admClk++;clearTimeout(admTmr);admTmr=setTimeout(()=>{admClk=0},1000);if(admClk>=5){admClk=0;if(!admin)showAdminLogin();else lockAdmin('🔒 已登出 / Logged out')}});
+document.querySelector('.hero h1').addEventListener('click',()=>{admClk++;clearTimeout(admTmr);admTmr=setTimeout(()=>{admClk=0},1000);if(admClk>=5){admClk=0;if(!admin)showAdminLogin();else lockAdmin('🔒 Admin dikunci')}});
 let admTab='orders',admUnsub=null;
 const ADM_T={orders:'📥 Pesanan',customers:'👥 Pelanggan',receipts:'📎 Resit Bayaran',stats:'📊 Analitis',menu:'🧋 Minuman',addons:'🍬 Pemanis',schedule:'⏰ Masa',delivery:'🚗 Penghantaran',settings:'⚙️ Settings'};
 const ADM_SETUP=['menu','addons','schedule','delivery','settings'];
