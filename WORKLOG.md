@@ -768,6 +768,57 @@ fresh.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `WORKLOG.md`
 **Status:** ✅ confirmed — live URL `https://iyern0.github.io/ridzuanshop/`
 
+### 2026-10-16 15:23 — CORRECTION: every seller alert had been failing silently since 12:56
+
+**What the owner reported:** "i didnt receive a notification when i make an order."
+
+**What was actually wrong — and it was mine.** The alert's `Title` contained a `💰` emoji. A
+header value must be ISO-8859-1, and an emoji is not, so constructing the request **throws**:
+
+```
+new Headers({'Title':'💰 #003 — COD, bayaran perlu semak'})
+  -> TypeError: Failed to construct 'Headers': String contains non ISO-8859-1 code point.
+```
+
+`notifyOwnerClaim` wraps everything in `try{...}catch(e){}`, so that throw was swallowed: nothing
+in the console, nothing on the topic, no evidence anywhere. **Every payment alert since the ntfy
+rebuild at 12:56 was dropped**, including the claim for the owner's own order `HL89NR` at 15:13.
+The old payload never had this problem because its title was pure ASCII
+(`Bayaran? Pesanan #003 - Blok Delima 5-4/2`).
+
+**How it was found, in order, because the order matters:** the owner reported no notification;
+`HL89NR` had a receipt, so an alert was expected. Polling ntfy's own cache showed the **new topic
+had never received a single message** while the old one still held four from before the rebuild —
+so the message was never *posted*, which ruled out the phone, the subscription and the topics
+themselves. The live build was then checked and was fully intact: CSP allows `ntfy.sh`, the topic
+string is right, `submitClaim` still calls `notifyOwnerClaim`. CORS was suspected next and ruled
+out by preflight (`access-control-allow-headers: *`). Only then was the header value itself
+tested — and it threw.
+
+**Fixed:** `asciiHeader()` strips anything outside printable ASCII, the title is written ASCII in
+the first place (`#003 COD - bayaran perlu semak`), and the visual comes from `Tags`
+(`money_with_wings` renders as a money emoji on the phone, and is ASCII by definition). Header
+values are ASCII; the body stays UTF-8, since only headers are restricted. **The catches now
+`console.warn` instead of swallowing** — that silence is the part that made this invisible.
+
+**Verified for real, not intercepted:** `notifyOwnerClaim({no:999,…})` from the browser built
+`#999 COD - bayaran perlu semak`, constructed the headers without throwing, and the fetch did not
+reject. Polling the topic afterwards showed the message arrived:
+`2026-10-16T07:22:51Z  "#999 COD - bayaran perlu semak"`. **The new topic now has its first
+message, and it is the first proof that the browser's send path works at all.**
+
+**Why the earlier verification missed it — worth remembering.** At 12:50 the payload was checked
+by intercepting `window.fetch` and inspecting the captured headers. Interception **bypasses the
+Headers construction**, so the exact thing that was failing was the one thing that check could
+not see. A captured request is not a sent request. The lesson: when the claim is "this reaches
+the phone", the evidence has to come from the far end — poll the topic, or watch the phone —
+never from a stub that stands in for the network.
+
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `fb-admin-setup/n48-notification-ascii.js`,
+`poll-ntfy.js`, `check-cors.js`
+**Status:** ✅ confirmed — send proven end to end; the phone side depends on the owner being
+subscribed to the new topic
+
 ---
 
 ## Withdrawn results

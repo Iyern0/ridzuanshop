@@ -1091,6 +1091,18 @@ function shrinkImage(file,maxPx,quality){
 // What makes a thin alert useful is landing on the thing it is about, so the
 // tap carries the order id. That id is meaningless without the login - the
 // order itself still sits behind it.
+// A header value must be ISO-8859-1, and an emoji is not. Putting one in the
+// Title made the request fail to construct, and the empty catch below swallowed
+// it - so every alert vanished with nothing in the console and nothing arriving
+// anywhere. That is what this function looked like while the shop was live.
+//
+// Header values are ASCII now, and anything that is not gets stripped by
+// asciiHeader rather than throwing. The visual comes from Tags instead, which
+// is ASCII by definition: money_with_wings already renders as a money emoji on
+// the phone, so the alert still catches the eye.
+//
+// In the body, non-ASCII is fine - a body is UTF-8. Only headers are restricted.
+function asciiHeader(s){return String(s==null?'':s).replace(/[^\x20-\x7E]+/g,' ').replace(/\s+/g,' ').trim()}
 function notifyOwnerClaim(o){
   try{
     if(typeof fetch!=='function')return;
@@ -1098,9 +1110,9 @@ function notifyOwnerClaim(o){
     // A pickup order carries no room: the rules require one for COD and none
     // for collection, which is the same convention the rest of the app uses.
     const kind=o.room?'COD':'Ambil sendiri';
-    const title='💰 '+no+' — '+kind+', bayaran perlu semak';
+    const title=asciiHeader(no+' '+kind+' - bayaran perlu semak');
     const body='Pelanggan dah tekan "Saya dah bayar". Tekan untuk buka resit.';
-    const click=SITE_URL+'?admin=1'+(o.code?'&order='+encodeURIComponent(o.code):'');
+    const click=asciiHeader(SITE_URL+'?admin=1'+(o.code?'&order='+encodeURIComponent(o.code):''));
     var ctrl=null;
     try{if(typeof AbortController!=='undefined')ctrl=new AbortController()}catch(e){}
     var timer=null;
@@ -1113,12 +1125,19 @@ function notifyOwnerClaim(o){
         'Priority':'urgent',
         'Tags':'money_with_wings',
         'Click':click,
-        'Icon':SITE_URL+'icons/icon-192.png'
+        'Icon':asciiHeader(SITE_URL+'icons/icon-192.png')
       },
       body:body,
       signal:ctrl?ctrl.signal:undefined
-    }).catch(function(){}).then(function(){if(timer)clearTimeout(timer)},function(){if(timer)clearTimeout(timer)});
-  }catch(e){}
+    }).catch(function(err){
+      // Never silent again. This exact silence is why the alert disappeared for
+      // an afternoon and nobody could tell from the app.
+      console.warn('notifikasi penjual gagal:',err);
+      if(timer)clearTimeout(timer);
+    }).then(function(){if(timer)clearTimeout(timer)});
+  }catch(e){
+    console.warn('notifikasi penjual gagal (sync):',e);
+  }
 }
 
 let _actx=null;
