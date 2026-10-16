@@ -532,6 +532,80 @@ device-local, and left rather than guessed at.
 **Artefacts:** `fb-admin-setup/cleanup-test.js`, `fb-admin-setup/claim-test.js`
 **Status:** ✅ confirmed
 
+### 2026-10-16 12:48 — The stamp prompt moves to after the order (B)
+
+**What happened:** Built the approved design: the WhatsApp number leaves the order form and is
+asked for on the done screen, with the promotion explained properly.
+**Found / changed:** `saveCustomer` used to write `ph` from the form field; it now carries
+`prev.ph` forward, and `sendWa` reads the number from `mms_cust` instead. That is decision Q10:
+the prompt saves the number on the device and the *next* order sends it, which is what keeps
+`admCustomers`' per-number order counts, spend and last-order date working now that the form no
+longer asks. The prompt appears once per device (`mms_stamp_ask` in localStorage), gated on a
+single shared definition of "a receipt is outstanding" — `claimPending(o)`, now also used by
+`paintClaim`, so the two cannot disagree. The number goes to `members/{digits}` = phone + name +
+date, and the rules block for it is written into `firestore.rules` and **not deployed**.
+**Verified (real orders, live):** the field is gone (`#inp-phone` absent). A real cash order
+(`C6X3AL`) produced the prompt reading "⭐⭐ 2 minuman setakat ini · 3 lagi untuk minuman
+percuma" with Simpan / Tak berminat. `123` was refused with "⚠ Nombor tidak sah" and the prompt
+stayed open; a real number saved, closed it, set the flag, and wrote `mms_cust.ph`, with
+**no error surfaced** — which matters, because the `members` write IS being refused by the
+undeployed rules. All three gates held: a QR order with no receipt attached → no prompt; the
+same order with the receipt attached → prompt; "Tak berminat" → flag set and a second call does
+nothing. Then the decisive one, read back over REST: order two (`LQLLYV`) carried
+`phone = 0123456789`, so the number collected after order one rode on order two. `members` is
+0 docs, confirming the refusal is real and harmless.
+**Artefacts:** `drinks-order.html`, `index.html`, `firestore.rules`,
+`fb-admin-setup/n41-stamp-prompt.js`, `n42-members-rules.js`
+**Status:** ✅ confirmed — the `members` half stays inert until the rules are published
+
+### 2026-10-16 12:50 — The notification is thin, and its tap lands on the order (C)
+
+**What happened:** Built the approved rebuild: trim what the alert carries, and make it point
+at the thing it is about.
+**Found / changed:** The title drops the room entirely — it is now `💰 #003 — COD, bayaran
+perlu semak` or `🏪 Ambil sendiri`, derived from whether the order has a room, which is the same
+convention the rules enforce. No name, no block, no room, no amount, no items. `Click` carries
+`?admin=1&order=<id>` and `Icon` points at the live `icons/icon-192.png`, verified reachable
+earlier. The topic rotated; the new value is in the source and is deliberately **not** copied
+into this log, so a credential lives in one place rather than two.
+**Verified without buzzing the phone:** `window.fetch` was intercepted for the duration of two
+`notifyOwnerClaim` calls, so the requests were captured and never sent. Titles came back
+`💰 #003 — COD, bayaran perlu semak` and `💰 #004 — Ambil sendiri, bayaran perlu semak`; body
+`Pelanggan dah tekan "Saya dah bayar". Tekan untuk buka resit.`; `Priority: urgent`;
+`Tags: money_with_wings`; `Click` and `Icon` both correct; URL the new topic. The deep link was
+then driven for real: with no session it tidied the address bar, kept `_pendingAdminOrder`, and
+raised the login prompt; signing in opened the dashboard **and** order `#012 aiyo`'s detail.
+**CORRECTION — my first version of this was wrong.** `admOpenPending` retried on a 250 ms timer
+waiting for the orders to arrive, and it raced the login: the id was consumed, the cache filled
+a moment later, and the detail never opened. Replaced with `admFulfilPending`, called from the
+end of `_admRenderOrders` — the render is the moment the orders are actually in hand, so there
+is nothing to race. With a guard so an unreachable id (a deleted order) stops instead of
+looping. Re-verified after the change: the same deep link now lands on the detail.
+**Note:** with a session already live, the deep link enters the dashboard without asking for the
+password. That is exactly what the 🔧 button already does and grants nothing it does not — but
+it is a deliberate departure from "a remembered session must never open the dashboard by
+itself", so it is written down here rather than left implicit.
+**Artefacts:** `drinks-order.html`, `index.html`, `fb-admin-setup/n43-ntfy-rebuild.js`,
+`n44-pending-render.js`
+**Status:** ✅ confirmed
+
+### 2026-10-16 12:53 — Test orders removed, and a note about 9RFMYB
+
+**What happened:** The B verification left two orders behind.
+**Changed:** Deleted `orders/`, `tracking/` and `payments/` for `C6X3AL` and `LQLLYV`, and reset
+`counters/2026-10-16` from 3 back to **1**. Read back: 22 orders, 2 receipts (`9RFMYB`,
+`L7YXU7`), `members` 0, counter `n=1`. Browser test keys cleared, and `mms_loy` set back to 0
+because its only movement on this browser came from my test orders.
+**A thing worth flagging rather than glossing:** `9RFMYB` is marked `paid: true` with
+`paidAt = 2026-10-16T03:24:39Z` — 11:24 local, which is **before** the manual button was removed
+(12:29) and before `admSettlePaid` existed (12:31). So it was set through the old button, either
+by the owner or during a pre-checkpoint test session; the record does not say which, and this
+entry will not invent one. This session's testing did not touch it: `9RFMYB` stayed `UNSEEN`
+through every check, and opening an order's *detail* does not settle payment — only opening its
+receipt does.
+**Artefacts:** `fb-admin-setup/cleanup-bc.js`, `check-members.js`, `check-9rfmyb.js`
+**Status:** ⚠️ provisional — the paidAt origin is not recoverable from the records
+
 ---
 
 ## Withdrawn results

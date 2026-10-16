@@ -183,6 +183,42 @@ service cloud.firestore {
     }
 
     // ------------------------------------------------------------------
+    // Loyalty members, keyed by phone number.
+    //
+    // Created by the customer from the stamp prompt on the done screen, and
+    // readable ONLY by the seller.
+    //
+    // Deliberately not publicly readable. A lookup keyed by phone number can
+    // be enumerated - a Malaysian mobile is ten digits and guessable - so a
+    // public read here would let anyone work out which numbers belong to
+    // customers. That is the same class of leak this whole file exists to
+    // prevent, and it is why the customer's OWN stamp progress stays on their
+    // own device rather than being looked up from here.
+    //
+    // Create only: nothing may edit or delete a member from a browser. The
+    // document id is pinned to the number inside it so the two cannot
+    // disagree, and a name is required so a record is never a bare digit
+    // string with nobody attached.
+    //
+    // NOTE: this block does nothing until it is published. Until then the
+    // write is refused, the app treats that refusal as normal, and the
+    // customer's number still lives on their device and still rides on their
+    // next order.
+    // ------------------------------------------------------------------
+    match /members/{phone} {
+      allow create: if request.resource.data.keys().hasOnly(['phone', 'name', 'at'])
+                   && request.resource.data.at == request.time
+                   && request.resource.data.phone is string
+                   && request.resource.data.phone.size() >= 8
+                   && request.resource.data.phone.size() <= 20
+                   && request.resource.data.phone == phone
+                   && request.resource.data.name is string
+                   && request.resource.data.name.size() >= 2
+                   && request.resource.data.name.size() <= 40;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // ------------------------------------------------------------------
     // Funnel analytics. Anonymous step counters.
     //
     //   * anyone may append an event (that is how we count anonymous

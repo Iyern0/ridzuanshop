@@ -14,8 +14,8 @@ body{font-family:var(--fb);background:#131010;color:#F0F0F0;min-height:100vh;ove
 .hero h1{font-family:var(--fd);font-weight:800;font-size:clamp(30px,10vw,52px);color:#F0F0F0;text-shadow:0 0 20px rgba(0,212,170,0.3),3px 3px 0 rgba(0,0,0,0.5);letter-spacing:-0.5px}
 .hero h1 span{color:#00D4AA}.hero .sub{font-size:14px;color:#9A9385;margin-top:6px;font-weight:700}
 .bar{background:#1E1913;border-bottom:1px solid rgba(255,255,255,0.08);padding:12px 16px;display:flex;align-items:center;justify-content:center;gap:12px;font-size:13px;color:#9A9385;font-weight:700}
-.bar .stamps{display:flex;gap:5px}.bar .stamp{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:13px}
-.bar .stamp.filled{background:#00D4AA;border-color:#00D4AA}.bar .count{font-family:var(--fd);font-weight:800;font-size:24px;color:#00D4AA}
+.stamps{display:flex;gap:5px}.stamp{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:13px}
+.stamp.filled{background:#00D4AA;border-color:#00D4AA}.bar .count{font-family:var(--fd);font-weight:800;font-size:24px;color:#00D4AA}
 .sec{display:flex;align-items:center;gap:10px;padding:20px 16px 8px;max-width:640px;margin:0 auto}
 .sec h2{font-family:var(--fd);font-weight:800;font-size:22px;color:#F0F0F0;white-space:nowrap}
 .sec h2 span{color:#00D4AA}.sec .l{flex:1;height:2px;background:rgba(255,255,255,0.08)}
@@ -608,7 +608,6 @@ button:disabled:active{transform:none}
 <div class="opt"><div class="l">🚗 Delivery Method</div><div class="dt" id="del"></div></div>
 <div id="cust-note" class="opt" style="display:none;align-items:center;gap:8px;padding:10px 12px;background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.18);border-radius:10px;margin-top:10px"><span style="font-size:13px;color:#00D4AA;font-weight:800">✓ Maklumat anda diingati pada peranti ini</span><button onclick="clearCustomer()" style="margin-left:auto;background:none;border:none;color:#9A9385;font-size:12px;font-weight:800;text-decoration:underline;cursor:pointer;flex-shrink:0">Bukan anda?</button></div>
 <div class="opt"><div class="l">👤 Nama</div><div style="display:flex;gap:8px;margin-top:4px"><input class="inp" id="inp-name2" placeholder="Nama anda" maxlength="25" style="flex:1"></div></div>
-<div class="opt"><div class="l">📱 No. WhatsApp <span style="color:#FFB347">(pilihan — untuk stamp)</span></div><div style="margin-top:4px"><input class="inp" id="inp-phone" placeholder="cth: 0123456789" inputmode="tel" maxlength="20"><div style="font-size:12px;color:#9A9385;font-weight:600;margin-top:6px">Isi untuk kira stamp Beli 5 Percuma 1. Tak diisi pun boleh order.</div></div></div>
 <div class="opt" id="block-section"><div class="l">🏠 Blok</div><div class="block-grid" id="block-grid"></div><div id="room-row" style="display:none;margin-top:8px"><input class="inp" id="inp-room" placeholder="Nombor bilik / unit" maxlength="20"></div></div>
 <div class="opt" id="time-sec"><div class="l" id="time-label">⏰ When to deliver?</div><div id="time-pick" style="margin-top:10px"><div class="ts" id="times"></div><div id="pickup-note" style="display:none;font-size:14px;color:#9A9385;font-weight:600;margin-bottom:8px">💬 Will chat when it's ready</div><div id="time-more" style="font-size:13px;color:#FFB347;font-weight:800;margin-bottom:6px">Order for later? 👇</div><div id="time-pickup"><input class="inp" id="pickup-time" placeholder="e.g. 11:00 PM" maxlength="30"></div></div></div>
 <div class="opt" id="pay-section"><div class="l">💳 Bayar</div><div class="dt" id="pay"><button data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(0,212,170,0.1)"><img src="qr-duitnow.jpg" alt="DuitNow QR" style="width:210px;height:210px;display:block;border-radius:8px"></div><div style="font-size:13px;color:#9A9385;margin-top:8px;font-weight:600">Scan untuk bayar</div><a href="qr-duitnow.jpg" download="duitnow-qr.jpg" style="display:inline-block;margin-top:8px;font-size:12px;font-weight:800;color:#FFB347;background:rgba(255,179,71,0.12);border:1px solid rgba(255,179,71,0.38);padding:6px 12px;border-radius:999px;text-decoration:none">⬇ Muat turun QR</a><div id="qr-claim-slot" style="margin-top:14px"></div></div></div>
@@ -628,6 +627,18 @@ button:disabled:active{transform:none}
 <div id="adm-detail"></div>
 <div id="adm-confirm"></div>
 <div class="toast" id="toast"></div>
+<div class="modal" id="stamp-ask"><div class="bg" onclick="dismissStampAsk()"></div><div class="box">
+<div style="font-family:var(--fd);font-weight:800;font-size:22px;color:#00D4AA;margin-bottom:7px">🎁 Beli 5 Percuma 1</div>
+<div style="font-size:14px;color:#9A9385;font-weight:600;line-height:1.55;margin-bottom:16px">Setiap 5 minuman, yang ke-6 kami belanja. Kami ingat nombor telefon anda, jadi pesanan seterusnya kekal dikira.</div>
+<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px;margin-bottom:16px;text-align:center">
+<div class="stamps" id="stamp-ask-row" style="justify-content:center;margin-bottom:10px"></div>
+<div style="font-size:13px;color:#9A9385;font-weight:700"><b id="stamp-ask-count" style="color:#00D4AA;font-family:var(--fd);font-size:16px">0</b> minuman setakat ini · <span id="stamp-ask-progress">Kumpul 5 untuk 1 percuma</span></div>
+</div>
+<div style="font-size:13px;font-weight:800;color:#F0F0F0;margin-bottom:7px">📱 No. WhatsApp</div>
+<input class="inp" id="stamp-phone" placeholder="cth: 0123456789" inputmode="tel" maxlength="20" style="margin-bottom:14px">
+<button onclick="saveStampNumber()" style="width:100%;background:#00D4AA;color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:15px;padding:13px;border-radius:11px;cursor:pointer;margin-bottom:9px">Simpan</button>
+<button onclick="dismissStampAsk()" style="width:100%;background:transparent;border:1px solid rgba(255,255,255,0.12);color:#9A9385;font-family:var(--fb);font-weight:800;font-size:13px;padding:11px;border-radius:11px;cursor:pointer">Tak berminat</button>
+</div></div>
 <div class="done" id="done"></div>
 <div class="modal" id="admin-login" style="z-index:1100"><div class="bg" onclick="closeAdminLogin()"></div><div class="box" style="max-width:340px;text-align:center"><div style="font-family:var(--fd);font-weight:800;font-size:24px;color:#00D4AA;margin-bottom:4px">🔒 Admin Login</div><div style="font-size:13px;color:#9A9385;font-weight:700;margin-bottom:16px">Akaun admin sah sahaja</div><input class="inp" id="admin-email" type="email" autocomplete="username" inputmode="email" placeholder="admin@email.com" style="margin-bottom:10px;text-align:center"><input class="inp" id="admin-pw" type="password" autocomplete="current-password" placeholder="Password" style="margin-bottom:14px;text-align:center" onkeydown="if(event.key==='Enter')verifyAdminLogin()"><div style="display:flex;gap:8px"><button onclick="verifyAdminLogin()" id="admin-login-btn" style="flex:1;background:#00D4AA;color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:15px;padding:12px;border-radius:10px;cursor:pointer">Masuk</button><button onclick="closeAdminLogin()" style="background:rgba(255,255,255,0.08);color:#9A9385;border:none;font-size:14px;padding:12px;border-radius:10px;cursor:pointer">Batal</button></div></div></div>
 </div></div>
@@ -654,6 +665,9 @@ let ADDS=[
 let DELS=[{t:'cod',l:'📦 COD (+RM1)',f:1},{t:'pickup',l:'🏪 Ambil Sendiri',f:0}];
 let cart={},disAdds=[],disDel=[],isCod=null;
 let admin=false,admClk=0,admTmr=null,custItem=null,custAdds=[];
+// Set when the site is opened from the seller's notification, which carries
+// the order it is about. Consumed once, by the first dashboard that opens.
+let _pendingAdminOrder='';
 
 // Must match isAdmin() in firestore.rules. Change both together.
 const ADMIN_EMAIL='zjasneh5@gmail.com';
@@ -846,12 +860,38 @@ function lockAdmin(msg){
   const after=function(){closeAdminPanel();toast(msg||'🔒 Admin dikunci')};
   if(a)a.signOut().then(after).catch(after);else after();
 }
+// Open the order the notification was about.
+//
+// Driven from the list render rather than a timer. A timer races the login:
+// the dashboard renders, the id arrives, and whether the orders are in hand yet
+// depends on the second. The render IS the moment they are in hand, so this is
+// called from the end of it - first attempt clears whatever filter would hide
+// the row, and the re-render calls straight back in with the row present.
+function admFulfilPending(){
+  const id=_pendingAdminOrder;
+  if(!id)return;
+  if(!(_admOrdersCache||[]).some(function(x){return x.id===id}))return;   // not delivered yet
+  if(!(_admVisDocs||[]).some(function(x){return x.id===id})){
+    // Everything already cleared and it is still not on screen - it is deleted,
+    // or otherwise unreachable. Stop rather than looping.
+    if(_admFilter==='all'&&_admDelFilter==='all'&&!_admClaimOnly&&!_admSearch&&!_admBlockFilter){
+      _pendingAdminOrder='';
+      return;
+    }
+    _admFilter='all';_admDelFilter='all';_admClaimOnly=false;_admSearch='';_admBlockFilter='';
+    _admRenderOrders(document.getElementById('adm-pg'),_admOrdersCache);
+    return;
+  }
+  _pendingAdminOrder='';
+  admOpenDetail(id);
+}
 function enterAdmin(){
   if(!adminUser()){toast('⛔ Akaun ini bukan admin');return}
   admin=true;closeAdminLogin();admSetupOpen(_admSetupOpen);
   admStopWatch();setTimeout(admWatchClaims,1800);
   document.getElementById('admin-panel').classList.add('show');
   switchAdmin('orders');paintAdminBtn();bumpIdle();
+  admFulfilPending();
   toast('🔧 Admin ON');
 }
 function closeAdminLogin(){document.getElementById('admin-login').style.display='none'}
@@ -859,9 +899,78 @@ function showAdminLogin(){closeCart();closeCust();closeConfirm();document.getEle
 const AUTH_ERR={'auth/invalid-email':'Email tidak sah','auth/missing-password':'Masukkan password','auth/wrong-password':'Email atau password salah','auth/invalid-credential':'Email atau password salah','auth/invalid-login-credentials':'Email atau password salah','auth/user-not-found':'Email atau password salah','auth/user-disabled':'Akaun dinyahaktifkan','auth/too-many-requests':'Terlalu banyak cubaan. Tunggu sebentar.','auth/operation-not-allowed':'Email/Password belum diaktifkan dalam Firebase Console','auth/network-request-failed':'Tiada internet. Periksa sambungan.','auth/user-token-expired':'Sesi tamat. Cuba lagi.','auth/internal-error':'Ralat pelayan. Cuba lagi.'};
 async function verifyAdminLogin(){const em=document.getElementById('admin-email').value.trim(),pw=document.getElementById('admin-pw').value;const btn=document.getElementById('admin-login-btn');if(!em||!pw){toast('⚠ Email dan password diperlukan');return}btn.disabled=true;btn.textContent='Memeriksa…';const a=getAuth();if(!a){btn.disabled=false;btn.textContent='Masuk';toast('❌ Auth tidak tersedia');return}try{await a.signInWithEmailAndPassword(em,pw);await a.currentUser.getIdToken(true);enterAdmin()}catch(err){toast('❌ '+(AUTH_ERR[err.code]||'Gagal masuk'));document.getElementById('admin-pw').value='';document.getElementById('admin-pw').focus()}finally{btn.disabled=false;btn.textContent='Masuk'}}
 function findAdd(id){return ADDS.find(a=>a.id===id)}
+// A QR order that has not attached a receipt yet is the one job on the done
+// screen. Used by the receipt panel and by the stamp prompt, so they cannot
+// disagree about whether anything is still pending.
+function claimPending(o){return !!o&&o.pay==='qr'&&!o._claim}
+// ---------------------------------------------------------------------------
+// The stamp ask.
+//
+// Shown once per device, on the done screen, and only when nothing else there
+// is outstanding - a prompt on top of the receipt upload would hide the one
+// thing the customer still has to do. Either answer, a number or "not
+// interested", is remembered, so it asks once and never again.
+//
+// The number goes to members/{digits}, which only the seller can read, and is
+// kept on the device so the next order carries it - which is what keeps the
+// Customers tab's order counts working now the form no longer asks.
+// ---------------------------------------------------------------------------
+const STAMP_ASK_KEY='mms_stamp_ask';
+function stampAskDone(){try{return localStorage.getItem(STAMP_ASK_KEY)==='1'}catch(e){return false}}
+function stampRowHtml(count){
+  const p=count%5;let h='';
+  for(let i=0;i<5;i++)h+='<div class="stamp'+(i<p?' filled':'')+'">'+(i<p?'⭐':'')+'</div>';
+  return h;
+}
+function maybeAskStamp(){
+  const dn=document.getElementById('done');
+  const o=(dn&&dn._msg)||null;
+  if(!o||o.warn)return;
+  if(stampAskDone())return;
+  if(claimPending(o))return;
+  openStampAsk();
+}
+function openStampAsk(){
+  const m=document.getElementById('stamp-ask');
+  if(!m)return;
+  const c=getLoy().c;
+  const left=(5-(c%5))%5;
+  const row=document.getElementById('stamp-ask-row');
+  if(row)row.innerHTML=stampRowHtml(c);
+  const cnt=document.getElementById('stamp-ask-count');
+  if(cnt)cnt.textContent=c;
+  const lbl=document.getElementById('stamp-ask-progress');
+  if(lbl)lbl.textContent=c===0?'Kumpul 5 untuk 1 percuma':(left===0?'Boleh tebus minuman percuma sekarang!':left+' lagi untuk minuman percuma');
+  m.style.display='flex';
+}
+function closeStampAsk(){const m=document.getElementById('stamp-ask');if(m)m.style.display='none'}
+function dismissStampAsk(){
+  try{localStorage.setItem(STAMP_ASK_KEY,'1')}catch(e){}
+  closeStampAsk();
+  toast('Baik, kami tak akan tanya lagi');
+}
+function saveStampNumber(){
+  const raw=String((document.getElementById('stamp-phone')||{}).value||'').trim();
+  const digits=raw.replace(/[^0-9]/g,'');
+  if(digits.length<9){toast('⚠ Nombor tidak sah');return}
+  try{localStorage.setItem(STAMP_ASK_KEY,'1')}catch(e){}
+  try{const c=loadCustomer()||{};c.ph=digits;localStorage.setItem('mms_cust',JSON.stringify(c))}catch(e){}
+  const db=getDb();
+  if(db){
+    // Best effort, and deliberately silent. Until the rules are published this
+    // is refused, and a customer must never be shown an error about a rule
+    // they cannot see or do anything about. The number is on their device
+    // either way, so the next order still carries it.
+    db.collection('members').doc(digits)
+      .set({phone:digits,name:clip((loadCustomer()||{}).n||'',40),at:firebase.firestore.FieldValue.serverTimestamp()})
+      .catch(function(){});
+  }
+  closeStampAsk();
+  toast('✓ Nombor disimpan - terima kasih!');
+}
 function getLoy(){try{return JSON.parse(localStorage.getItem('mms_loy'))||{c:0}}catch(e){return{c:0}}}
 function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
-function drawLoy(){const l=getLoy();document.getElementById('loy-count').textContent=l.c;const p=l.c%5,s=document.getElementById('stamps');let h='';for(let i=0;i<5;i++)h+='<div class="stamp'+(i<p?' filled':'')+'">'+(i<p?'⭐':'')+'</div>';s.innerHTML=h}
+function drawLoy(){const l=getLoy();document.getElementById('loy-count').textContent=l.c;document.getElementById('stamps').innerHTML=stampRowHtml(l.c)}
 function toast(m){const t=document.getElementById('toast');t.innerHTML=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2000)}
 function admConfirm(msg,yesLabel,onYes){
   const box=document.getElementById('adm-confirm');
@@ -912,7 +1021,8 @@ function orderRef(o){if(!o)return'#';if(o.no)return'#'+fmtNo(o.no);if(o.code)ret
 // Tell the seller an order landed, on their phone, with every browser closed.
 // Deliberately omits the customer's name and number - this text passes through
 // a third-party server, and a block plus an order number is enough to act on.
-const NTFY_TOPIC='i7dhNJBSvkZgHKbSZUApcTymTMYSBVU8xTLRHamG';
+const NTFY_TOPIC='kcDyPbfadiKFnhRhRHGKivWDvoLvdFgrxy6YjjJkOBn';
+const SITE_URL='https://iyern0.github.io/ridzuanshop/';
 // Read any file as a data URL, unchanged. Used for PDFs, which we cannot
 // rasterise in the browser without shipping a PDF library.
 function fileToDataUrl(file){
@@ -959,18 +1069,43 @@ function shrinkImage(file,maxPx,quality){
     fr.readAsDataURL(file);
   });
 }
+// Tell the seller, on their phone, with every browser closed.
+//
+// The payload is deliberately thin. The topic name is the only thing a
+// customer's browser can hold, and this one ships in the source of a public
+// site - ntfy's own docs say the topic IS the password, which only holds if
+// the password is not published. So: an order number and whether it is a
+// delivery, and nothing else. No name, no block, no room, no amount, no
+// items. A stranger who finds the topic learns that some order needs
+// checking, and that is all.
+//
+// What makes a thin alert useful is landing on the thing it is about, so the
+// tap carries the order id. That id is meaningless without the login - the
+// order itself still sits behind it.
 function notifyOwnerClaim(o){
   try{
     if(typeof fetch!=='function')return;
-    const title='Bayaran? Pesanan '+(o.no?'#'+fmtNo(o.no):'?')+(o.room?(' - Blok '+o.room):' - ambil sendiri');
-    const body='Resit dilampirkan - semak';
+    const no=(o.no?'#'+fmtNo(o.no):'#?');
+    // A pickup order carries no room: the rules require one for COD and none
+    // for collection, which is the same convention the rest of the app uses.
+    const kind=o.room?'COD':'Ambil sendiri';
+    const title='💰 '+no+' — '+kind+', bayaran perlu semak';
+    const body='Pelanggan dah tekan "Saya dah bayar". Tekan untuk buka resit.';
+    const click=SITE_URL+'?admin=1'+(o.code?'&order='+encodeURIComponent(o.code):'');
     var ctrl=null;
     try{if(typeof AbortController!=='undefined')ctrl=new AbortController()}catch(e){}
     var timer=null;
     if(ctrl){timer=setTimeout(function(){try{ctrl.abort()}catch(e){}},6000)}
     fetch('https://ntfy.sh/'+NTFY_TOPIC,{
       method:'POST',
-      headers:{'Content-Type':'text/plain; charset=utf-8','Title':title,'Priority':'urgent','Tags':'money_with_wings'},
+      headers:{
+        'Content-Type':'text/plain; charset=utf-8',
+        'Title':title,
+        'Priority':'urgent',
+        'Tags':'money_with_wings',
+        'Click':click,
+        'Icon':SITE_URL+'icons/icon-192.png'
+      },
       body:body,
       signal:ctrl?ctrl.signal:undefined
     }).catch(function(){}).then(function(){if(timer)clearTimeout(timer)},function(){if(timer)clearTimeout(timer)});
@@ -1113,7 +1248,9 @@ async function sendWa(){
   const cod=isCod?1:0;total+=cod;
   _sending=true;btn.disabled=true;btn.textContent='Menghantar...';
 
-  const phone=clip((document.getElementById('inp-phone')||{}).value,20);
+  // Off the device, not off the form: the stamp prompt is where a number comes
+  // from now, and this is the order after the one that collected it.
+  const phone=clip((loadCustomer()||{}).ph||'',20);
   const payload={name:n,room:r,delivery:isCod?'cod':'pickup',time:clip(when,40),payment:payM,items:Object.values(ordMap).slice(0,50),subtotal:+(total-cod).toFixed(2),total:+total.toFixed(2),status:'baru'};
   if(phone)payload.phone=phone;
 
@@ -1192,9 +1329,13 @@ function OrdDisplay(map){return Object.values(map)}
 function loadCustomer(){try{const c=JSON.parse(localStorage.getItem('mms_cust'));return (c&&c.n)?c:null}catch(e){return null}}
 function saveCustomer(){
   try{
+    const prev=loadCustomer()||{};
     localStorage.setItem('mms_cust',JSON.stringify({
       n:clip(document.getElementById('inp-name2').value,25),
-      ph:clip(document.getElementById('inp-phone').value,20),
+      // The number is no longer typed on the form - the stamp prompt collects
+      // it after the order. Carrying the stored one forward is what lets the
+      // NEXT order send it, without ever asking a second time.
+      ph:prev.ph||'',
       block:selBlock||'',
       room:clip(document.getElementById('inp-room').value,20)
     }));
@@ -1282,6 +1423,10 @@ function showDone(o){
   autoAskNotify();
   paintClaim();
   paintSteps(o.warn?'':(o._st||'baru'));
+  // After a beat, so the order confirmation registers first. maybeAskStamp
+  // re-reads the live order, so a receipt attached in those two seconds still
+  // suppresses it.
+  setTimeout(maybeAskStamp,1200);
 }
 // The four pills map onto three real statuses, so processing has to light
 // Dibuat and Dalam perjalanan together - the order is being made and carried
@@ -1448,7 +1593,7 @@ function submitClaim(code,img,no,room,onDone){
   const db=getDb();
   if(!db||!code||!img){if(onDone)onDone(false);return}
   db.collection('payments').doc(code).set({img:img,at:firebase.firestore.FieldValue.serverTimestamp()})
-    .then(function(){notifyOwnerClaim({no:no,room:room});if(onDone)onDone(true)})
+    .then(function(){notifyOwnerClaim({no:no,room:room,code:code});if(onDone)onDone(true)})
     .catch(function(err){console.warn('claim gagal:',err);if(onDone)onDone(false)});
 }
 async function sendClaim(p){
@@ -1501,7 +1646,7 @@ function paintClaim(){
   const st=document.getElementById('claim-state');
   // QR customers are prompted for the receipt straight away; cash customers
   // see neither, because they pay when the drink is handed over.
-  if(panel)panel.style.display=(qr&&!o._claim)?'block':'none';
+  if(panel)panel.style.display=claimPending(o)?'block':'none';
   if(st)st.style.display=(qr&&o._claim)?'block':'none';
 }
 function closeDone(){const el=document.getElementById('done');if(el)el.classList.remove('show')}
@@ -1691,6 +1836,7 @@ function _admRenderOrders(pg,docs){
   pg.innerHTML=h;
   admRefocusSearch(pg,hadSearchFocus);
   admRefreshDetail();
+  admFulfilPending();
 }
 function admClaimFilter(){_admClaimOnly=!_admClaimOnly;const pg=document.getElementById('adm-pg');if(pg)_admRenderOrders(pg,_admOrdersCache||[])}
 function admSetDelFilter(d){_admDelFilter=d;const pg=document.getElementById('adm-pg');if(pg)_admRenderOrders(pg,_admOrdersCache||[])}
@@ -2045,6 +2191,28 @@ if(a)a.onAuthStateChanged(function(u){
 });
 ['pointerdown','keydown','wheel'].forEach(function(ev){window.addEventListener(ev,bumpIdle,{passive:true})});
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')bumpIdle()});})();
+// A tap on the seller's notification arrives here.
+//
+// NOTE: with a session already live this enters the dashboard without asking
+// for the password, which is exactly what the 🔧 button already does - it
+// grants nothing that button does not. With no session it only raises the
+// login prompt. Either way it is the owner's own tap that got here, so it is
+// not the dashboard opening by itself, which is what the rule at the top of
+// this file forbids.
+(function(){
+  let q=null;
+  try{q=new URLSearchParams(location.search)}catch(e){}
+  if(!q||q.get('admin')!=='1')return;
+  const want=String(q.get('order')||'').replace(/[^A-Za-z0-9_-]/g,'').slice(0,40);
+  if(want)_pendingAdminOrder=want;
+  // Tidy the address bar, so a reload or a shared link does not repeat this.
+  try{history.replaceState(null,'',location.pathname+location.hash)}catch(e){}
+  setTimeout(function(){
+    if(admin){admFulfilPending();return}
+    if(adminUser()){enterAdmin();return}
+    showAdminLogin();
+  },500);
+})();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
 </script>
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js')</script>
