@@ -1117,8 +1117,15 @@ function notifyOwnerClaim(o){
     // A pickup order carries no room: the rules require one for COD and none
     // for collection, which is the same convention the rest of the app uses.
     const kind=o.room?'COD':'Ambil sendiri';
-    const title=asciiHeader(no+' '+kind+' - bayaran perlu semak');
-    const body='Pelanggan dah tekan "Saya dah bayar". Tekan untuk buka resit.';
+    // The order as a docket: which order, how it arrives, how many drinks and
+    // what it comes to. No name, no block, no room.
+    //
+    // That is not squeamishness. This alert travels on an ntfy topic whose name
+    // sits in the page's own source, so anything sent here is readable by
+    // whoever looks. Order facts read like a real business notification without
+    // handing out a customer's name and address to do it.
+    const title=asciiHeader('Pesanan '+no+' - '+kind+(o.total?(' - RM'+Number(o.total).toFixed(2)):''));
+    const body='Bayaran perlu semak'+(o.items?(' - '+o.items+' minuman'):'')+'. Pelanggan dah tekan "Saya dah bayar". Tekan untuk buka resit.';
     const click=asciiHeader(SITE_URL+'?admin=1'+(o.code?'&order='+encodeURIComponent(o.code):''));
     var ctrl=null;
     try{if(typeof AbortController!=='undefined')ctrl=new AbortController()}catch(e){}
@@ -1343,7 +1350,7 @@ async function sendWa(){
   // ignored.
   showDone({...disp,warn:false});
   saveMyOrder(disp);saveCustomer();
-  if(proof)submitClaim(code,proof,orderNo,r);
+  if(proof)submitClaim(code,proof,orderNo,r,null,{items:items,total:total});
   toast('✓ Pesanan dihantar!');
   const l=getLoy();l.c++;if(l.c%5===0)setTimeout(()=>toast('Congrats! Minuman percuma seterusnya!'),900);saveLoy(l);drawLoy();
   cart={};saveCart();selTime='';selBlock='';isCod=null;payM='';
@@ -1638,11 +1645,12 @@ async function readProof(f){
 // The single place a claim is written. Both routes end up here, so the promise
 // the seller leans on - told only once proof is attached AND the customer has
 // said they paid - holds no matter which placement they used.
-function submitClaim(code,img,no,room,onDone){
+function submitClaim(code,img,no,room,onDone,info){
   const db=getDb();
   if(!db||!code||!img){if(onDone)onDone(false);return}
+  const nfo=info||{};
   db.collection('payments').doc(code).set({img:img,at:firebase.firestore.FieldValue.serverTimestamp()})
-    .then(function(){notifyOwnerClaim({no:no,room:room,code:code});if(onDone)onDone(true)})
+    .then(function(){notifyOwnerClaim({no:no,room:room,code:code,items:nfo.items,total:nfo.total});if(onDone)onDone(true)})
     .catch(function(err){console.warn('claim gagal:',err);if(onDone)onDone(false)});
 }
 async function sendClaim(p){
@@ -1685,7 +1693,7 @@ async function sendClaim(p){
     saveMyOrder(o);
     paintClaim();
     toast('✓ Resit dihantar - penjual akan semak');
-  });
+  },{items:(o.items||[]).reduce(function(s,i){return s+(i.qty||0)},0),total:o.total});
 }
 function paintClaim(){
   const dn=document.getElementById('done');

@@ -871,6 +871,27 @@ before believing a local verification.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `fb-admin-setup/n49-lock-not-logout.js`
 **Status:** ✅ confirmed locally
 
+### 2026-10-16 15:47 — The alert becomes a docket, with nobody's identity in it
+
+**What happened:** The owner asked for an alert that reads like a real business receiving an
+order, rather than "bayaran perlu semak" alone.
+**Decision (the owner's):** order facts only — which order, how it arrives, how many drinks, the
+total. No name, no block, no room. Still fired **only** on a payment claim, not on the order.
+**Built:** the title is now `Pesanan #007 - COD - RM8.50` and the body
+`Bayaran perlu semak - 3 minuman. Pelanggan dah tekan "Saya dah bayar". Tekan untuk buka resit.`
+`submitClaim` gained an `info` argument, and both call sites pass the count and the total.
+**Verified:** the payload built by the real function is all-ASCII (so the emoji failure cannot
+recur) and, although a room was passed in deliberately, it appears nowhere in either field.
+Fetch did not reject, and the topic was polled to confirm it actually arrived — checking the
+receiving end rather than an intercepted request, which is what missed the last bug.
+**Why it is not richer than this:** the alert travels on an ntfy topic named in the page's public
+source. A customer's name and address in it would be readable by anyone who views source, and
+sendable as fakes. The private-channel version that would make a full docket safe needs a server
+(self-hosted ntfy or a Cloud Function on Blaze), which the owner declined on cost.
+
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `fb-admin-setup/n50-alert-docket.js`
+**Status:** ✅ confirmed
+
 ---
 
 ## Withdrawn results
