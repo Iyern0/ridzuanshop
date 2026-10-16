@@ -15,6 +15,7 @@ PWA web app for a student stall (10:30PM–2:00AM). Customers browse menu, order
 - **Firebase Firestore** — ALL data stored here (no Gist, no token)
 - **Firebase Auth (Email/Password)** — gates the admin dashboard
 - **WhatsApp** — orders sent via wa.me deep link
+- **Type** — Plus Jakarta Sans 800 for display, Nunito for body, named once as `--fd` / `--fb` in `:root`. No text below 11px; inputs are 16px so iOS does not zoom the page when a field is focused.
 - **PWA** — manifest.json, icons, service worker (installable)
 
 ### Firestore Collections
@@ -109,7 +110,7 @@ firebase deploy --only firestore:rules --project minum-malam-siswa
 | `index.html` | Copy of above (GitHub Pages serves this) |
 | `firestore.rules` | **Security rules — paste into console** |
 | `manifest.json` | PWA manifest |
-| `sw.js` | Service worker (cache version `v3-20261013` — bump on release) |
+| `sw.js` | Service worker (cache version `v6-20261016` — bump on release) |
 | `icons/icon-192.png` | PWA icon 192px |
 | `icons/icon-512.png` | PWA icon 512px |
 | `icons/apple-touch-icon.png` | iOS icon 180px |
@@ -128,8 +129,14 @@ firebase deploy --only firestore:rules --project minum-malam-siswa
 3. Tap "Add to Cart"
 4. Tap "Review Order" → cart panel opens
 5. Select delivery: **COD** (block picker + room input) or **Ambil Sendiri**
-6. Fill name, select time slot, payment
-7. Confirm → opens WhatsApp with order message → Firestore saves order
+6. Fill name, choose time (slots, or type a custom one), choose payment
+7. QR Pay only → the receipt box sits **directly under the QR**: attach the proof, tap "Saya dah bayar" to stage it
+8. "Hantar Pesanan" → order saved to Firestore + WhatsApp opens + the seller is alerted **only if** a payment claim rode along with it
+
+**Nothing is pre-selected anywhere.** Delivery, payment, time and drink options all
+start blank, so an order can never be placed on a default the customer never chose.
+A refresh loses a staged receipt on purpose (it is held in memory, never in
+`localStorage`), and the done screen offers the box again so nobody gets stuck.
 
 **Cart survives a page refresh** (persisted in `localStorage` under `mms_cart`).
 
@@ -160,10 +167,12 @@ After selecting block → room number input appears → "Intan 3-2-1" format
 ### Pesanan Tab
 - **History view:** Hari Ini / Minggu Ini / Bulan Ini — order count + RM revenue
 - **Status filters:** Baru (🔴) | Proses (🟡) | Siap (🟢)
-- **Order cards:** #number, name, block box (COD), items (no prices), time/payment, status buttons, 📤 WhatsApp notify, ✕ delete
+- **Order rows:** colour rail, #number, name, block/Ambil sendiri, 📎 Resit (glows until opened), RM total, then status pills, 🗑 delete, ›
+- **Detail panel:** tap a row → items, butiran, receipt, paid toggle, WhatsApp the customer, delete
 - **Bulk action:** "✅ Tandakan Semua Siap" on Baru/Proses views
 - **Search:** Search by name/room in Siap section only
-- **Sound:** Beep + vibrate when new order arrives (admin panel open)
+- **Sound:** none for a new order. The seller is alerted (ntfy push + beep/vibrate in an open panel) **only** when a customer claims payment, because that is the moment money needs checking. A receipt you have not opened shows a glowing 📎 Resit pill in the row, and the "N resit perlu semak" warning counts only receipts you have not opened yet.
+- **Payment:** the paid toggle is not in the list any more — it lives in the order detail panel, where a payment decision belongs.
 - **Age indicator:** "3 min lalu", "1 jam lalu"
 - Shows the most recent **200** orders.
 
@@ -214,5 +223,7 @@ GitHub Pages auto-deploys ~1 min after push.
 - Push notifications for new orders (FCM)
 - Revenue analytics charts (daily/weekly/monthly breakdowns)
 - Print receipt for cash orders
-- Language toggle (MS/EN) — previously attempted, reverted
+- Language is mixed on purpose for now: the time section is English, the rest of the
+  customer flow is Malay. A full MS/EN toggle was attempted once and reverted; if it
+  comes back it needs to be a real toggle, not a rewrite.
 - Old order archival — `orders` grows forever; consider deleting settled orders monthly
