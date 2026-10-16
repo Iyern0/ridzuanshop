@@ -1,7 +1,7 @@
 // MINUM MALAM SISWA  Eservice worker
 // Cache name is versioned. Bump V when the app changes so old shells get evicted.
-// Current: V16 (nav forced to one column; legacy horizontal-strip rule beaten)
-const V = 'v16-20261016';
+// Current: V17 (bigger nav rows on a phone - 58px targets, all on one screen)
+const V = 'v17-20261016';
 const SHELL = ['./', './index.html', './drinks-order.html', './manifest.json'];
 
 self.addEventListener('install', (e) => {
