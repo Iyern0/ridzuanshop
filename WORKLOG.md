@@ -687,6 +687,58 @@ works live. No order today carries a placeholder.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `fb-admin-setup/n46-three-fixes.js`
 **Status:** ✅ confirmed locally · ⚠️ live site still carries the double receipt ask
 
+### 2026-10-16 15:15 — The receipt returns to checkout, and a returning customer is recognised
+
+**What happened:** The owner clarified the receipt placement — it should be asked for while the
+order is being filled in, not afterwards — and asked for three things around a customer who has
+ordered before.
+
+**This change REVERSES the one made at 15:06**, which had moved the ask to the done screen. That
+entry stands as written; this is the correction. The resulting flow, stated once so the next
+reader is not left guessing: **the customer attaches the proof under the QR at checkout, it rides
+up with the order, and placing the order is the moment the seller is told. Nothing asks
+afterwards.**
+
+**Restored, verbatim from the version verified earlier today:** the `#qr-claim-slot` div, the IIFE
+that injects the block into it, `stagedProof` and its comment, `claimPicked`'s staging line,
+`sendWa`'s `proof`/`submitClaim` pair, the checkout cleanup after an order, and `sendClaim`'s
+`atCheckout` branch.
+**Removed:** the done screen's `claimBlockHtml('')` and `paintClaim`'s panel line. The
+"⏳ Menunggu penjual semak" waiting state (`#claim-state`) stays — it is information, not an ask.
+
+**A returning customer is now recognised.** When a name is remembered the `#name-section` field is
+hidden (the value stays in the hidden input, so the order still carries it), and the note reads
+`✓ ZULKIFLI · Intan 1-1` instead of the generic line. `clearCustomer` ("Bukan anda?") brings the
+field back. Choice of COD now confirms it out loud:
+`📌 Disimpan sebagai ZULKIFLI · Intan 1-1`.
+
+**Verified end to end, for real:**
+- Seeded a returning customer before boot: name field `display:none`, hidden input still
+  `ZULKIFLI`, note reading `✓ ZULKIFLI · Intan 1-1`, block `Intan` restored and its button
+  active, room `1-1` restored.
+- Choosing COD → toast `📌 Disimpan sebagai ZULKIFLI · Intan 1-1`, block section revealed.
+- Checkout: `#qr-claim-slot` present, QR section children are the image, the caption, the download
+  link and the slot; `#qr-claim-panel` present and visible with its "Saya dah bayar" button.
+- Done screen: `#done #claim-panel` count is **0**, and `#claim-state` shows for a claim.
+- **The full flow:** a synthetic 3 KB PDF staged through the real branch (`stagedProof` 4028 chars
+  of `data:application/pdf;base64,`, toast "✓ Resit sedia - tekan Hantar Pesanan", and **no
+  notification at staging**), then the order placed — exactly **one** notification,
+  `💰 #005 — COD, bayaran perlu semak`, on the new topic. The order carried `_claim:true` and the
+  done screen showed the waiting state.
+
+**Found while cleaning up:** today's live orders are `#1 3B9UL8` (03:32), `#2 HUW5BA` (13:05),
+`#3 WV39VJ` (15:01), `#4 HL89NR` (15:13) and my test `#5 MX37A2` (15:14). **`HL89NR` is the
+owner's own order and carries a receipt** — they tested the flow on the live site and it worked.
+Deleted only `MX37A2` (`orders`/`tracking`/`payments`) and set `counters/2026-10-16` to **4**, the
+highest surviving order number. Receipts now: `9RFMYB`, `HL89NR`, `L7YXU7`.
+
+**State:** committed locally. **Not pushed** — the live site still has the double ask (its build
+predates both this change and the one it reverses).
+
+**Artefacts:** `drinks-order.html`, `index.html`, `fb-admin-setup/n47-checkout-receipt-back.js`,
+`cleanup-mx37a2.js`
+**Status:** ✅ confirmed locally
+
 ---
 
 ## Withdrawn results
