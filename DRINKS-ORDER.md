@@ -110,7 +110,7 @@ firebase deploy --only firestore:rules --project minum-malam-siswa
 | `index.html` | Copy of above (GitHub Pages serves this) |
 | `firestore.rules` | **Security rules — paste into console** |
 | `manifest.json` | PWA manifest |
-| `sw.js` | Service worker (cache version `v6-20261016` — bump on release) |
+| `sw.js` | Service worker (cache version `v7-20261016` — bump on release) |
 | `icons/icon-192.png` | PWA icon 192px |
 | `icons/icon-512.png` | PWA icon 512px |
 | `icons/apple-touch-icon.png` | iOS icon 180px |
@@ -129,9 +129,10 @@ firebase deploy --only firestore:rules --project minum-malam-siswa
 3. Tap "Add to Cart"
 4. Tap "Review Order" → cart panel opens
 5. Select delivery: **COD** (block picker + room input) or **Ambil Sendiri**
-6. Fill name, choose time (slots, or type a custom one), choose payment
+6. Fill name, choose a time (**required** — a slot or one typed into the box; with neither, the order is refused and the box is pointed at), choose payment
 7. QR Pay only → the receipt box sits **directly under the QR**: attach the proof, tap "Saya dah bayar" to stage it
 8. "Hantar Pesanan" → order saved to Firestore + WhatsApp opens + the seller is alerted **only if** a payment claim rode along with it
+9. On the done screen, once per device and only when no receipt is outstanding: the **stamp prompt** — the promotion explained, the customer's own progress, a number field, and "Tak berminat" at the bottom. The number goes to `members/{phone}`, readable only by the seller, and is kept on the device so the **next** order carries it (which is what keeps the Customers tab's totals working now the form does not ask).
 
 **Nothing is pre-selected anywhere.** Delivery, payment, time and drink options all
 start blank, so an order can never be placed on a default the customer never chose.
@@ -168,11 +169,11 @@ After selecting block → room number input appears → "Intan 3-2-1" format
 - **History view:** Hari Ini / Minggu Ini / Bulan Ini — order count + RM revenue
 - **Status filters:** Baru (🔴) | Proses (🟡) | Siap (🟢)
 - **Order rows:** colour rail, #number, name, block/Ambil sendiri, 📎 Resit (glows until opened), RM total, then status pills, 🗑 delete, ›
-- **Detail panel:** tap a row → items, butiran, receipt, paid toggle, WhatsApp the customer, delete
+- **Detail panel:** tap a row → one card per drink, each add-on its own chip, with the line's own price; then butiran, receipt, WhatsApp the customer, delete
 - **Bulk action:** "✅ Tandakan Semua Siap" on Baru/Proses views
-- **Search:** Search by name/room in Siap section only
-- **Sound:** none for a new order. The seller is alerted (ntfy push + beep/vibrate in an open panel) **only** when a customer claims payment, because that is the moment money needs checking. A receipt you have not opened shows a glowing 📎 Resit pill in the row, and the "N resit perlu semak" warning counts only receipts you have not opened yet.
-- **Payment:** the paid toggle is not in the list any more — it lives in the order detail panel, where a payment decision belongs.
+- **Search:** name/room in the Siap and Semua views. Clicking the box also reveals a row of block chips, so a block is picked without typing; their counts are taken before the typed name is applied, so they hold still while one is typed.
+- **Alerts:** nothing at all is sent when an order is placed. The seller is alerted (ntfy push + beep/vibrate in an open panel) **only** when a customer claims payment, because that is the moment money needs checking. The payload carries an order number and COD/Ambil sendiri and **nothing else** — no name, block, room, amount or items — because the topic name is the only credential a browser can hold and it ships in public source. That is also why the tap matters: it carries the order id, so it opens the dashboard and that order's receipt. A receipt you have not opened shows a glowing 📎 Resit pill, and the "N resit perlu semak" warning counts only unopened ones.
+- **Payment:** there is no paid button anywhere. Opening a receipt settles the flag — which is what the glow already meant — so the "belum bayar" count, the Resit tab line and the customer's own "Bayaran diterima" mark all clear themselves.
 - **Age indicator:** "3 min lalu", "1 jam lalu"
 - Shows the most recent **200** orders.
 

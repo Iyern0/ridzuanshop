@@ -1,7 +1,7 @@
 // MINUM MALAM SISWA — service worker
 // Cache name is versioned. Bump V when the app changes so old shells get evicted.
-// Current: V6 (receipt block under the QR at checkout, stepper per delivery type)
-const V = 'v6-20261016';
+// Current: V7 (time required, stamp prompt after payment, thin seller alert)
+const V = 'v7-20261016';
 const SHELL = ['./', './index.html', './drinks-order.html', './manifest.json'];
 
 self.addEventListener('install', (e) => {
