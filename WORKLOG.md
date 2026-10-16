@@ -224,6 +224,80 @@ one line if the warning was meant to count receipts, not checkups.
 **Artefacts:** `drinks-order.html`, `index.html`
 **Status:** ⚠️ provisional — the user has not seen this change yet
 
+### 2026-10-16 12:08 — The notification channel grilled; decisions taken, nothing built
+
+**What happened:** Worked the notification question as a decision tree in two rounds
+(seven questions), after loading the grilling skill, because "fix the notification" had
+several readings that would lead to different work. Facts below were checked, not
+assumed.
+
+**Found / changed (facts):**
+- **The live site already carries the current ntfy topic in its source.** Fetched
+  `https://iyern0.github.io/ridzuanshop/` — 157,468 bytes, status 200, contains `ntfy`
+  and the exact topic string. So the topic has been scrape-able since at least
+  `8b8192f` (2026-10-15 17:17), which is the last pushed commit. The leak is live, not
+  hypothetical.
+- ntfy's own documentation: *"Because there is no sign-up, the topic is essentially a
+  password, so pick something that's not easily guessable."* A password printed in a
+  public page is not a password — but it also is not fixable without a server, because
+  the poster is the customer's browser.
+- ntfy supports `Click`, `Icon` (JPEG/PNG only), `Attach`, `Actions` (up to 3),
+  `Markdown`. **`Attach` is a trap here** — it would upload the customer's receipt to
+  ntfy.sh, a third party. Rejected without asking.
+- `icons/icon-192.png` is live, `image/png`, 11,447 bytes, so the `Icon` header has a
+  valid target.
+- **A remembered admin session is already password-free.** `#admin-btn` (line 576) calls
+  `enterAdmin()`, which only checks `adminUser()`. The deliberate comment at line 1882
+  only stops the panel opening *by itself* on load. So `?admin=1` grants no authority the
+  🔧 button does not already give, and no password prompt is being skipped that would
+  otherwise have appeared.
+- A claim fires exactly one notification from one place (`submitClaim`), and both UI
+  routes converge there; after success the fallback block becomes the waiting state, so
+  a second claim is not reachable through the UI.
+
+**Decisions (the owner's):**
+1. Delivery is fine — the job is making the notification better, not fixing delivery.
+2. Payload gets trimmed: order number and delivery mode only. No name, no block/room, no
+   amount, no items.
+3. The tap gets a deep link that opens the login prompt and then that exact order.
+4. The topic rotates now, with the phone subscribed to old and new at once so there is no
+   silent window; the old one is removed from the app after the push.
+
+**Left as residual risk, stated not hidden:** anyone holding the topic can still buzz the
+phone with fake notifications. The trimmed payload means a fake cannot claim a customer,
+an amount, or items, and can at worst open the dashboard on a random order id. Removing
+that ability needs a server (Blaze plan) or self-hosted ntfy; trim + rotate was chosen
+instead.
+
+**Not yet started.** Every piece of this is local until a push, and the live site keeps
+the old topic and the leaky title until then.
+
+**Artefacts:** `WORKLOG.md`
+**Status:** ⚠️ provisional — design agreed in conversation, no code written
+
+### 2026-10-16 12:14 — The QR at checkout gets a download link
+
+**What happened:** Under "Scan untuk bayar" in the QR section there is now a small pill that
+downloads the DuitNow QR image, for a customer who wants the QR in their banking app.
+**Found / changed:** `<a href="qr-duitnow.jpg" download="duitnow-qr.jpg">` — a same-origin
+file plus the `download` attribute, so no JS is involved. It sits as a sibling directly
+between the caption div and `#qr-claim-slot`. Amber (`#FFB347` text, 12% amber fill, 38%
+amber border, pill radius) so it is obvious on the dark background without competing with
+the solid teal "Saya dah bayar" button underneath, which is the action that actually
+matters. 12px font — the badge/caption floor the typography pass settled on.
+**Verified:** document order inside `#qr-section` reads QR image → "Scan untuk bayar" →
+the new link → `#qr-claim-slot`. The link's rect sits below the caption and above the
+claim panel. Box 121x31px; text 95px + 24px padding + 2px border fits with no overflow
+(`scrollWidth === clientWidth === 119`). Target resolves 200 / image/jpeg / 90,881 bytes.
+Arrow wrote as U+2B07 (raw bytes `e2 ac 87`) — checked at byte level because this file has
+been lossy with emoji before.
+**Note:** the QR block lives inside `#panel`, which is `position:fixed` and translated
+`matrix(1,0,0,1,420,0)` — off to the right — so a plain viewport screenshot renders the top
+of the page instead. Element screenshots by ref do work. Worth remembering next time a
+screenshot "doesn't show the change".
+**Artefacts:** `drinks-order.html`, `index.html`
+**Status:** ✅ confirmed
+
 ---
 
 ## Withdrawn results
