@@ -272,6 +272,24 @@ button:disabled:active{transform:none}
 .adm-main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
 .adm-main .hd{padding:18px 22px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between}
 .adm-main .hd h2{font-family:var(--fd);font-weight:800;font-size:24px;color:#F0F0F0}
+/* On a phone the sidebar was taking 220 of ~380 pixels and the filter bar
+   another two rows, which left almost nothing for the orders - the list itself
+   was the hard part to read. Both now fold away and are opened from the header. */
+.adm-burger{display:none}
+.adm-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.62);z-index:899}
+@media (max-width:760px){
+  .adm-main .hd{padding:12px 13px;gap:10px;justify-content:flex-start}
+  .adm-main .hd h2{font-size:19px;cursor:pointer}
+  .adm-main .hd h2:after{content:" ▾";font-size:12px;color:#6B645A}
+  .adm-burger{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;flex-shrink:0;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;color:#F0F0F0;font-size:17px;cursor:pointer}
+  /* flex-shrink:0 alone was not enough: the sidebar is a flex child of the
+     panel, so it has to leave the flow entirely to stop reserving its width. */
+  .adm-side{position:fixed;left:0;top:0;bottom:0;z-index:900;width:252px;transform:translateX(-100%);transition:transform .24s var(--sp);box-shadow:0 0 40px rgba(0,0,0,0.7)}
+  .adm-side.open{transform:none}
+  .adm-backdrop.show{display:block}
+  .a-bar.fold{display:none}
+  .o-row{margin-bottom:9px}
+}
 .adm-main .pg{flex:1;padding:20px 22px;overflow-y:auto}
 @media(max-width:700px){
 #admin-panel.show{flex-direction:column}
@@ -642,7 +660,7 @@ button:disabled:active{transform:none}
 <div class="done" id="done"></div>
 <div class="modal" id="admin-login" style="z-index:1100"><div class="bg" onclick="closeAdminLogin()"></div><div class="box" style="max-width:340px;text-align:center"><div style="font-family:var(--fd);font-weight:800;font-size:24px;color:#00D4AA;margin-bottom:4px">🔒 Admin Login</div><div style="font-size:13px;color:#9A9385;font-weight:700;margin-bottom:16px">Akaun admin sah sahaja</div><input class="inp" id="admin-email" type="email" autocomplete="username" inputmode="email" placeholder="admin@email.com" style="margin-bottom:10px;text-align:center"><input class="inp" id="admin-pw" type="password" autocomplete="current-password" placeholder="Password" style="margin-bottom:14px;text-align:center" onkeydown="if(event.key==='Enter')verifyAdminLogin()"><div style="display:flex;gap:8px"><button onclick="verifyAdminLogin()" id="admin-login-btn" style="flex:1;background:#00D4AA;color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:15px;padding:12px;border-radius:10px;cursor:pointer">Masuk</button><button onclick="closeAdminLogin()" style="background:rgba(255,255,255,0.08);color:#9A9385;border:none;font-size:14px;padding:12px;border-radius:10px;cursor:pointer">Batal</button></div></div></div>
 </div></div>
-<div id="admin-panel"><div class="adm-side"><div class="brand">🌙 MMS ADMIN</div><nav id="adm-nav"><div class="grp">Operasi Harian</div><a data-tab="orders" class="active"><span class="ic">📥</span>Pesanan</a><a data-tab="customers"><span class="ic">👥</span>Pelanggan</a><a data-tab="receipts"><span class="ic">📎</span>Resit</a><a data-tab="stats"><span class="ic">📊</span>Analitis</a><div class="grp">Tetanapan</div><button class="toggle" onclick="admSetupToggle()"><span>⚙️ Menu &amp; Tetapan</span><span class="car">›</span></button><div class="subnav" id="adm-setup"><a data-tab="menu"><span class="ic">🧋</span>Minuman</a><a data-tab="addons"><span class="ic">🍬</span>Pemanis</a><a data-tab="schedule"><span class="ic">⏰</span>Masa</a><a data-tab="delivery"><span class="ic">🚗</span>Penghantaran</a><a data-tab="settings"><span class="ic">⚙️</span>Settings</a></div></nav><div class="exit"><button onclick="lockAdmin('🔒 Admin dikunci')">🔒 Kunci</button><button onclick="exitAdmin()">✕ Customer View</button></div></div><div class="adm-main"><div class="hd"><h2 id="adm-hd">📥 Pesanan</h2></div><div class="pg" id="adm-pg"></div></div></div>
+<div id="admin-panel"><div class="adm-side"><div class="brand">🌙 MMS ADMIN</div><nav id="adm-nav"><div class="grp">Operasi Harian</div><a data-tab="orders" class="active"><span class="ic">📥</span>Pesanan</a><a data-tab="customers"><span class="ic">👥</span>Pelanggan</a><a data-tab="receipts"><span class="ic">📎</span>Resit</a><a data-tab="stats"><span class="ic">📊</span>Analitis</a><div class="grp">Tetanapan</div><button class="toggle" onclick="admSetupToggle()"><span>⚙️ Menu &amp; Tetapan</span><span class="car">›</span></button><div class="subnav" id="adm-setup"><a data-tab="menu"><span class="ic">🧋</span>Minuman</a><a data-tab="addons"><span class="ic">🍬</span>Pemanis</a><a data-tab="schedule"><span class="ic">⏰</span>Masa</a><a data-tab="delivery"><span class="ic">🚗</span>Penghantaran</a><a data-tab="settings"><span class="ic">⚙️</span>Settings</a></div></nav><div class="exit"><button onclick="lockAdmin('🔒 Admin dikunci')">🔒 Kunci</button><button onclick="exitAdmin()">✕ Customer View</button></div></div><div class="adm-main"><div class="hd"><button class="adm-burger" onclick="admToggleSide()" title="Menu">☰</button><h2 id="adm-hd" onclick="admToggleBar()" title="Tunjuk atau sembunyi tapisan">📥 Pesanan</h2></div><div class="pg" id="adm-pg"></div></div><div class="adm-backdrop" id="adm-backdrop" onclick="admToggleSide(0)"></div></div>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -901,6 +919,24 @@ function enterAdmin(){
   admFulfilPending();
   toast('🔧 Admin ON');
 }
+// Mobile layout. The sidebar becomes a drawer and the filter bar folds away, so
+// the orders get the screen; both come back from the header. _barFold is null
+// until the owner touches it, so the default follows the screen width instead
+// of being decided on load and then wrong after a rotation.
+let _barFold=null;
+function admFolded(){return _barFold===null?window.innerWidth<=760:_barFold}
+function admApplyFold(){const b=document.querySelector('.a-bar');if(b)b.classList.toggle('fold',admFolded())}
+function admToggleBar(){_barFold=!admFolded();admApplyFold()}
+function admToggleSide(open){
+  const s=document.querySelector('.adm-side'),k=document.getElementById('adm-backdrop');
+  if(!s)return;
+  const want=(open===0)?false:(open===1?true:!s.classList.contains('open'));
+  s.classList.toggle('open',want);
+  if(k)k.classList.toggle('show',want);
+}
+// Taking a tab should put the drawer away - it has done its job, and on a phone
+// it would otherwise sit over the screen the owner just navigated to.
+function admCloseSide(){admToggleSide(0)}
 function closeAdminLogin(){document.getElementById('admin-login').style.display='none'}
 function showAdminLogin(){closeCart();closeCust();closeConfirm();document.getElementById('admin-login').style.display='flex';const e=document.getElementById('admin-email');if(e){e.value='';setTimeout(()=>e.focus(),60)}}
 const AUTH_ERR={'auth/invalid-email':'Email tidak sah','auth/missing-password':'Masukkan password','auth/wrong-password':'Email atau password salah','auth/invalid-credential':'Email atau password salah','auth/invalid-login-credentials':'Email atau password salah','auth/user-not-found':'Email atau password salah','auth/user-disabled':'Akaun dinyahaktifkan','auth/too-many-requests':'Terlalu banyak cubaan. Tunggu sebentar.','auth/operation-not-allowed':'Email/Password belum diaktifkan dalam Firebase Console','auth/network-request-failed':'Tiada internet. Periksa sambungan.','auth/user-token-expired':'Sesi tamat. Cuba lagi.','auth/internal-error':'Ralat pelayan. Cuba lagi.'};
@@ -1892,6 +1928,7 @@ function _admRenderOrders(pg,docs){
   admRefocusSearch(pg,hadSearchFocus);
   admRefreshDetail();
   admFulfilPending();
+  admApplyFold();
 }
 function admClaimFilter(){_admClaimOnly=!_admClaimOnly;const pg=document.getElementById('adm-pg');if(pg)_admRenderOrders(pg,_admOrdersCache||[])}
 function admSetDelFilter(d){_admDelFilter=d;const pg=document.getElementById('adm-pg');if(pg)_admRenderOrders(pg,_admOrdersCache||[])}

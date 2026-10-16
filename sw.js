@@ -1,7 +1,7 @@
 // MINUM MALAM SISWA  Eservice worker
 // Cache name is versioned. Bump V when the app changes so old shells get evicted.
-// Current: V11 (alert reads as an order docket with no customer identity)
-const V = 'v11-20261016';
+// Current: V12 (mobile admin: sidebar and filter bar fold away)
+const V = 'v12-20261016';
 const SHELL = ['./', './index.html', './drinks-order.html', './manifest.json'];
 
 self.addEventListener('install', (e) => {

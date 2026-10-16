@@ -892,6 +892,27 @@ sendable as fakes. The private-channel version that would make a full docket saf
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `fb-admin-setup/n50-alert-docket.js`
 **Status:** ✅ confirmed
 
+### 2026-10-16 15:52 — On a phone the sidebar and the filter bar fold away
+
+**What happened:** The owner reported that on mobile the order list is too small to read, and
+asked for the filter bar and the sidebar to show only when tapped again.
+**Found:** the admin had **no mobile rules at all**. `.adm-side` is a 220px flex child of the
+panel, so on a ~380px phone it left roughly 160px for the orders, and `.a-bar` cost another two
+rows on top.
+**Changed:** below 760px the sidebar comes out of the flow entirely (`position:fixed`,
+`translateX(-100%)`) and becomes a drawer with a backdrop — `flex-shrink:0` alone would not have
+helped, since the point is to stop it reserving width. A ☰ button in the header opens it, the
+header title (`📥 Pesanan`, now with a ▾) toggles the filter bar, and `_barFold` starts null so
+the default follows the screen width rather than being decided once at load and then wrong after
+a rotation. `admApplyFold()` is re-applied at the end of every orders render, because `.a-bar` is
+rebuilt from innerHTML each time.
+**Verified:** at 1120px the burger is `display:none`, the sidebar still `position:static`, and
+`admFolded()` is false, so the desktop layout is untouched; the drawer opens and closes and the
+backdrop stays hidden above the breakpoint. The narrow layout itself could **not** be verified
+here — no viewport emulation is available — so that needs the owner's phone or a narrowed window.
+**Artefacts:** `drinks-order.html`, `index.html`, `fb-admin-setup/n51-mobile-admin.js`
+**Status:** ⚠️ provisional — desktop unaffected and the toggles work; the phone layout is unverified
+
 ---
 
 ## Withdrawn results
