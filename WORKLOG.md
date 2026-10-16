@@ -844,6 +844,33 @@ unpublished.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `WORKLOG.md`, `fb-admin-setup/poll-ntfy.js`
 **Status:** ✅ confirmed on the live deployment
 
+### 2026-10-16 15:38 — The idle lock locks the screen, not the account
+
+**What happened:** The owner asked that tapping a notification open the order directly, without
+filling anything in. Checking first showed the deep link already does exactly that when a session
+is live — the thing in the way was the 15-minute idle lock calling `signOut()`, which destroyed
+the session, so the link had nothing to use.
+**The constraint, stated rather than worked around:** admin rights cannot be carried in the
+notification link. The alert sits on an ntfy topic whose name is in the page's public source, so
+any key in that link is a published key. That path needs a private channel first (self-hosted
+ntfy or a relay) — the option already declined as costing money or a server.
+**Decisions (the owner's):** the lock keeps the session; and the notification opens in the
+**installed app**, which is the best case — one storage area, so one login covers the link.
+**Changed:** `lockAdmin` no longer signs out; it closes the dashboard and says so. Signing out
+stays deliberate and lives in Settings (`admSignOutNow`) — exactly one `signOut()` remains in the
+file. The hero title tap now reopens the dashboard without a password when a session exists,
+instead of always raising the login form.
+**Verified by driving it:** signed in, then `lockAdmin()` — panel hidden, `admin` false, but
+`adminUser()` still `zjasneh5@gmail.com`, so the session survived and the Admin button stayed.
+Five taps on the title reopened the dashboard with the login modal at `display:none`.
+**A testing lesson worth keeping:** the first run of that check looked like a failure and was not.
+The tab had been left on the **live site** from the earlier send test, so it was running the
+deployed build (which correctly still signs out, that fix not being pushed yet). A
+`location.href` navigation had silently not taken; `browser.navigate` did. Check `location.origin`
+before believing a local verification.
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `fb-admin-setup/n49-lock-not-logout.js`
+**Status:** ✅ confirmed locally
+
 ---
 
 ## Withdrawn results

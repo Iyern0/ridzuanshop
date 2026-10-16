@@ -1,7 +1,7 @@
-// MINUM MALAM SISWA — service worker
+// MINUM MALAM SISWA  Eservice worker
 // Cache name is versioned. Bump V when the app changes so old shells get evicted.
-// Current: V9 (alerts can actually be sent again - ASCII header values)
-const V = 'v9-20261016';
+// Current: V10 (the idle lock keeps the session, so a notification tap lands on the order)
+const V = 'v10-20261016';
 const SHELL = ['./', './index.html', './drinks-order.html', './manifest.json'];
 
 self.addEventListener('install', (e) => {

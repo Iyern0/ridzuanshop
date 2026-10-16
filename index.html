@@ -854,11 +854,18 @@ function closeAdminPanel(){
 }
 // Close the dashboard but stay signed in, so the 🔧 button comes back.
 function exitAdmin(){closeAdminPanel();toast('Customer view')}
-// Sign out entirely - the next tap needs the password again.
+// Lock the screen, NOT the account.
+//
+// This used to sign out, which is why a tap on a notification always ended at
+// the password prompt: by then there was no session left to use. Protecting an
+// unattended screen is what this is for, and closing the dashboard does exactly
+// that. The session staying alive is what lets the notification link open the
+// order the tap was about, with nothing to type.
+//
+// Signing out is still deliberate and still available - it lives in Settings.
 function lockAdmin(msg){
-  const a=getAuth();
-  const after=function(){closeAdminPanel();toast(msg||'🔒 Admin dikunci')};
-  if(a)a.signOut().then(after).catch(after);else after();
+  closeAdminPanel();
+  toast(msg||'🔒 Admin dikunci');
 }
 // Open the order the notification was about.
 //
@@ -1698,7 +1705,7 @@ document.getElementById('adm-nav').addEventListener('click',function(e){
   var a=e.target.closest?e.target.closest('a[data-tab]'):null;
   if(a)switchAdmin(a.dataset.tab);
 });
-document.querySelector('.hero h1').addEventListener('click',()=>{admClk++;clearTimeout(admTmr);admTmr=setTimeout(()=>{admClk=0},1000);if(admClk>=5){admClk=0;if(!admin)showAdminLogin();else lockAdmin('🔒 Admin dikunci')}});
+document.querySelector('.hero h1').addEventListener('click',()=>{admClk++;clearTimeout(admTmr);admTmr=setTimeout(()=>{admClk=0},1000);if(admClk>=5){admClk=0;if(admin)lockAdmin('🔒 Admin dikunci');else if(adminUser())enterAdmin();else showAdminLogin()}});
 let admTab='orders',admUnsub=null;
 const ADM_T={orders:'📥 Pesanan',customers:'👥 Pelanggan',receipts:'📎 Resit Bayaran',stats:'📊 Analitis',menu:'🧋 Minuman',addons:'🍬 Pemanis',schedule:'⏰ Masa',delivery:'🚗 Penghantaran',settings:'⚙️ Settings'};
 const ADM_SETUP=['menu','addons','schedule','delivery','settings'];
