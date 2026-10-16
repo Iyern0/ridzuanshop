@@ -23,7 +23,7 @@ body{font-family:var(--fb);background:#131010;color:#F0F0F0;min-height:100vh;ove
 .card{background:#1E1913;border:1.5px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px 12px;cursor:pointer;transition:border-color 0.2s,box-shadow 0.2s,transform 0.1s;-webkit-tap-highlight-color:transparent;user-select:none;position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px}
 .card:active{transform:scale(0.96)}.card:hover{border-color:#00D4AA;box-shadow:0 0 20px rgba(0,212,170,0.1)}
 .card.disabled{opacity:0.3;pointer-events:none}.card.disabled.admin-mode{pointer-events:auto;cursor:pointer}.card.in-cart{border-color:#00D4AA;box-shadow:0 0 0 1px #00D4AA}
-.card .e{font-size:36px}.card .n{font-family:var(--fd);font-weight:800;font-size:15px;color:#F0F0F0}.card .p{font-family:var(--fd);font-weight:800;font-size:26px;color:#FFB347}
+.card .e{font-size:36px}.card .n{font-family:var(--fd);font-weight:800;font-size:15px;color:#F0F0F0}.card .p{font-family:var(--fd);font-weight:800;font-size:19px;color:#FFB347}
 .card .badge{position:absolute;top:-5px;right:-5px;background:#FF6B6B;color:#fff;font-size:11px;font-weight:900;padding:2px 8px;border-radius:999px;animation:glow 2s ease-in-out infinite}
 @keyframes glow{0%,100%{box-shadow:0 0 4px rgba(255,107,107,0.3)}50%{box-shadow:0 0 12px rgba(255,107,107,0.5)}}
 .card .qty{position:absolute;top:-5px;left:-5px;background:#00D4AA;color:#000;font-size:12px;font-weight:900;min-width:22px;height:22px;border-radius:999px;display:flex;align-items:center;justify-content:center;padding:0 5px}
@@ -610,7 +610,7 @@ button:disabled:active{transform:none}
 <div class="opt"><div class="l">👤 Nama</div><div style="display:flex;gap:8px;margin-top:4px"><input class="inp" id="inp-name2" placeholder="Nama anda" maxlength="25" style="flex:1"></div></div>
 <div class="opt" id="block-section"><div class="l">🏠 Blok</div><div class="block-grid" id="block-grid"></div><div id="room-row" style="display:none;margin-top:8px"><input class="inp" id="inp-room" placeholder="Nombor bilik / unit" maxlength="20"></div></div>
 <div class="opt" id="time-sec"><div class="l" id="time-label">⏰ When to deliver?</div><div id="time-pick" style="margin-top:10px"><div class="ts" id="times"></div><div id="pickup-note" style="display:none;font-size:14px;color:#9A9385;font-weight:600;margin-bottom:8px">💬 Will chat when it's ready</div><div id="time-more" style="font-size:13px;color:#FFB347;font-weight:800;margin-bottom:6px">Order for later? 👇</div><div id="time-pickup"><input class="inp" id="pickup-time" placeholder="e.g. 11:00 PM" maxlength="30"></div></div></div>
-<div class="opt" id="pay-section"><div class="l">💳 Bayar</div><div class="dt" id="pay"><button data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(0,212,170,0.1)"><img src="qr-duitnow.jpg" alt="DuitNow QR" style="width:210px;height:210px;display:block;border-radius:8px"></div><div style="font-size:13px;color:#9A9385;margin-top:8px;font-weight:600">Scan untuk bayar</div><a href="qr-duitnow.jpg" download="duitnow-qr.jpg" style="display:inline-block;margin-top:8px;font-size:12px;font-weight:800;color:#FFB347;background:rgba(255,179,71,0.12);border:1px solid rgba(255,179,71,0.38);padding:6px 12px;border-radius:999px;text-decoration:none">⬇ Muat turun QR</a><div id="qr-claim-slot" style="margin-top:14px"></div></div></div>
+<div class="opt" id="pay-section"><div class="l">💳 Bayar</div><div class="dt" id="pay"><button data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(0,212,170,0.1)"><img src="qr-duitnow.jpg" alt="DuitNow QR" style="width:210px;height:210px;display:block;border-radius:8px"></div><div style="font-size:13px;color:#9A9385;margin-top:8px;font-weight:600">Scan untuk bayar</div><a href="qr-duitnow.jpg" download="duitnow-qr.jpg" style="display:inline-block;margin-top:8px;font-size:12px;font-weight:800;color:#FFB347;background:rgba(255,179,71,0.12);border:1px solid rgba(255,179,71,0.38);padding:6px 12px;border-radius:999px;text-decoration:none">⬇ Muat turun QR</a></div></div>
 </div>
 <div class="ft"><div class="tr" style="border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:8px;margin-bottom:8px"><span>Subtotal</span><span style="font-family:var(--fd);font-weight:800;font-size:22px" id="sub">RM0.00</span></div>
 <div id="cod-row" class="tr"><span style="font-size:13px;color:#9A9385">📦 COD fee</span><span style="font-family:var(--fd);font-weight:800;font-size:19px;color:#9A9385">RM1.00</span></div>
@@ -915,8 +915,10 @@ function claimPending(o){return !!o&&o.pay==='qr'&&!o._claim}
 // kept on the device so the next order carries it - which is what keeps the
 // Customers tab's order counts working now the form no longer asks.
 // ---------------------------------------------------------------------------
-const STAMP_ASK_KEY='mms_stamp_ask';
-function stampAskDone(){try{return localStorage.getItem(STAMP_ASK_KEY)==='1'}catch(e){return false}}
+const STAMP_ASK_KEY='mms_stamp_ask';     // '1' once a number has been given
+const STAMP_SKIP_KEY='mms_stamp_skip';   // the order code that was declined
+function stampAccepted(){try{return localStorage.getItem(STAMP_ASK_KEY)==='1'}catch(e){return false}}
+function stampSkipped(code){try{return !!code&&localStorage.getItem(STAMP_SKIP_KEY)===String(code)}catch(e){return false}}
 function stampRowHtml(count){
   const p=count%5;let h='';
   for(let i=0;i<5;i++)h+='<div class="stamp'+(i<p?' filled':'')+'">'+(i<p?'⭐':'')+'</div>';
@@ -926,7 +928,11 @@ function maybeAskStamp(){
   const dn=document.getElementById('done');
   const o=(dn&&dn._msg)||null;
   if(!o||o.warn)return;
-  if(stampAskDone())return;
+  // A number, once given, is the end of it - the stamps just accumulate.
+  if(stampAccepted())return;
+  // Declining is remembered against THIS order and nothing more, so the next
+  // order asks again.
+  if(stampSkipped(o.code))return;
   if(claimPending(o))return;
   openStampAsk();
 }
@@ -945,9 +951,12 @@ function openStampAsk(){
 }
 function closeStampAsk(){const m=document.getElementById('stamp-ask');if(m)m.style.display='none'}
 function dismissStampAsk(){
-  try{localStorage.setItem(STAMP_ASK_KEY,'1')}catch(e){}
+  const dn=document.getElementById('done');
+  const o=(dn&&dn._msg)||{};
+  // Against this order, not forever. The next order asks again.
+  try{if(o.code)localStorage.setItem(STAMP_SKIP_KEY,String(o.code))}catch(e){}
   closeStampAsk();
-  toast('Baik, kami tak akan tanya lagi');
+  toast('Baik, kami tanya lain kali');
 }
 function saveStampNumber(){
   const raw=String((document.getElementById('stamp-phone')||{}).value||'').trim();
@@ -1287,12 +1296,9 @@ async function sendWa(){
   msg+='\nNama: '+n+(isCod?' ('+r+')':'');
   msg+='\nJumlah: RM'+total.toFixed(2);
 
-  // A resit attached under the QR rides up with the order. It was held back
-  // because there was no order to attach it to; now there is, so it goes in and
-  // the seller is told once. _claim marks it so the done screen shows the
-  // waiting state rather than asking for the same resit a second time.
-  const proof=(payM==='qr'&&stagedProof)?stagedProof:'';
-  const disp={code:code,no:orderNo,items:OrdDisplay(ordMap),total:total,isCod:isCod,r:r,n:n,when:when,pay:payM,_claim:!!proof};
+  // The order always goes up WITHOUT a receipt now. The customer is asked once,
+  // on the done screen, once there is an order to attach the proof to.
+  const disp={code:code,no:orderNo,items:OrdDisplay(ordMap),total:total,isCod:isCod,r:r,n:n,when:when,pay:payM,_claim:false};
   if(!saved){showDone({...disp,warn:true});window.open(waUrl(msg),'_blank');return}
   track('order_sent');chime();buzzOk();
   // Deliberately no push to the seller for the order itself. An order arriving
@@ -1301,19 +1307,13 @@ async function sendWa(){
   // ignored.
   showDone({...disp,warn:false});
   saveMyOrder(disp);saveCustomer();
-  if(proof)submitClaim(code,proof,orderNo,r);
   toast('✓ Pesanan dihantar!');
   const l=getLoy();l.c++;if(l.c%5===0)setTimeout(()=>toast('Congrats! Minuman percuma seterusnya!'),900);saveLoy(l);drawLoy();
   cart={};saveCart();selTime='';selBlock='';isCod=null;payM='';
-  // The checkout receipt block goes back to blank for the next order, and the
-  // payment choice is cleared on screen as well as in state so the QR section
-  // does not linger showing a resit that has already been sent.
-  stagedProof='';
+  // The payment choice is cleared on screen as well as in state, so the QR
+  // section does not linger after the order is placed.
   const qs=document.getElementById('qr-section');if(qs)qs.style.display='none';
   document.querySelectorAll('#pay button').forEach(function(b){b.classList.remove('active')});
-  const qf=document.getElementById('qr-claim-file');if(qf)qf.value='';
-  const qn=document.getElementById('qr-claim-file-name');
-  if(qn){qn.style.display='none';qn.textContent='✓ Resit dipilih'}
   const pt=document.getElementById('pickup-time');if(pt)pt.value='';
   const ph=document.getElementById('inp-phone');if(ph)ph.value='';
   const rr=document.getElementById('room-row');if(rr)rr.style.display='none';
@@ -1534,19 +1534,20 @@ function trackOrder(code){
 }
 function reopenWa(){const o=document.getElementById('done')._msg;if(!o)return;let msg='Hi '+SHOP+'! Pesanan:\n';if(o.code)msg+='No. Pesanan: #'+o.code+'\n';(o.items||[]).forEach(i=>{msg+=i.qty+'x '+i.name+' = RM'+(i.price*i.qty).toFixed(2)+(i.adds&&i.adds.length?' ('+i.adds.join(', ')+')':'')+'\n'});msg+='\nJumlah: RM'+Number(o.total).toFixed(2);window.open(waUrl(msg),'_blank')}
 // ---------------------------------------------------------------------------
-// One receipt block, two placements. Under the QR at checkout, where the
-// customer is already looking at the code they have to pay, and on the done
-// screen as the fallback for anyone who did not attach one there. Built once
-// and injected twice, so the two copies cannot drift apart.
+// The receipt block. ONE placement: the done screen, and only once the order
+// exists to attach a proof to.
 //
-// p is the id prefix: '' on the done screen, 'qr-' at checkout.
+// It used to be asked for twice - under the QR at checkout and again here - so
+// the customer was told to attach a receipt before they had even placed the
+// order. Nothing is collected at checkout now, and this is the single ask.
+//
+// p remains an id prefix so these ids cannot collide with anything else.
 // ---------------------------------------------------------------------------
 function claimBlockHtml(p){
   p=p||'';
-  // The done-screen copy is shown and hidden by paintClaim, which knows whether
-  // a resit is still outstanding. The checkout copy is always shown, because the
-  // QR section it lives in is what gets hidden.
-  const box=p?'block':'none';
+  // Shown and hidden by paintClaim, which knows whether a receipt is still
+  // outstanding.
+  const box='none';
   return '<div id="'+p+'claim-panel" style="display:'+box+';background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px;margin-bottom:12px;text-align:left">'
     +'<div style="font-size:13px;font-weight:800;color:#00D4AA;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">💰 Bayar sekarang</div>'
     +'<div style="font-size:13px;color:#9A9385;font-weight:600;margin-bottom:12px;line-height:1.5">Scan QR di atas, kemudian hantar resit (gambar atau PDF) supaya penjual boleh sahkan bayaran anda.</div>'
@@ -1555,24 +1556,12 @@ function claimBlockHtml(p){
     +'<div id="'+p+'claim-file-name" style="display:none;font-size:13px;color:#00D4AA;font-weight:700;margin-bottom:10px">✓ Resit dipilih</div>'
     +'<button id="'+p+'claim-send" onclick="sendClaim(\''+p+'\')" style="width:100%;background:#00D4AA;color:#000;border:none;font-weight:800;font-size:14px;padding:13px;border-radius:10px;cursor:pointer">Saya dah bayar</button></div>';
 }
-(function(){
-  const slot=document.getElementById('qr-claim-slot');
-  if(slot)slot.innerHTML=claimBlockHtml('qr-');
-})();
-// Held in memory only, and only until the order exists. Nothing is written and
-// the seller is not told at this point; the file is simply waiting with the
-// order. A refresh means picking it again, which is the right trade for not
-// parking a customer's receipt in localStorage.
-let stagedProof='';
 function claimPicked(p){
   p=p||'';
   const f=document.getElementById(p+'claim-file');
   const n=document.getElementById(p+'claim-file-name');
   const has=!!(f&&f.files&&f.files[0]);
   if(n){n.style.display=has?'block':'none';if(has)n.textContent='✓ '+f.files[0].name.slice(0,35)}
-  // un-picking at checkout drops the staged copy, so an order can never carry a
-  // proof the customer backed out of
-  if(p&&!has)stagedProof='';
 }
 // Turns a picked file into a data URL, or throws the message to show the
 // customer. Shared by both placements.
@@ -1598,7 +1587,6 @@ function submitClaim(code,img,no,room,onDone){
 }
 async function sendClaim(p){
   p=p||'';
-  const atCheckout=!!p;
   const btn=document.getElementById(p+'claim-send');
   const fileIn=document.getElementById(p+'claim-file');
   const btnLabel='Saya dah bayar';
@@ -1614,21 +1602,11 @@ async function sendClaim(p){
   }
   const dn=document.getElementById('done');
   const o=(dn&&dn._msg)||{};
-  if(!atCheckout&&!o.code){toast('Rujukan pesanan tidak dijumpai');return}
-  btn.disabled=true;btn.textContent=atCheckout?'Menyediakan...':'Menghantar...';
+  if(!o.code){toast('Rujukan pesanan tidak dijumpai');return}
+  btn.disabled=true;btn.textContent='Menghantar...';
   let img='';
   try{img=await readProof(f)}
   catch(e){btn.disabled=false;btn.textContent=btnLabel;toast(String((e&&e.message)||'Fail tidak boleh dibaca'));return}
-  if(atCheckout){
-    // The order does not exist yet, so there is nothing to attach the proof to.
-    // It waits here and goes up with the order instead.
-    stagedProof=img;
-    btn.disabled=false;btn.textContent=btnLabel;
-    const n=document.getElementById(p+'claim-file-name');
-    if(n){n.style.display='block';n.textContent='✓ Resit sedia — tekan Hantar Pesanan'}
-    toast('✓ Resit sedia — tekan Hantar Pesanan');
-    return;
-  }
   submitClaim(o.code,img,o.no,o.r,function(ok){
     btn.disabled=false;btn.textContent=btnLabel;
     if(!ok){toast('Gagal hantar resit');return}

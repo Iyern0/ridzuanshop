@@ -637,6 +637,56 @@ the Customers tab keeps working. Publishing the rules needs no further site push
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `DRINKS-ORDER.md`, `WORKLOG.md`
 **Status:** ✅ confirmed — live URL `https://iyern0.github.io/ridzuanshop/`
 
+### 2026-10-16 15:06 — The prompt returns each order, one receipt ask, a calmer price
+
+**Gap in this log:** nothing was recorded between 12:56 and 15:06 because the session sat idle
+for about two hours. Two orders arrived in that window — `HUW5BA` at 13:05 and `WV39VJ` at
+15:01 — and both are the **owner's own test orders on the live site**, not mine. Recorded rather
+than reconstructed. I briefly read `WV39VJ`'s timestamp as being two hours in the future before
+checking: the machine's clock and Google's `Date` header agree exactly (07:06 UTC), so the clock
+was never wrong and the gap was real.
+
+**1. The stamp prompt now asks on every order, until a number is given.**
+Giving a number sets `mms_stamp_ask='1'` and is the end of it — the stamps simply accumulate.
+Declining writes the *order code* to `mms_stamp_skip`, so the same order never asks twice but the
+**next** order does, because being asked is the only way to earn a stamp. Previously one
+"Tak berminat" lost the promotion permanently, which is what the owner spotted.
+**Verified by driving `maybeAskStamp`, the app's own function:** order A → prompt shown;
+decline → `mms_stamp_skip='AAA111'` and the accepted flag left null; same order again → nothing;
+a different order → **prompt shown**; save a number → accepted flag set; a further order →
+nothing. And a QR order with a receipt still outstanding → nothing, so that gate survives.
+
+**2. The receipt is asked for once.** It was asked twice — under the QR at checkout and again on
+the done screen — so the customer was told to attach a proof before they had even placed the
+order. Removed: the `#qr-claim-slot` div, the IIFE that injected a second block into it,
+`stagedProof` and its comment, the `atCheckout` branch in `sendClaim`, and the claim that fired
+from `sendWa`. The order now always goes up with `_claim:false` and the done screen is the single
+ask. **This reverses an earlier explicit decision** to put the block under the QR; the alert
+behaviour is unchanged, still exactly one per claim.
+**Verified:** `#claim-panel` count in the whole DOM is **1**; the QR section contains only the QR
+box, the caption and the download link (`qrAsksForReceipt: false`); the done-screen block renders
+visible with its "Saya dah bayar" button, and an empty tap is still refused with
+"📎 Pilih resit dahulu" without closing the panel.
+
+**3. The menu card price is calmer.** `.card .p` went 26px → 19px. At 26px it was shouting over
+the drink name at 15px. Verified by probing the computed style of a throwaway `.card`.
+
+**Also:** `sw.js` cache bumped `v7-20261016` → `v8-20261016`.
+
+**No stray writes:** the synthetic checks created no documents — `orders/DDD444` and
+`tracking/DDD444` are both absent, read back over REST. `members` is still 0 (rules unpublished),
+receipts still 2.
+
+**Live evidence the pushed build works, from the owner's own test orders:** `HUW5BA` carried
+`phone=0108280063`, a number the order form never asked for, so the prompt's next-order carry
+works in production; `WV39VJ` carried `time=11:30PM`, a real time, so the required-time gate
+works live. No order today carries a placeholder.
+
+**State:** committed locally. **Not pushed** — awaiting the owner's go.
+
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `fb-admin-setup/n46-three-fixes.js`
+**Status:** ✅ confirmed locally · ⚠️ live site still carries the double receipt ask
+
 ---
 
 ## Withdrawn results

@@ -1,7 +1,7 @@
 // MINUM MALAM SISWA — service worker
 // Cache name is versioned. Bump V when the app changes so old shells get evicted.
-// Current: V7 (time required, stamp prompt after payment, thin seller alert)
-const V = 'v7-20261016';
+// Current: V8 (one receipt ask, prompt returns each order until answered)
+const V = 'v8-20261016';
 const SHELL = ['./', './index.html', './drinks-order.html', './manifest.json'];
 
 self.addEventListener('install', (e) => {
