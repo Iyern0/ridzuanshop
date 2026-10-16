@@ -913,9 +913,66 @@ here — no viewport emulation is available — so that needs the owner's phone 
 **Artefacts:** `drinks-order.html`, `index.html`, `fb-admin-setup/n51-mobile-admin.js`
 **Status:** ⚠️ provisional — desktop unaffected and the toggles work; the phone layout is unverified
 
+### 2026-10-16 16:00 — Four mobile changes logged, and a CORRECTION on the rules
+
+**Catching up four entries that were shipped without being written up.** All four are pushed and
+live; this is the record, not new work.
+
+1. **The drawer had no way out (`7cb9318`, v14).** `admCloseSide` was defined in the same edit
+   that created the drawer and never called, so picking a tab switched the section *behind* an
+   open drawer with no working exit. It now closes on a tab, on an ✕ added to the drawer's
+   header, on the backdrop, and on Escape. The drawer is also `min(252px,80vw)` so it reads as a
+   drawer rather than the whole screen.
+2. **The nav was ragged (`dfea1a6`, v15).** The icons are variable-width emoji, so every label
+   started at a different x. They now share a 22px centred column: measured all 9 labels at
+   exactly `x = 41`, where before no two matched.
+3. **A legacy rule made the nav a wrapping grid (`0af6f50`, v16).** Line 327 —
+   `.adm-side nav{display:flex;overflow-x:auto;…}` — is a leftover from a mobile design that no
+   longer exists. Inside the drawer it wrapped items two or three to a row, with Analitis and
+   Menu & Tetapan in oversized boxes. An unconditional column rule at the end of the stylesheet
+   beats it wherever it lives. Measured after: one distinct x, `flex-direction:column`, y
+   increasing evenly.
+4. **Bigger rows (`625b9db`, v17).** 58px targets, 16px labels, a 28px icon column, and the
+   toggle and subnav brought up to match. The whole nav is 609px inside an 827px drawer, so it
+   fits with nothing to scroll.
+
+**CORRECTION — the `members` rules were never unpublished.** Several entries in this log say the
+`members` rules are "still unpublished" and that member records cannot reach the seller yet:
+the push entry at 15:17, the alert-docket entry at 15:47, the drawer entries above, and my answers
+to the owner each time I listed what was outstanding. **That was wrong.** Reading the deployed
+ruleset over the Firestore Rules API shows `match /members/{phone}` present in the live release
+`cloud.firestore` (ruleset `e82e4d00-2d6d-4030-8093-802d601003dd`), and a block-by-block
+comparison of the repository file against the live source shows **nothing to add and nothing that
+would be lost** — so there was also no reason to deploy. The owner had already published them.
+
+**And the write path was proven while checking:** a test save through the stamp prompt created
+`members/0188888888` with `phone`, `name` and `at`, read back over REST, then deleted;
+`members` is back to 0 docs.
+**A real gap found by that test, worth keeping:** the first attempt was **silently refused**
+because the rules require a name of 2+ characters and `mms_cust` had been cleared, leaving it
+empty. In the real flow the name is always there — `saveCustomer()` runs when an order is
+accepted — so this only bites a device whose memory was wiped. The customer is still told
+"✓ Nombor disimpan" in that case, which is a small lie. Left alone for now; noted rather than
+guessed at.
+
+**Artefacts:** `WORKLOG.md`, `fb-admin-setup/rules-preflight.js`, `check-members-write.js`
+**Status:** ✅ confirmed — and the "rules unpublished" line in earlier entries is withdrawn
+
 ---
 
 ## Withdrawn results
+
+- **"The `members` rules are unpublished."** Repeated in the log and in several answers to the
+  owner between 12:56 and 16:00. Withdrawn at 16:00: the deployed ruleset already contained
+  `match /members/{phone}`, verified over the Firestore Rules API, and a block-by-block
+  comparison showed the repository file and the live source differed in nothing. The owner had
+  already published them. Replaced by the entry at 16:00, which also proves the write path with a
+  real insert and delete.
+- **"The alert payload was verified."** Recorded at 12:50 as proof that the notification worked,
+  on the strength of an intercepted `fetch` whose captured headers were inspected. Withdrawn at
+  15:23: interception bypasses the Headers construction that was actually failing, so the check
+  could not have caught it. Replaced by the poll-the-topic verification at 15:23, and the rule
+  that follow-up checks read from the receiving end.
 
 Nothing withdrawn yet. When something is, list it here with the reason and a pointer
 to whatever replaced it, so a wrong number can never be picked up and re-used.
