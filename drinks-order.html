@@ -267,7 +267,10 @@ button:disabled:active{transform:none}
 @media (max-width:760px){.adm-side .brand .x{display:block}}
 html[data-mob="1"] .adm-side .brand .x{display:block}
 .adm-side nav{flex:1;overflow-y:auto;padding:12px 0}
-.adm-side nav a{display:flex;align-items:center;gap:10px;padding:14px 18px;font-size:14px;font-weight:700;color:#9A9385;cursor:pointer;transition:all .15s;border-left:3px solid transparent;text-decoration:none}
+.adm-side nav a{display:flex;align-items:center;gap:11px;padding:14px 18px;font-size:14px;font-weight:700;color:#9A9385;cursor:pointer;transition:all .15s;border-left:3px solid transparent;text-decoration:none}
+/* Emoji are not a fixed width, so without this every label starts at a
+   different x and the column looks ragged. */
+.adm-side nav a .ic{width:22px;text-align:center;flex-shrink:0;font-size:15px;line-height:1}
 .adm-side nav a:hover{background:rgba(255,255,255,0.03);color:#F0F0F0}
 .adm-side nav a.active{color:#00D4AA;background:rgba(0,212,170,0.06);border-left-color:#00D4AA}
 .adm-side .exit{padding:16px;border-top:1px solid rgba(255,255,255,0.06)}
@@ -292,6 +295,12 @@ html[data-mob="1"] .adm-side .brand .x{display:block}
   .adm-backdrop.show{display:block}
   .a-bar.fold{display:none}
   .o-row{margin-bottom:9px}
+  .adm-side .brand{padding:17px 16px;font-size:18px}
+  .adm-side nav{padding:6px 0}
+  .adm-side nav a{padding:13px 16px;font-size:15px}
+  .adm-side nav .grp{padding:15px 16px 5px}
+  .adm-side .exit{padding:14px 16px;display:flex;flex-direction:column;gap:9px}
+  .adm-side .exit button{padding:12px}
 }
 /* ?mob=1 - the same rules, forced, so the phone layout can be looked at in a
    desktop window. Nothing sets data-mob for a real visitor. */
@@ -304,6 +313,12 @@ html[data-mob="1"] .adm-side.open{transform:none}
 html[data-mob="1"] .adm-backdrop.show{display:block}
 html[data-mob="1"] .a-bar.fold{display:none}
 html[data-mob="1"] .o-row{margin-bottom:9px}
+html[data-mob="1"] .adm-side .brand{padding:17px 16px;font-size:18px}
+html[data-mob="1"] .adm-side nav{padding:6px 0}
+html[data-mob="1"] .adm-side nav a{padding:13px 16px;font-size:15px}
+html[data-mob="1"] .adm-side nav .grp{padding:15px 16px 5px}
+html[data-mob="1"] .adm-side .exit{padding:14px 16px;display:flex;flex-direction:column;gap:9px}
+html[data-mob="1"] .adm-side .exit button{padding:12px}
 .adm-main .pg{flex:1;padding:20px 22px;overflow-y:auto}
 @media(max-width:700px){
 #admin-panel.show{flex-direction:column}
