@@ -1,7 +1,7 @@
 // MINUM MALAM SISWA  Eservice worker
 // Cache name is versioned. Bump V when the app changes so old shells get evicted.
-// Current: V18 (always-visible order status bar with an order-more button)
-const V = 'v18-20261016';
+// Current: V19 (Masa Ambil: no slots for pickup, a notify note, both keep a custom box)
+const V = 'v19-20261016';
 const SHELL = ['./', './index.html', './drinks-order.html', './manifest.json'];
 
 self.addEventListener('install', (e) => {
