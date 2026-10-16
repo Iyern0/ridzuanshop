@@ -414,6 +414,45 @@ exists there.
 **Artefacts:** `drinks-order.html`, `index.html`, `fb-admin-setup/n36-block-chips.js`
 **Status:** ✅ confirmed
 
+### 2026-10-16 12:29 — The "(nyatakan masa)" order, and two rows leave the detail panel
+
+**What happened:** The owner opened an order and found the time reading "(nyatakan masa)",
+asked what it was, and asked for two more rows to be deleted from the order detail panel.
+
+**Found — the placeholder is real data, in two orders:** The pickup path stored the literal
+text as the order's `time` whenever the customer chose no slot and typed nothing:
+`selTime = document.getElementById('pickup-time').value.trim() || '(nyatakan masa)'`. It was
+later changed to English, `'(state a time)'`, but the two orders written before that keep the
+Malay string. Counted from the live listener: `3B9UL8` (#001, 2026-10-16 03:32) and `8VATBJ`
+(#011, 2026-10-15 09:34), both pickup, out of 22 orders. **The panel was not lying** — it was
+printing the stored value faithfully; the value itself was never a time. This is exactly the
+gap decision Q8 covers, and Q8 is still parked.
+
+**Changed:**
+- `noTime(t)` treats empty and the two known placeholders as "no time", and it is applied in
+  the `Masa` row, which now reads "Tiada masa dinyatakan" in amber. The stored value is left
+  alone — it is real order history, and the fix is to stop rendering it as a time, not to
+  rewrite the document.
+- `fmtTimeLabel` uses the same test, so the customer's own done screen stops displaying the
+  placeholder too.
+- The `Kod` row is gone from the detail panel.
+- The `💰 Tanda sudah dibayar` button is gone from the detail panel, along with its `.d-paid`
+  styles and `admTogglePaid`, which had no other caller and no other writer.
+
+**Verified (real clicks, live):** opened `#001` and read the panel back — grid rows are now
+`Masa: Tiada masa dinyatakan` (colour `rgb(255,179,71)`), `Bayar`, `Hantar`, `Nama`,
+`WhatsApp`; `hasKodRow: false`; `hasPaidButton: false`; `typeof admTogglePaid === 'undefined'`.
+Remaining buttons: ✕, Baru/Proses/Siap, 📤 WhatsApp pelanggan, 🗑 Padam.
+
+**Consequence, stated plainly:** nothing in the code can set `paid` any more, so three things
+that read it are now frozen — the amber "N belum bayar" warning on the order list, the
+"Belum ditanda bayar" line in the Resit tab, and the customer's own "✓ Bayaran diterima" mark
+on the done screen. The first will keep climbing and cannot be cleared from the UI. Raised
+with the owner rather than deciding it here.
+
+**Artefacts:** `drinks-order.html`, `index.html`, `fb-admin-setup/n37-detail-tidy.js`
+**Status:** ⚠️ provisional — the three edits are confirmed; the fate of the `paid` flag is open
+
 ---
 
 ## Withdrawn results

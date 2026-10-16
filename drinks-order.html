@@ -496,8 +496,6 @@ button:disabled:active{transform:none}
 #adm-detail .d-claim{margin:14px 0;background:rgba(0,168,255,0.09);border:1px solid rgba(0,168,255,0.26);border-radius:10px;padding:12px}
 #adm-detail .d-claim div{font-size:13px;font-weight:800;color:#5AC8FA;margin-bottom:10px}
 #adm-detail .d-claim button{width:100%;background:rgba(0,168,255,0.16);border:1px solid rgba(0,168,255,0.35);color:#5AC8FA;font-family:var(--fb);font-size:14px;font-weight:800;padding:10px;border-radius:9px;cursor:pointer}
-#adm-detail .d-paid{width:100%;margin-top:16px;background:rgba(255,179,71,0.12);border:1px solid rgba(255,179,71,0.3);color:#FFB347;font-family:var(--fb);font-size:14px;font-weight:800;padding:13px;border-radius:10px;cursor:pointer}
-#adm-detail .d-paid.on{background:rgba(0,212,170,0.13);border-color:rgba(0,212,170,0.32);color:#00D4AA}
 #adm-detail .d-acts{display:flex;gap:8px;margin-top:10px}
 #adm-detail .d-wa{flex:1;background:rgba(37,211,102,0.14);border:1px solid rgba(37,211,102,0.32);color:#25D366;font-family:var(--fb);font-size:14px;font-weight:800;padding:12px;border-radius:10px;cursor:pointer}
 #adm-detail .d-del{background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.28);color:#FF6B6B;font-family:var(--fb);font-size:14px;font-weight:800;padding:12px 16px;border-radius:10px;cursor:pointer}
@@ -1034,7 +1032,13 @@ function clip(s,max){return String(s==null?'':s).trim().slice(0,max)}
 function saveCart(){try{localStorage.setItem('mms_cart',JSON.stringify(cart))}catch(e){}}
 function loadCart(){try{const c=JSON.parse(localStorage.getItem('mms_cart'));if(c&&typeof c==='object'){cart=c;return true}}catch(e){}return false}
 function orderCode(){const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<6;i++)s+=A[Math.floor(Math.random()*A.length)];return s}
-function fmtTimeLabel(t){return (t==='ASAP'||!t)?'Secepat mungkin (~15-30 min)':t}
+// A placeholder is not a time. The pickup path used to store the sentence
+// "(nyatakan masa)" - later "(state a time)" - when the customer never picked
+// one, and it reads like a time once it lands in a table. Two live orders carry
+// it. The value stays in the document; it is simply not shown as though the
+// customer had asked for it.
+function noTime(t){const s=String(t==null?'':t).trim();return !s||/^\(?(state a time|nyatakan masa)\)?$/i.test(s)}
+function fmtTimeLabel(t){return (t==='ASAP'||noTime(t))?'Secepat mungkin (~15-30 min)':t}
 let _sending=false;
 async function sendWa(){
   if(_sending)return;
@@ -1542,17 +1546,15 @@ function admOpenDetail(id){
    +'<div class="d-sec">Minuman</div><div class="d-items">'+items+'</div>'
    +'<div class="d-sec">Butiran</div>'
    +'<div class="d-grid">'
-   +'<div><span>Masa</span><b>'+esc(o.time||'-')+'</b></div>'
+   +'<div><span>Masa</span><b>'+(noTime(o.time)?'<span style="color:#FFB347">Tiada masa dinyatakan</span>':esc(o.time))+'</b></div>'
    +'<div><span>Bayar</span><b>'+(o.payment==='cash'?'💵 Tunai':'📱 QR Pay')+'</b></div>'
    +'<div><span>Hantar</span><b>'+(isCod?'📦 COD':'🏪 Ambil sendiri')+'</b></div>'
    +(isCod&&o.room?'<div><span>Lokasi</span><b>🏠 '+esc(o.room)+'</b></div>':'')
    +'<div><span>Nama</span><b>'+esc(o.name||'-')+'</b></div>'
    +(o.phone?'<div><span>WhatsApp</span><b>'+esc(o.phone)+'</b></div>':'')
-   +'<div><span>Kod</span><b>'+esc(o.id)+'</b></div>'
    +'</div>'
    +'<div class="d-total"><span>Jumlah</span><b>RM'+Number(o.total||0).toFixed(2)+'</b></div>'
    +(cl?'<div class="d-claim"><div>📎 Pelanggan hantar resit bayaran'+(cl.at&&cl.at.toDate?' · '+cl.at.toDate().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'}):'')+'</div><button onclick="admViewClaim(\''+o.id+'\')">Lihat resit</button></div>':'')
-   +'<button class="d-paid'+(o.paid?' on':'')+'" onclick="admTogglePaid(\''+o.id+'\')">'+(o.paid?'✓ Sudah dibayar':'💰 Tanda sudah dibayar')+'</button>'
    +'<div class="d-acts">'
    +(o.phone?'<button class="d-wa" onclick="admWaNotif(\''+o.id+'\')">📤 WhatsApp pelanggan</button>':'<button class="d-wa" onclick="admWaNotif(\''+o.id+'\')">📱 Simpan nombor &amp; maklumkan</button>')
    +'<button class="d-del" onclick="admDelOrder(\''+o.id+'\');closeDetail()">🗑 Padam</button>'
@@ -1656,18 +1658,6 @@ function admDelOrder(id){
 
 // Clear out everything already finished. Soft delete, so undo restores the
 // exact status each order had rather than guessing.
-function admTogglePaid(id){
-  const o=_admVisDocs.find(function(x){return x.id===id});
-  if(!o)return;
-  const db=getDb();if(!db)return;
-  const nowPaid=!o.paid;
-  db.collection('orders').doc(id).update({paid:nowPaid,paidAt:nowPaid?firebase.firestore.FieldValue.serverTimestamp():null})
-   .then(function(){
-    db.collection('tracking').doc(id).update({paid:nowPaid,paidAt:nowPaid?firebase.firestore.FieldValue.serverTimestamp():null}).catch(function(){});
-    toast(nowPaid?'💰 Direkodkan sudah bayar':'↩ Bayaran ditanda belum');
-   })
-   .catch(function(){toast('Gagal kemas kini bayaran')});
-}
 function admRestore(id){
   const db=getDb();if(!db){toast('Tiada sambungan');return}
   const o=(_admOrdersCache||[]).find(function(x){return x.id===id})||{};
