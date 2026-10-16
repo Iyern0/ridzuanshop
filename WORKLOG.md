@@ -606,6 +606,37 @@ receipt does.
 **Artefacts:** `fb-admin-setup/cleanup-bc.js`, `check-members.js`, `check-9rfmyb.js`
 **Status:** ⚠️ provisional — the paidAt origin is not recoverable from the records
 
+### 2026-10-16 12:56 — PUSHED to GitHub Pages, and the live build verified
+
+**What happened:** The owner asked for the push. Nine commits went out and GitHub Pages went
+live with the new build in **under a minute**.
+**Before pushing (checked, not assumed):** `origin` is `https://Iyern0@github.com/Iyern0/ridzuanshop.git`,
+so the right repo; there is **no `.github/workflows`**, so nothing auto-deploys — which means
+`firestore.rules` pushes as source and the LIVE rules are untouched; `index.html` hashes equal to
+`drinks-order.html`; and the only files in the diff are the six intended ones, so the owner's
+unrelated work (`transit-widget/DESIGN.md` and the untracked files) stayed out.
+**Release prep:** `sw.js` cache bumped `v6-20261016` → `v7-20261016`, because the shell
+precaches `index.html` and `drinks-order.html` and the file's own comment says to bump on
+release. `DRINKS-ORDER.md` updated for the required time, the block chips, the stamp prompt and
+its `members` record, the trimmed alert, and payment settling itself.
+**Push:** `8b8192f..d12dd4c  main -> main`. Fetching the live site: attempt 1 was still the old
+build (157,468 bytes, old topic present); attempt 2, ~30 s later, was the new one
+(186,440 bytes, new topic present, old topic gone).
+**Verified live:** 17 of 17 marker checks pass — both time gates, "When to deliver?", "Order for
+later?", the block chips and the search-focus fix, the stamp prompt, the `members` write,
+`admSettlePaid`, the item cards and line price, `drinkEmoji`, `noTime`, the deep-link handler,
+the alert carrying no room, the `Icon` and `Click` headers, the old topic absent, the QR download
+pill, and the phone field gone. Live `sw.js` reads `v7-20261016`.
+**Consequence the owner needs to act on, now:** the live site posts claim alerts to the **new**
+topic, and the old topic receives nothing any more. Until the new topic is subscribed on the
+phone, a payment claim is silent. The old topic subscription should stay until the phone has the
+new one, then be removed.
+**Still inert by design:** the `members` write is refused because the rules are not published.
+Harmless — the number is still kept on the customer's device and still rides their next order, so
+the Customers tab keeps working. Publishing the rules needs no further site push.
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `DRINKS-ORDER.md`, `WORKLOG.md`
+**Status:** ✅ confirmed — live URL `https://iyern0.github.io/ridzuanshop/`
+
 ---
 
 ## Withdrawn results
