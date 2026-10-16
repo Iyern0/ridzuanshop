@@ -641,6 +641,16 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
 .adm-side nav{display:flex;flex-direction:column;flex-wrap:nowrap;overflow-x:hidden;overflow-y:auto;align-items:stretch}
 .adm-side nav>*{width:100%;flex:0 0 auto;box-sizing:border-box}
 .adm-side nav a{justify-content:flex-start}
+/* The live order, on screen the whole time it is live.
+   Sticky rather than fixed, so it needs no page padding and cannot end up
+   covering the header. It used to be reachable only by tapping a small pill. */
+#mybar{display:none;position:sticky;top:0;z-index:400;background:#1E1913;border-bottom:1px solid rgba(0,212,170,0.22);padding:10px 14px;align-items:center;gap:11px;box-shadow:0 6px 18px rgba(0,0,0,0.35)}
+#mybar.on{display:flex}
+#mybar .mb-who{font-family:var(--fd);font-weight:800;font-size:14px;color:#F0F0F0;flex-shrink:0}
+#mybar .mb-st{font-size:13px;font-weight:800;color:#00D4AA;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#mybar button{border:none;font-family:var(--fb);font-weight:800;cursor:pointer;flex-shrink:0}
+#mybar .mb-see{background:rgba(255,255,255,0.07);color:#F0F0F0;font-size:13px;padding:9px 11px;border-radius:9px}
+#mybar .mb-more{background:#00D4AA;color:#000;font-size:13px;padding:9px 13px;border-radius:9px}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -1530,7 +1540,44 @@ function alertDone(st){
   const el=document.getElementById('done');
   if(el){el.classList.remove('alert');void el.offsetWidth;el.classList.add('alert')}
 }
-function showMyOrderBtn(){const b=document.getElementById('my-order');if(!b)return;const o=loadMyOrder();b.style.display=o?'inline-flex':'none';if(o)b.textContent='📦 Pesanan saya · #'+fmtNo(o.no)}
+// ---------------------------------------------------------------------------
+// The live order, kept on screen while it is live.
+//
+// The status used to be reachable only by tapping a small pill, which is easy
+// to miss and easy to forget. This sits at the top of the page, follows the
+// tracking listener, and carries the way to order again.
+//
+// Built in JS and prepended to the body so it needs no markup edit and cannot
+// disturb the page it sits above.
+// ---------------------------------------------------------------------------
+function paintMyBar(st){
+  let b=document.getElementById('mybar');
+  if(!b){
+    b=document.createElement('div');
+    b.id='mybar';
+    b.innerHTML='<span class="mb-who"></span><span class="mb-st"></span>'
+      +'<button class="mb-see" onclick="openMyOrder()">Lihat</button>'
+      +'<button class="mb-more" onclick="orderMore()">Pesan lagi</button>';
+    document.body.insertBefore(b,document.body.firstChild);
+  }
+  const o=loadMyOrder();
+  if(!o||!o.code){b.classList.remove('on');return}
+  b.classList.add('on');
+  b.querySelector('.mb-who').textContent='📦 #'+fmtNo(o.no);
+  // The live status if we have one, otherwise whatever the device last knew.
+  b.querySelector('.mb-st').textContent=admStatusText(st||o._st||'baru',!!o.isCod);
+}
+// Back to the menu with an empty cart: a fresh order rather than the last one
+// repeated. The bar stays up, because the order it describes is still live.
+function orderMore(){
+  cart={};saveCart();draw();upCart();closeDone();
+  // custItem, not curItem - the first version named a variable that does not
+  // exist, so it threw here and the toast never ran.
+  if(custItem)closeCust();
+  try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}
+  toast('Pilih minuman untuk pesanan baru');
+}
+function showMyOrderBtn(){const b=document.getElementById('my-order');if(!b)return;const o=loadMyOrder();b.style.display=o?'inline-flex':'none';if(o)b.textContent='📦 Pesanan saya · #'+fmtNo(o.no);paintMyBar()}
 function openMyOrder(){const o=loadMyOrder();if(!o)return;_lastSt='';showDone({...o,warn:false})}
 function showDone(o){
   const el=document.getElementById('done');if(!el)return;
@@ -1656,7 +1703,7 @@ function trackOrder(code){
       alertDone(ns);
     }
     _lastSt=ns;
-    paintSteps(ns);
+    paintSteps(ns);paintMyBar(ns);
     const el=document.getElementById('done');
     if(el&&el._msg)el._msg._st=d.status||'baru';
     const o=loadMyOrder();
