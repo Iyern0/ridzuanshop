@@ -1009,6 +1009,64 @@ entry is marked confirmed.
 
 ---
 
+### 2026-10-20 02:37 — Bug pass by driving the app, not by reading it
+
+**What happened:** A second hunt over the order flow and the admin code, this time with every
+candidate checked in a browser against the live Firestore project rather than read back. Twenty
+defects fixed. The two a customer would have hit first were a spurious order notification and a
+sugar option recorded as its opposite.
+
+**Found / changed:**
+1. **A fresh tracker compared its first snapshot with the previous order's last status.** Placing
+   a second order after the first had been marked made or on its way beeped, lit the stepper and
+   pushed a notification about an order nothing had happened to. Proven with a stub: `_lastSt` set
+   to `done`, `trackOrder('HL89NR')` on an order at `baru`, and both `fireNotify` and `alertDone`
+   fired. `trackOrder` now clears `_lastSt`; the same test records nothing.
+2. **The live config holds two add-ons under one id** (`no_sugar_condensed_milk`). Tapping "No
+   Sugar/Condensed Milk" lit it and "Change to Sugar" together, the two cancelled each other, and
+   the order recorded "Change to Sugar" — the opposite instruction. Config is normalised on the
+   first read and on every realtime update (`normAdds`, `applyCfg`); the later duplicate is given
+   `no_sugar_condensed_milk_2` and now records its own name. The add-on form refuses to create
+   another duplicate.
+3. Out-of-stock options gave no feedback at all when tapped — `togC` returned before it had the
+   add-on, so it had nothing to name. Now "❌ Cheese habis".
+4. "Activate all" cleared every disabled list except the blocks, and never redrew the grid.
+5. The block toggle interpolated a raw block name into an `onclick`; a name with an apostrophe
+   broke its own button. It passes the index now, the way the other lists already do.
+6. The add-on form kept the last edited group, so the next new add-on was filed under it.
+   `admAddons` resets it, as `admMenu` already did for the category.
+7. Checkout refused the payment choice before the name, block, room and time above it, so the
+   message pointed at the wrong part of the form. Measured after the fix: delivery → block → room
+   → time → pay.
+8. The review showed the block but not the room number — the last chance to catch a wrong room
+   read "👤 TEST Intan" for an order the seller receives as "Intan 7". Now "👤 TEST Intan 7".
+9. A QR order with no receipt was accepted with no mention of it. Still accepted — refusing would
+   block a customer mid-service — but the review now says the seller cannot verify the payment.
+10. The status bar said "Sedang dibuat..." for an order not yet confirmed, contradicting the
+    stepper under it. `admStatusText` now has a word for `baru`, which also corrects the seller's
+    WhatsApp message.
+11. The stamp prompt claimed the number was saved when the write had been refused for having no
+    name of two characters to send.
+12. A time slot and a block name both reached an `onclick` attribute unescaped.
+13. `toast()` rendered its message as HTML while carrying names from config and from the
+    customer's own field. No caller passes markup, so it renders text now.
+14. A missing space in "(Gambar kelihatan kosong) -Cuba gambar lain".
+15. `initConfig`'s realtime snapshot skipped the normalisation the first load did, and never
+    redrew the block grid.
+
+**Verified in the browser:** the duplicate-id repair (one selection, correct name), the
+out-of-stock toast, the gate order, the review's room and receipt warning, Masa Ambil still hiding
+the slots and carrying `Bila siap`, the status wording, and `toast` refusing to render markup.
+Console clean across all of it. **Not exercised:** the admin-only paths — the orders list, the
+receipt viewer, the editors and analytics — because testing them needs an admin session, and the
+password is not something this session handles.
+
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js` (`v21` → `v22-20261020`); commit
+`6ba4a19`
+**Status:** ✅ confirmed, except the admin-only paths above, which are covered by reading only.
+
+---
+
 ## Withdrawn results
 
 - **"The `members` rules are unpublished."** Repeated in the log and in several answers to the
@@ -1022,6 +1080,12 @@ entry is marked confirmed.
   15:23: interception bypasses the Headers construction that was actually failing, so the check
   could not have caught it. Replaced by the poll-the-topic verification at 15:23, and the rule
   that follow-up checks read from the receiving end.
+- **"The cart counter label lags after Pesan lagi."** Reported on 2026-10-19 as a cosmetic
+  bug that made the button look half-done. Withdrawn 2026-10-20: `#cart-count` does keep its last
+  text, but `#cart-bar` loses its `.show` class and is `display:none`, so the stale label is never
+  on screen. The reading came from `textContent` on a hidden element instead of checking whether
+  it was visible — the same mistake as measuring `getComputedStyle` on a child of a hidden parent.
+  Nothing to fix.
 
 Nothing withdrawn yet. When something is, list it here with the reason and a pointer
 to whatever replaced it, so a wrong number can never be picked up and re-used.
