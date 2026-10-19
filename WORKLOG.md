@@ -1115,3 +1115,10 @@ to whatever replaced it, so a wrong number can never be picked up and re-used.
 **Found / changed:** claimPicked in drinks-order.html and index.html (byte-identical). sw.js V bumped to v23-20261020.
 **Artefacts:** app/drinks-order.html, app/index.html, app/sw.js
 **Status:** ? confirmed ? 4-seat review panel (mimo, ds4, ultra, longcat) all PASS, no findings
+
+### 2026-10-20 04:05 ? QR orders now require a receipt, and the alert follows the claim
+**What happened:** A QR Pay order can no longer be reviewed or sent without a staged receipt. Added the same gate in the checkout button and in sendWa: payM==='qr' && !stagedProof refuses with 'Hantar resit dahulu'. Because a QR order now always carries a proof, submitClaim always runs on dispatch and 
+otifyOwnerClaim fires ? closing the QR path that previously reached the seller with no alert.
+**Found / changed:** checkout click handler + sendWa in drinks-order.html and index.html (byte-identical). sw.js V bumped to v24-20261020.
+**Artefacts:** app/drinks-order.html, app/index.html, app/sw.js
+**Status:** ?? provisional ? one review seat PASS (ultra); other three seats rate-limited, user waived re-review
