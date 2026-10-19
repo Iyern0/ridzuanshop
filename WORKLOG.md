@@ -1109,3 +1109,9 @@ flagged in the new `README.md`.
 
 Nothing withdrawn yet. When something is, list it here with the reason and a pointer
 to whatever replaced it, so a wrong number can never be picked up and re-used.
+
+### 2026-10-20 03:00 ? 21st defect fixed: oversized PDF no longer ticks green
+**What happened:** claimPicked now refuses a PDF larger than PDF_MAX_BYTES (480000 bytes) at pick time ? clears the input, shows a red error, skips the green checkmark ? instead of ticking green and failing later in readProof. Normal files still tick green; un-pick still clears stagedProof. readProof/sendClaim oversized path untouched.
+**Found / changed:** claimPicked in drinks-order.html and index.html (byte-identical). sw.js V bumped to v23-20261020.
+**Artefacts:** app/drinks-order.html, app/index.html, app/sw.js
+**Status:** ? confirmed ? 4-seat review panel (mimo, ds4, ultra, longcat) all PASS, no findings

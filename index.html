@@ -1813,8 +1813,19 @@ function claimPicked(p){
   p=p||'';
   const f=document.getElementById(p+'claim-file');
   const n=document.getElementById(p+'claim-file-name');
-  const has=!!(f&&f.files&&f.files[0]);
-  if(n){n.style.display=has?'block':'none';if(has)n.textContent='✓ '+f.files[0].name.slice(0,35)}
+  const file=f&&f.files&&f.files[0];
+  // Refuse an oversized PDF up front instead of ticking it green and failing
+  // later at submit time. Clear the input so a stale selection cannot ride
+  // along with the order.
+  if(file&&isPdfFile(file)&&file.size>PDF_MAX_BYTES){
+    if(f)f.value='';
+    if(n){n.style.color='#FF6B6B';n.style.display='block';n.textContent='❌ PDF terlalu besar (maks 480KB)'}
+    toast('❌ PDF terlalu besar (maks 480KB)');
+    if(p)stagedProof='';
+    return;
+  }
+  const has=!!file;
+  if(n){n.style.color='#00D4AA';n.style.display=has?'block':'none';if(has)n.textContent='✓ '+file.name.slice(0,35)}
   // un-picking at checkout drops the staged copy, so an order can never carry a
   // proof the customer backed out of
   if(p&&!has)stagedProof='';
