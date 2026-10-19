@@ -1062,14 +1062,20 @@ function saveStampNumber(){
   try{localStorage.setItem(STAMP_ASK_KEY,'1')}catch(e){}
   try{const c=loadCustomer()||{};c.ph=digits;localStorage.setItem('mms_cust',JSON.stringify(c))}catch(e){}
   const db=getDb();
-  if(db){
-    // Best effort, and deliberately silent. Until the rules are published this
-    // is refused, and a customer must never be shown an error about a rule
-    // they cannot see or do anything about. The number is on their device
-    // either way, so the next order still carries it.
+  // The member record carries the name as well as the number, and the rules
+  // refuse a name shorter than two characters. A device with nothing to give
+  // had its write turned away while the customer was told the number was
+  // saved, which is a promise the seller's list would never keep. Say what
+  // actually happened: the number is on the device either way, so the next
+  // order still carries it.
+  const stampName=clip((loadCustomer()||{}).n||'',40);
+  if(!db||stampName.length<2){closeStampAsk();toast('✓ Nombor disimpan pada peranti ini');return}
+  {
+    // Best effort, and deliberately silent. A customer must never be shown an
+    // error about a rule they cannot see or do anything about.
     db.collection('members').doc(digits)
-      .set({phone:digits,name:clip((loadCustomer()||{}).n||'',40),at:firebase.firestore.FieldValue.serverTimestamp()})
-      .catch(function(){});
+      .set({phone:digits,name:stampName,at:firebase.firestore.FieldValue.serverTimestamp()})
+      .catch(function(){toast('✓ Nombor disimpan pada peranti ini')});
   }
   closeStampAsk();
   toast('✓ Nombor disimpan - terima kasih!');
@@ -1077,7 +1083,7 @@ function saveStampNumber(){
 function getLoy(){try{return JSON.parse(localStorage.getItem('mms_loy'))||{c:0}}catch(e){return{c:0}}}
 function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
 function drawLoy(){const l=getLoy();document.getElementById('loy-count').textContent=l.c;document.getElementById('stamps').innerHTML=stampRowHtml(l.c)}
-function toast(m){const t=document.getElementById('toast');t.innerHTML=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2000)}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2000)}
 function admConfirm(msg,yesLabel,onYes){
   const box=document.getElementById('adm-confirm');
   if(!box){if(window.confirm(msg))onYes();return}
@@ -1279,12 +1285,48 @@ let dis={};
 async function initDis(){const d=await fsGet(DIS_DOC);if(d)dis=d;draw();const db=getDb();if(db)db.doc(DIS_DOC).onSnapshot(snap=>{if(snap.exists){dis=snap.data();draw()}})}
 function isDis(id){return dis[id]===true}
 async function togDis(id){if(dis[id])delete dis[id];else dis[id]=true;draw();await fsSet(DIS_DOC,dis)}
-async function enAll(){dis={};unrTimes=[];disAdds=[];disDel=[];draw();drawTimes();drawDel();await fsSet(DIS_DOC,dis);await saveConfig();toast('✓ Semua diaktifkan')}
+async function enAll(){dis={};unrTimes=[];disAdds=[];disDel=[];disBlocks=[];draw();drawTimes();drawDel();drawBlocks();await fsSet(DIS_DOC,dis);await saveConfig();toast('✓ Semua diaktifkan')}
 
 function getConfig(){return{adds:ADDS,slots:SLOTS,dels:DELS,blocks:BLOCKS,disAdds,unrTimes,disDel,disBlocks,hours:HOURS,who:WHO}}
-async function loadConfig(){const d=await fsGet(CONFIG_DOC);if(d){if(d.adds)ADDS=d.adds.map((a,i)=>a.id?a:{...a,id:a.name.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')||'addon_'+i});if(d.slots)SLOTS=d.slots;if(d.dels)DELS=d.dels;if(d.disAdds){if(d.disAdds.length>0&&typeof d.disAdds[0]==='number')disAdds=d.disAdds.map(i=>ADDS[i]?ADDS[i].id:null).filter(Boolean);else disAdds=d.disAdds}if(d.unrTimes)unrTimes=d.unrTimes;if(d.disDel)disDel=d.disDel;if(d.blocks)BLOCKS=d.blocks;if(d.disBlocks)disBlocks=d.disBlocks;if(Array.isArray(d.hours)&&d.hours.length===2)HOURS=d.hours;if(d.who&&typeof d.who==='object')WHO=d.who}}
+// The seller's config can end up holding two add-ons under one id: rename an
+// add-on, then add another under the name it used to have, and the new one
+// slugs to the id the old one still carries. Everything downstream keys
+// add-ons by id, so a duplicate makes two buttons drive one choice - tapping
+// either lights both, and the second one's order is recorded under the first
+// one's name. The first entry keeps the id, because existing orders refer to
+// it; a later one is given a distinct one.
+function addSlug(name,i){return String(name==null?'':name).toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')||('addon_'+i)}
+function normAdds(list){
+  const seen={},out=[];
+  (list||[]).forEach(function(a,i){
+    a=a||{};
+    let id=a.id||addSlug(a.name,i);
+    if(seen[id]){const base=addSlug(a.name,i);let n=2,c=base;while(seen[c])c=base+'_'+(n++);id=c}
+    seen[id]=true;
+    out.push({...a,id:id});
+  });
+  return out;
+}
+// Applied to the first read and to every realtime update alike. They used to
+// differ, so a change pushed from the seller's other device landed in a shape
+// only the initial load could cope with: add-ons without ids, or disabled
+// add-ons still keyed by index.
+function applyCfg(d){
+  if(!d)return;
+  if(d.adds)ADDS=normAdds(d.adds);
+  if(d.slots)SLOTS=d.slots;
+  if(d.dels)DELS=d.dels;
+  if(d.disAdds){if(d.disAdds.length>0&&typeof d.disAdds[0]==='number')disAdds=d.disAdds.map(i=>ADDS[i]?ADDS[i].id:null).filter(Boolean);else disAdds=d.disAdds}
+  if(d.unrTimes)unrTimes=d.unrTimes;
+  if(d.disDel)disDel=d.disDel;
+  if(d.blocks)BLOCKS=d.blocks;
+  if(d.disBlocks)disBlocks=d.disBlocks;
+  if(Array.isArray(d.hours)&&d.hours.length===2)HOURS=d.hours;
+  if(d.who&&typeof d.who==='object')WHO=d.who;
+}
+async function loadConfig(){const d=await fsGet(CONFIG_DOC);if(d)applyCfg(d)}
 async function saveConfig(){return await fsSet(CONFIG_DOC,getConfig())}
-async function initConfig(){await loadConfig();const db=getDb();if(db)db.doc(CONFIG_DOC).onSnapshot(snap=>{if(snap.exists){const d=snap.data();if(d.adds)ADDS=d.adds;if(d.slots)SLOTS=d.slots;if(d.dels)DELS=d.dels;if(d.blocks)BLOCKS=d.blocks;if(d.disAdds)disAdds=d.disAdds;if(d.unrTimes)unrTimes=d.unrTimes;if(d.disDel)disDel=d.disDel;if(d.disBlocks)disBlocks=d.disBlocks;if(Array.isArray(d.hours)&&d.hours.length===2){HOURS=d.hours;drawStatus()}if(d.who&&typeof d.who==='object'){WHO=d.who;drawFounder()}draw();drawTimes();drawDel();drawCust()}})}
+async function initConfig(){await loadConfig();const db=getDb();if(db)db.doc(CONFIG_DOC).onSnapshot(snap=>{if(!snap.exists)return;const d=snap.data();applyCfg(d);drawStatus();if(d.who&&typeof d.who==='object')drawFounder();draw();drawTimes();drawDel();drawBlocks();drawCust()})}
 
 let _menuFirst=true;
 setTimeout(function(){_menuFirst=false},1100);
@@ -1296,15 +1338,15 @@ function drawFounder(){const el=document.getElementById('founder');if(!el)return
 function syncTimeButton(){const b=document.getElementById('time-toggle');if(!b)return;b.textContent=(selTime==='ASAP'||!selTime?'ASAP':selTime)+' ▾'}
 function toggleTimePick(){const d=document.getElementById('time-pick');if(!d)return;const open=d.style.display==='block';d.style.display=open?'none':'block';if(open)selTime='ASAP';drawTimes();syncTimeButton()}
 function drawStatus(){const el=document.getElementById('status-bar');if(!el)return;const o=HOURS[0],c=HOURS[1];if(isOpenNow()){const left=minsUntilClose();const lft=left<60?left+' minit':Math.floor(left/60)+' jam '+(left%60)+' min';el.className='status-bar open';el.innerHTML='<span class="dot"></span> BUKA SEKARANG · tutup dalam '+lft+' ('+fmtMin(c)+')'}else{el.className='status-bar closed';el.innerHTML='<span class="dot"></span> TUTUP · buka '+fmtMin(o)+' — anda masih boleh lihat menu'}clearTimeout(window._statusTmr);window._statusTmr=setTimeout(drawStatus,30000)}
-function drawTimes(){document.getElementById('times').innerHTML=SLOTS.map(t=>{const u=unrTimes.includes(t),a=selTime===t?' active':'';return'<button class="t-btn'+a+(u?' unavail':'')+(admin?' admin-mode':'')+'" onclick="selT(\''+t+'\')"'+(u&&!admin?' disabled':'')+'>'+t+'</button>'}).join('')}
-function selT(t){if(admin){const i=unrTimes.indexOf(t);if(i>-1)unrTimes.splice(i,1);else unrTimes.push(t);saveConfig();drawTimes();return}if(unrTimes.includes(t)){toast('❌ Time not available');return}selTime=t;const _pi=document.getElementById('pickup-time');if(_pi)_pi.value='';drawTimes()}
+function drawTimes(){document.getElementById('times').innerHTML=SLOTS.map((t,i)=>{const u=unrTimes.includes(t),a=selTime===t?' active':'';return'<button class="t-btn'+a+(u?' unavail':'')+(admin?' admin-mode':'')+'" onclick="selT('+i+')"'+(u&&!admin?' disabled':'')+'>'+esc(t)+'</button>'}).join('')}
+function selT(i){const t=SLOTS[i];if(t===undefined)return;if(admin){const k=unrTimes.indexOf(t);if(k>-1)unrTimes.splice(k,1);else unrTimes.push(t);saveConfig();drawTimes();return}if(unrTimes.includes(t)){toast('❌ Time not available');return}selTime=t;const _pi=document.getElementById('pickup-time');if(_pi)_pi.value='';drawTimes()}
 function drawCust(){if(!custItem||!MENU[custItem.ci]||!MENU[custItem.ci].items[custItem.vi]){closeCust();return}const sw=document.getElementById('c-sweet'),lv=document.getElementById('c-level'),ex=document.getElementById('c-extra');sw.innerHTML='';lv.innerHTML='';ex.innerHTML='';ADDS.forEach(a=>{const s=custAdds.includes(a.id),d=disAdds.includes(a.id);const ch='<button type="button" class="opt-btn'+(s?' sel':'')+(d?' dis':'')+'" onclick="togC(\''+a.id+'\')">'
     +'<span class="ob-dot"></span>'
     +'<span class="ob-name">'+esc(a.name)+'</span>'
     +(a.price>0?'<span class="ob-price">+RM'+a.price.toFixed(2)+'</span>':'<span class="ob-price free">percuma</span>')
     +'</button>';if(a.grp==='s')sw.innerHTML+=ch;else if(a.grp==='l')lv.innerHTML+=ch;else ex.innerHTML+=ch;});const at=custAdds.reduce((s,id)=>{const a=findAdd(id);return s+(a?a.price:0)},0);document.getElementById('c-price').textContent=(at+(custItem?MENU[custItem.ci].items[custItem.vi].price:0)).toFixed(2);}
 let _addClicks={},_addTmr={};
-function togC(addId){if(disAdds.includes(addId)&&!admin)return;const a=findAdd(addId);if(!a)return;if(admin){_addClicks[addId]=(_addClicks[addId]||0)+1;clearTimeout(_addTmr[addId]);_addTmr[addId]=setTimeout(()=>{_addClicks[addId]=0},2000);if(_addClicks[addId]>=4){_addClicks[addId]=0;if(disAdds.includes(addId)){disAdds=disAdds.filter(x=>x!==addId);toast('✓ '+a.name+' diaktifkan')}else{disAdds.push(addId);toast('❌ '+a.name+' dilumpuhkan')}saveConfig();drawCust();return}}const idx=custAdds.indexOf(addId);if(idx>-1){custAdds.splice(idx,1)}else{if(a.grp==='s'||a.grp==='l'){custAdds=custAdds.filter(id=>{const x=findAdd(id);return x&&x.grp!==a.grp})}custAdds.push(addId)}drawCust()}
+function togC(addId){const a=findAdd(addId);if(!a)return;if(disAdds.includes(addId)&&!admin){toast('❌ '+a.name+' habis');return}if(admin){_addClicks[addId]=(_addClicks[addId]||0)+1;clearTimeout(_addTmr[addId]);_addTmr[addId]=setTimeout(()=>{_addClicks[addId]=0},2000);if(_addClicks[addId]>=4){_addClicks[addId]=0;if(disAdds.includes(addId)){disAdds=disAdds.filter(x=>x!==addId);toast('✓ '+a.name+' diaktifkan')}else{disAdds.push(addId);toast('❌ '+a.name+' dilumpuhkan')}saveConfig();drawCust();return}}const idx=custAdds.indexOf(addId);if(idx>-1){custAdds.splice(idx,1)}else{if(a.grp==='s'||a.grp==='l'){custAdds=custAdds.filter(id=>{const x=findAdd(id);return x&&x.grp!==a.grp})}custAdds.push(addId)}drawCust()}
 function openCust(ci,vi){track('item_open');custItem={ci,vi};custAdds=[];document.getElementById('c-title').textContent=MENU[ci].items[vi].name;drawCust();document.getElementById('cust').style.display='flex'}
 function closeCust(){custItem=null;custAdds=[];document.getElementById('cust').style.display='none'}
 function confirmCust(){if(!custItem)return;const hasSweet=custAdds.some(id=>{const a=findAdd(id);return a&&a.grp==='s'});const anySweetAvail=ADDS.some(a=>a.grp==='s'&&!disAdds.includes(a.id));if(!hasSweet&&anySweetAvail){toast('⚠ Sila pilih pemanis');return}const id='c'+custItem.ci+'v'+custItem.vi;if(!cart[id])cart[id]=[];cart[id].push({adds:[...custAdds]});saveCart();track('add_cart');buzz(15);closeCust();draw();toast('✓ Ditambah')}
@@ -1346,7 +1388,7 @@ if(payM==='qr')setTimeout(function(){
   }catch(err){}
 },60)});
 function closeConfirm(){document.getElementById('confirm-modal').style.display='none'}
-document.getElementById('checkout').addEventListener('click',function(){const e=Object.entries(cart);let totalItems=0;e.forEach(([_,v])=>totalItems+=v.length);if(totalItems===0){toast('⚠ Tiada pesanan');return}if(isCod===null){toast('⚠ Sila pilih cara penghantaran');return}if(!payM){highlight('pay-section','⚠ Sila pilih cara bayar');return}const n=document.getElementById('inp-name2').value.trim(),r=isCod?(selBlock==='other'?((document.getElementById('inp-custom-block')||{}).value||'').trim():selBlock):'';if(!n){highlight('inp-name2','⚠ Sila masukkan nama');return}if(isCod&&!selBlock){toast('⚠ Sila pilih blok');return}if(isCod&&selBlock&&!document.getElementById('inp-room').value.trim()){toast('⚠ Sila masukkan nombor bilik');return}if(!isCod&&!selTime)selTime='Bila siap';if(!selTime){highlight('pickup-time','⚠ Please choose a time first');return}let html='',total=0,idx=0;e.forEach(([id,items])=>{const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;const item=MENU[ci].items[vi];items.forEach(inst=>{idx++;const ac=inst.adds.reduce((s,aid)=>{const a=findAdd(aid);return s+(a?a.price:0)},0);const base=Number(item.price)||0;total+=base+ac;const al=inst.adds.map(aid=>{const a=findAdd(aid);return a?a.name:''}).filter(Boolean).join(', ');const emoji=drinkEmoji(item.name);html+='<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="font-size:20px">'+emoji+'</span><div style="flex:1"><div style="font-weight:800;font-size:14px;color:#F0F0F0">'+esc(item.name)+'</div>'+(al?'<div style="font-size:12px;color:#9A9385;margin-top:2px">➕ '+esc(al)+'</div>':'')+'</div><span style="font-family:var(--fd);font-weight:800;font-size:19px;color:#00D4AA">RM'+(base+ac).toFixed(2)+'</span></div>';});});document.getElementById('confirm-items').innerHTML=html;document.getElementById('confirm-delivery').innerHTML='🚗 '+(isCod?'COD (+RM1)':'Ambil Sendiri')+' · ⏰ '+esc(selTime)+' · 👤 '+esc(n)+(isCod?' '+esc(r):'');document.getElementById('confirm-pay').innerHTML='💳 '+(payM==='cash'?'💵 Tunai':'📱 QR Pay');document.getElementById('confirm-sub').textContent='RM'+total.toFixed(2);document.getElementById('confirm-cod').style.display=isCod?'flex':'none';document.getElementById('confirm-total').textContent='RM'+(total+(isCod?1:0)).toFixed(2);track('checkout_open');document.getElementById('confirm-modal').style.display='flex';});
+document.getElementById('checkout').addEventListener('click',function(){const e=Object.entries(cart);let totalItems=0;e.forEach(([_,v])=>totalItems+=v.length);if(totalItems===0){toast('⚠ Tiada pesanan');return}if(isCod===null){toast('⚠ Sila pilih cara penghantaran');return}const n=document.getElementById('inp-name2').value.trim(),blockR=isCod?(selBlock==='other'?((document.getElementById('inp-custom-block')||{}).value||'').trim():selBlock):'',roomR=isCod?(document.getElementById('inp-room').value||'').trim():'',r=isCod?(blockR+(roomR?' '+roomR:'')):'';if(!n){highlight('inp-name2','⚠ Sila masukkan nama');return}if(isCod&&!selBlock){toast('⚠ Sila pilih blok');return}if(isCod&&selBlock&&!document.getElementById('inp-room').value.trim()){toast('⚠ Sila masukkan nombor bilik');return}if(!isCod&&!selTime)selTime='Bila siap';if(!selTime){highlight('pickup-time','⚠ Please choose a time first');return}if(!payM){highlight('pay-section','⚠ Sila pilih cara bayar');return}let html='',total=0,idx=0;e.forEach(([id,items])=>{const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;const item=MENU[ci].items[vi];items.forEach(inst=>{idx++;const ac=inst.adds.reduce((s,aid)=>{const a=findAdd(aid);return s+(a?a.price:0)},0);const base=Number(item.price)||0;total+=base+ac;const al=inst.adds.map(aid=>{const a=findAdd(aid);return a?a.name:''}).filter(Boolean).join(', ');const emoji=drinkEmoji(item.name);html+='<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06)"><span style="font-size:20px">'+emoji+'</span><div style="flex:1"><div style="font-weight:800;font-size:14px;color:#F0F0F0">'+esc(item.name)+'</div>'+(al?'<div style="font-size:12px;color:#9A9385;margin-top:2px">➕ '+esc(al)+'</div>':'')+'</div><span style="font-family:var(--fd);font-weight:800;font-size:19px;color:#00D4AA">RM'+(base+ac).toFixed(2)+'</span></div>';});});document.getElementById('confirm-items').innerHTML=html;document.getElementById('confirm-delivery').innerHTML='🚗 '+(isCod?'COD (+RM1)':'Ambil Sendiri')+' · ⏰ '+esc(selTime)+' · 👤 '+esc(n)+(isCod?' '+esc(r):'');document.getElementById('confirm-pay').innerHTML='\u{1F4B3} '+(payM==='cash'?'\u{1F4B5} Tunai':'\u{1F4F1} QR Pay')+(payM==='qr'&&!stagedProof?' \u00B7 <span style="color:#FFB347">\u26A0 tiada resit - penjual tak dapat sahkan bayaran</span>':'');document.getElementById('confirm-sub').textContent='RM'+total.toFixed(2);document.getElementById('confirm-cod').style.display=isCod?'flex':'none';document.getElementById('confirm-total').textContent='RM'+(total+(isCod?1:0)).toFixed(2);track('checkout_open');document.getElementById('confirm-modal').style.display='flex';});
 function clip(s,max){return String(s==null?'':s).trim().slice(0,max)}
 function saveCart(){try{localStorage.setItem('mms_cart',JSON.stringify(cart))}catch(e){}}
 function loadCart(){try{const c=JSON.parse(localStorage.getItem('mms_cart'));if(c&&typeof c==='object'){cart=c;return true}}catch(e){}return false}
@@ -1704,6 +1746,12 @@ function paintSteps(st){
 let _trackUnsub=null;
 function trackOrder(code){
   if(_trackUnsub){_trackUnsub();_trackUnsub=null}
+  // A new subscription has no history. Without this the first snapshot was
+  // compared against whatever the previous order had last been, so placing an
+  // order after an earlier one had been marked made or on its way lit the
+  // stepper, beeped and pushed a notification about an order nothing had
+  // happened to yet.
+  _lastSt='';
   const db=getDb();if(!db||!code)return;
   _trackUnsub=db.collection('tracking').doc(code).onSnapshot(function(s){
     if(!s.exists)return;
@@ -1780,7 +1828,7 @@ async function readProof(f){
   const img=pdf?await fileToDataUrl(f):await shrinkImage(f,1000,0.72);
   // the rules cap this at 700000 chars, so check before spending a write
   if(img.length>680000)throw new Error((pdf?'PDF':'Gambar')+' terlalu besar - guna fail lain');
-  if(!pdf&&img.length<2000)throw new Error('Gambar kelihatan kosong -Cuba gambar lain');
+  if(!pdf&&img.length<2000)throw new Error('Gambar kelihatan kosong - cuba gambar lain');
   return img;
 }
 // The single place a claim is written. Both routes end up here, so the promise
@@ -2205,6 +2253,9 @@ function admBulkDone(){if(!_admVisDocs.length)return;admConfirm('Tandakan semua 
 function admStatusText(s,isCod){
   if(isCod===undefined)isCod=true;
   if(s==='done')return isCod?'Pesanan sampai! Terima kasih 🙏':'Siap! Boleh ambil ya 🙏';
+  // A new order is waiting to be confirmed, not being made. The stepper already
+  // said so; this is the same sentence for the bar and for the WhatsApp message.
+  if(s==='baru')return 'Menunggu pengesahan penjual';
   if(s==='processing')return isCod?'Sedang dalam perjalanan!':'Sedang dibuat...';
   return 'Sedang dibuat...';
 }
@@ -2231,20 +2282,20 @@ function admSaveMI(){const n=document.getElementById('am-name').value.trim(),p=p
 function admCancelMI(){_aei=null;admMenu(document.getElementById('adm-pg'))}
 function admMoveMI(ci,i,dir){const cat=MENU[ci];if(!cat)return;const items=cat.items;const j=i+dir;if(j<0||j>=items.length)return;[items[i],items[j]]=[items[j],items[i]];admMenu(document.getElementById('adm-pg'));saveMenu()}
 let _eai=null,_eag='s';
-function admAddons(pg){_eai=null;const gs=[{k:'s',l:'🍬 Pemanis',items:[]},{k:'l',l:'🌿 Level',items:[]},{k:'e',l:'➕ Extra',items:[]}];ADDS.forEach((a,i)=>{const g=gs.find(x=>x.k===a.grp);if(g)g.items.push({...a,idx:i})});let h='';gs.forEach(g=>{if(!g.items.length)return;h+='<div class="a-sec">'+g.l+'</div>';g.items.forEach(a=>{const dis=disAdds.includes(a.id);h+='<div class="a-row" style="'+(dis?'opacity:0.4':'')+'"><span class="n" style="'+(dis?'text-decoration:line-through':'')+'">'+esc(a.name)+'</span><span class="p">'+(a.price>0?'RM'+a.price.toFixed(2):'Free')+'</span><div class="b"><button style="background:'+(dis?'rgba(255,107,107,0.15)':'rgba(0,212,170,0.1)')+';color:'+(dis?'#FF6B6B':'#00D4AA')+'" onclick="admTogDis(\''+a.id+'\')">'+(dis?'✕':'✓')+'</button><button style="background:rgba(0,212,170,0.1);color:#00D4AA" onclick="admEditAI('+a.idx+')">✎</button><button style="background:rgba(255,107,107,0.1);color:#FF6B6B" onclick="admDelAI('+a.idx+')">✕</button></div></div>'})});h+='<div class="a-form"><div class="row"><input class="inp" id="aa-name" placeholder="Nama" style="flex:1"><input class="inp" id="aa-price" placeholder="Harga" type="number" step="0.10" style="max-width:90px"></div><div class="chips"><button class="a-chip'+(_eag==='s'?' on':'')+'" onclick="admPickG(this,\'s\')">🍬 Pemanis</button><button class="a-chip'+(_eag==='l'?' on':'')+'" onclick="admPickG(this,\'l\')">🌿 Level</button><button class="a-chip'+(_eag==='e'?' on':'')+'" onclick="admPickG(this,\'e\')">➕ Extra</button></div><div style="display:flex;gap:8px"><button onclick="admSaveAI()" id="aa-save" style="flex:1;background:#00D4AA;color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:15px;padding:12px;border-radius:10px;cursor:pointer">➕ Tambah</button><button onclick="admCancelAI()" id="aa-cancel" style="display:none;background:rgba(255,255,255,0.08);color:#9A9385;border:none;font-size:14px;padding:12px;border-radius:10px;cursor:pointer">Batal</button></div></div>';pg.innerHTML=h}
+function admAddons(pg){_eai=null;_eag='s';const gs=[{k:'s',l:'🍬 Pemanis',items:[]},{k:'l',l:'🌿 Level',items:[]},{k:'e',l:'➕ Extra',items:[]}];ADDS.forEach((a,i)=>{const g=gs.find(x=>x.k===a.grp);if(g)g.items.push({...a,idx:i})});let h='';gs.forEach(g=>{if(!g.items.length)return;h+='<div class="a-sec">'+g.l+'</div>';g.items.forEach(a=>{const dis=disAdds.includes(a.id);h+='<div class="a-row" style="'+(dis?'opacity:0.4':'')+'"><span class="n" style="'+(dis?'text-decoration:line-through':'')+'">'+esc(a.name)+'</span><span class="p">'+(a.price>0?'RM'+a.price.toFixed(2):'Free')+'</span><div class="b"><button style="background:'+(dis?'rgba(255,107,107,0.15)':'rgba(0,212,170,0.1)')+';color:'+(dis?'#FF6B6B':'#00D4AA')+'" onclick="admTogDis(\''+a.id+'\')">'+(dis?'✕':'✓')+'</button><button style="background:rgba(0,212,170,0.1);color:#00D4AA" onclick="admEditAI('+a.idx+')">✎</button><button style="background:rgba(255,107,107,0.1);color:#FF6B6B" onclick="admDelAI('+a.idx+')">✕</button></div></div>'})});h+='<div class="a-form"><div class="row"><input class="inp" id="aa-name" placeholder="Nama" style="flex:1"><input class="inp" id="aa-price" placeholder="Harga" type="number" step="0.10" style="max-width:90px"></div><div class="chips"><button class="a-chip'+(_eag==='s'?' on':'')+'" onclick="admPickG(this,\'s\')">🍬 Pemanis</button><button class="a-chip'+(_eag==='l'?' on':'')+'" onclick="admPickG(this,\'l\')">🌿 Level</button><button class="a-chip'+(_eag==='e'?' on':'')+'" onclick="admPickG(this,\'e\')">➕ Extra</button></div><div style="display:flex;gap:8px"><button onclick="admSaveAI()" id="aa-save" style="flex:1;background:#00D4AA;color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:15px;padding:12px;border-radius:10px;cursor:pointer">➕ Tambah</button><button onclick="admCancelAI()" id="aa-cancel" style="display:none;background:rgba(255,255,255,0.08);color:#9A9385;border:none;font-size:14px;padding:12px;border-radius:10px;cursor:pointer">Batal</button></div></div>';pg.innerHTML=h}
 function admPickG(el,g){_eag=g;el.closest('.chips').querySelectorAll('.a-chip').forEach(c=>c.classList.remove('on'));el.classList.add('on')}
 function admTogDis(id){if(disAdds.includes(id))disAdds=disAdds.filter(x=>x!==id);else disAdds.push(id);saveConfig();admAddons(document.getElementById('adm-pg'))}
 function admEditAI(i){const a=ADDS[i];_eai=i;_eag=a.grp;document.getElementById('aa-name').value=a.name;document.getElementById('aa-price').value=a.price||'';document.getElementById('aa-save').textContent='💾 Simpan';document.getElementById('aa-cancel').style.display='block';document.querySelectorAll('.a-chip').forEach(c=>{c.classList.toggle('on',c.textContent.includes({s:'Pemanis',l:'Level',e:'Extra'}[a.grp]))})}
 function admDelAI(i){if(!confirm('Padam "'+ADDS[i].name+'"?'))return;ADDS.splice(i,1);saveConfig();admAddons(document.getElementById('adm-pg'));toast('✓ Dipadam')}
-function admSaveAI(){const n=document.getElementById('aa-name').value.trim(),p=parseFloat(document.getElementById('aa-price').value)||0;if(!n){toast('⚠ Nama');return}const id=n.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')||'addon_'+Date.now();if(_eai!==null){ADDS[_eai]={...ADDS[_eai],name:n,price:p,grp:_eag}}else{ADDS.push({id,name:n,price:p,grp:_eag})}_eai=null;saveConfig();admAddons(document.getElementById('adm-pg'));toast('✓ Disimpan')}
+function admSaveAI(){const n=document.getElementById('aa-name').value.trim(),p=parseFloat(document.getElementById('aa-price').value)||0;if(!n){toast('⚠ Nama');return}const id=n.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')||'addon_'+Date.now();if(_eai!==null){ADDS[_eai]={...ADDS[_eai],name:n,price:p,grp:_eag}}else{if(ADDS.some(x=>x.id===id)){toast('⚠ Nama ini sudah ada - guna nama lain');return}ADDS.push({id,name:n,price:p,grp:_eag})}_eai=null;saveConfig();admAddons(document.getElementById('adm-pg'));toast('✓ Disimpan')}
 function admCancelAI(){_eai=null;admAddons(document.getElementById('adm-pg'))}
 function admSchedule(pg){let h='<div style="max-width:500px">';SLOTS.forEach((s,i)=>{h+='<div class="a-row"><span class="n">⏰ '+esc(s)+'</span><div class="b"><button style="background:rgba(255,107,107,0.1);color:#FF6B6B" onclick="admDelSI('+i+')">✕</button></div></div>'});h+='</div><div class="a-form" style="max-width:500px"><div class="row"><input class="inp" id="as-name" placeholder="cth: 2:30AM" style="flex:1"><button onclick="admAddSI()" style="background:#00D4AA;color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:15px;padding:10px 18px;border-radius:10px;cursor:pointer;flex-shrink:0">➕</button></div></div>';pg.innerHTML=h}
 function admAddSI(){const n=document.getElementById('as-name').value.trim().toUpperCase();if(!n){toast('⚠ Masa');return}if(SLOTS.includes(n)){toast('❌ Sudah ada');return}SLOTS.push(n);saveConfig();admSchedule(document.getElementById('adm-pg'));toast('✓ Ditambah')}
 function admDelSI(i){if(!confirm('Padam "'+SLOTS[i]+'"?'))return;SLOTS.splice(i,1);saveConfig();admSchedule(document.getElementById('adm-pg'));toast('✓ Dipadam')}
-function admDelivery(pg){let h='<div class="a-sec">🚗 Delivery Methods</div><div style="max-width:500px">';DELS.forEach((d,i)=>{h+='<div class="a-row"><span class="n">'+esc(d.l)+'</span><div class="b"><button style="background:rgba(255,107,107,0.1);color:#FF6B6B" onclick="admDelDI('+i+')">✕</button></div></div>'});h+='</div><div class="a-form" style="max-width:500px"><div class="row"><input class="inp" id="ad-label" placeholder="Label" style="flex:1"><input class="inp" id="ad-type" placeholder="ID" style="max-width:80px"><input class="inp" id="ad-fee" placeholder="Fee" type="number" step="0.50" style="max-width:70px"><button onclick="admAddDI()" style="background:#00D4AA;color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:15px;padding:10px 18px;border-radius:10px;cursor:pointer;flex-shrink:0">➕</button></div></div>';h+='<div class="a-sec" style="margin-top:20px">🏠 Blok (COD)</div><div style="max-width:500px">';BLOCKS.forEach((b,i)=>{const dis=disBlocks.includes(b);h+='<div class="a-row" style="'+(dis?'opacity:0.4':'')+'"><span class="n" style="'+(dis?'text-decoration:line-through':'')+'">'+esc(b)+'</span><div class="b"><button style="background:'+(dis?'rgba(255,107,107,0.15)':'rgba(0,212,170,0.1)')+';color:'+(dis?'#FF6B6B':'#00D4AA')+'" onclick="admTogBlockDis(\''+b+'\')">'+(dis?'✕':'✓')+'</button><button style="background:rgba(255,107,107,0.1);color:#FF6B6B" onclick="admDelBlock('+i+')">✕</button></div></div>'});h+='</div><div class="a-form" style="max-width:500px"><div class="row"><input class="inp" id="ab-name" placeholder="Nama blok (cth: Kristal C)" style="flex:1"><button onclick="admAddBlock()" style="background:#00D4AA;color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:15px;padding:10px 18px;border-radius:10px;cursor:pointer;flex-shrink:0">➕</button></div></div>';pg.innerHTML=h}
+function admDelivery(pg){let h='<div class="a-sec">🚗 Delivery Methods</div><div style="max-width:500px">';DELS.forEach((d,i)=>{h+='<div class="a-row"><span class="n">'+esc(d.l)+'</span><div class="b"><button style="background:rgba(255,107,107,0.1);color:#FF6B6B" onclick="admDelDI('+i+')">✕</button></div></div>'});h+='</div><div class="a-form" style="max-width:500px"><div class="row"><input class="inp" id="ad-label" placeholder="Label" style="flex:1"><input class="inp" id="ad-type" placeholder="ID" style="max-width:80px"><input class="inp" id="ad-fee" placeholder="Fee" type="number" step="0.50" style="max-width:70px"><button onclick="admAddDI()" style="background:#00D4AA;color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:15px;padding:10px 18px;border-radius:10px;cursor:pointer;flex-shrink:0">➕</button></div></div>';h+='<div class="a-sec" style="margin-top:20px">🏠 Blok (COD)</div><div style="max-width:500px">';BLOCKS.forEach((b,i)=>{const dis=disBlocks.includes(b);h+='<div class="a-row" style="'+(dis?'opacity:0.4':'')+'"><span class="n" style="'+(dis?'text-decoration:line-through':'')+'">'+esc(b)+'</span><div class="b"><button style="background:'+(dis?'rgba(255,107,107,0.15)':'rgba(0,212,170,0.1)')+';color:'+(dis?'#FF6B6B':'#00D4AA')+'" onclick="admTogBlockDis('+i+')">'+(dis?'✕':'✓')+'</button><button style="background:rgba(255,107,107,0.1);color:#FF6B6B" onclick="admDelBlock('+i+')">✕</button></div></div>'});h+='</div><div class="a-form" style="max-width:500px"><div class="row"><input class="inp" id="ab-name" placeholder="Nama blok (cth: Kristal C)" style="flex:1"><button onclick="admAddBlock()" style="background:#00D4AA;color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:15px;padding:10px 18px;border-radius:10px;cursor:pointer;flex-shrink:0">➕</button></div></div>';pg.innerHTML=h}
 function admAddDI(){const l=document.getElementById('ad-label').value.trim(),t=document.getElementById('ad-type').value.trim().toLowerCase(),f=parseFloat(document.getElementById('ad-fee').value)||0;if(!l||!t){toast('⚠ Label + ID');return}if(DELS.find(d=>d.t===t)){toast('❌ ID ada');return}DELS.push({t,l:f>0?'📦 '+l+' (+RM'+f.toFixed(2)+')':l,f});saveConfig();admDelivery(document.getElementById('adm-pg'));toast('✓ Ditambah')}
 function admDelDI(i){if(DELS.length<=1){toast('❌ Mesti ada satu cara penghantaran');return}if(!confirm('Padam "'+DELS[i].l+'"?'))return;DELS.splice(i,1);saveConfig();admDelivery(document.getElementById('adm-pg'));toast('✓ Dipadam')}
-function admTogBlockDis(b){if(disBlocks.includes(b))disBlocks=disBlocks.filter(x=>x!==b);else{if(disBlocks.length>=BLOCKS.length){toast('❌ Mesti ada satu blok');return}disBlocks.push(b)}saveConfig();admDelivery(document.getElementById('adm-pg'))}
+function admTogBlockDis(i){const b=BLOCKS[i];if(!b)return;if(disBlocks.includes(b))disBlocks=disBlocks.filter(x=>x!==b);else{if(disBlocks.length>=BLOCKS.length){toast('❌ Mesti ada satu blok');return}disBlocks.push(b)}saveConfig();admDelivery(document.getElementById('adm-pg'))}
 function admAddBlock(){const n=document.getElementById('ab-name').value.trim();if(!n){toast('⚠ Nama blok');return}if(BLOCKS.includes(n)){toast('❌ Sudah ada');return}BLOCKS.push(n);saveConfig();admDelivery(document.getElementById('adm-pg'));toast('✓ Ditambah')}
 function admDelBlock(i){const name=BLOCKS[i];if(!confirm('Padam "'+name+'"?'))return;BLOCKS.splice(i,1);if(disBlocks.includes(name))disBlocks=disBlocks.filter(x=>x!==name);saveConfig();admDelivery(document.getElementById('adm-pg'));toast('✓ Dipadam')}
 
