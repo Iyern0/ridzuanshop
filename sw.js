@@ -1,7 +1,7 @@
 // MINUM MALAM SISWA  Eservice worker
 // Cache name is versioned. Bump V when the app changes so old shells get evicted.
-// Current: V20 (bug pass: receipt viewer markup, admin tab repaint, block/delivery editors)
-const V = 'v20-20261019';
+// Current: V21 (QR section scrolls into view when QR Pay is chosen)
+const V = 'v21-20261019';
 const SHELL = ['./', './index.html', './drinks-order.html', './manifest.json'];
 
 self.addEventListener('install', (e) => {
