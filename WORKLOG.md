@@ -1067,6 +1067,26 @@ password is not something this session handles.
 
 ---
 
+### 2026-10-20 02:51 — Site moved out of the shared scratch folder
+**What happened:** The repo, its tooling, the design iterations and the review packet now sit
+under `C:\Users\kiifu\Desktop\MINUM MALAM SISWA\`, instead of sharing `Desktop\claude` with
+unrelated work (exam PDFs, emulator screenshots, three other widget projects).
+**Found / changed:** `app\` is the git repo — 15 tracked files, `.git` intact, remote unchanged,
+`git log` unchanged, and `drinks-order.html` still byte-identical to `index.html` at 206,917
+bytes. `tools\` is the old `fb-admin-setup`; 126 files were retargeted from `Desktop\claude` to
+`Desktop\MINUM MALAM SISWA\app` (134 path references). `archive\` holds `design-v2`,
+`design-v3`, `drinks-corpus`, `drinks-out`, `graphify-out`, the `.bak` and experiment copies and
+the QR data. `review\` is the review packet. 75.5 MB in total. The local server on port 8899 was
+stopped before the move so it would not hold the old directory open. `design-v3` refused to move
+— a process holds the directory — so it was copied byte-for-byte (8 files) and the locked
+original left behind in `Desktop\claude` for deletion after a reboot. `tools\ADMIN-CREDENTIALS.txt`
+and `tools\creds.js` moved with the tooling; they are still plaintext admin credentials and are
+flagged in the new `README.md`.
+**Artefacts:** `Desktop\MINUM MALAM SISWA\{app,tools,archive,review}`, `README.md`,
+`tools\retarget-paths.js`; `DRINKS-ORDER.md` working-tree path updated
+**Status:** ✅ confirmed — `git status` in `app\` reports only the pre-existing modification to
+`transit-widget/DESIGN.md`, which belongs to the other project.
+
 ## Withdrawn results
 
 - **"The `members` rules are unpublished."** Repeated in the log and in several answers to the

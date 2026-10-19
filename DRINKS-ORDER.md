@@ -5,7 +5,7 @@ PWA web app for a student stall (10:30PM–2:00AM). Customers browse menu, order
 
 **Live:** https://iyern0.github.io/ridzuanshop/
 **Repo:** Iyern0/ridzuanshop (GitHub Pages, auto-deploys on push)
-**Working tree:** `c:\Users\kiifu\Desktop\claude\` (drinks-order.html + index.html, always identical)
+**Working tree:** `c:\Users\kiifu\Desktop\MINUM MALAM SISWA\app\` (drinks-order.html + index.html, always identical)
 
 ---
 
