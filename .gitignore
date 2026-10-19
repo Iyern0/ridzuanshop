@@ -1,39 +1,56 @@
 # ---------------------------------------------------------------------------
-# MINUM MALAM SISWA — stale pre-Firestore artefacts
+# MINUM MALAM SISWA — repository scope
 #
-# These belong to the old architecture (menu stored in a GitHub Gist, admin
-# gated by a hardcoded password). The app moved to Firestore + Firebase Auth,
-# so nothing here matches the live app and the check scripts would fail.
-# Kept on disk for reference, deliberately excluded from version control.
+# This is a ONE-APP repo. It happens to live inside Desktop\claude, which is
+# also a general scratch area: ~120 unrelated files sit next to the app
+# (emulator screenshots, course PDFs, Arduino sketches, other side projects,
+# a stray .env). None of that belongs in ridzuanshop.
+#
+# So the rule is a whitelist, not a blacklist: ignore everything at the root,
+# then re-admit only the app. That makes `git add -A` safe no matter what
+# lands in this folder next — something a blacklist can never guarantee.
 # ---------------------------------------------------------------------------
-chk_index.js
-chk_drinks-order-experiment.js
-chk_firebase.js
-drinks-order-experiment.html
-drinks-order.bak.html
-drinks-corpus/
-drinks-out/
 
-# Local scratch / experiments
-*-experiment.*
-*.bak.html
-*.tmp
-_*.json
+/*
 
-# Never commit credentials or private keys
+# --- The app: the only things that ship --------------------------------
+!/.gitignore
+!/drinks-order.html
+!/index.html
+!/sw.js
+!/manifest.json
+!/firebase.json
+!/firestore.rules
+!/qr-duitnow.jpg
+!/gen_icons.py
+!/icons/
+!/icons/**
+
+# --- Documentation ----------------------------------------------------
+!/DRINKS-ORDER.md
+!/WORKLOG.md
+
+# ---------------------------------------------------------------------------
+# Credentials and private keys — never commit, whatever else changes.
+# ---------------------------------------------------------------------------
 service-account*.json
 *-firebase-adminsdk-*.json
 ADMIN-CREDENTIALS.txt
-
-# Local env
 .env
 
-# Editor / OS noise
-.vscode/
-.idea/
-Thumbs.db
-desktop.ini
-
-# Local Firebase CLI state
-firebase-debug.log
-.firebase/
+# ---------------------------------------------------------------------------
+# Everything else is already covered by the `/*` above. Listed here so a
+# future reader knows these were considered, not overlooked:
+#
+#   Screenshots    *.png *.jpeg       (69 emulator/widget captures)
+#   Course work    *.pdf *.ino        (CSA20103, maze.ino, buzzer_noises/)
+#   Side projects  waktusolat-widget/ transit-widget/ opencut*/ fyp/ STUDY/
+#   Scratch        council_extract*.txt emulator_*.png wl*.png NUL
+#   Tooling state  .claude/ .agents/ .playwright-mcp/ skills-lock.json
+#   Secrets        "C:UserskiifuDesktopclaude.env" (mangled redirect)
+#
+# Stale pre-Firestore artefacts (Gist era, superseded by Firestore):
+#   chk_index.js chk_drinks-order-experiment.js chk_firebase.js
+#   drinks-order-experiment.html drinks-order.bak.html
+#   drinks-corpus/ drinks-out/      (52 KB July snapshot of the app)
+# ---------------------------------------------------------------------------

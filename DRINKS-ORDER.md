@@ -110,16 +110,33 @@ firebase deploy --only firestore:rules --project minum-malam-siswa
 | `index.html` | Copy of above (GitHub Pages serves this) |
 | `firestore.rules` | **Security rules — paste into console** |
 | `manifest.json` | PWA manifest |
-| `sw.js` | Service worker (cache version `v7-20261016` — bump on release) |
+| `sw.js` | Service worker — carries a `const V` cache version. Bump `V` on release; do not pin the value here, it goes stale |
+| `firebase.json` | Firebase CLI config (rules target) |
+| `qr-duitnow.jpg` | DuitNow QR shown on the payment step |
 | `icons/icon-192.png` | PWA icon 192px |
 | `icons/icon-512.png` | PWA icon 512px |
 | `icons/apple-touch-icon.png` | iOS icon 180px |
 | `gen_icons.py` | Icon generator (python PIL) |
+| `DRINKS-ORDER.md` | This file — what is true **now** |
+| `WORKLOG.md` | Append-only record of what **happened** (never edit a past entry) |
 
 **Always edit drinks-order.html, then `cp drinks-order.html index.html`.**
 
 > Note: `chk_firebase.js` and `chk_index.js` are stale snapshots from the pre-Firestore
 > Gist era. They do not test the current app.
+
+### Repository scope
+The repo is **one app**, but the working directory is a general scratch area — emulator
+screenshots, course PDFs, Arduino sketches, other side projects and a stray `.env` all
+live in the same folder. `.gitignore` therefore runs a **whitelist**: `/*` ignores
+everything at the root, then the app files are re-admitted one by one. Anything new
+dropped in the folder is invisible to git by default, which is the intent.
+
+Consequence worth knowing: a genuinely new app file (say `robots.txt`) is **silently
+ignored** until someone adds a `!/` line for it. If a file "won't commit", that is why.
+
+One tracked file is outside the app's scope and is a candidate for removal:
+`transit-widget/DESIGN.md` (a different project's design doc, no longer edited here).
 
 ---
 
@@ -194,9 +211,15 @@ cd c:\Users\kiifu\Desktop\claude
 # edit drinks-order.html
 cp drinks-order.html index.html
 # bump V in sw.js when shipping a release
-git add -A && git commit -m "feat: ..." && git push origin main
+git add drinks-order.html index.html sw.js && git commit -m "feat: ..." && git push origin main
 ```
 GitHub Pages auto-deploys ~1 min after push.
+
+> **Never use `git add -A` in this folder.** It also holds ~120 unrelated files
+> (screenshots, course PDFs, other side projects, a stray `.env`). `.gitignore`
+> now ignores everything at the root and re-admits only the app, so `-A` is
+> safe *today* — but the explicit path list is the habit that stays safe if that
+> whitelist is ever loosened. Verify with `git add -A --dry-run` before trusting it.
 
 > Gotcha that bit us before: the service worker cache name was hardcoded `v1`, so the
 > first shell it ever cached was pinned forever. `sw.js` now uses a version constant and
