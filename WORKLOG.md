@@ -960,6 +960,55 @@ guessed at.
 
 ---
 
+### 2026-10-19 18:55 — Bug pass, found by reading rather than by report
+
+**What happened:** No bug report came in. The app was read end to end and checked three ways:
+the inline script syntax-checked with `node --check`, every `getElementById` reference
+cross-checked against the markup's `id`s, and the static document parsed for tag balance.
+Nine defects were found and fixed. Nothing the customer sees in the normal order path changed
+behaviour except where a defect was in that path.
+
+**Found / changed:**
+1. `admViewClaim()` — a missing `+` before `'</div>'`. ASI made it legal, so it never threw;
+   it silently dropped the receipt viewer's closing tag and left `.cv-box` to be closed by the
+   parser. **The one real markup bug in the file.**
+2. The orders `onSnapshot` rendered into `#adm-pg` regardless of which tab owned that node, so
+   any order update repainted the orders list over the Resit, Pelanggan or Analitis screen.
+   Fixed on both ends: the listener is dropped when leaving those tabs, and the callback now
+   updates `_admOrdersCache` and returns without touching the DOM unless it owns the tab.
+3. `drawStatus()` set a new 30-second timer on every call without clearing the old one. Each
+   call left another permanent polling loop behind.
+4. `admDelBlock()` read `BLOCKS[i]` **after** splicing, so it cleaned the wrong name out of
+   `disBlocks` — the deleted block stayed disabled, and its successor was silently disabled.
+5. `admDelDI()` allowed deleting the last delivery method, which leaves no way to choose one and
+   blocks checkout for every customer. Now refuses, matching the block guard.
+6. The menu editor called `admEditMI(i)` / `admDelMI(i)` / `admMoveMI(i,±1)` with the item index
+   only, and all three hard-coded `MENU[0]`. With a second category present, editing an item in
+   it edited the same index in the first. The category index is passed through now.
+7. `drawBlocks()` put the block name into an `onclick` attribute unescaped — a block named
+   `O'Brien` broke the handler. It passes the index now, the same fix `blockBarHtml` already used.
+8. Disabled reorder arrows emitted a second `style` attribute (`disabled style="opacity:0.3"`),
+   which browsers discard; the arrows never dimmed.
+9. `highlight()` dereferenced a possibly-missing element; `#adm-search` was matched but the
+   input's class is `.a-search`; `item.name` was interpolated unescaped in the cart and the
+   checkout summary, against the escaping rule the file states for itself; `v.price.toFixed()`
+   assumed a number; and two stray `</div>` sat at the end of the body.
+
+Also declared `_admOrdersCache`, which had been written as an implicit global — harmless only
+while the script stays sloppy-mode.
+
+**Not changed, deliberately:** `syncTimeButton()` and the `inp-custom-block` / `inp-phone`
+lookups point at elements that no longer exist. Every one is guarded, so they are dead code, not
+defects. Removing them is a separate job from fixing what is broken.
+`#settings/admin` is still listed as "delete this document" — not touched, it needs the console.
+
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js` (cache `v19` → `v20-20261019`)
+**Status:** ⚠️ syntax, markup balance and reference checks pass; **not yet exercised in a
+browser** — the fixes need one pass on the live order flow and the admin dashboard before this
+entry is marked confirmed.
+
+---
+
 ## Withdrawn results
 
 - **"The `members` rules are unpublished."** Repeated in the log and in several answers to the

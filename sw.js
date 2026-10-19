@@ -1,7 +1,7 @@
 // MINUM MALAM SISWA  Eservice worker
 // Cache name is versioned. Bump V when the app changes so old shells get evicted.
-// Current: V19 (Masa Ambil: no slots for pickup, a notify note, both keep a custom box)
-const V = 'v19-20261016';
+// Current: V20 (bug pass: receipt viewer markup, admin tab repaint, block/delivery editors)
+const V = 'v20-20261019';
 const SHELL = ['./', './index.html', './drinks-order.html', './manifest.json'];
 
 self.addEventListener('install', (e) => {
