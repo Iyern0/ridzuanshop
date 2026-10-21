@@ -1,7 +1,7 @@
 ﻿// MINUM MALAM SISWA 窶・service worker
 // Cache name is versioned. Bump V when the app changes so old shells get evicted.
 // Current: V24 (QR orders require a receipt; notification fires on claim)
-const V = 'v27-20261021';
+const V = 'v28-20261021';
 const SHELL = ['./', './index.html', './drinks-order.html', './manifest.json'];
 
 self.addEventListener('install', (e) => {

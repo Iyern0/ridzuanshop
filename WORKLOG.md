@@ -1173,6 +1173,18 @@ code at checkout and taps which drink is free.
 **Artefacts:** `drinks-order.html`, `index.html`, `firestore.rules`, `sw.js` (`v27-20261021`); `tools/verify-coupon.js`, `tools/e2e-coupon.js`
 **Status:** ✅ confirmed end to end, with and without add-ons.
 
+### 2026-10-21 13:32 — "I can't order anymore": a saved cart that outlived the menu
+**What happened:** Orders were refused with no visible reason. The cause was a cart persisted in localStorage holding item ids that no longer resolve against the live menu: `draw()` skipped them, so the review rendered **zero rows** while the checkout gate counted cart *instances*, opened an empty review, and wrote an order with no items.
+**Found / changed:**
+- Reproduced the symptom exactly: a cart of `{c0v0, c9v9}` renders 0 rows, `#confirm-total` reads `RM0.00`, and the send either stalls or writes an empty order.
+- `pruneCart()` drops any id that does not resolve to a real category/item. It runs in `draw()` once the menu is known, and again at the top of the checkout handler, so a cart saved under an older menu heals itself on the next load instead of blocking every order.
+- `sendWa` refuses an order whose `ordMap` came out empty, with *"Bakul tidak sah - pilih minuman semula"*, and clears the cart. An empty order can no longer be written.
+- Verified: mixed cart `{c0v0, c9v9}` → pruned to `{c0v0}`; fully stale cart → `{}`; a valid cart then ordered normally (`BV9TWB`, RM2.50, *"Pesanan dihantar!"*), and that test order was deleted afterwards.
+- Also checked the phone layout while there: three payment buttons at 90 px each inside a 287 px row, no horizontal overflow, the coupon block hidden until Kupon is tapped, and the code input at 16 px so iOS does not zoom.
+- `sw.js` bumped `v27` → `v28-20261021`.
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`; `tools/cleanup-test-orders.js`
+**Status:** ✅ confirmed — the stale-cart path is fixed and a normal order still goes through.
+
 ## Withdrawn results
 
 - **"The `members` rules are unpublished."** Repeated in the log and in several answers to the
