@@ -1147,6 +1147,19 @@ code at checkout and taps which drink is free.
 `tools/fixture-coupon.js`, `tools/verify-coupon.js`
 **Status:** ✅ confirmed for everything reachable without a seller session.
 
+### 2026-10-21 12:52 — The review panel was right: coupon orders were impossible
+**What happened:** Three of the four review seats independently found that the published `validOrder()` rejects `payment:'coupon'`, so every coupon order would have been refused by Firestore. Fixed, rules re-published, and this time an order was actually placed end to end.
+**Found / changed:**
+- **The criticals.** The payment enum was `['cash','qr']`; the closed key list omitted `coupon`/`free`/`freeItem`; `total > 0` rejected a fully-covered RM0 pickup order; and the public burn rule ignored `exp`, so an expired code could be spent.
+- **`validOrder()` now anchors the order to the coupon.** For a coupon order it requires an eight-character code naming a coupon document that exists, is unused and is unexpired. Proven with two crafted writes from the page, each with a valid `createdAt` and only the coupon wrong: missing code → `permission-denied`, already-used code → `permission-denied`.
+- **Burn rule** now also demands `exp > request.time`, `usedAt is timestamp`, and `ord` a string of exactly six characters.
+- **App.** The discount is recomputed from the cart at send time (`_prices`) instead of trusting the review array, so changing the cart cannot discount a phantom line, and a missing line refuses the order instead of burning a coupon for RM0. `subtotal` stays pre-discount. A coupon with no expiry is refused. Switching payment method disarms the code. A picked free drink can be tapped again to unpick. Minting moved into one `runTransaction`, so a colliding code cannot overwrite a spent coupon and a double tap cannot mint twice, and it fires only after the status write resolves rather than on a timer.
+- **End to end against production**, in the browser: fixture coupon → one drink → review RM2.50 → free line −RM2.50 → total RM0.00 → order `YS95G4` stored with `payment=coupon, subtotal=2.5, total=0, free=2.5, coupon=E2EORDR1, freeItem="Extrajoss Mangga"`, and the coupon burned with `ord=YS95G4`. Both deleted afterwards; an anonymous read of the coupon returns 404 and of the order 403 (not readable).
+- **Documented limit**, in the rules comment: rules cannot prove that the burn happened in the same commit, so a crafted coupon order carrying a live code without burning it would pass. The seller sees the code on the order, and a coupon left unused is the audit trail.
+- **Verifiers:** `verify-coupon.js` all green, `verify-n60.js` still 21/21.
+**Artefacts:** `drinks-order.html`, `index.html`, `firestore.rules`, `sw.js` (`v25` → `v26-20261021`); `tools/e2e-coupon.js`, `tools/verify-coupon.js`
+**Status:** ✅ confirmed end to end.
+
 ## Withdrawn results
 
 - **"The `members` rules are unpublished."** Repeated in the log and in several answers to the
