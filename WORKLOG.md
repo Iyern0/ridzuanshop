@@ -1290,6 +1290,17 @@ code at checkout and taps which drink is free.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/verify-coupon.js`, `tools/cleanup-test-orders.js`
 **Status:** ✅ confirmed — seen on the topic, not inferred from the code.
 
+### 2026-10-21 17:05 — A returning COD customer had to type their location again
+**What happened:** The block and room are remembered, but a customer choosing COD still had to enter them. The restore ran once on boot, and the block list arrives from Firestore in a snapshot that can land after that, so on a cold start `BLOCKS` was empty, the remembered block matched nothing, and the form looked blank.
+**Found / changed:**
+- Reproduced the race in the browser: with `BLOCKS` emptied, `fillCustomer()` left `selBlock=''` and the room empty; put the blocks back and the same call filled `Intan` and `12`.
+- `restoreLocation()` is now the single place that knows the rule: it refuses to overwrite a block already chosen this session, skips a block missing from the list, and skips one that has since been closed (`disBlocks`).
+- `fillCustomer()` delegates to it; choosing COD calls it the moment delivery is chosen (and says *"Blok X tidak tersedia sekarang - pilih semula"* if the remembered block is closed); the config snapshot calls `fillCustomer()` again once the blocks are actually there.
+- Verified end to end: remembered `WAN · Intan 12` → COD chosen → no typing → review opens with `COD (+RM1) · ⏰ 11:00 PM · 👤 WAN Intan 12`, total RM3.50, toast *"Disimpan sebagai WAN · Intan 12"*.
+- `sw.js` `v37` → `v38-20261021`; `verify-coupon.js` all green, `verify-n60.js` 21/21.
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/verify-coupon.js`
+**Status:** ✅ confirmed in the browser, with the race simulated.
+
 ## Withdrawn results
 
 - **"The `members` rules are unpublished."** Repeated in the log and in several answers to the
