@@ -205,6 +205,41 @@ service cloud.firestore {
     // customer's number still lives on their device and still rides on their
     // next order.
     // ------------------------------------------------------------------
+    // ------------------------------------------------------------------
+    // Free-drink coupons. Minted by the seller when a customer completes
+    // their fifth order: one drink free, valid 30 days, one use.
+    //
+    // The code IS the document id and it is the only credential - 8 chars
+    // from a 31-character alphabet (about 40 bits), with LIST denied so the
+    // collection cannot be enumerated. The document carries no name, no
+    // phone and no items, so reading one tells you nothing about anybody.
+    //
+    // Single use is a rule, not a promise. "used" may only go false -> true
+    // and nothing else may change, so a second device holding the same code
+    // loses the race: Firestore serialises the update and the loser no
+    // longer sees used == false.
+    //
+    // The seller may also write freely, because minting happens from the
+    // admin panel - there are no Cloud Functions in this project.
+    // ------------------------------------------------------------------
+    match /coupons/{code} {
+      allow get: if true;
+      allow list: if isAdmin();
+      allow create, delete: if isAdmin();
+      allow update: if (resource.data.used == false
+                    && request.resource.data.used == true
+                    && request.resource.data.diff(resource.data)
+                         .affectedKeys().hasOnly(['used', 'usedAt', 'ord']))
+                   || isAdmin();
+    }
+
+    // One marker per (phone, milestone). It exists to stop a double tap on
+    // "Siap" minting two coupons for the same fifth order, so it is the
+    // seller's business in every direction and nobody else's.
+    match /milestones/{key} {
+      allow read, create, update, delete: if isAdmin();
+    }
+
     match /members/{phone} {
       allow create: if request.resource.data.keys().hasOnly(['phone', 'name', 'at'])
                    && request.resource.data.at == request.time

@@ -1103,6 +1103,50 @@ ticking green`), so there was nothing left to apply.
 the 4-seat review panel has still not run against the packet, and the admin-only screens have
 only ever been checked by reading.
 
+### 2026-10-21 12:27 — Coupon payment method: buy five, one drink free
+**What happened:** A third payment method, `Kupon`. The seller mints a coupon when a
+customer's fifth **completed** order is marked done; the customer types the eight-character
+code at checkout and taps which drink is free.
+**Found / changed:**
+- **Rules.** New `coupons/{code}`: `get` open (the code is the credential), `list` and
+  `create`/`delete` seller-only, and `update` narrowed to `used: false -> true` with only
+  `used`/`usedAt`/`ord` changing, so single use is enforced by the server rather than by the
+  page. New `milestones/{key}`, seller-only in every direction. Published over the Rules API:
+  the firebase CLI is not installed on this machine, so `tools/deploy-rules.js` creates a
+  ruleset and repoints the `cloud.firestore` release, and `rules-preflight.js` confirms local
+  and live differ in nothing.
+- **Proof from an unauthenticated client** (a customer's browser): consume a code once → 200,
+  consume the same code again → 403, write a stray field → 403; `coupons` list → 403;
+  `milestones` list → 403; `orders` list → 403; `members` get → 403; `tracking` get → 200,
+  unchanged.
+- **Customer.** `#coupon-section` opens under the payment row when Kupon is chosen.
+  `couponCheck()` reads the coupon document from Firestore — nothing is kept in localStorage
+  and no validity is guessed locally. Missing, too short, already used and expired each get
+  their own sentence. In the review every line is tappable while a coupon is active; the
+  tapped line is struck and marked `PERCUMA`, `#confirm-free` shows `-RMx`, and the total is
+  net of it. The burst happens in the same transaction that writes the order, so a code
+  already spent fails at the write instead of after it.
+- **Seller.** `maybeMintCoupon(orderId)` runs when an order is marked `done`: it counts that
+  phone's completed, non-free orders, and on every fifth mints `coupons/{code}` plus
+  `milestones/{phone}_{n}` in one batch, so a double tap cannot mint twice. The code is shown
+  in a modal for the seller to pass on.
+- **Decisions taken:** five completed orders, any size; one drink of the customer's choosing;
+  30-day expiry; the RM1 COD fee still applies to a free drink, because it is delivery and not
+  the drink; the count is derived from `orders` rather than a stored counter, so it cannot
+  drift. A coupon order sets `free`, and free orders never count toward the next five.
+- **Verified in a browser** against the live project with two fixture coupons: two drinks at
+  RM2.50 → review RM5.00 → tap the second line → `-RM2.50`, total RM2.50, `PERCUMA` rendered,
+  zero console errors. Missing, short and already-used codes each refused with the right
+  sentence. Both fixtures deleted afterwards; an anonymous read of each returns 404.
+- **Not exercised:** placing an actual coupon order, because that writes a real order into the
+  live project. The burn is covered by the rule proof above and by the transaction wiring, not
+  by an end-to-end run. The seller's mint path needs an admin session and is covered by reading
+  plus the rules proof.
+**Artefacts:** `drinks-order.html`, `index.html`, `firestore.rules`, `sw.js`
+(`v24` → `v25-20261021`); `tools/deploy-rules.js`, `tools/token.js`, `tools/probe-coupons.js`,
+`tools/fixture-coupon.js`, `tools/verify-coupon.js`
+**Status:** ✅ confirmed for everything reachable without a seller session.
+
 ## Withdrawn results
 
 - **"The `members` rules are unpublished."** Repeated in the log and in several answers to the
