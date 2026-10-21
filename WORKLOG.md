@@ -1185,6 +1185,23 @@ code at checkout and taps which drink is free.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`; `tools/cleanup-test-orders.js`
 **Status:** ✅ confirmed — the stale-cart path is fixed and a normal order still goes through.
 
+### 2026-10-21 13:55 — A coupon drink is collected, or delivered for RM1
+**What happened:** A coupon now covers the drink only, so a cart holding nothing but that drink defaults to **Ambil Sendiri**; COD is offered as an explicit **+RM1** upgrade the customer has to accept. A cart that also holds a paid drink keeps both options, with the usual RM1.
+**Found / changed:**
+- `couponOnly()` is true when the payment is a coupon, the code is valid, and the cart holds exactly one drink — the free one. `cartInstances()` counts instances, not lines.
+- `drawDel()` labels COD as `COD +RM1` for that cart and prints one sentence explaining it; every other cart renders exactly as before.
+- Choosing a delivery type records the acceptance: `codFreeUp = (type === 'cod')` while the cart is coupon-only. The checkout gate then downgrades an unaccepted COD (`isCod = false`) rather than trusting stale state.
+- A validated coupon preselects Ambil Sendiri when nothing else is chosen yet, and `upCart()` now redraws the delivery row so the label follows the cart.
+- **Verified in the browser against a fixture coupon:**
+  - coupon only, pickup → review RM2.50, pick the drink → **RM0.00**
+  - coupon only, COD accepted → **RM1.00**, delivery line reads `COD (+RM1)`
+  - coupon + a second paid drink, COD → RM6.00, pick the free drink → **RM3.50**
+  - no coupon, COD → RM3.50 (unchanged)
+  - and the gate was tested with `isCod` forced true and no acceptance: it downgraded to pickup and the review stayed at **RM0.00**.
+- `sw.js` `v29` → `v30-20261021`; `verify-coupon.js` all green, `verify-n60.js` 21/21; the fixture coupon was deleted afterwards.
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/verify-coupon.js`
+**Status:** ✅ confirmed in the browser, four cases with their totals.
+
 ## Withdrawn results
 
 - **"The `members` rules are unpublished."** Repeated in the log and in several answers to the
