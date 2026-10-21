@@ -44,7 +44,7 @@ service cloud.firestore {
           && d.keys().hasOnly([
             'name', 'room', 'delivery', 'time', 'payment',
             'items', 'subtotal', 'total', 'status', 'createdAt', 'phone', 'no',
-            'coupon', 'free', 'freeItem'
+            'coupon', 'free', 'freeItem', 'dev'
           ])
 
           // who it is from
@@ -52,6 +52,11 @@ service cloud.firestore {
 
           // per-day order number, assigned from the counters/ document
           && d.no is int && d.no >= 1 && d.no <= 9999
+
+          // A device id, not a person: what the loyalty count keys on now
+          // that no phone number is asked for. Optional and uninteresting.
+          && (!d.keys().hasAny(['dev'])
+              || (d.dev is string && d.dev.size() >= 6 && d.dev.size() <= 24))
 
           // optional WhatsApp number, used only for the loyalty stamp count
           // NOTE: use hasAny() - the `in` operator works on lists, not maps.

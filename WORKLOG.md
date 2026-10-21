@@ -1301,6 +1301,19 @@ code at checkout and taps which drink is free.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/verify-coupon.js`
 **Status:** ✅ confirmed in the browser, with the race simulated.
 
+### 2026-10-21 17:40 — No phone number, a tidier confirmation
+**What happened:** Two changes that belong together. The loyalty count no longer needs a phone number, so the prompt that asked for one is gone; and the confirmation screen was rebuilt for a phone after the owner called it cramped.
+**Found / changed:**
+- **Identity moved from the number to the device.** `deviceId()` keeps `mms_dev` in localStorage and every order carries a `dev` field (optional, 6–24 characters, enforced in the rules). `maybeMintCoupon` counts `where('dev','==',dev)` and falls back to `where('phone','==',ph)` for orders written before today; the milestone key follows the same identity.
+- The number was not wrong, it was load-bearing: it was the key that tied five orders to one person. Without a replacement the count silently stops and no coupon is ever minted — which is why the id exists before the prompt was removed.
+- **No prompt:** `setTimeout(maybeAskStamp,1200)` is gone from `showDone`, so no number is ever asked for. Verified: the stamp modal stays `display:none` after a real order.
+- **"Pesan lagi" removed** from the status bar; it now reads `📦 #015 · Menunggu pengesahan penjual · Lihat`.
+- **The confirmation screen** was handed to the designer with a brief and rebuilt: `#done` top-aligned with 24/16/32px padding, tick 56px, title 24px, the tracking code folded into an amber chip beside the order number, the receipt box at `max-width:360px` with a 4/8/12/16/24 scale, the total on its own `.r tot` row, the stepper compacted to 12px pills with a 4px gap, and the redundant "🔔 You'll be notified…" note deleted. All JS hooks kept: `#done-status`, `#paid-mark`, `#claim-state`, `.tick`, `.box2`, `.r`, `button.go2`, and `stepsHtml()` untouched.
+- **Verified:** order `TP6HYK` stored `dev = "dqkkpj2q8oc"` and was deleted; the confirmation rendered with representative data at a forced 360px shows `scrollWidth 360 / clientWidth 360` (no horizontal overflow), box 328px, chip `RJ55WK`, no `Kod:` line, no notification note, all hooks present.
+- `sw.js` `v38` → `v39-20261021`; `verify-coupon.js` green, `verify-n60.js` 21/21.
+**Artefacts:** `drinks-order.html`, `index.html`, `firestore.rules`, `sw.js`, `tools/verify-coupon.js`, `tools/read-order.js`
+**Status:** ✅ confirmed in the browser; the count-by-device path is read-verified (minting needs a seller session).
+
 ## Withdrawn results
 
 - **"The `members` rules are unpublished."** Repeated in the log and in several answers to the

@@ -49,19 +49,23 @@ body{font-family:var(--fb);background:#131010;color:#F0F0F0;min-height:100vh;ove
 .founder .fs{font-size:12px;color:#9A9385;font-weight:700;margin-top:2px}
 .founder .fb{background:#25D366;color:#fff;border:none;font-weight:800;font-size:13px;padding:8px 14px;border-radius:999px;cursor:pointer;flex-shrink:0;text-decoration:none;display:inline-block}
 .photo{width:100%;aspect-ratio:1;border-radius:10px;object-fit:cover;margin-bottom:6px;background:rgba(255,255,255,0.04)}
-.done{position:fixed;inset:0;z-index:1200;background:#131010;display:none;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;overflow-y:auto}
+.done{position:fixed;inset:0;z-index:1200;background:#131010;display:none;flex-direction:column;align-items:center;justify-content:flex-start;padding:24px 16px 32px;text-align:center;overflow-y:auto}
 .done.show{display:flex}
-.done .tick{width:76px;height:76px;border-radius:50%;background:rgba(0,212,170,0.12);border:3px solid #00D4AA;display:flex;align-items:center;justify-content:center;font-size:38px;margin-bottom:16px;animation:in .35s cubic-bezier(0.34,1.56,0.64,1)}
-.done h2{font-family:var(--fd);font-weight:800;font-size:37px;color:#00D4AA;letter-spacing:-0.5px;margin-bottom:4px}
-.done .code{font-family:var(--fd);font-weight:800;font-size:21px;color:#FFB347;letter-spacing:0.5px;margin-bottom:16px}
-.done .box2{width:100%;max-width:400px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:16px;margin-bottom:14px;text-align:left}
-.done .box2 .r{display:flex;justify-content:space-between;font-size:14px;color:#C8C8D8;padding:5px 0}
-.done .box2 .r b{color:#F0F0F0}
-.done .steps{display:flex;align-items:center;gap:6px;justify-content:center;margin:14px 0 20px;flex-wrap:wrap}
+.done .tick{width:56px;height:56px;border-radius:50%;background:rgba(0,212,170,0.12);border:2.5px solid #00D4AA;display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:8px;animation:in .35s cubic-bezier(0.34,1.56,0.64,1)}
+.done h2{font-family:var(--fd);font-weight:800;font-size:24px;color:#00D4AA;letter-spacing:-0.4px;margin-bottom:6px;line-height:1.1}
+.done .code{display:inline-flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;font-family:var(--fd);font-weight:800;font-size:18px;color:#FFB347;letter-spacing:0.3px;margin:0 0 12px;line-height:1.2}
+.done .code .done-chip{display:inline-flex;align-items:center;background:rgba(255,179,71,0.12);border:1px solid rgba(255,179,71,0.35);color:#FFB347;font-size:12px;font-weight:800;letter-spacing:0.6px;padding:3px 10px;border-radius:999px}
+.done .box2{width:100%;max-width:360px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px 14px;margin-bottom:12px;text-align:left}
+.done .box2 .r{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:14px;color:#C8C8D8;padding:6px 0;line-height:1.3}
+.done .box2 .r span{flex:1;min-width:0}
+.done .box2 .r b{color:#F0F0F0;text-align:right;word-break:break-word}
+.done .box2 .r.tot{border-top:1px solid rgba(255,255,255,0.08);margin-top:4px;padding-top:10px}
+.done .box2 .r.tot b{color:#00D4AA;font-size:16px}
+.done .steps{display:flex;align-items:center;gap:4px;justify-content:center;flex-wrap:wrap;margin:4px 0 8px;max-width:360px}
 /* overflow:hidden clips the light wave to the pill, and flex:0 0 auto stops the
    pills shrinking into their own clip on a narrow screen - overflow:hidden
    drops the automatic min-width, so without this the text can be cut off. */
-.done .st{position:relative;overflow:hidden;flex:0 0 auto;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:800;
+.done .st{position:relative;overflow:hidden;flex:0 0 auto;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:800;
   background:rgba(255,255,255,0.05);color:#666;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.06);
   transition:background .45s var(--eo),color .45s var(--eo),box-shadow .45s var(--eo)}
 /* Every reached step fills solid, the frontier included, so the row reads left
@@ -72,12 +76,15 @@ body{font-family:var(--fb);background:#131010;color:#F0F0F0;min-height:100vh;ove
 .done .st.cur{background:#00E9C0;color:#04241E}
 .done .arw{color:#4A4A4A;font-size:14px;font-weight:800;line-height:1;transition:color .45s var(--eo),transform .45s var(--sp)}
 .done .arw.on{color:#00E9C0}
-#done-status{transition:opacity .3s var(--eo),transform .3s var(--sp)}
+#done-status{transition:opacity .3s var(--eo),transform .3s var(--sp);font-size:13px;color:#9A9385;font-weight:700;margin:0 0 12px;text-align:center;max-width:360px}
 #done-status.swap{opacity:0;transform:translateY(4px)}
-.done .go2{width:100%;max-width:400px;background:#25D366;color:#fff;border:none;font-family:var(--fd);font-weight:800;font-size:17px;padding:14px;border-radius:12px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,0.3);margin-bottom:10px}
+.done .go2{width:100%;max-width:360px;background:#25D366;color:#fff;border:none;font-family:var(--fd);font-weight:800;font-size:16px;padding:13px;border-radius:12px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,0.3);margin-bottom:8px}
 .done .go2:disabled{background:#333;color:#666;box-shadow:none}
-.done .alt{background:none;border:none;color:#9A9385;font-size:14px;font-weight:700;cursor:pointer;text-decoration:underline}
-.warnbox{max-width:400px;font-size:13px;color:#FFB347;font-weight:700;margin-bottom:14px;line-height:1.6}
+.done .alt{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.11);color:#D8D2C8;border-radius:10px;padding:10px 24px;font-size:14px;text-decoration:none;margin-top:4px}
+.warnbox{max-width:360px;font-size:13px;color:#FFB347;font-weight:700;margin-bottom:12px;line-height:1.6}
+#paid-mark,#claim-state{width:100%;max-width:360px;border-radius:10px;padding:8px 12px;margin:0 0 8px;font-size:13px;font-weight:800;text-align:center}
+#paid-mark{background:rgba(0,212,170,0.12);border:1px solid rgba(0,212,170,0.3);color:#00D4AA}
+#claim-state{background:rgba(255,179,71,0.12);border:1px solid rgba(255,179,71,0.3);color:#FFB347}
 
 /* ===== motion system =====================================================
    Durations stay short and the curves overshoot slightly, which is what
@@ -1589,6 +1596,18 @@ document.getElementById('checkout').addEventListener('click',function(){if(prune
 if(payM==='coupon'&&!cpnOk){toast('\u274C Sahkan kupon dahulu');return}if(couponOnly()&&isCod&&!codFreeUp){isCod=false;drawDel()}if(payM==='qr'&&!stagedProof){const cp=document.getElementById('qr-claim-panel');if(cp){cp.style.borderColor='#FF6B6B';setTimeout(function(){cp.style.borderColor=''},2000)}toast('⚠ Hantar resit dahulu');return}if(payM==='coupon'&&cpnOk){let _bi=-2,_bb=-1,_k=-1;Object.entries(cart).forEach(function(en){const mm=/^c(\d+)v(\d+)$/.exec(en[0]);if(!mm)return;const item=MENU[parseInt(mm[1],10)]&&MENU[parseInt(mm[1],10)].items[parseInt(mm[2],10)];if(!item)return;en[1].forEach(function(inst){_k++;const b=Number(item.price)||0;if(b>_bb){_bb=b;_bi=_k}})});cpnLine=_bi}
 let html='',total=0,idx=0;_revPrice=[];_revLabel=[];_revBase=[];_revAdd=[];e.forEach(([id,items])=>{const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;const item=MENU[ci].items[vi];items.forEach(inst=>{idx++;const ac=inst.adds.reduce((s,aid)=>{const a=findAdd(aid);return s+(a?a.price:0)},0);const base=Number(item.price)||0;total+=base+ac;const al=inst.adds.map(aid=>{const a=findAdd(aid);return a?a.name:''}).filter(Boolean).join(', ');const emoji=drinkEmoji(item.name);_revPrice.push(+(base+ac).toFixed(2));_revBase.push(+base.toFixed(2));_revAdd.push(+ac.toFixed(2));const li=idx-1,pickable=false,isFree=(payM==='coupon'&&cpnOk&&cpnLine===li);const rowStyle='display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06)'+(pickable?';cursor:pointer;border-radius:8px;padding-left:8px;padding-right:8px;'+(isFree?'background:rgba(0,212,170,0.12);outline:1px solid rgba(0,212,170,0.5)':''):'');const priceHtml=isFree?'<s style="color:#9A9385;font-size:15px">RM'+base.toFixed(2)+'</s><b style="color:#00D4AA;font-family:var(--fd);font-size:15px;margin-left:6px">PERCUMA</b>'+(ac>0?'<span style="color:#FFB347;font-family:var(--fd);font-weight:800;font-size:14px;margin-left:6px">+RM'+ac.toFixed(2)+'</span>':''):'<span style="font-family:var(--fd);font-weight:800;font-size:19px;color:#00D4AA">RM'+(base+ac).toFixed(2)+'</span>';html+='<div data-li="'+li+'" style="'+rowStyle+'"><span style="font-size:20px">'+emoji+'</span><div style="flex:1"><div style="font-weight:800;font-size:14px;color:#F0F0F0">'+esc(item.name)+'</div>'+(al?'<div style="font-size:12px;color:#9A9385;margin-top:2px">\u2795 '+esc(al)+'</div>':'')+'</div>'+priceHtml+'</div>';});});document.getElementById('confirm-items').innerHTML=html;const _fr=(payM==='coupon'&&cpnOk&&cpnLine>=0&&_revBase[cpnLine]!=null)?_revBase[cpnLine]:0;const _fEl=document.getElementById('confirm-free');if(_fEl){_fEl.style.display=_fr>0?'flex':'none';document.getElementById('confirm-free-val').textContent=_fr>0?'-RM'+_fr.toFixed(2):''}document.getElementById('confirm-delivery').innerHTML='🚗 '+(isCod?'COD (+RM1)':'Ambil Sendiri')+' · ⏰ '+esc(selTime)+' · 👤 '+esc(n)+(isCod?' '+esc(r):'');document.getElementById('confirm-pay').innerHTML='\u{1F4B3} '+(payM==='coupon'?'\u{1F39F}\uFE0F Kupon':payM==='cash'?'\u{1F4B5} Tunai':'\u{1F4F1} QR Pay')+(payM==='qr'&&!stagedProof?' \u00B7 <span style="color:#FFB347">\u26A0 tiada resit - penjual tak dapat sahkan bayaran</span>':'');document.getElementById('confirm-sub').textContent='RM'+total.toFixed(2);document.getElementById('confirm-cod').style.display=isCod?'flex':'none';document.getElementById('confirm-total').textContent='RM'+Math.max(0,total+(isCod?1:0)-_fr).toFixed(2);if(document.getElementById('confirm-modal').style.display!=='flex')track('checkout_open');document.getElementById('confirm-modal').style.display='flex';});
 function clip(s,max){return String(s==null?'':s).trim().slice(0,max)}
+// The loyalty count needs one thing: a way to know that five orders belong to
+// the same person. It used to be the phone number, which meant asking for one.
+// A device id does the same job without collecting anything about anybody - it
+// is generated here, never leaves this browser except as a field on the order,
+// and says nothing about who is holding the phone.
+function deviceId(){
+  try{
+    let v=localStorage.getItem('mms_dev');
+    if(!v){v='d'+Math.random().toString(36).slice(2,8)+Date.now().toString(36).slice(-4);localStorage.setItem('mms_dev',v)}
+    return v;
+  }catch(e){return ''}
+}
 function saveCart(){try{localStorage.setItem('mms_cart',JSON.stringify(cart))}catch(e){}}
 // An id is c<category>v<item>. Anything that no longer resolves is dropped:
 // a saved cart outlives the menu it was built from.
@@ -1656,6 +1675,7 @@ if(payM==='qr'&&!stagedProof){toast('⚠ Hantar resit dahulu');closeConfirm();re
   const phone=clip((loadCustomer()||{}).ph||'',20);
   const payload={name:n,room:r,delivery:isCod?'cod':'pickup',time:clip(when,40),payment:payM,items:Object.values(ordMap).slice(0,50),subtotal:+(total+freeAmt-cod).toFixed(2),total:+total.toFixed(2),status:'baru'};
   if(phone)payload.phone=phone;
+  {const _dev=deviceId();if(_dev)payload.dev=_dev}
   if(payM==='coupon'){payload.coupon=cpnCode;payload.free=+freeAmt.toFixed(2);payload.freeItem=clip(_labels[cpnLine]||'',60)}
 
   let code=null,saved=false,orderNo=null;
@@ -1842,8 +1862,7 @@ function paintMyBar(st){
     b=document.createElement('div');
     b.id='mybar';
     b.innerHTML='<span class="mb-who"></span><span class="mb-st"></span>'
-      +'<button class="mb-see" onclick="openMyOrder()">Lihat</button>'
-      +'<button class="mb-more" onclick="orderMore()">Pesan lagi</button>';
+      +'<button class="mb-see" onclick="openMyOrder()">Lihat</button>';
     document.body.insertBefore(b,document.body.firstChild);
   }
   const o=loadMyOrder();
@@ -1874,31 +1893,25 @@ function showDone(o){
   const rows=(o.items||[]).map(i=>'<div class="r"><span>'+i.qty+'x '+esc(i.name)+(i.adds&&i.adds.length?' <span style="color:#9A9385">· '+esc(i.adds.join(', '))+'</span>':'')+'</span><b>RM'+(i.price*i.qty).toFixed(2)+'</b></div>').join('');
   el.innerHTML='<div class="tick">'+(o.warn?'⚠':'✓')+'</div>'
     +'<h2>'+(o.warn?'Pesanan disimpan':'Pesanan Diterima')+'</h2>'
-    +'<div class="code">'+(o.no?'Pesanan #'+fmtNo(o.no):(o.code?'#'+esc(o.code):''))+'</div>'
-    +(o.no?'<div style="font-size:12px;color:#9A9385;font-weight:700;margin-bottom:14px">Kod: '+esc(o.code||'')+'</div>':'')
+    +'<div class="code">'+(o.no?'Pesanan #'+fmtNo(o.no):(o.code?'#'+esc(o.code):''))+(o.no&&o.code?'<span class="done-chip">'+esc(o.code)+'</span>':'')+'</div>'
     +(o.warn?'<div class="warnbox">Rekod pesanan gagal disimpan. Hantar melalui WhatsApp supaya penjual tetap terima pesanan anda.</div>':'')
     +'<div class="box2">'+rows
-      +'<div class="r" style="border-top:1px solid rgba(255,255,255,0.08);margin-top:6px;padding-top:8px"><span>Jumlah</span><b style="color:#00D4AA;font-size:16px">RM'+Number(o.total).toFixed(2)+'</b></div>'
+      +'<div class="r tot"><span>Jumlah</span><b>RM'+Number(o.total).toFixed(2)+'</b></div>'
       +'<div class="r"><span>Penghantaran</span><b>'+(o.isCod?'COD (+RM1)':'Ambil sendiri')+'</b></div>'
       +(o.isCod?'<div class="r"><span>Lokasi</span><b>'+esc(o.r)+'</b></div>':'')
       +'<div class="r"><span>Masa</span><b>'+esc(fmtTimeLabel(o.when))+'</b></div>'
     +'</div>'
     +stepsHtml(o)
-    +'<div id="done-status" style="font-size:13px;color:#9A9385;font-weight:700;margin-bottom:10px"></div>'
-    +'<div id="paid-mark" style="display:none;background:rgba(0,212,170,0.12);border:1px solid rgba(0,212,170,0.3);border-radius:10px;padding:10px;margin-bottom:14px;font-size:14px;font-weight:800;color:#00D4AA">✓ Bayaran diterima</div>'
-    +'<div id="claim-state" style="display:none;background:rgba(255,179,71,0.12);border:1px solid rgba(255,179,71,0.3);border-radius:10px;padding:10px;margin-bottom:12px;font-size:14px;font-weight:800;color:#FFB347">⏳ Menunggu penjual semak bayaran anda</div>'
+    +'<div id="done-status"></div>'
+    +'<div id="paid-mark" style="display:none">✓ Bayaran diterima</div>'
+    +'<div id="claim-state" style="display:none">⏳ Menunggu penjual semak bayaran anda</div>'
     +'<button class="go2" onclick="closeDone()">Selesai</button>'
-    +'<div class="done-note">🔔 You&rsquo;ll be notified when it&rsquo;s on the way</div>'
     +(o.warn?'<button class="alt" onclick="reopenWa()">Hantar melalui WhatsApp</button>':'');
   el.classList.add('show');
   if(!o.warn&&o.code)trackOrder(o.code);
   autoAskNotify();
   paintClaim();
   paintSteps(o.warn?'':(o._st||'baru'));
-  // After a beat, so the order confirmation registers first. maybeAskStamp
-  // re-reads the live order, so a receipt attached in those two seconds still
-  // suppresses it.
-  setTimeout(maybeAskStamp,1200);
 }
 // The four pills map onto three real statuses, so processing has to light
 // Dibuat and Dalam perjalanan together - the order is being made and carried
@@ -2381,15 +2394,16 @@ async function maybeMintCoupon(orderId,silent){
     const d=o.data()||{};
     if(d.free)return;
     const ph=String(d.phone==null?'':d.phone).trim();
-    if(!ph){
-      if(!silent)admNote('<div style="font-family:var(--fd);font-weight:800;font-size:18px;color:#FFB347;margin-bottom:8px">Tiada nombor WhatsApp</div><div style="font-size:14px;color:#9A9385;line-height:1.6">Kad setia dikira ikut nombor pelanggan. Simpan nombornya pada pesanan ini, kemudian tekan Siap sekali lagi.</div>');
+    const dev=String(d.dev==null?'':d.dev).trim();
+    if(!ph&&!dev){
+      if(!silent)admNote('<div style="font-family:var(--fd);font-weight:800;font-size:18px;color:#FFB347;margin-bottom:8px">Tiada pengenalan pelanggan</div><div style="font-size:14px;color:#9A9385;line-height:1.6">Pesanan ini tiada nombor dan tiada id peranti, jadi kad setia tidak dapat dikira.</div>');
       return;
     }
-    const q=await db.collection('orders').where('phone','==',ph).limit(1000).get();
+    const q=dev?await db.collection('orders').where('dev','==',dev).limit(1000).get():await db.collection('orders').where('phone','==',ph).limit(1000).get();
     const n=q.docs.filter(function(x){const v=x.data()||{};return v.status==='done'&&!v.free}).length;
     if(n<1)return;
     if(n%5!==0){if(!silent)toast('\\u2B50 Kad setia: '+n+'/5');return}
-    const mRef=db.collection('milestones').doc((ph.replace(/\D/g,'')||ph)+'_'+n);
+    const mRef=db.collection('milestones').doc((dev||ph.replace(/\D/g,'')||ph)+'_'+n);
     const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     let code='';
     await db.runTransaction(async function(tx){
