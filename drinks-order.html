@@ -663,15 +663,16 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
    align-items:center;justify-content:center;background:radial-gradient(circle at 50% 32%,rgba(0,212,170,0.42),rgba(0,212,170,0.06));
    animation:cpnPulse 2.8s ease-in-out infinite}
   @keyframes cpnPulse{0%,100%{box-shadow:0 0 8px rgba(0,212,170,0.25)}50%{box-shadow:0 0 20px rgba(0,212,170,0.6)}}
+  .cpn-btn.mute{border-color:rgba(255,255,255,0.16);color:#9A9385;background:rgba(255,255,255,0.04);animation:none;box-shadow:none}  .cpn-btn.mute .dot{display:none!important}
   .cpn-btn .dot{position:absolute;top:-3px;right:-3px;min-width:17px;height:17px;border-radius:9px;
    background:#FFB347;color:#1E1913;font-family:var(--fd);font-weight:800;font-size:11px;
    display:none;align-items:center;justify-content:center;padding:0 4px}
-  .cpn-pop{display:none;position:absolute;right:0;top:calc(100% - 10px);z-index:900;width:min(320px,88vw);
+  .cpn-pop{display:none;position:fixed;z-index:9999;width:min(320px,88vw);
    background:#171412;border:1px solid rgba(0,212,170,0.4);border-radius:16px;padding:15px;
    box-shadow:0 18px 40px rgba(0,0,0,0.55),0 0 26px rgba(0,212,170,0.18);
    transform-origin:top right;animation:cpnPopIn 170ms ease-out}
   @keyframes cpnPopIn{from{transform:translateY(-6px) scale(0.95);opacity:0}to{transform:none;opacity:1}}
-  .cpn-pop:before{content:'';position:absolute;top:-8px;right:15px;width:14px;height:14px;background:#171412;
+  .cpn-pop:before{content:none;position:absolute;top:-8px;right:15px;width:14px;height:14px;background:#171412;
    border-left:1px solid rgba(0,212,170,0.4);border-top:1px solid rgba(0,212,170,0.4);transform:rotate(45deg)}
   .cpn-pop h4{margin:0 0 2px;font-family:var(--fd);font-weight:800;font-size:15px;color:#F0F0F0}
   .cpn-pop .sub{font-size:11.5px;color:#9A9385;margin-bottom:11px;line-height:1.5}
@@ -703,6 +704,9 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
   .c-row>b{color:#E9E4DA;font-weight:700;text-align:right;line-height:1.45}
   #adm-detail .d-alt{background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.3);color:#00D4AA;
    font-family:var(--fb);font-size:14px;font-weight:800;padding:12px 16px;border-radius:10px;cursor:pointer}
+  /* the loyalty bar owns a stacking context so the coupon bubble can sit above
+     the menu; without it the cards painted over the bubble */
+  .bar{position:relative;z-index:900}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -1164,13 +1168,26 @@ function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
   function drawCpnBtn(){
     const b=document.getElementById('cpn-btn'),pop=document.getElementById('cpn-pop'),dot=document.getElementById('cpn-dot');
     if(!b)return;const a=liveCpns();
-    b.style.display=a.length?'flex':'none';
+    // Always there. A ticket that vanishes is indistinguishable from a feature
+    // that is broken, which is exactly what the empty state was read as.
+    b.style.display='flex';
+    b.classList.toggle('mute',!a.length);
     if(dot){dot.style.display=a.length?'flex':'none';dot.textContent=String(a.length)}
-    if(!a.length&&pop)pop.style.display='none';
-    else if(pop&&pop.style.display==='block')drawCpnPop();
+    if(pop&&pop.style.display==='block')drawCpnPop();
   }
   function drawCpnPop(){
     const pop=document.getElementById('cpn-pop');if(!pop)return;const a=liveCpns();
+    if(!a.length){
+      const done=(getLoy()||{}).c||0;
+      const step=done%5;
+      pop.innerHTML='<h4>You have 0 coupons</h4>'
+        +'<div class="sub">Setiap 5 pesanan yang siap, anda dapat 1 minuman percuma. Kupon akan muncul di sini sendiri.</div>'
+        +'<div style="display:flex;gap:5px;margin-top:10px">'
+        +[0,1,2,3,4].map(function(i){return '<span style="flex:1;height:6px;border-radius:3px;background:'+(i<step?'#00D4AA':'rgba(255,255,255,0.12)')+'"></span>'}).join('')
+        +'</div>'
+        +'<div style="font-size:11.5px;color:#9A9385;margin-top:6px">'+step+'/5 setakat ini</div>';
+      return;
+    }
     pop.innerHTML='<h4>You have '+a.length+' coupon'+(a.length>1?'s':'')+'</h4>'
       +'<div class="sub">Satu minuman percuma untuk setiap kupon. Add-on tetap dibayar.</div>'
       +a.map(function(c){return '<div class="cpn-row"><span class="code">'+esc(c.code)+'</span>'
@@ -1180,6 +1197,13 @@ function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
   function toggleCpnPop(){
     const pop=document.getElementById('cpn-pop');if(!pop)return;
     if(pop.style.display==='block'){pop.style.display='none';return}
+    const btn=document.getElementById('cpn-btn');
+    if(btn){
+      const r=btn.getBoundingClientRect();
+      pop.style.top=Math.round(r.bottom+10)+'px';
+      pop.style.right=Math.max(8,Math.round(innerWidth-r.right))+'px';
+      pop.style.left='auto';
+    }
     verifyWallet();
     drawCpnPop();pop.style.display='block';
   }
@@ -2730,6 +2754,20 @@ let _cpnRows=[],_cpnMap={},_cpnFilter='all';
 // overwrites `ord` with the order that spent it, which is why the mint also
 // stamps `earnedBy`. For coupons minted before that stamp existed, the owner of
 // a spent coupon is simply unknown - better than a guess.
+// Catch every customer the shop already owes, without the seller having to open
+// each order. Same function the "Siap" button calls, so it can never disagree
+// with it - it simply walks the completed orders and asks.
+async function sweepCoupons(){
+  const db=getDb();if(!db||!isAdmin()){toast('Login admin diperlukan');return}
+  try{
+    const q=await db.collection('orders').orderBy('createdAt','desc').limit(120).get();
+    const done=q.docs.filter(function(d){const v=d.data()||{};return v.status==='done'&&!v.free});
+    toast('Menyemak ' + done.length + ' pesanan siap...');
+    for(let i=0;i<done.length;i++){try{await maybeMintCoupon(done[i].id,true)}catch(e){}}
+    toast('Selesai - kupon dikemas kini');
+    admCoupons(document.getElementById('adm-pg'));
+  }catch(e){toast('Gagal: '+e.message)}
+}
 async function admCoupons(pg){
   if(!isAdmin()){pg.innerHTML='<div style="padding:20px;color:#FFB347;font-weight:700">Login admin diperlukan.</div>';return}
   const db=getDb();if(!db){pg.innerHTML='<div style="padding:20px;color:#FFB347;font-weight:700">Firebase tidak tersedia.</div>';return}
@@ -2793,7 +2831,7 @@ function renderCoupons(pg){
       +(r.used?'<div class="c-row"><span>Masa tuntutan</span><b>'+esc(spent||'—')+'</b></div>':'')
       +'</div>';
   }).join('');
-  pg.innerHTML='<div style="max-width:760px">'+chips
+  pg.innerHTML='<div style="max-width:760px"><div style="display:flex;justify-content:flex-end;margin-bottom:10px"><button class="c-tab on" onclick="sweepCoupons()">Kira semua pesanan siap</button></div>'+chips
     +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'+tabs+'</div>'
     +'<div style="display:grid;gap:10px">'+(list||'<div style="color:#9A9385;padding:14px">Tiada kupon dalam senarai ini.</div>')+'</div>'
     +'<div style="margin-top:14px;font-size:12px;color:#9A9385;line-height:1.7">Satu kupon, satu tuntutan. <b>Pemilik</b> ialah pelanggan yang pesanan ke-5, ke-10, ke-15 dan seterusnya telah siap; <b>Dituntut oleh</b> ialah pesanan yang menggunakan kod itu.</div></div>';
@@ -2864,7 +2902,9 @@ function admSignOutNow(){const a=getAuth();if(a)a.signOut().then(()=>{exitAdmin(
 
 
 
-(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await loadMenu();await initConfig();initDis();fillCustomer();drawCpnBtn();loadMyCoupons();verifyWallet();drawLoy();drawDel();const a=getAuth();
+(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await loadMenu();await initConfig();initDis();fillCustomer();drawCpnBtn();loadMyCoupons();verifyWallet();
+  document.addEventListener('visibilitychange',function(){if(!document.hidden){loadMyCoupons();verifyWallet()}});
+  window.addEventListener('focus',function(){loadMyCoupons();verifyWallet()});drawLoy();drawDel();const a=getAuth();
 if(a)a.onAuthStateChanged(function(u){
   // Deliberately does NOT call enterAdmin(). A remembered session must never
   // open the dashboard by itself - it only offers the 🔧 button.

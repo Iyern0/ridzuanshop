@@ -1353,6 +1353,20 @@ code at checkout and taps which drink is free.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js` (`v41` → `v42-20261021`), `tools/why-no-coupon.js`, `tools/seed-coupon-icon.js`, `tools/verify-coupon.js`
 **Status:** ✅ customer half confirmed in the browser; the mint is fixed by construction and now has a button that proves it on demand.
 
+### 2026-10-21 20:20 — The ticket is permanent, and two coupons were owed
+**What happened:** The customer still saw no icon after five orders. The live project said why: `coupons: 0`, `milestones: 0` — the mint had never run, because it only fires when the seller marks an order Siap, and that had not happened since the fix. And when there is nothing to show, the icon was hidden, which reads exactly like a broken feature.
+**Found / changed:**
+- **Backfilled what the shop already owed:** two identities have five or more completed orders - 9 for `dzhzetr22bt` (Wan, order G3T547) and 6 for `dvsg4isnqwd` (zil, order SMFPM6). Each now has a coupon - `4UW8D8PP` and `QYP7YWMW` - plus a milestone document and the code written onto their tracking document, so their devices see it.
+- **The ticket is always drawn.** Muted with no badge when there is nothing to claim; glowing with a count when there is. It can no longer "not appear".
+- **An empty bubble that explains itself:** *"You have 0 coupons — setiap 5 pesanan yang siap, anda dapat 1 minuman percuma"* with a five-segment progress bar from the counter this device keeps.
+- **The app re-checks** for a new coupon on `visibilitychange` and `focus`, so a mint lands without a reload.
+- **The bubble was being painted over by the menu cards.** Anchoring it inside the loyalty bar kept losing the stacking fight; it is now `position:fixed`, placed from the ticket's own rectangle at `z-index:9999`. Probed with `elementFromPoint` at two points inside it: both report the bubble.
+- **`Kira semua pesanan siap`** on the Coupons page sweeps every completed order through the same function the Siap button uses.
+- **Proved with the real backfilled coupon:** seeding that device id and order in the browser produced icon `flex`, badge `1`, bubble *"You have 1 coupon"*, code `4UW8D8PP`, wallet cached.
+- `sw.js` `v42` → `v43-20261021`; `verify-coupon.js` green, `verify-n60.js` 21/21.
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/backfill-coupons.js`, `tools/why-no-coupon.js`, `tools/verify-coupon.js`
+**Status:** ✅ the icon works and is permanent; two real coupons delivered to real customers.
+
 ## Withdrawn results
 
 - **"The `members` rules are unpublished."** Repeated in the log and in several answers to the
