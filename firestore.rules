@@ -160,7 +160,12 @@ service cloud.firestore {
     // only the admin may ever change it.
     // ------------------------------------------------------------------
     match /tracking/{code} {
-      allow read: if true;
+      // The customer reads their own order by the code they were given, and
+      // that is the only read that exists. Listing the collection would hand
+      // out every order at once - and, since the mint parks a coupon code here
+      // for the customer to find, every coupon with it.
+      allow get: if true;
+      allow list: if false;
       allow create: if request.resource.data.keys().hasOnly(['status', 'no', 'at'])
                    && request.resource.data.status == 'baru';
       allow update, delete: if isAdmin();

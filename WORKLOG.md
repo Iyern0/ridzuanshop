@@ -1216,6 +1216,22 @@ code at checkout and taps which drink is free.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/verify-coupon.js`, `DRINKS-ORDER.md`
 **Status:** ✅ confirmed for the COD time behaviour in the browser; the loyalty display is read-verified (it needs a seller session to click through).
 
+### 2026-10-21 14:40 — The coupon reaches the customer, and picks the dearest drink
+**What happened:** The minted code never reached the customer — it existed only in a modal on the seller's screen. Now the mint also writes it onto that order's tracking document, which the customer already reads by its own code, and the homepage shows it in an animated banner with one-tap copy. The coupon also chooses the most expensive drink by itself, discounting that drink's **base** price only.
+**Found / changed:**
+- **Delivery of the code.** `maybeMintCoupon` writes `coupon` and `couponExp` onto `tracking/{orderCode}` after it commits. The customer's device reads that document (`loadMyCoupons()`), caches it in `mms_coupons`, and `drawCpnBar()` renders it.
+- **Rules widened for that, and closed elsewhere:** `tracking` changes from `allow read: if true` to `allow get: if true; allow list: if false;`. Nothing listed tracking, and leaving list open would have handed out every coupon code in the collection. Probed: `tracking/HL89NR` → 200, `tracking` (list) → 403.
+- **The banner.** A gradient card above the loyalty bar, `cpnShine` animation, code in 26px with letter-spacing, one tap copies to the clipboard with a toast, and *"Guna sekarang"* fills the code, checks it, and scrolls to the payment row. A spent code removes itself from the wallet.
+- **Automatic choice.** `#checkout` picks the line with the highest **base** price before rendering; `sendWa` recomputes the same choice from `_bases`, so the review and the order cannot disagree. The tap-to-pick handler is gone, and rows no longer look tappable.
+- **Verified in the browser**, matching the examples given:
+  - one drink RM2.50 with a RM1 add-on → free **−RM2.50**, total **RM1.00**
+  - RM2.50 (+RM1 add-on) and RM3.50 → the RM3.50 drink is chosen, free **−RM3.50**, total **RM3.50**
+  - two plain drinks RM2.50 and RM3.50 → total **RM2.50**
+  - the banner renders with `cpnShine`, copies on tap, and *Guna* fills the code and validates it; tapping a review row no longer moves the free drink.
+- `sw.js` `v31` → `v32-20261021`; `verify-coupon.js` all green, `verify-n60.js` 21/21; the fixture coupon was deleted.
+**Artefacts:** `drinks-order.html`, `index.html`, `firestore.rules`, `sw.js`, `tools/verify-coupon.js`
+**Status:** ✅ confirmed in the browser; the mint-to-tracking write is read-verified (it needs a seller session to click through).
+
 ## Withdrawn results
 
 - **"The `members` rules are unpublished."** Repeated in the log and in several answers to the

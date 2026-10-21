@@ -651,6 +651,18 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
 #mybar button{border:none;font-family:var(--fb);font-weight:800;cursor:pointer;flex-shrink:0}
 #mybar .mb-see{background:rgba(255,255,255,0.07);color:#F0F0F0;font-size:13px;padding:9px 11px;border-radius:9px}
 #mybar .mb-more{background:#00D4AA;color:#000;font-size:13px;padding:9px 13px;border-radius:9px}
+#cpn-bar{display:none;margin:0 0 10px;padding:14px 16px;border-radius:14px;cursor:pointer;
+   background:linear-gradient(120deg,rgba(0,212,170,0.14),rgba(255,179,71,0.16),rgba(0,212,170,0.14));
+   background-size:220% 220%;border:1px solid rgba(0,212,170,0.45);
+   animation:cpnShine 3.2s ease-in-out infinite;box-shadow:0 0 0 0 rgba(0,212,170,0.45)}
+  @keyframes cpnShine{0%,100%{background-position:0% 50%;box-shadow:0 0 0 0 rgba(0,212,170,0.35)}
+   50%{background-position:100% 50%;box-shadow:0 0 22px 2px rgba(0,212,170,0.28)}}
+  @keyframes cpnPop{0%{transform:scale(0.96);opacity:0}100%{transform:scale(1);opacity:1}}
+  #cpn-bar .cpn-hd{display:flex;align-items:center;gap:8px;font-family:var(--fd);font-weight:800;font-size:13px;color:#00D4AA;letter-spacing:0.4px}
+  #cpn-bar .cpn-code{font-family:var(--fd);font-weight:800;font-size:26px;letter-spacing:4px;color:#F0F0F0;margin:6px 0 4px}
+  #cpn-bar .cpn-sub{font-size:12px;color:#9A9385;line-height:1.5}
+  #cpn-bar .cpn-go{display:inline-block;margin-top:9px;background:#00D4AA;color:#07110E;font-family:var(--fd);font-weight:800;font-size:13px;padding:9px 16px;border-radius:10px}
+  #cpn-bar .cpn-saved{font-size:11px;color:#00D4AA;font-weight:800;margin-left:6px}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -658,6 +670,7 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
 </head><body>
 <div class="hero"><h1>🌙 <span>MINUM</span> MALAM SISWA</h1><div class="sub">⏰ 10:30PM — 2:00AM · 🚗 COD (RM1) / Free Pickup</div></div>
 <div id="status-bar" class="status-bar"></div>
+<div id="cpn-bar" class="cpn-bar" onclick="cpnCopyTap()"></div>
 <div style="text-align:center;margin-top:12px"><button id="my-order" onclick="openMyOrder()" style="display:none;background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.3);color:#00D4AA;font-weight:800;font-size:14px;padding:9px 18px;border-radius:999px;cursor:pointer">📦 Pesanan saya</button></div>
 <div id="admin-btn-wrap" style="text-align:center;margin-top:8px;display:none"><button id="admin-btn" onclick="enterAdmin()" style="display:none;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.14);color:#8A8377;font-weight:800;font-size:13px;padding:7px 14px;border-radius:999px;cursor:pointer">🔧 Admin</button></div>
 <div id="founder" class="founder" style="display:none"></div>
@@ -1083,7 +1096,56 @@ function saveStampNumber(){
 }
 function getLoy(){try{return JSON.parse(localStorage.getItem('mms_loy'))||{c:0}}catch(e){return{c:0}}}
 function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
-function drawLoy(){const l=getLoy();document.getElementById('loy-count').textContent=l.c;document.getElementById('stamps').innerHTML=stampRowHtml(l.c)}
+// ---- coupon wallet -------------------------------------------------
+  // The code lives on the order's tracking document, which the customer can
+  // read by its own id. It is cached here so the banner survives a reload, and
+  // the cache never invents a code: it is only ever filled from that document.
+  function cpns(){try{const a=JSON.parse(localStorage.getItem('mms_coupons')||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
+  function saveCpns(a){try{localStorage.setItem('mms_coupons',JSON.stringify(a.slice(0,10)))}catch(e){}}
+  function addCpn(code,exp){code=String(code||'').toUpperCase();if(!code)return false;const a=cpns();if(a.some(function(c){return c.code===code}))return false;a.unshift({code:code,exp:exp||0,at:Date.now()});saveCpns(a);drawCpnBar();return true}
+  function dropCpn(code){saveCpns(cpns().filter(function(c){return c.code!==code}));drawCpnBar()}
+  function liveCpns(){const now=Date.now();return cpns().filter(function(c){return !c.exp||c.exp>now})}
+  function drawCpnBar(){
+    const el=document.getElementById('cpn-bar');if(!el)return;
+    const a=liveCpns();
+    if(!a.length){el.style.display='none';el.innerHTML='';return}
+    const c=a[0];
+    el.style.display='block';
+    el.style.animation='cpnPop 260ms ease-out, cpnShine 3.2s ease-in-out infinite';
+    el.innerHTML='<div class="cpn-hd">&#127873; KUPON PERCUMA ANDA'+(a.length>1?' <span class="cpn-saved">+'+(a.length-1)+' lagi</span>':'')+'</div>'
+      +'<div class="cpn-code">'+esc(c.code)+'</div>'
+      +'<div class="cpn-sub">Satu minuman percuma. Ketik kod ini untuk salin.</div>'
+      +'<div class="cpn-go" onclick="event.stopPropagation();cpnUse(\''+c.code+'\')">Guna sekarang</div>';
+  }
+  function cpnCopyTap(){
+    const a=liveCpns();if(!a.length)return;
+    const code=a[0].code;
+    const done=function(){toast('\u2705 Kod '+code+' disalin');};
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(code).then(done).catch(function(){toast('Kod: '+code)});
+    else toast('Kod: '+code);
+  }
+  function cpnUse(code){
+    code=String(code||'').toUpperCase();
+    const btn=document.querySelector('#pay button[data-method=coupon]');
+    if(btn)btn.click();
+    const inp=document.getElementById('inp-coupon');
+    if(inp){inp.value=code}
+    if(typeof couponCheck==='function')couponCheck();
+    const sec=document.getElementById('pay-section');
+    if(sec&&sec.scrollIntoView)sec.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+  // Read the code the seller's mint wrote onto this order's tracking document.
+  async function loadMyCoupons(){
+    const db=getDb();if(!db)return;
+    const o=loadMyOrder();if(!o||!o.code)return;
+    try{
+      const snap=await db.collection('tracking').doc(o.code).get();
+      if(!snap.exists)return;
+      const d=snap.data()||{};
+      if(d.coupon)addCpn(d.coupon,d.couponExp&&d.couponExp.toMillis?d.couponExp.toMillis():0);
+    }catch(e){}
+  }
+  function drawLoy(){const l=getLoy();document.getElementById('loy-count').textContent=l.c;document.getElementById('stamps').innerHTML=stampRowHtml(l.c)}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2000)}
 function admConfirm(msg,yesLabel,onYes){
   const box=document.getElementById('adm-confirm');
@@ -1408,7 +1470,7 @@ async function couponCheck(){
     cpnCode=code;cpnOk=true;
     if(couponOnly()&&isCod===null){isCod=false}drawDel();
     msg.style.color='#00D4AA';
-    msg.textContent='Kupon sah. Tekan Review, kemudian ketik minuman percuma. Add-on tetap dikenakan.';
+    msg.textContent='Kupon sah. Minuman termahal dalam bakul akan ditolak harganya (tanpa add-on).';
     toast('\u2713 Kupon sah');
   }catch(err){
     msg.style.color='#FF6B6B';msg.textContent='Kupon tidak dapat disemak. Cuba lagi.';
@@ -1433,15 +1495,9 @@ if(payM==='qr')setTimeout(function(){
   }catch(err){}
 },60)});
 function closeConfirm(){document.getElementById('confirm-modal').style.display='none'}
-document.getElementById('confirm-items').addEventListener('click',function(e){
-  if(!(payM==='coupon'&&cpnOk))return;
-  const row=e.target.closest('[data-li]');if(!row)return;
-  const i=parseInt(row.getAttribute('data-li'),10);if(isNaN(i))return;
-  cpnLine=(i===cpnLine)?-1:i;
-  document.getElementById('checkout').click();
-});
 document.getElementById('checkout').addEventListener('click',function(){if(pruneCart()){saveCart();upCart()}const e=Object.entries(cart);let totalItems=0;e.forEach(([_,v])=>totalItems+=v.length);if(totalItems===0){toast('⚠ Tiada pesanan');return}if(isCod===null){toast('⚠ Sila pilih cara penghantaran');return}const n=document.getElementById('inp-name2').value.trim(),blockR=isCod?(selBlock==='other'?((document.getElementById('inp-custom-block')||{}).value||'').trim():selBlock):'',roomR=isCod?(document.getElementById('inp-room').value||'').trim():'',r=isCod?(blockR+(roomR?' '+roomR:'')):'';if(!n){highlight('inp-name2','⚠ Sila masukkan nama');return}if(isCod&&!selBlock){toast('⚠ Sila pilih blok');return}if(isCod&&selBlock&&!document.getElementById('inp-room').value.trim()){toast('⚠ Sila masukkan nombor bilik');return}if(!isCod&&!selTime)selTime='Bila siap';if(!selTime){highlight('pickup-time','⚠ Sila pilih masa dahulu');return}if(!payM){highlight('pay-section','⚠ Sila pilih cara bayar');return}
-if(payM==='coupon'&&!cpnOk){toast('\u274C Sahkan kupon dahulu');return}if(couponOnly()&&isCod&&!codFreeUp){isCod=false;drawDel()}if(payM==='qr'&&!stagedProof){const cp=document.getElementById('qr-claim-panel');if(cp){cp.style.borderColor='#FF6B6B';setTimeout(function(){cp.style.borderColor=''},2000)}toast('⚠ Hantar resit dahulu');return}let html='',total=0,idx=0;_revPrice=[];_revLabel=[];_revBase=[];_revAdd=[];e.forEach(([id,items])=>{const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;const item=MENU[ci].items[vi];items.forEach(inst=>{idx++;const ac=inst.adds.reduce((s,aid)=>{const a=findAdd(aid);return s+(a?a.price:0)},0);const base=Number(item.price)||0;total+=base+ac;const al=inst.adds.map(aid=>{const a=findAdd(aid);return a?a.name:''}).filter(Boolean).join(', ');const emoji=drinkEmoji(item.name);_revPrice.push(+(base+ac).toFixed(2));_revBase.push(+base.toFixed(2));_revAdd.push(+ac.toFixed(2));const li=idx-1,pickable=(payM==='coupon'&&cpnOk),isFree=(pickable&&cpnLine===li);const rowStyle='display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06)'+(pickable?';cursor:pointer;border-radius:8px;padding-left:8px;padding-right:8px;'+(isFree?'background:rgba(0,212,170,0.12);outline:1px solid rgba(0,212,170,0.5)':''):'');const priceHtml=isFree?'<s style="color:#9A9385;font-size:15px">RM'+base.toFixed(2)+'</s><b style="color:#00D4AA;font-family:var(--fd);font-size:15px;margin-left:6px">PERCUMA</b>'+(ac>0?'<span style="color:#FFB347;font-family:var(--fd);font-weight:800;font-size:14px;margin-left:6px">+RM'+ac.toFixed(2)+'</span>':''):'<span style="font-family:var(--fd);font-weight:800;font-size:19px;color:#00D4AA">RM'+(base+ac).toFixed(2)+'</span>';html+='<div data-li="'+li+'" style="'+rowStyle+'"><span style="font-size:20px">'+emoji+'</span><div style="flex:1"><div style="font-weight:800;font-size:14px;color:#F0F0F0">'+esc(item.name)+'</div>'+(al?'<div style="font-size:12px;color:#9A9385;margin-top:2px">\u2795 '+esc(al)+'</div>':'')+'</div>'+priceHtml+'</div>';});});document.getElementById('confirm-items').innerHTML=html;const _fr=(payM==='coupon'&&cpnOk&&cpnLine>=0&&_revBase[cpnLine]!=null)?_revBase[cpnLine]:0;const _fEl=document.getElementById('confirm-free');if(_fEl){_fEl.style.display=_fr>0?'flex':'none';document.getElementById('confirm-free-val').textContent=_fr>0?'-RM'+_fr.toFixed(2):''}document.getElementById('confirm-delivery').innerHTML='🚗 '+(isCod?'COD (+RM1)':'Ambil Sendiri')+' · ⏰ '+esc(selTime)+' · 👤 '+esc(n)+(isCod?' '+esc(r):'');document.getElementById('confirm-pay').innerHTML='\u{1F4B3} '+(payM==='coupon'?'\u{1F39F}\uFE0F Kupon':payM==='cash'?'\u{1F4B5} Tunai':'\u{1F4F1} QR Pay')+(payM==='qr'&&!stagedProof?' \u00B7 <span style="color:#FFB347">\u26A0 tiada resit - penjual tak dapat sahkan bayaran</span>':'');document.getElementById('confirm-sub').textContent='RM'+total.toFixed(2);document.getElementById('confirm-cod').style.display=isCod?'flex':'none';document.getElementById('confirm-total').textContent='RM'+Math.max(0,total+(isCod?1:0)-_fr).toFixed(2);if(document.getElementById('confirm-modal').style.display!=='flex')track('checkout_open');document.getElementById('confirm-modal').style.display='flex';});
+if(payM==='coupon'&&!cpnOk){toast('\u274C Sahkan kupon dahulu');return}if(couponOnly()&&isCod&&!codFreeUp){isCod=false;drawDel()}if(payM==='qr'&&!stagedProof){const cp=document.getElementById('qr-claim-panel');if(cp){cp.style.borderColor='#FF6B6B';setTimeout(function(){cp.style.borderColor=''},2000)}toast('⚠ Hantar resit dahulu');return}if(payM==='coupon'&&cpnOk){let _bi=-2,_bb=-1,_k=-1;Object.entries(cart).forEach(function(en){const mm=/^c(\d+)v(\d+)$/.exec(en[0]);if(!mm)return;const item=MENU[parseInt(mm[1],10)]&&MENU[parseInt(mm[1],10)].items[parseInt(mm[2],10)];if(!item)return;en[1].forEach(function(inst){_k++;const b=Number(item.price)||0;if(b>_bb){_bb=b;_bi=_k}})});cpnLine=_bi}
+let html='',total=0,idx=0;_revPrice=[];_revLabel=[];_revBase=[];_revAdd=[];e.forEach(([id,items])=>{const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;const item=MENU[ci].items[vi];items.forEach(inst=>{idx++;const ac=inst.adds.reduce((s,aid)=>{const a=findAdd(aid);return s+(a?a.price:0)},0);const base=Number(item.price)||0;total+=base+ac;const al=inst.adds.map(aid=>{const a=findAdd(aid);return a?a.name:''}).filter(Boolean).join(', ');const emoji=drinkEmoji(item.name);_revPrice.push(+(base+ac).toFixed(2));_revBase.push(+base.toFixed(2));_revAdd.push(+ac.toFixed(2));const li=idx-1,pickable=false,isFree=(payM==='coupon'&&cpnOk&&cpnLine===li);const rowStyle='display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06)'+(pickable?';cursor:pointer;border-radius:8px;padding-left:8px;padding-right:8px;'+(isFree?'background:rgba(0,212,170,0.12);outline:1px solid rgba(0,212,170,0.5)':''):'');const priceHtml=isFree?'<s style="color:#9A9385;font-size:15px">RM'+base.toFixed(2)+'</s><b style="color:#00D4AA;font-family:var(--fd);font-size:15px;margin-left:6px">PERCUMA</b>'+(ac>0?'<span style="color:#FFB347;font-family:var(--fd);font-weight:800;font-size:14px;margin-left:6px">+RM'+ac.toFixed(2)+'</span>':''):'<span style="font-family:var(--fd);font-weight:800;font-size:19px;color:#00D4AA">RM'+(base+ac).toFixed(2)+'</span>';html+='<div data-li="'+li+'" style="'+rowStyle+'"><span style="font-size:20px">'+emoji+'</span><div style="flex:1"><div style="font-weight:800;font-size:14px;color:#F0F0F0">'+esc(item.name)+'</div>'+(al?'<div style="font-size:12px;color:#9A9385;margin-top:2px">\u2795 '+esc(al)+'</div>':'')+'</div>'+priceHtml+'</div>';});});document.getElementById('confirm-items').innerHTML=html;const _fr=(payM==='coupon'&&cpnOk&&cpnLine>=0&&_revBase[cpnLine]!=null)?_revBase[cpnLine]:0;const _fEl=document.getElementById('confirm-free');if(_fEl){_fEl.style.display=_fr>0?'flex':'none';document.getElementById('confirm-free-val').textContent=_fr>0?'-RM'+_fr.toFixed(2):''}document.getElementById('confirm-delivery').innerHTML='🚗 '+(isCod?'COD (+RM1)':'Ambil Sendiri')+' · ⏰ '+esc(selTime)+' · 👤 '+esc(n)+(isCod?' '+esc(r):'');document.getElementById('confirm-pay').innerHTML='\u{1F4B3} '+(payM==='coupon'?'\u{1F39F}\uFE0F Kupon':payM==='cash'?'\u{1F4B5} Tunai':'\u{1F4F1} QR Pay')+(payM==='qr'&&!stagedProof?' \u00B7 <span style="color:#FFB347">\u26A0 tiada resit - penjual tak dapat sahkan bayaran</span>':'');document.getElementById('confirm-sub').textContent='RM'+total.toFixed(2);document.getElementById('confirm-cod').style.display=isCod?'flex':'none';document.getElementById('confirm-total').textContent='RM'+Math.max(0,total+(isCod?1:0)-_fr).toFixed(2);if(document.getElementById('confirm-modal').style.display!=='flex')track('checkout_open');document.getElementById('confirm-modal').style.display='flex';});
 function clip(s,max){return String(s==null?'':s).trim().slice(0,max)}
 function saveCart(){try{localStorage.setItem('mms_cart',JSON.stringify(cart))}catch(e){}}
 // An id is c<category>v<item>. Anything that no longer resolves is dropped:
@@ -1500,6 +1556,7 @@ if(payM==='qr'&&!stagedProof){toast('⚠ Hantar resit dahulu');closeConfirm();re
       total+=item.price+ac;_prices.push(+(item.price+ac).toFixed(2));_bases.push(+item.price.toFixed(2));_labels.push(item.name+(al.length?' + '+al.join(', '):''))
     })
   });
+  if(payM==='coupon'&&cpnOk){let _bi=-1,_bb=-1;_bases.forEach(function(b,i){if(b>_bb){_bb=b;_bi=i}});cpnLine=_bi}
   if(!Object.keys(ordMap).length){toast('Bakul tidak sah - pilih minuman semula');cart={};saveCart();upCart();closeConfirm();return}
   const cod=isCod?1:0;total+=cod;if(payM==='coupon'&&_bases[cpnLine]==null){toast('Pilih semula minuman percuma di Review');closeConfirm();_sending=false;btn.disabled=false;btn.textContent='Hantar Pesanan';return}const freeAmt=(payM==='coupon'&&_bases[cpnLine]!=null)?_bases[cpnLine]:0;total-=freeAmt;if(total<0)total=0;
   _sending=true;btn.disabled=true;btn.textContent='Menghantar...';
@@ -1562,6 +1619,7 @@ if(payM==='qr'&&!stagedProof){toast('⚠ Hantar resit dahulu');closeConfirm();re
   toast('✓ Pesanan dihantar!');
   const l=getLoy();l.c++;if(l.c%5===0)setTimeout(()=>toast('Congrats! Minuman percuma seterusnya!'),900);saveLoy(l);drawLoy();
   cart={};saveCart();selTime='';selBlock='';isCod=null;payM='';
+  if(cpnCode)dropCpn(cpnCode);
   cpnCode='';cpnOk=false;cpnLine=-1;
   {const _ci=document.getElementById('inp-coupon');if(_ci)_ci.value='';
    const _cs=document.getElementById('coupon-section');if(_cs)_cs.style.display='none';
@@ -2218,6 +2276,7 @@ async function maybeMintCoupon(orderId,silent){
       tx.set(mRef,{code:code,at:firebase.firestore.FieldValue.serverTimestamp(),n:n});
     });
     if(!code)return;
+    try{await db.collection('tracking').doc(orderId).update({coupon:code,couponExp:new Date(Date.now()+30*86400000)})}catch(e){console.warn('kupon tracking:',e)}
     admNote('<div style="font-family:var(--fd);font-weight:800;font-size:21px;color:#00D4AA;margin-bottom:10px">Kupon · kad setia '+n+'/5 &#127903;</div>'+'<div style="font-size:14px;color:#9A9385;line-height:1.6;margin-bottom:14px">Pelanggan ini sudah lengkap '+n+' pesanan. Beri kod ini kepadanya: satu minuman percuma, sah 30 hari.</div>'+'<div style="font-family:var(--fd);font-weight:800;font-size:30px;letter-spacing:3px;color:#F0F0F0;text-align:center;background:rgba(0,212,170,0.1);border:1px dashed rgba(0,212,170,0.5);border-radius:12px;padding:14px;margin-bottom:14px">'+code+'</div>'+'<div style="font-size:13px;color:#9A9385;line-height:1.5">Hantar melalui WhatsApp pesanan ini, atau salin kod di atas.</div>');
   }catch(e){console.warn('kupon gagal:',e)}
 }
@@ -2564,7 +2623,7 @@ function admSignOutNow(){const a=getAuth();if(a)a.signOut().then(()=>{exitAdmin(
 
 
 
-(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await loadMenu();await initConfig();initDis();fillCustomer();drawLoy();drawDel();const a=getAuth();
+(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await loadMenu();await initConfig();initDis();fillCustomer();drawCpnBar();loadMyCoupons();drawLoy();drawDel();const a=getAuth();
 if(a)a.onAuthStateChanged(function(u){
   // Deliberately does NOT call enterAdmin(). A remembered session must never
   // open the dashboard by itself - it only offers the 🔧 button.
