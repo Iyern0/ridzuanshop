@@ -1232,6 +1232,18 @@ code at checkout and taps which drink is free.
 **Artefacts:** `drinks-order.html`, `index.html`, `firestore.rules`, `sw.js`, `tools/verify-coupon.js`
 **Status:** ✅ confirmed in the browser; the mint-to-tracking write is read-verified (it needs a seller session to click through).
 
+### 2026-10-21 15:05 — The banner becomes a glowing ticket in the loyalty bar
+**What happened:** The wide coupon banner was rejected on sight. It is replaced by a ticket icon sitting in the loyalty bar beside the stamp count: tap it and a small card pops out of the icon — *"You have 2 coupons"* — with a copy and a use button per code.
+**Found / changed:**
+- The banner element, its CSS and `cpnCopyTap()` are gone. In their place: `.cpn-wrap` / `.cpn-btn` (42px, teal ring, `cpnPulse` glow, amber count badge) and `.cpn-pop` — a dark card with a pointed tail, teal hairline, soft outer glow, `cpnPopIn` 170ms from the icon.
+- Inline SVG ticket rather than an emoji: the emoji rendered as a box glyph in the first screenshot, which is exactly the kind of thing a screenshot catches and a DOM check does not.
+- Interaction: tap the ticket opens the bubble, tap anywhere else closes it, `Salin` copies (clipboard API with a toast fallback), `Guna` closes the bubble, fills the code, validates it and scrolls to the payment row.
+- Two layout faults were fixed after looking at real screenshots: the ticket was anchored to the bar's right edge and got clipped by the page's horizontal overflow, so it is now inline in the bar inside its own `position:relative` wrapper, with the bubble anchored to that. Measured after: `scrollWidth - innerWidth = -15`, button and bubble both inside the viewport.
+- Verified: badge shows `2`, bubble reads *"You have 2 coupons"*, `Salin` copies `TICKET99`, outside tap closes (`display:none`), reopening works, `Guna` fills the field and the coupon validates (`cpnOk true`).
+- `sw.js` `v32` → `v33-20261021`; `verify-coupon.js` all green, `verify-n60.js` 21/21; the fixture coupon was deleted.
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/verify-coupon.js`
+**Status:** ✅ confirmed in the browser, with screenshots before and after the layout fix.
+
 ## Withdrawn results
 
 - **"The `members` rules are unpublished."** Repeated in the log and in several answers to the

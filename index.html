@@ -651,18 +651,30 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
 #mybar button{border:none;font-family:var(--fb);font-weight:800;cursor:pointer;flex-shrink:0}
 #mybar .mb-see{background:rgba(255,255,255,0.07);color:#F0F0F0;font-size:13px;padding:9px 11px;border-radius:9px}
 #mybar .mb-more{background:#00D4AA;color:#000;font-size:13px;padding:9px 13px;border-radius:9px}
-#cpn-bar{display:none;margin:0 0 10px;padding:14px 16px;border-radius:14px;cursor:pointer;
-   background:linear-gradient(120deg,rgba(0,212,170,0.14),rgba(255,179,71,0.16),rgba(0,212,170,0.14));
-   background-size:220% 220%;border:1px solid rgba(0,212,170,0.45);
-   animation:cpnShine 3.2s ease-in-out infinite;box-shadow:0 0 0 0 rgba(0,212,170,0.45)}
-  @keyframes cpnShine{0%,100%{background-position:0% 50%;box-shadow:0 0 0 0 rgba(0,212,170,0.35)}
-   50%{background-position:100% 50%;box-shadow:0 0 22px 2px rgba(0,212,170,0.28)}}
-  @keyframes cpnPop{0%{transform:scale(0.96);opacity:0}100%{transform:scale(1);opacity:1}}
-  #cpn-bar .cpn-hd{display:flex;align-items:center;gap:8px;font-family:var(--fd);font-weight:800;font-size:13px;color:#00D4AA;letter-spacing:0.4px}
-  #cpn-bar .cpn-code{font-family:var(--fd);font-weight:800;font-size:26px;letter-spacing:4px;color:#F0F0F0;margin:6px 0 4px}
-  #cpn-bar .cpn-sub{font-size:12px;color:#9A9385;line-height:1.5}
-  #cpn-bar .cpn-go{display:inline-block;margin-top:9px;background:#00D4AA;color:#07110E;font-family:var(--fd);font-weight:800;font-size:13px;padding:9px 16px;border-radius:10px}
-  #cpn-bar .cpn-saved{font-size:11px;color:#00D4AA;font-weight:800;margin-left:6px}
+  .cpn-wrap{position:relative;display:inline-flex;align-items:center}.cpn-btn{display:none;position:relative;width:42px;height:42px;border-radius:50%;
+   border:1px solid rgba(0,212,170,0.7);color:#5FF0CE;font-size:17px;cursor:pointer;
+   align-items:center;justify-content:center;background:radial-gradient(circle at 50% 32%,rgba(0,212,170,0.42),rgba(0,212,170,0.06));
+   animation:cpnPulse 2.8s ease-in-out infinite}
+  @keyframes cpnPulse{0%,100%{box-shadow:0 0 8px rgba(0,212,170,0.25)}50%{box-shadow:0 0 20px rgba(0,212,170,0.6)}}
+  .cpn-btn .dot{position:absolute;top:-3px;right:-3px;min-width:17px;height:17px;border-radius:9px;
+   background:#FFB347;color:#1E1913;font-family:var(--fd);font-weight:800;font-size:11px;
+   display:none;align-items:center;justify-content:center;padding:0 4px}
+  .cpn-pop{display:none;position:absolute;right:0;top:calc(100% - 10px);z-index:900;width:min(320px,88vw);
+   background:#171412;border:1px solid rgba(0,212,170,0.4);border-radius:16px;padding:15px;
+   box-shadow:0 18px 40px rgba(0,0,0,0.55),0 0 26px rgba(0,212,170,0.18);
+   transform-origin:top right;animation:cpnPopIn 170ms ease-out}
+  @keyframes cpnPopIn{from{transform:translateY(-6px) scale(0.95);opacity:0}to{transform:none;opacity:1}}
+  .cpn-pop:before{content:'';position:absolute;top:-8px;right:15px;width:14px;height:14px;background:#171412;
+   border-left:1px solid rgba(0,212,170,0.4);border-top:1px solid rgba(0,212,170,0.4);transform:rotate(45deg)}
+  .cpn-pop h4{margin:0 0 2px;font-family:var(--fd);font-weight:800;font-size:15px;color:#F0F0F0}
+  .cpn-pop .sub{font-size:11.5px;color:#9A9385;margin-bottom:11px;line-height:1.5}
+  .cpn-row{display:flex;align-items:center;gap:7px;background:rgba(0,212,170,0.07);
+   border:1px solid rgba(0,212,170,0.28);border-radius:12px;padding:10px 11px;margin-bottom:8px}
+  .cpn-row:last-child{margin-bottom:0}
+  .cpn-row .code{flex:1;font-family:var(--fd);font-weight:800;font-size:18px;letter-spacing:2.5px;color:#00D4AA}
+  .cpn-row button{border:1px solid rgba(255,255,255,0.18);border-radius:8px;font-family:var(--fd);font-weight:800;font-size:11px;
+   padding:8px 10px;cursor:pointer;background:transparent;color:#C9C4BA}
+  .cpn-row button.go{background:#00D4AA;border-color:#00D4AA;color:#07110E}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -670,12 +682,11 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
 </head><body>
 <div class="hero"><h1>🌙 <span>MINUM</span> MALAM SISWA</h1><div class="sub">⏰ 10:30PM — 2:00AM · 🚗 COD (RM1) / Free Pickup</div></div>
 <div id="status-bar" class="status-bar"></div>
-<div id="cpn-bar" class="cpn-bar" onclick="cpnCopyTap()"></div>
 <div style="text-align:center;margin-top:12px"><button id="my-order" onclick="openMyOrder()" style="display:none;background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.3);color:#00D4AA;font-weight:800;font-size:14px;padding:9px 18px;border-radius:999px;cursor:pointer">📦 Pesanan saya</button></div>
 <div id="admin-btn-wrap" style="text-align:center;margin-top:8px;display:none"><button id="admin-btn" onclick="enterAdmin()" style="display:none;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.14);color:#8A8377;font-weight:800;font-size:13px;padding:7px 14px;border-radius:999px;cursor:pointer">🔧 Admin</button></div>
 <div id="founder" class="founder" style="display:none"></div>
 
-<div class="bar"><span>🎁 Pesanan</span><div class="stamps" id="stamps"></div><span class="count" id="loy-count">0</span></div>
+<div class="bar" style="position:relative"><span>&#127873; Pesanan</span><div class="stamps" id="stamps"></div><span class="count" id="loy-count">0</span><span class="cpn-wrap"><button id="cpn-btn" class="cpn-btn" onclick="event.stopPropagation();toggleCpnPop()" aria-label="Kupon"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16a1 1 0 0 1 1 1v2.2a2 2 0 0 0 0 3.6V16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2.2a2 2 0 0 0 0-3.6V8a1 1 0 0 1 1-1Z"/><path d="M9.5 7v10" stroke-dasharray="2 2.4"/></svg><span class="dot" id="cpn-dot">0</span></button><div id="cpn-pop" class="cpn-pop" onclick="event.stopPropagation()"></div></span></div>
 <div class="sec"><h2>🧋 <span>Minuman</span></h2><div class="l"></div></div>
 <div id="menu-root"></div>
 <div id="cart-bar"><div class="info"><div class="count" id="cart-count">0 items</div><div class="total" id="cart-total">RM0.00</div></div><button id="cartb">Review Order</button></div>
@@ -1102,29 +1113,39 @@ function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
   // the cache never invents a code: it is only ever filled from that document.
   function cpns(){try{const a=JSON.parse(localStorage.getItem('mms_coupons')||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}}
   function saveCpns(a){try{localStorage.setItem('mms_coupons',JSON.stringify(a.slice(0,10)))}catch(e){}}
-  function addCpn(code,exp){code=String(code||'').toUpperCase();if(!code)return false;const a=cpns();if(a.some(function(c){return c.code===code}))return false;a.unshift({code:code,exp:exp||0,at:Date.now()});saveCpns(a);drawCpnBar();return true}
-  function dropCpn(code){saveCpns(cpns().filter(function(c){return c.code!==code}));drawCpnBar()}
+  function addCpn(code,exp){code=String(code||'').toUpperCase();if(!code)return false;const a=cpns();if(a.some(function(c){return c.code===code}))return false;a.unshift({code:code,exp:exp||0,at:Date.now()});saveCpns(a);drawCpnBtn();return true}
+  function dropCpn(code){saveCpns(cpns().filter(function(c){return c.code!==code}));drawCpnBtn()}
   function liveCpns(){const now=Date.now();return cpns().filter(function(c){return !c.exp||c.exp>now})}
-  function drawCpnBar(){
-    const el=document.getElementById('cpn-bar');if(!el)return;
-    const a=liveCpns();
-    if(!a.length){el.style.display='none';el.innerHTML='';return}
-    const c=a[0];
-    el.style.display='block';
-    el.style.animation='cpnPop 260ms ease-out, cpnShine 3.2s ease-in-out infinite';
-    el.innerHTML='<div class="cpn-hd">&#127873; KUPON PERCUMA ANDA'+(a.length>1?' <span class="cpn-saved">+'+(a.length-1)+' lagi</span>':'')+'</div>'
-      +'<div class="cpn-code">'+esc(c.code)+'</div>'
-      +'<div class="cpn-sub">Satu minuman percuma. Ketik kod ini untuk salin.</div>'
-      +'<div class="cpn-go" onclick="event.stopPropagation();cpnUse(\''+c.code+'\')">Guna sekarang</div>';
+  function drawCpnBtn(){
+    const b=document.getElementById('cpn-btn'),pop=document.getElementById('cpn-pop'),dot=document.getElementById('cpn-dot');
+    if(!b)return;const a=liveCpns();
+    b.style.display=a.length?'flex':'none';
+    if(dot){dot.style.display=a.length?'flex':'none';dot.textContent=String(a.length)}
+    if(!a.length&&pop)pop.style.display='none';
+    else if(pop&&pop.style.display==='block')drawCpnPop();
   }
-  function cpnCopyTap(){
-    const a=liveCpns();if(!a.length)return;
-    const code=a[0].code;
-    const done=function(){toast('\u2705 Kod '+code+' disalin');};
+  function drawCpnPop(){
+    const pop=document.getElementById('cpn-pop');if(!pop)return;const a=liveCpns();
+    pop.innerHTML='<h4>You have '+a.length+' coupon'+(a.length>1?'s':'')+'</h4>'
+      +'<div class="sub">Satu minuman percuma untuk setiap kupon. Add-on tetap dibayar.</div>'
+      +a.map(function(c){return '<div class="cpn-row"><span class="code">'+esc(c.code)+'</span>'
+        +'<button onclick="cpnCopy(\''+c.code+'\')">Salin</button>'
+        +'<button class="go" onclick="cpnUse(\''+c.code+'\')">Guna</button></div>'}).join('');
+  }
+  function toggleCpnPop(){
+    const pop=document.getElementById('cpn-pop');if(!pop)return;
+    if(pop.style.display==='block'){pop.style.display='none';return}
+    drawCpnPop();pop.style.display='block';
+  }
+  function cpnCopy(code){
+    const done=function(){toast('\u2705 Kod '+code+' disalin')};
     if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(code).then(done).catch(function(){toast('Kod: '+code)});
     else toast('Kod: '+code);
   }
+  // tap anywhere else and the bubble folds away
+  document.addEventListener('click',function(){const p=document.getElementById('cpn-pop');if(p&&p.style.display==='block')p.style.display='none'});
   function cpnUse(code){
+    const _p=document.getElementById('cpn-pop');if(_p)_p.style.display='none';
     code=String(code||'').toUpperCase();
     const btn=document.querySelector('#pay button[data-method=coupon]');
     if(btn)btn.click();
@@ -2623,7 +2644,7 @@ function admSignOutNow(){const a=getAuth();if(a)a.signOut().then(()=>{exitAdmin(
 
 
 
-(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await loadMenu();await initConfig();initDis();fillCustomer();drawCpnBar();loadMyCoupons();drawLoy();drawDel();const a=getAuth();
+(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await loadMenu();await initConfig();initDis();fillCustomer();drawCpnBtn();loadMyCoupons();drawLoy();drawDel();const a=getAuth();
 if(a)a.onAuthStateChanged(function(u){
   // Deliberately does NOT call enterAdmin(). A remembered session must never
   // open the dashboard by itself - it only offers the 🔧 button.
