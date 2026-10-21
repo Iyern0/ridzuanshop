@@ -1244,6 +1244,18 @@ code at checkout and taps which drink is free.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/verify-coupon.js`
 **Status:** ✅ confirmed in the browser, with screenshots before and after the layout fix.
 
+### 2026-10-21 15:30 — A coupon is single-use everywhere, and a finished order disappears
+**What happened:** Two complaints. A coupon could appear usable when it had already been spent (by this phone or by whoever it was shared with), and the customer's "Pesanan saya" button and status bar kept showing after the order was delivered.
+**Found / changed:**
+- **The wallet verifies.** `verifyWallet()` reads every cached code from `coupons/{CODE}` and drops anything `used`, missing or expired; it runs on boot and again whenever the bubble opens. Tested with three fixtures — one live, one live, one already burned anonymously in the way another person's phone would burn it: the spent one left the wallet and the badge went from 3 to 2.
+- **A failed coupon order names the reason.** After the order transaction fails, the app reads the coupon: spent or missing → *"Kupon ini sudah digunakan"* and the code is removed; otherwise *"Kupon tidak dapat digunakan - cuba lagi"*. Before, this was a silent failure.
+- **Single use re-proved from an unauthenticated client:** consume → 200, consume again → 403, write a stray field → 403. The earlier probe had started failing because it sent a nine-character `ord` and the rule requires exactly six — the rule was right and the fixture was wrong; the probe now sends six.
+- **A delivered order stops haunting the customer.** `paintMyBar()` hides itself when the effective status is `done`, `showMyOrderBtn()` hides the button, and `trackOrder` persists `_st:'done'` so a reload stays quiet. Verified: `baru` → button `inline-flex`, bar on; `done` → button `none`, bar off.
+- **The burn is auditable, because rules cannot prove it.** A coupon order's detail now shows whether its coupon is `used` **and** `ord` equals that order id — teal when it matches, red *"Jangan lepaskan minuman percuma"* when it does not. That is the only way to catch a crafted order that carried a live code without burning it.
+- `sw.js` `v33` → `v34-20261021`; `verify-coupon.js` all green, `verify-n60.js` 21/21; all fixtures deleted.
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/verify-coupon.js`, `tools/fixture-coupon.js`
+**Status:** ✅ confirmed in the browser for the wallet and the finished order; the admin audit is read-verified.
+
 ## Withdrawn results
 
 - **"The `members` rules are unpublished."** Repeated in the log and in several answers to the

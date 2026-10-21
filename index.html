@@ -1116,6 +1116,23 @@ function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
   function addCpn(code,exp){code=String(code||'').toUpperCase();if(!code)return false;const a=cpns();if(a.some(function(c){return c.code===code}))return false;a.unshift({code:code,exp:exp||0,at:Date.now()});saveCpns(a);drawCpnBtn();return true}
   function dropCpn(code){saveCpns(cpns().filter(function(c){return c.code!==code}));drawCpnBtn()}
   function liveCpns(){const now=Date.now();return cpns().filter(function(c){return !c.exp||c.exp>now})}
+  // A code is a bearer token: sharing is allowed, so the only truth is the
+  // coupon document. Anything used - by this phone or another - leaves the
+  // wallet, and so does anything expired or missing.
+  async function verifyWallet(){
+    const db=getDb();if(!db)return;const a=cpns();if(!a.length)return;
+    let dropped=0;
+    for(let i=0;i<a.length;i++){
+      try{
+        const snap=await db.collection('coupons').doc(a[i].code).get();
+        if(!snap.exists){dropCpn(a[i].code);dropped++;continue}
+        const d=snap.data()||{};
+        const expMs=d.exp&&d.exp.toMillis?d.exp.toMillis():0;
+        if(d.used===true||(expMs&&expMs<=Date.now())){dropCpn(a[i].code);dropped++}
+      }catch(e){}
+    }
+    if(dropped)toast('Kupon yang sudah digunakan telah dikeluarkan');
+  }
   function drawCpnBtn(){
     const b=document.getElementById('cpn-btn'),pop=document.getElementById('cpn-pop'),dot=document.getElementById('cpn-dot');
     if(!b)return;const a=liveCpns();
@@ -1135,6 +1152,7 @@ function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
   function toggleCpnPop(){
     const pop=document.getElementById('cpn-pop');if(!pop)return;
     if(pop.style.display==='block'){pop.style.display='none';return}
+    verifyWallet();
     drawCpnPop();pop.style.display='block';
   }
   function cpnCopy(code){
@@ -1610,6 +1628,14 @@ if(payM==='qr'&&!stagedProof){toast('⚠ Hantar resit dahulu');closeConfirm();re
     }
   }
 
+  if(!saved&&payM==='coupon'&&cpnCode&&db){
+    try{
+      const cs=await db.collection('coupons').doc(cpnCode).get();
+      const cd=cs.exists?cs.data():null;
+      if(!cd||cd.used===true){dropCpn(cpnCode);toast('Kupon ini sudah digunakan');cpnCode='';cpnOk=false;cpnLine=-1}
+      else toast('Kupon tidak dapat digunakan - cuba lagi');
+    }catch(e){toast('Pesanan gagal - cuba lagi')}
+  }
   _sending=false;btn.disabled=false;btn.textContent='Hantar Pesanan';
 
   if(orderNo)msg+='No. Pesanan: #'+fmtNo(orderNo)+'\n';
@@ -1762,6 +1788,9 @@ function paintMyBar(st){
   }
   const o=loadMyOrder();
   if(!o||!o.code){b.classList.remove('on');return}
+  const eff=st||o._st||'baru';
+  // Delivered means finished: the bar is not a trophy, it is a to-do.
+  if(eff==='done'){b.classList.remove('on');return}
   b.classList.add('on');
   b.querySelector('.mb-who').textContent='📦 #'+fmtNo(o.no);
   // The live status if we have one, otherwise whatever the device last knew.
@@ -1777,7 +1806,7 @@ function orderMore(){
   try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}
   toast('Pilih minuman untuk pesanan baru');
 }
-function showMyOrderBtn(){const b=document.getElementById('my-order');if(!b)return;const o=loadMyOrder();b.style.display=o?'inline-flex':'none';if(o)b.textContent='📦 Pesanan saya · #'+fmtNo(o.no);paintMyBar()}
+function showMyOrderBtn(){const b=document.getElementById('my-order');if(!b)return;const o=loadMyOrder();const fin=!!(o&&o._st==='done');b.style.display=(o&&!fin)?'inline-flex':'none';if(o&&!fin)b.textContent='📦 Pesanan saya · #'+fmtNo(o.no);paintMyBar()}
 function openMyOrder(){const o=loadMyOrder();if(!o)return;_lastSt='';showDone({...o,warn:false})}
 function showDone(o){
   const el=document.getElementById('done');if(!el)return;
@@ -1909,7 +1938,8 @@ function trackOrder(code){
       alertDone(ns);
     }
     _lastSt=ns;
-    paintSteps(ns);paintMyBar(ns);
+    if(ns==='done'){const _o=loadMyOrder();if(_o){_o._st='done';try{localStorage.setItem('mms_last',JSON.stringify(_o))}catch(e){}}loadMyCoupons();}
+    paintSteps(ns);paintMyBar(ns);showMyOrderBtn();
     const el=document.getElementById('done');
     if(el&&el._msg)el._msg._st=d.status||'baru';
     const o=loadMyOrder();
@@ -2167,7 +2197,7 @@ function admOpenDetail(id){
    +'<div><span>Nama</span><b>'+esc(o.name||'-')+'</b></div>'+(o.phone?'<div><span>Kad setia</span><b id="d-loy">-</b></div>':'')
    +(o.phone?'<div><span>WhatsApp</span><b>'+esc(o.phone)+'</b></div>':'')
    +'</div>'
-   +'<div class="d-total"><span>Jumlah</span><b>RM'+Number(o.total||0).toFixed(2)+'</b></div>'
+   +'<div class="d-total"><span>Jumlah</span><b>RM'+Number(o.total||0).toFixed(2)+'</b></div>'+(o.payment==='coupon'?'<div id="d-cpn-audit" style="font-size:12.5px;font-weight:700;line-height:1.5;margin:10px 0">Menyemak kupon...</div>':'')
    +(cl?'<div class="d-claim"><div>📎 Pelanggan hantar resit bayaran'+(cl.at&&cl.at.toDate?' · '+cl.at.toDate().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'}):'')+'</div><button onclick="admViewClaim(\''+o.id+'\')">Lihat resit</button></div>':'')
    +'<div class="d-acts">'
    +(o.phone?'<button class="d-wa" onclick="admWaNotif(\''+o.id+'\')">📤 WhatsApp pelanggan</button>':'<button class="d-wa" onclick="admWaNotif(\''+o.id+'\')">📱 Simpan nombor &amp; maklumkan</button>')
@@ -2175,9 +2205,24 @@ function admOpenDetail(id){
    +'</div></div>';
   box.style.display='flex';
   if(o.phone)loadLoyalty('d-loy',o.phone);
+  if(o.payment==='coupon')checkCouponBurn(o);
 }
 // The same count the mint uses: orders this number has completed, minus the
 // free ones. Read from Firestore so it cannot disagree with the mint.
+// Rules can check that a coupon is live when the order is written, but they
+// cannot prove the burn happened in the same commit. This is how a seller sees
+// the difference: the coupon must be used, and used for THIS order.
+async function checkCouponBurn(o){
+  const el=document.getElementById('d-cpn-audit');if(!el)return;
+  const db=getDb();if(!db||!isAdmin()||!o.coupon)return;
+  try{
+    const s=await db.collection('coupons').doc(o.coupon).get();
+    if(!s.exists){el.textContent='Kupon '+o.coupon+' tidak dijumpai';el.style.color='#FF6B6B';return}
+    const d=s.data()||{};
+    if(d.used===true&&d.ord===o.id){el.textContent='Kupon '+o.coupon+' sudah dibakar untuk pesanan ini';el.style.color='#00D4AA'}
+    else{el.textContent='Amaran: kupon '+o.coupon+' tidak dibakar untuk pesanan ini. Jangan lepaskan minuman percuma.';el.style.color='#FF6B6B'}
+  }catch(e){el.textContent='Kupon tidak dapat disemak';el.style.color='#FFB347'}
+}
 async function loadLoyalty(elId,ph){
   const db=getDb();if(!db||!isAdmin())return;
   const el=document.getElementById(elId);if(!el)return;
@@ -2644,7 +2689,7 @@ function admSignOutNow(){const a=getAuth();if(a)a.signOut().then(()=>{exitAdmin(
 
 
 
-(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await loadMenu();await initConfig();initDis();fillCustomer();drawCpnBtn();loadMyCoupons();drawLoy();drawDel();const a=getAuth();
+(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await loadMenu();await initConfig();initDis();fillCustomer();drawCpnBtn();loadMyCoupons();verifyWallet();drawLoy();drawDel();const a=getAuth();
 if(a)a.onAuthStateChanged(function(u){
   // Deliberately does NOT call enterAdmin(). A remembered session must never
   // open the dashboard by itself - it only offers the 🔧 button.
