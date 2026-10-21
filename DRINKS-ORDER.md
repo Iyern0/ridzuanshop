@@ -146,9 +146,9 @@ One tracked file is outside the app's scope and is a candidate for removal:
 3. Tap "Add to Cart"
 4. Tap "Review Order" → cart panel opens
 5. Select delivery: **COD** (block picker + room input) or **Ambil Sendiri**
-6. Fill name, choose a time (**required** — a slot or one typed into the box; with neither, the order is refused and the box is pointed at), choose payment
+6. Fill name and choose a time (**required**). COD shows the slot list only, with no custom box; Ambil Sendiri shows a custom time box and no slots. With no time the order is refused and the control is pointed at. Then choose payment
 7. QR Pay only → the receipt box sits **directly under the QR**: attach the proof, tap "Saya dah bayar" to stage it
-8. "Hantar Pesanan" → order saved to Firestore + WhatsApp opens + the seller is alerted **only if** a payment claim rode along with it
+8. "Hantar Pesanan" → order saved to Firestore and tracked in the app. No WhatsApp opens; the seller is alerted **only if** a payment claim rode along with it
 9. On the done screen, once per device and only when no receipt is outstanding: the **stamp prompt** — the promotion explained, the customer's own progress, a number field, and "Tak berminat" at the bottom. The number goes to `members/{phone}`, readable only by the seller, and is kept on the device so the **next** order carries it (which is what keeps the Customers tab's totals working now the form does not ask).
 
 **Nothing is pre-selected anywhere.** Delivery, payment, time and drink options all

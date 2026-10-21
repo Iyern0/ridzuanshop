@@ -1202,6 +1202,20 @@ code at checkout and taps which drink is free.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/verify-coupon.js`
 **Status:** ✅ confirmed in the browser, four cases with their totals.
 
+### 2026-10-21 14:12 — COD takes a slot, and the loyalty count is finally visible
+**What happened:** Two changes. COD no longer offers a custom time box at all — the slot list is the time. And the five-order loyalty count, which already only moved when the seller marked an order Siap, now shows its progress.
+**Found / changed:**
+- **COD time.** `#time-more` ("Order for later? 👇") and `#time-pickup` (its input) are hidden when COD is chosen; `#times` is the only time control. The chosen delivery also resets `selTime`, so a value typed into the custom box before switching cannot ride into a COD order. Pickup still shows the custom box, as before.
+  - Verified: COD → `time-more none`, `time-pickup none`, `times flex`, `selTime ""`; pickup → `time-more block`, `time-pickup block`, `times none`, and the typed value is picked up.
+- **Loyalty visibility.** The count was already `status === 'done'` and non-free only — an order does not count when placed, only when marked Siap. What was missing was any sign of it:
+  - after each delivery, a toast reads *"Kad setia: n/5"*; every fifth goes to the coupon modal, now headed *"Kupon · kad setia n/5"*;
+  - the order detail carries a **Kad setia** row, filled by `loadLoyalty()` from the same query the mint uses, so the two can never disagree;
+  - bulk *"Tandakan semua Siap"* now counts every order it closes, silently, instead of skipping them;
+  - an order with no phone number says so — *"Kad setia dikira ikut nombor pelanggan"* — instead of silently counting nothing.
+- `sw.js` `v30` → `v31-20261021`; `verify-coupon.js` all green, `verify-n60.js` 21/21.
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/verify-coupon.js`, `DRINKS-ORDER.md`
+**Status:** ✅ confirmed for the COD time behaviour in the browser; the loyalty display is read-verified (it needs a seller session to click through).
+
 ## Withdrawn results
 
 - **"The `members` rules are unpublished."** Repeated in the log and in several answers to the

@@ -1373,7 +1373,7 @@ function drawDel(){
   +(onlyFree?'<div style="margin-top:8px;font-size:12px;color:#9A9385;line-height:1.5">&#127903; Minuman percuma diambil sendiri. Nak dihantar ke bilik? Tekan COD dan RM1 penghantaran dikenakan.</div>':'');
 }
 let selBlock='';
-document.getElementById('del').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=b.dataset.type;if(couponOnly())codFreeUp=(t==='cod');if(admin){const i=disDel.indexOf(t);if(i>-1){if(disDel.length>=DELS.length){toast('❌ Mesti ada satu cara penghantaran');return}disDel.splice(i,1)}else disDel.push(t);saveConfig();drawDel();return}if(disDel.includes(t)){toast('❌ Tidak tersedia');return}document.querySelectorAll('#del button').forEach(b=>b.classList.remove('active'));b.classList.add('active');isCod=t==='cod';document.getElementById('time-more').style.display=isCod?'block':'none';document.getElementById('times').style.display=isCod?'flex':'none';document.getElementById('pickup-note').style.display=isCod?'none':'block';document.getElementById('block-section').style.display=isCod?'block':'none';document.getElementById('pickup-note').style.display=isCod?'none':'block';setTimeout(()=>document.getElementById('inp-name2').focus(),100);document.getElementById('time-label').textContent=isCod?'⏰ When did you want it?':'⏰ Masa Ambil';selTime=(document.getElementById('pickup-time').value||'').trim()||(isCod?'':'Bila siap');if(!isCod){selBlock='';const _cb=document.getElementById('inp-custom-block');if(_cb)_cb.value=''}drawTimes();drawBlocks();upCart();if(isCod)saySavedAs();});
+document.getElementById('del').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=b.dataset.type;if(couponOnly())codFreeUp=(t==='cod');if(admin){const i=disDel.indexOf(t);if(i>-1){if(disDel.length>=DELS.length){toast('❌ Mesti ada satu cara penghantaran');return}disDel.splice(i,1)}else disDel.push(t);saveConfig();drawDel();return}if(disDel.includes(t)){toast('❌ Tidak tersedia');return}document.querySelectorAll('#del button').forEach(b=>b.classList.remove('active'));b.classList.add('active');isCod=t==='cod';document.getElementById('time-more').style.display=isCod?'none':'block';document.getElementById('time-pickup').style.display=isCod?'none':'block';document.getElementById('times').style.display=isCod?'flex':'none';document.getElementById('pickup-note').style.display=isCod?'none':'block';document.getElementById('block-section').style.display=isCod?'block':'none';document.getElementById('pickup-note').style.display=isCod?'none':'block';setTimeout(()=>document.getElementById('inp-name2').focus(),100);document.getElementById('time-label').textContent=isCod?'⏰ When did you want it?':'⏰ Masa Ambil';selTime=isCod?'':((document.getElementById('pickup-time').value||'').trim()||'Bila siap');if(!isCod){selBlock='';const _cb=document.getElementById('inp-custom-block');if(_cb)_cb.value=''}drawTimes();drawBlocks();upCart();if(isCod)saySavedAs();});
 let BLOCKS=['Intan','Delima','Baiduri','Kristal A','Kristal B','Nilam','Zamrud'];let disBlocks=[];
 function drawBlocks(){const g=document.getElementById('block-grid');g.innerHTML=BLOCKS.map((b,i)=>{const dis=disBlocks.includes(b);return'<button onclick="pickBlock('+i+')"'+(selBlock===b?' class="active"':'')+(dis?' style="opacity:0.3;cursor:not-allowed;text-decoration:line-through"':'')+'>'+esc(b)+'</button>'}).join('')}
 // Confirms, at the moment COD is chosen, the details this device already knows.
@@ -2085,7 +2085,7 @@ function admOpenDetail(id){
    +'<div><span>Bayar</span><b>'+(o.payment==='coupon'?'\u{1F39F}\uFE0F Kupon':o.payment==='cash'?'\u{1F4B5} Tunai':'\u{1F4F1} QR Pay')+'</b></div>'
    +'<div><span>Hantar</span><b>'+(isCod?'📦 COD':'🏪 Ambil sendiri')+'</b></div>'
    +(isCod&&o.room?'<div><span>Lokasi</span><b>🏠 '+esc(o.room)+'</b></div>':'')
-   +'<div><span>Nama</span><b>'+esc(o.name||'-')+'</b></div>'
+   +'<div><span>Nama</span><b>'+esc(o.name||'-')+'</b></div>'+(o.phone?'<div><span>Kad setia</span><b id="d-loy">-</b></div>':'')
    +(o.phone?'<div><span>WhatsApp</span><b>'+esc(o.phone)+'</b></div>':'')
    +'</div>'
    +'<div class="d-total"><span>Jumlah</span><b>RM'+Number(o.total||0).toFixed(2)+'</b></div>'
@@ -2095,6 +2095,19 @@ function admOpenDetail(id){
    +'<button class="d-del" onclick="admDelOrder(\''+o.id+'\');closeDetail()">🗑 Padam</button>'
    +'</div></div>';
   box.style.display='flex';
+  if(o.phone)loadLoyalty('d-loy',o.phone);
+}
+// The same count the mint uses: orders this number has completed, minus the
+// free ones. Read from Firestore so it cannot disagree with the mint.
+async function loadLoyalty(elId,ph){
+  const db=getDb();if(!db||!isAdmin())return;
+  const el=document.getElementById(elId);if(!el)return;
+  try{
+    const q=await db.collection('orders').where('phone','==',String(ph==null?'':ph).trim()).limit(1000).get();
+    const n=q.docs.filter(function(x){const v=x.data()||{};return v.status==='done'&&!v.free}).length;
+    el.textContent=n+'/5'+(n>0&&n%5===0?' · kupon sedia':'');
+    el.style.color=(n>0&&n%5===0)?'#00D4AA':'#F0F0F0';
+  }catch(e){console.warn('kad setia:',e)}
 }
 function closeDetail(){const b=document.getElementById('adm-detail');if(b){b.style.display='none';b._id=null}}
 function admRefreshDetail(){
@@ -2176,7 +2189,7 @@ function admClaimFilter(){_admClaimOnly=!_admClaimOnly;const pg=document.getElem
 function admSetDelFilter(d){_admDelFilter=d;const pg=document.getElementById('adm-pg');if(pg)_admRenderOrders(pg,_admOrdersCache||[])}
 function admSetFilter(f){_admFilter=f;if(f==='done')_admSearch='';const pg=document.getElementById('adm-pg');if(admUnsub){admUnsub();admUnsub=null}const db=getDb();if(!db||!isAdmin())return;admUnsub=ordersQ(db).onSnapshot(snap=>{const docs=snap.docs.map(d=>({id:d.id,...d.data()}));_admOrdersCache=docs;if(admTab!=='orders')return;_admRenderOrders(pg,docs)})}
 function admNote(html){const box=document.getElementById('adm-confirm');if(!box)return;box.innerHTML='<div class="c-bg" onclick="admConfirmClose()"></div><div class="c-box">'+html+'<div class="c-row"><button class="c-no" onclick="admConfirmClose()">Tutup</button></div></div>';box.style.display='flex'}
-async function maybeMintCoupon(orderId){
+async function maybeMintCoupon(orderId,silent){
   const db=getDb();if(!db||!isAdmin())return;
   try{
     const o=await db.collection('orders').doc(orderId).get();
@@ -2184,10 +2197,14 @@ async function maybeMintCoupon(orderId){
     const d=o.data()||{};
     if(d.free)return;
     const ph=String(d.phone==null?'':d.phone).trim();
-    if(!ph)return;
+    if(!ph){
+      if(!silent)admNote('<div style="font-family:var(--fd);font-weight:800;font-size:18px;color:#FFB347;margin-bottom:8px">Tiada nombor WhatsApp</div><div style="font-size:14px;color:#9A9385;line-height:1.6">Kad setia dikira ikut nombor pelanggan. Simpan nombornya pada pesanan ini, kemudian tekan Siap sekali lagi.</div>');
+      return;
+    }
     const q=await db.collection('orders').where('phone','==',ph).limit(1000).get();
     const n=q.docs.filter(function(x){const v=x.data()||{};return v.status==='done'&&!v.free}).length;
-    if(n<5||n%5!==0)return;
+    if(n<1)return;
+    if(n%5!==0){if(!silent)toast('\\u2B50 Kad setia: '+n+'/5');return}
     const mRef=db.collection('milestones').doc((ph.replace(/\D/g,'')||ph)+'_'+n);
     const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     let code='';
@@ -2201,7 +2218,7 @@ async function maybeMintCoupon(orderId){
       tx.set(mRef,{code:code,at:firebase.firestore.FieldValue.serverTimestamp(),n:n});
     });
     if(!code)return;
-    admNote('<div style="font-family:var(--fd);font-weight:800;font-size:21px;color:#00D4AA;margin-bottom:10px">Kupon pesanan ke-'+n+' &#127903;</div>'+'<div style="font-size:14px;color:#9A9385;line-height:1.6;margin-bottom:14px">Pelanggan ini sudah lengkap '+n+' pesanan. Beri kod ini kepadanya: satu minuman percuma, sah 30 hari.</div>'+'<div style="font-family:var(--fd);font-weight:800;font-size:30px;letter-spacing:3px;color:#F0F0F0;text-align:center;background:rgba(0,212,170,0.1);border:1px dashed rgba(0,212,170,0.5);border-radius:12px;padding:14px;margin-bottom:14px">'+code+'</div>'+'<div style="font-size:13px;color:#9A9385;line-height:1.5">Hantar melalui WhatsApp pesanan ini, atau salin kod di atas.</div>');
+    admNote('<div style="font-family:var(--fd);font-weight:800;font-size:21px;color:#00D4AA;margin-bottom:10px">Kupon · kad setia '+n+'/5 &#127903;</div>'+'<div style="font-size:14px;color:#9A9385;line-height:1.6;margin-bottom:14px">Pelanggan ini sudah lengkap '+n+' pesanan. Beri kod ini kepadanya: satu minuman percuma, sah 30 hari.</div>'+'<div style="font-family:var(--fd);font-weight:800;font-size:30px;letter-spacing:3px;color:#F0F0F0;text-align:center;background:rgba(0,212,170,0.1);border:1px dashed rgba(0,212,170,0.5);border-radius:12px;padding:14px;margin-bottom:14px">'+code+'</div>'+'<div style="font-size:13px;color:#9A9385;line-height:1.5">Hantar melalui WhatsApp pesanan ini, atau salin kod di atas.</div>');
   }catch(e){console.warn('kupon gagal:',e)}
 }
 function admUpdOrder(id,status){const db=getDb();if(!db)return;db.collection('orders').doc(id).update({status}).then(function(){if(status==='done')maybeMintCoupon(id)}).catch(e=>console.warn(e));db.collection('tracking').doc(id).update({status:status,at:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){})}
@@ -2353,7 +2370,7 @@ function admDoSearch(v){
   const pg=document.getElementById('adm-pg');
   if(pg)_admRenderOrders(pg,_admOrdersCache||[]);
 }
-function admBulkDone(){if(!_admVisDocs.length)return;admConfirm('Tandakan semua '+_admVisDocs.length+' sebagai Siap?','Ya, tandakan',function(){const db=getDb();if(!db)return;_admVisDocs.forEach(function(o){db.collection('orders').doc(o.id).update({status:'done'}).catch(function(){});db.collection('tracking').doc(o.id).update({status:'done',at:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){})});toast('✓ '+_admVisDocs.length+' pesanan ditandakan siap')})}
+function admBulkDone(){if(!_admVisDocs.length)return;admConfirm('Tandakan semua '+_admVisDocs.length+' sebagai Siap?','Ya, tandakan',function(){const db=getDb();if(!db)return;_admVisDocs.forEach(function(o){db.collection('orders').doc(o.id).update({status:'done'}).catch(function(){});db.collection('tracking').doc(o.id).update({status:'done',at:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){})});toast('✓ '+_admVisDocs.length+' pesanan ditandakan siap');const _ids=_admVisDocs.map(function(o){return o.id});(async function(){for(let i=0;i<_ids.length;i++){try{await maybeMintCoupon(_ids[i],true)}catch(e){}}})()})}
 // isCod defaults to true so a caller that forgets still gets delivery wording
 // rather than telling a delivery customer to come and collect.
 function admStatusText(s,isCod){
