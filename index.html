@@ -1535,7 +1535,7 @@ if(payM==='qr'&&!stagedProof){toast('⚠ Hantar resit dahulu');closeConfirm();re
   // the seller is told once. _claim records it, so nothing asks again.
   const proof=(payM==='qr'&&stagedProof)?stagedProof:'';
   const disp={code:code,no:orderNo,items:OrdDisplay(ordMap),total:total,isCod:isCod,r:r,n:n,when:when,pay:payM,_claim:!!proof};
-  if(!saved){showDone({...disp,warn:true});window.open(waUrl(msg),'_blank');return}
+  if(!saved){showDone({...disp,warn:true});return}
   track('order_sent');chime();buzzOk();
   // Deliberately no push to the seller for the order itself. An order arriving
   // is not the thing they need to act on - a payment claim is. Sending both
