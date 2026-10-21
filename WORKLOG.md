@@ -1367,6 +1367,19 @@ code at checkout and taps which drink is free.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/backfill-coupons.js`, `tools/why-no-coupon.js`, `tools/verify-coupon.js`
 **Status:** ✅ the icon works and is permanent; two real coupons delivered to real customers.
 
+### 2026-10-21 20:40 — Launch audit, done by attacking the site
+**What happened:** Before the site went public, the four-seat review panel was dispatched and **all seats failed on rate limits** (five attempts, including one retry). So the audit was done by execution instead: probes against the live project from an unauthenticated client, a money matrix, a real order on the live URL, and a check of every modal's escape hatch.
+**Found / changed:**
+- **No leaks.** Anonymous probes, all as expected: another customer's order 403 · a payment receipt 403 · a member by phone 403 · list orders/payments/members/coupons/milestones/tracking/events 403 · create a coupon 403 · create a milestone 403 · write settings 403.
+- **Coupon single use, live:** a fixture coupon burnt anonymously → 200, the same coupon again → 403. Fixture deleted.
+- **Money matrix, measured in the browser:** cash pickup RM2.50 → **2.50**; COD → **3.50**; COD + RM0.50 add-on → **4.00**; coupon + 2 drinks → free 2.50, total **2.50**; coupon + 1 drink → **0.00**; coupon + add-on → free 2.50, total **1.00** (add-on paid). No path where the review and the stored total disagree.
+- **Live order on the public URL:** `VX8PL4` #034 saved, confirmation rendered, ntfy push received, no console errors; order deleted afterwards. The topic also carries a real customer's `#016 - COD - RM4.50`, so pushes work for them too.
+- **Modals:** sheet, bubble and done screen all have a working exit; the two `false` readings in the probe were nodes that only exist after an order or a confirm, not dead ends.
+- **Left for the owner**, because they are credentials and copy, not code: change the admin password for `zjasneh5@gmail.com`; revoke the three service-account keys sitting in `Downloads` (two `menuorder-f6d71`, one `mms-order`); fill the *Siapa Kami* block. The founder photo also points at `i.pinimg.com`, which the CSP blocks.
+- No app changes were needed from this audit, so nothing was redeployed: `sw.js` stays `v43-20261021`.
+**Artefacts:** `tools/launch-probe.js`, `tools/backfill-coupons.js`, `tools/why-no-coupon.js`, `tools/list-rooms.js`, `tools/read-order.js`
+**Status:** ✅ ready, conditional on the three owner items.
+
 ## Withdrawn results
 
 - **"The `members` rules are unpublished."** Repeated in the log and in several answers to the
