@@ -1160,6 +1160,19 @@ code at checkout and taps which drink is free.
 **Artefacts:** `drinks-order.html`, `index.html`, `firestore.rules`, `sw.js` (`v25` → `v26-20261021`); `tools/e2e-coupon.js`, `tools/verify-coupon.js`
 **Status:** ✅ confirmed end to end.
 
+### 2026-10-21 13:00 — A coupon pays for the drink, not for its add-ons
+**What happened:** The second review round found one fresh critical — a coupon order could pass `validOrder()` with a `free` amount and **no coupon code** at all, because the guard used `hasAny(['coupon','free'])`. Closed it, and changed the coupon so add-ons are never free.
+**Found / changed:**
+- **The critical.** `validOrder()` now requires `hasAll(['coupon'])` whenever `payment == 'coupon'`, plus `hasAll(['coupon','free'])` for the amount, so a bare discount cannot buy a drink. Proven with three crafted writes from the page, each with a valid `createdAt`: coupon payment with `free` and no code → `permission-denied`; cash carrying a coupon field → `permission-denied`; coupon payment with no `free` → `permission-denied`.
+- **Cash and QR orders may not carry `coupon`/`free`/`freeItem`** at all, and the burn timestamp is bounded to within a minute of the request rather than any timestamp at all.
+- **Add-ons are never free.** The coupon discounts the picked drink's base price only. The review strikes the drink price, prints `PERCUMA`, and shows the add-on as `+RMx` still owed on that line; the total is exactly the add-ons. `_revBase`/`_revAdd` carry the split, and `sendWa` recomputes from `_bases` so the discount cannot drift from the cart.
+- **A real bug the add-on test caught:** `_revLabel.push` called `.join()` on a string that was already joined, so a cart containing an add-on threw `TypeError: al.join is not a function` and the review never rendered. It had passed every earlier test because those carts had no add-ons. Removed; the review render is now exercised with add-ons.
+- **Other round-two fixes:** the free-item label is rebuilt from the cart at send; minting aborts rather than overwrite a colliding code and clears `code` on every transaction attempt; a phone whose digits strip to nothing still gets its own milestone key; the client and the rule now agree on the expiry boundary.
+- **End to end with an add-on**, against production: drink RM2.50 + Extra Kaw RM0.50 → review RM3.00 → pick the line → `-RM2.50`, total **RM0.50** → order `ZXATM5` stored as `subtotal=3, free=2.5, total=0.5, coupon=ADDON123, freeItem="Extrajoss Mangga + Extra Kaw"`, coupon burned `ord=ZXATM5`. Deleted afterwards. The no-add-on case was re-proven earlier with `T8X65F` (total RM0).
+- **Verifiers:** `verify-coupon.js` 61 checks green, `verify-n60.js` 21/21.
+**Artefacts:** `drinks-order.html`, `index.html`, `firestore.rules`, `sw.js` (`v27-20261021`); `tools/verify-coupon.js`, `tools/e2e-coupon.js`
+**Status:** ✅ confirmed end to end, with and without add-ons.
+
 ## Withdrawn results
 
 - **"The `members` rules are unpublished."** Repeated in the log and in several answers to the

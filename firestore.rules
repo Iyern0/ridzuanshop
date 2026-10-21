@@ -83,12 +83,17 @@ service cloud.firestore {
           // shown the code on the order and a coupon left unused is the audit
           // trail. Without this check, a crafted request could label any order
           // 'coupon' and pay nothing.
-          && (!d.keys().hasAny(['coupon'])
-              || (d.coupon is string && d.coupon.size() == 8
+          // A coupon payment must name a coupon. Without the hasAll below, a
+          // request carrying only `free` slipped through the first clause and
+          // bought a free drink with no code at all.
+          && (d.payment != 'coupon'
+              || (d.keys().hasAll(['coupon'])
+                  && d.coupon is string && d.coupon.size() == 8
                   && get(/databases/$(database)/documents/coupons/$(d.coupon)).data.used == false
                   && get(/databases/$(database)/documents/coupons/$(d.coupon)).data.exp > request.time))
+          && (d.payment == 'coupon' || !d.keys().hasAny(['coupon', 'free', 'freeItem']))
           && (d.payment != 'coupon'
-              || (d.keys().hasAny(['coupon', 'free'])
+              || (d.keys().hasAll(['coupon', 'free'])
                   && d.free is number && d.free > 0 && d.free <= 100
                   && (!d.keys().hasAny(['freeItem'])
                       || (d.freeItem is string && d.freeItem.size() <= 60))))
@@ -249,6 +254,7 @@ service cloud.firestore {
                     && resource.data.exp > request.time
                     && request.resource.data.used == true
                     && request.resource.data.usedAt is timestamp
+                    && request.resource.data.usedAt >= request.time - duration.value(1, 'm')
                     && request.resource.data.ord is string
                     && request.resource.data.ord.size() == 6
                     && request.resource.data.diff(resource.data)
