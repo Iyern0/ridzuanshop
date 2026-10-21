@@ -1533,8 +1533,12 @@ function drawDel(){
 }
 let selBlock='';
 document.getElementById('del').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const t=b.dataset.type;if(couponOnly())codFreeUp=(t==='cod');if(admin){const i=disDel.indexOf(t);if(i>-1){if(disDel.length>=DELS.length){toast('❌ Mesti ada satu cara penghantaran');return}disDel.splice(i,1)}else disDel.push(t);saveConfig();drawDel();return}if(disDel.includes(t)){toast('❌ Tidak tersedia');return}document.querySelectorAll('#del button').forEach(b=>b.classList.remove('active'));b.classList.add('active');isCod=t==='cod';document.getElementById('time-more').style.display=isCod?'none':'block';document.getElementById('time-pickup').style.display=isCod?'none':'block';document.getElementById('times').style.display=isCod?'flex':'none';document.getElementById('pickup-note').style.display=isCod?'none':'block';document.getElementById('block-section').style.display=isCod?'block':'none';if(isCod){restoreLocation();if(!selBlock){const _c=loadCustomer();if(_c&&_c.block)toast('Blok '+_c.block+' tidak tersedia sekarang - pilih semula')}}document.getElementById('pickup-note').style.display=isCod?'none':'block';setTimeout(()=>document.getElementById('inp-name2').focus(),100);document.getElementById('time-label').textContent=isCod?'⏰ When did you want it?':'⏰ Masa Ambil';selTime=isCod?'':((document.getElementById('pickup-time').value||'').trim()||'Bila siap');if(!isCod){selBlock='';const _cb=document.getElementById('inp-custom-block');if(_cb)_cb.value=''}drawTimes();drawBlocks();upCart();if(isCod)saySavedAs();});
-let BLOCKS=['Intan','Delima','Baiduri','Kristal A','Kristal B','Nilam','Zamrud'];let disBlocks=[];
-function drawBlocks(){const g=document.getElementById('block-grid');g.innerHTML=BLOCKS.map((b,i)=>{const dis=disBlocks.includes(b);return'<button onclick="pickBlock('+i+')"'+(selBlock===b?' class="active"':'')+(dis?' style="opacity:0.3;cursor:not-allowed;text-decoration:line-through"':'')+'>'+esc(b)+'</button>'}).join('')}
+let BLOCKS=['Intan','Delima','Baiduri Wing A','Baiduri Wing B'];let disBlocks=[];
+function drawBlocks(){
+  // Whenever the grid is drawn and nothing is chosen yet, try the memory once.
+  // This is what makes the restore timing-proof: it no longer depends on which
+  // of the boot tasks finished first.
+  if(!selBlock&&BLOCKS.length&&!_restoring){_restoring=true;try{restoreLocation()}catch(e){}_restoring=false}const g=document.getElementById('block-grid');g.innerHTML=BLOCKS.map((b,i)=>{const dis=disBlocks.includes(b);return'<button onclick="pickBlock('+i+')"'+(selBlock===b?' class="active"':'')+(dis?' style="opacity:0.3;cursor:not-allowed;text-decoration:line-through"':'')+'>'+esc(b)+'</button>'}).join('')}
 // Confirms, at the moment COD is chosen, the details this device already knows.
 // A returning customer otherwise sees a form filled in for them with no
 // explanation of where it came from.
@@ -1792,12 +1796,29 @@ function clearCustomer(){
 }
 // Put the remembered block and room back on the form. Idempotent, and it will
 // not overwrite a block the customer has already chosen this session.
+let _restoring=false;
 function restoreLocation(){
   if(selBlock)return false;
   const c=loadCustomer();if(!c||!c.block)return false;
-  if(BLOCKS.indexOf(c.block)<0)return false;          // the list is not here yet
-  if(disBlocks.includes(c.block))return false;        // that block is closed now
-  selBlock=c.block;drawBlocks();
+  if(!BLOCKS.length)return false;                     // the list is not here yet
+  let name=c.block;
+  if(BLOCKS.indexOf(name)<0){
+    // The list can change under a saved customer. Match loosely first, then
+    // keep their block rather than silently forget it - a room the seller can
+    // read is better than a form that asks the same question again.
+    const lc=String(name).toLowerCase();
+    // 1. the same name, different case
+    let hit=BLOCKS.filter(function(b){return b.toLowerCase()===lc})[0];
+    // 2. the saved name is the more specific one ("Baiduri Wing A" vs "Baiduri"):
+    //    keep the customer's wording, it is the better address.
+    const longer=BLOCKS.filter(function(b){return lc.indexOf(b.toLowerCase())===0})[0];
+    if(!hit&&longer)hit=name;
+    // 3. only otherwise accept a block that extends what was saved
+    if(!hit)hit=BLOCKS.filter(function(b){return b.toLowerCase().indexOf(lc)===0})[0];
+    if(hit)name=hit;else BLOCKS.push(name);
+  }
+  if(disBlocks.includes(name))return false;           // that block is closed now
+  selBlock=name;drawBlocks();
   const r=document.getElementById('room-row');if(r)r.style.display='block';
   const rm=document.getElementById('inp-room');if(rm&&c.room&&!rm.value)rm.value=c.room;
   return true;

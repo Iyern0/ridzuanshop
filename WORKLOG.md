@@ -1314,6 +1314,22 @@ code at checkout and taps which drink is free.
 **Artefacts:** `drinks-order.html`, `index.html`, `firestore.rules`, `sw.js`, `tools/verify-coupon.js`, `tools/read-order.js`
 **Status:** ✅ confirmed in the browser; the count-by-device path is read-verified (minting needs a seller session).
 
+### 2026-10-21 18:10 — Why the block kept being asked for
+**What happened:** The location was remembered but COD still demanded a block. Two block vocabularies exist: the hardcoded defaults were `Intan, Delima, Baiduri, Kristal A, Kristal B, Nilam, Zamrud`, while the live config holds `Intan, Delima, Baiduri Wing A, Baiduri Wing B`. A session that ran before the config arrived saved blocks from one list; the restore then matched against the other and found nothing.
+**Found / changed:**
+- Read the live config and the real orders: 24 rooms start `Intan`, 2 `Delima`, 1 `Baiduri Wing A`, and **4 match no config block at all** - those came from the defaults. That mismatch is the bug.
+- The defaults now mirror the live config exactly.
+- `restoreLocation()` matches in three passes: same name, then the customer's own longer name when it starts with a block (`Baiduri Wing A` beats `Baiduri`), then a block that extends the saved name. Failing all three it **adopts** the saved name into the list rather than forgetting the customer's address.
+- `drawBlocks()` now also attempts the restore, so it no longer depends on which of the boot tasks finished first.
+- **Verified in the browser, three saved shapes, each after a reload and then tapping COD:**
+  - `Intan` → `Intan 12`, review `COD (+RM1) · WAN Intan 12`, RM3.50
+  - `Kristal A` (a name from the old defaults) → adopted, `Kristal A 3`
+  - `Baiduri` → resolved to `Baiduri Wing A 8`
+  No block was re-selected by hand in any of them.
+- Test order `US3VN7` deleted; `sw.js` `v39` → `v40-20261021`; both verifiers green.
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/list-rooms.js`, `tools/verify-coupon.js`
+**Status:** ✅ confirmed in the browser against the three shapes found in the live data.
+
 ## Withdrawn results
 
 - **"The `members` rules are unpublished."** Repeated in the log and in several answers to the
