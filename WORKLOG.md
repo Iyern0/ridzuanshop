@@ -1266,6 +1266,17 @@ code at checkout and taps which drink is free.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`
 **Status:** ✅ confirmed in the browser with the admin flag forced on.
 
+### 2026-10-21 16:20 — An admin section for coupons
+**What happened:** The admin panel has a new **Kupon** tab under Operasi Harian: every code, its state, who earned it and who claimed it.
+**Found / changed:**
+- `admCoupons(pg)` reads `coupons` (newest first, 300) and `orders` (400) in one pass, then resolves ids against that map — no per-coupon reads.
+- Each card: the code, a state pill (Tersedia / Sudah dituntut / Tamat tempoh), **Pemilik** (name · phone · order number · room), **Dituntut oleh** (the redeeming order), when it was issued with its milestone, and the claim time. Chips summarise Jumlah / Tersedia / Dituntut; tabs filter Semua / Tersedia / Dituntut / Tamat. One `Salin` per code.
+- **Owner survives the burn.** At mint, `ord` holds the earning order and the burn overwrites it with the redeeming order — so the mint now also stamps `earnedBy: orderId`. For coupons minted before this, the owner of a spent coupon reads "tidak diketahui" rather than a guess.
+- Verified with three seeded coupons: available → owner `Wan · 0123456789 · #005 · Intan 12`, claimed by `—`; used → owner `Zul · 0198765432 · #010 · Delima 3`, claimed by `Aminah · 0111222333 · #009 · Intan 7`, plus the claim timestamp. Filters: same-set all 3, `avail` only AAA11111, `used` only BBB22222, `expired` only CCC33333.
+- `sw.js` `v35` → `v36-20261021`; `verify-coupon.js` all green, `verify-n60.js` 21/21.
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/verify-coupon.js`
+**Status:** ✅ confirmed in the browser with seeded data; the live reads are admin-only and were proven earlier (anonymous `coupons` list → 403).
+
 ## Withdrawn results
 
 - **"The `members` rules are unpublished."** Repeated in the log and in several answers to the
