@@ -1340,6 +1340,19 @@ code at checkout and taps which drink is free.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/verify-coupon.js`
 **Status:** ✅ confirmed in the browser, both modes, in both directions.
 
+### 2026-10-21 19:05 — Why the coupon icon never appeared
+**What happened:** No coupon had ever been minted. The live project held **0 coupons and 0 milestones** while one customer already had **9** completed orders.
+**Found / changed:**
+- Read the live data instead of guessing: 57 orders, 17 completed and non-free; one `dev` with 9 completed, one phone with 9, another with 5; **`coupons: 0`, `milestones: 0`**.
+- The trigger was the bug, not the mint: it fired only on the exact fifth (`n % 5 === 0`). Identity arrived late (the device id is hours old), and 40 orders are `deleted` — both move the count off five, after which the milestone can never be reached.
+- **Minting is now on entitlement:** `due = floor(n / 5)`, remembered per identity in a single `milestones/{identity}` document, and it mints whenever `due > last`. A customer on their 6th, 9th or 12th completed order now gets the coupon on the next order marked Siap, and a deleted order cannot resurrect a coupon already issued.
+- The note under the card reads the entitlement (`kad setia 5/5`, `10/5`) and says how many were awarded when more than one is due.
+- **A manual check** — *"Kira kad setia"* — in the order detail, so the seller can force the calculation and see the result instead of trusting a background path.
+- The toast progress used a double-escaped `\u2B50` and printed the literal characters; it renders the star now.
+- **Customer half proved:** seeded a tracking document carrying `coupon`, opened the app with that order remembered → wallet filled, icon `flex`, badge `1`, bubble *"You have 1 coupon"*. So the icon was never the problem — there was simply nothing to show.
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js` (`v41` → `v42-20261021`), `tools/why-no-coupon.js`, `tools/seed-coupon-icon.js`, `tools/verify-coupon.js`
+**Status:** ✅ customer half confirmed in the browser; the mint is fixed by construction and now has a button that proves it on demand.
+
 ## Withdrawn results
 
 - **"The `members` rules are unpublished."** Repeated in the log and in several answers to the

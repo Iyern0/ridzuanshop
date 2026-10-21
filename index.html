@@ -701,6 +701,8 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
   .c-row{display:flex;gap:10px;justify-content:space-between;padding:6px 0;border-top:1px solid rgba(255,255,255,0.05);font-size:12.5px}
   .c-row>span{color:#9A9385;font-weight:700;flex-shrink:0}
   .c-row>b{color:#E9E4DA;font-weight:700;text-align:right;line-height:1.45}
+  #adm-detail .d-alt{background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.3);color:#00D4AA;
+   font-family:var(--fb);font-size:14px;font-weight:800;padding:12px 16px;border-radius:10px;cursor:pointer}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -2295,7 +2297,7 @@ function admOpenDetail(id){
    +(cl?'<div class="d-claim"><div>📎 Pelanggan hantar resit bayaran'+(cl.at&&cl.at.toDate?' · '+cl.at.toDate().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'}):'')+'</div><button onclick="admViewClaim(\''+o.id+'\')">Lihat resit</button></div>':'')
    +'<div class="d-acts">'
    +(o.phone?'<button class="d-wa" onclick="admWaNotif(\''+o.id+'\')">📤 WhatsApp pelanggan</button>':'<button class="d-wa" onclick="admWaNotif(\''+o.id+'\')">📱 Simpan nombor &amp; maklumkan</button>')
-   +'<button class="d-del" onclick="admDelOrder(\''+o.id+'\');closeDetail()">🗑 Padam</button>'
+   +'<button class="d-alt" onclick="maybeMintCoupon(\''+o.id+'\')">Kira kad setia</button>'+'<button class="d-del" onclick="admDelOrder(\''+o.id+'\');closeDetail()">🗑 Padam</button>'
    +'</div></div>';
   box.style.display='flex';
   if(o.phone)loadLoyalty('d-loy',o.phone);
@@ -2423,22 +2425,27 @@ async function maybeMintCoupon(orderId,silent){
     const q=dev?await db.collection('orders').where('dev','==',dev).limit(1000).get():await db.collection('orders').where('phone','==',ph).limit(1000).get();
     const n=q.docs.filter(function(x){const v=x.data()||{};return v.status==='done'&&!v.free}).length;
     if(n<1)return;
-    if(n%5!==0){if(!silent)toast('\\u2B50 Kad setia: '+n+'/5');return}
-    const mRef=db.collection('milestones').doc((dev||ph.replace(/\D/g,'')||ph)+'_'+n);
+    const due=Math.floor(n/5);
+    const idKey=(dev||ph.replace(/\D/g,'')||ph);
+    const mRef=db.collection('milestones').doc(idKey);
     const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    let code='';
+    let code='',awarded=0;
     await db.runTransaction(async function(tx){
-      code='';const m=await tx.get(mRef);
-      if(m.exists)return;
+      code='';awarded=0;
+      const ms=await tx.get(mRef);
+      const last=ms.exists?Number((ms.data()||{}).last||0):0;
+      if(due<=last)return;
       let tries=0;
       do{code='';for(let i=0;i<8;i++)code+=A[Math.floor(Math.random()*A.length)];tries++}
-      while(tries<5&&(await tx.get(db.collection('coupons').doc(code))).exists);if((await tx.get(db.collection('coupons').doc(code))).exists){code='';return}
-      tx.set(db.collection('coupons').doc(code),{used:false,at:firebase.firestore.FieldValue.serverTimestamp(),exp:new Date(Date.now()+30*86400000),ord:orderId,earnedBy:orderId,by:n});
-      tx.set(mRef,{code:code,at:firebase.firestore.FieldValue.serverTimestamp(),n:n});
+      while(tries<5&&(await tx.get(db.collection('coupons').doc(code))).exists);
+      if((await tx.get(db.collection('coupons').doc(code))).exists){code='';return}
+      tx.set(db.collection('coupons').doc(code),{used:false,at:firebase.firestore.FieldValue.serverTimestamp(),exp:new Date(Date.now()+30*86400000),ord:orderId,earnedBy:orderId,by:due*5});
+      tx.set(mRef,{last:due,code:code,n:n,at:firebase.firestore.FieldValue.serverTimestamp()});
+      awarded=due-last;
     });
-    if(!code)return;
+    if(!code){if(!silent)toast('\u2B50 Kad setia: '+(n%5)+'/5');return}
     try{await db.collection('tracking').doc(orderId).update({coupon:code,couponExp:new Date(Date.now()+30*86400000)})}catch(e){console.warn('kupon tracking:',e)}
-    admNote('<div style="font-family:var(--fd);font-weight:800;font-size:21px;color:#00D4AA;margin-bottom:10px">Kupon · kad setia '+n+'/5 &#127903;</div>'+'<div style="font-size:14px;color:#9A9385;line-height:1.6;margin-bottom:14px">Pelanggan ini sudah lengkap '+n+' pesanan. Beri kod ini kepadanya: satu minuman percuma, sah 30 hari.</div>'+'<div style="font-family:var(--fd);font-weight:800;font-size:30px;letter-spacing:3px;color:#F0F0F0;text-align:center;background:rgba(0,212,170,0.1);border:1px dashed rgba(0,212,170,0.5);border-radius:12px;padding:14px;margin-bottom:14px">'+code+'</div>'+'<div style="font-size:13px;color:#9A9385;line-height:1.5">Hantar melalui WhatsApp pesanan ini, atau salin kod di atas.</div>');
+    admNote('<div style="font-family:var(--fd);font-weight:800;font-size:21px;color:#00D4AA;margin-bottom:10px">Kupon · kad setia '+(due*5)+'/5 &#127903;</div>'+'<div style="font-size:14px;color:#9A9385;line-height:1.6;margin-bottom:14px">'+(awarded>1?('Pelanggan ini layak '+awarded+' kupon. Satu kod di bawah, beri kod seterusnya selepas ini digunakan.'):'Pelanggan ini sudah lengkap '+(due*5)+' pesanan. Beri kod ini kepadanya: satu minuman percuma, sah 30 hari.')+'</div>'+'<div style="font-family:var(--fd);font-weight:800;font-size:30px;letter-spacing:3px;color:#F0F0F0;text-align:center;background:rgba(0,212,170,0.1);border:1px dashed rgba(0,212,170,0.5);border-radius:12px;padding:14px;margin-bottom:14px">'+code+'</div>'+'<div style="font-size:13px;color:#9A9385;line-height:1.5">Hantar melalui WhatsApp pesanan ini, atau salin kod di atas.</div>');
   }catch(e){console.warn('kupon gagal:',e)}
 }
 function admUpdOrder(id,status){const db=getDb();if(!db)return;db.collection('orders').doc(id).update({status}).then(function(){if(status==='done')maybeMintCoupon(id)}).catch(e=>console.warn(e));db.collection('tracking').doc(id).update({status:status,at:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){})}
