@@ -1256,6 +1256,16 @@ code at checkout and taps which drink is free.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/verify-coupon.js`, `tools/fixture-coupon.js`
 **Status:** ✅ confirmed in the browser for the wallet and the finished order; the admin audit is read-verified.
 
+### 2026-10-21 15:55 — The green tick on the first drink was an admin control
+**What happened:** The user reported Extrajoss Mangga being "automatically selected" on the menu card. It was not a selection: the card rendered the admin's availability toggle, a green ✓ in the top-left corner, because the owner is signed in and the card template switched to `admin-mode` for anyone with a session.
+**Found / changed:**
+- Confirmed by reading the DOM: `<button class="card-toggle on" onclick="...togDis('c0v0')">` inside `class="card"`, which is Extrajoss because it is the first item.
+- The same control exists in the admin panel's menu editor (`admTogDis`, `.a-row`), so the card no longer renders it at all, and `(admin?' admin-mode':'')` is gone from the card template.
+- Verified: `.card-toggle` count 0, `.card.admin-mode` count 0, and still 0 after forcing `admin = true` and redrawing — the owner's session can no longer put a tick on the customer menu.
+- `sw.js` `v34` → `v35-20261021`; `verify-coupon.js` all green, `verify-n60.js` 21/21.
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`
+**Status:** ✅ confirmed in the browser with the admin flag forced on.
+
 ## Withdrawn results
 
 - **"The `members` rules are unpublished."** Repeated in the log and in several answers to the
