@@ -1379,7 +1379,7 @@ async function couponCheck(){
   const inp=document.getElementById('inp-coupon'),msg=document.getElementById('coupon-msg');
   if(!inp||!msg)return;
   const code=cpnNorm(inp.value);
-  cpnOk=false;cpnLine=-1;
+  cpnOk=false;cpnLine=-1;cpnCode='';
   if(code.length!==8){msg.style.color='#FF6B6B';msg.textContent='Kod mesti 8 aksara - semak semula kupon itu.';return}
   const db=getDb();
   if(!db){msg.style.color='#FF6B6B';msg.textContent='Tiada sambungan. Cuba lagi.';return}
@@ -1390,7 +1390,7 @@ async function couponCheck(){
     const c=snap.data()||{};
     if(c.used){msg.style.color='#FF6B6B';msg.textContent='Kupon ini sudah digunakan.';return}
     const expMs=(c.exp&&c.exp.toMillis)?c.exp.toMillis():0;
-    if(expMs&&expMs<Date.now()){msg.style.color='#FF6B6B';msg.textContent='Kupon ini sudah tamat tempoh.';return}
+    if(!expMs||expMs<Date.now()){msg.style.color='#FF6B6B';msg.textContent='Kupon ini sudah tamat tempoh.';return}
     cpnCode=code;cpnOk=true;
     msg.style.color='#00D4AA';
     msg.textContent='Kupon sah. Tekan Review, kemudian ketik minuman yang hendak dijadikan percuma.';
@@ -1402,7 +1402,7 @@ async function couponCheck(){
 }
 if(document.getElementById('coupon-check'))document.getElementById('coupon-check').addEventListener('click',couponCheck);
 if(document.getElementById('inp-coupon'))document.getElementById('inp-coupon').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();couponCheck()}});
-document.getElementById('pay').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;document.querySelectorAll('#pay button').forEach(b=>b.classList.remove('active'));b.classList.add('active');payM=b.dataset.method;const qs=document.getElementById('qr-section');qs.style.display=payM==='qr'?'block':'none';const cpnSec=document.getElementById('coupon-section');if(cpnSec)cpnSec.style.display=payM==='coupon'?'block':'none';if(payM!=='coupon')cpnLine=-1;
+document.getElementById('pay').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;document.querySelectorAll('#pay button').forEach(b=>b.classList.remove('active'));b.classList.add('active');payM=b.dataset.method;const qs=document.getElementById('qr-section');qs.style.display=payM==='qr'?'block':'none';const cpnSec=document.getElementById('coupon-section');if(cpnSec)cpnSec.style.display=payM==='coupon'?'block':'none';if(payM!=='coupon'){cpnLine=-1;cpnOk=false;cpnCode=''}
 // The QR opens underneath the payment buttons, which on a phone is already past
 // the bottom of the panel - so a customer taps QR Pay, nothing appears to move,
 // and it reads as "no QR". Bring it into view instead of trusting them to scroll.
@@ -1421,11 +1421,11 @@ function closeConfirm(){document.getElementById('confirm-modal').style.display='
 document.getElementById('confirm-items').addEventListener('click',function(e){
   if(!(payM==='coupon'&&cpnOk))return;
   const row=e.target.closest('[data-li]');if(!row)return;
-  const i=parseInt(row.getAttribute('data-li'),10);if(isNaN(i)||i===cpnLine)return;
-  cpnLine=i;
+  const i=parseInt(row.getAttribute('data-li'),10);if(isNaN(i))return;
+  cpnLine=(i===cpnLine)?-1:i;
   document.getElementById('checkout').click();
 });
-document.getElementById('checkout').addEventListener('click',function(){const e=Object.entries(cart);let totalItems=0;e.forEach(([_,v])=>totalItems+=v.length);if(totalItems===0){toast('⚠ Tiada pesanan');return}if(isCod===null){toast('⚠ Sila pilih cara penghantaran');return}const n=document.getElementById('inp-name2').value.trim(),blockR=isCod?(selBlock==='other'?((document.getElementById('inp-custom-block')||{}).value||'').trim():selBlock):'',roomR=isCod?(document.getElementById('inp-room').value||'').trim():'',r=isCod?(blockR+(roomR?' '+roomR:'')):'';if(!n){highlight('inp-name2','⚠ Sila masukkan nama');return}if(isCod&&!selBlock){toast('⚠ Sila pilih blok');return}if(isCod&&selBlock&&!document.getElementById('inp-room').value.trim()){toast('⚠ Sila masukkan nombor bilik');return}if(!isCod&&!selTime)selTime='Bila siap';if(!selTime){highlight('pickup-time','⚠ Please choose a time first');return}if(!payM){highlight('pay-section','⚠ Sila pilih cara bayar');return}
+document.getElementById('checkout').addEventListener('click',function(){const e=Object.entries(cart);let totalItems=0;e.forEach(([_,v])=>totalItems+=v.length);if(totalItems===0){toast('⚠ Tiada pesanan');return}if(isCod===null){toast('⚠ Sila pilih cara penghantaran');return}const n=document.getElementById('inp-name2').value.trim(),blockR=isCod?(selBlock==='other'?((document.getElementById('inp-custom-block')||{}).value||'').trim():selBlock):'',roomR=isCod?(document.getElementById('inp-room').value||'').trim():'',r=isCod?(blockR+(roomR?' '+roomR:'')):'';if(!n){highlight('inp-name2','⚠ Sila masukkan nama');return}if(isCod&&!selBlock){toast('⚠ Sila pilih blok');return}if(isCod&&selBlock&&!document.getElementById('inp-room').value.trim()){toast('⚠ Sila masukkan nombor bilik');return}if(!isCod&&!selTime)selTime='Bila siap';if(!selTime){highlight('pickup-time','⚠ Sila pilih masa dahulu');return}if(!payM){highlight('pay-section','⚠ Sila pilih cara bayar');return}
 if(payM==='coupon'&&!cpnOk){toast('\u274C Sahkan kupon dahulu');return}if(payM==='qr'&&!stagedProof){const cp=document.getElementById('qr-claim-panel');if(cp){cp.style.borderColor='#FF6B6B';setTimeout(function(){cp.style.borderColor=''},2000)}toast('⚠ Hantar resit dahulu');return}let html='',total=0,idx=0;_revPrice=[];_revLabel=[];e.forEach(([id,items])=>{const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;const item=MENU[ci].items[vi];items.forEach(inst=>{idx++;const ac=inst.adds.reduce((s,aid)=>{const a=findAdd(aid);return s+(a?a.price:0)},0);const base=Number(item.price)||0;total+=base+ac;const al=inst.adds.map(aid=>{const a=findAdd(aid);return a?a.name:''}).filter(Boolean).join(', ');const emoji=drinkEmoji(item.name);_revPrice.push(+(base+ac).toFixed(2));_revLabel.push(item.name+(al.length?' + '+al.join(', '):''));const li=idx-1,pickable=(payM==='coupon'&&cpnOk),isFree=(pickable&&cpnLine===li);const rowStyle='display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06)'+(pickable?';cursor:pointer;border-radius:8px;padding-left:8px;padding-right:8px;'+(isFree?'background:rgba(0,212,170,0.12);outline:1px solid rgba(0,212,170,0.5)':''):'');const priceHtml=isFree?'<s style="color:#9A9385;font-size:15px">RM'+(base+ac).toFixed(2)+'</s><b style="color:#00D4AA;font-family:var(--fd);font-size:15px;margin-left:6px">PERCUMA</b>':'<span style="font-family:var(--fd);font-weight:800;font-size:19px;color:#00D4AA">RM'+(base+ac).toFixed(2)+'</span>';html+='<div data-li="'+li+'" style="'+rowStyle+'"><span style="font-size:20px">'+emoji+'</span><div style="flex:1"><div style="font-weight:800;font-size:14px;color:#F0F0F0">'+esc(item.name)+'</div>'+(al?'<div style="font-size:12px;color:#9A9385;margin-top:2px">\u2795 '+esc(al)+'</div>':'')+'</div>'+priceHtml+'</div>';});});document.getElementById('confirm-items').innerHTML=html;const _fr=(payM==='coupon'&&cpnOk&&cpnLine>=0&&_revPrice[cpnLine]!=null)?_revPrice[cpnLine]:0;const _fEl=document.getElementById('confirm-free');if(_fEl){_fEl.style.display=_fr>0?'flex':'none';document.getElementById('confirm-free-val').textContent=_fr>0?'-RM'+_fr.toFixed(2):''}document.getElementById('confirm-delivery').innerHTML='🚗 '+(isCod?'COD (+RM1)':'Ambil Sendiri')+' · ⏰ '+esc(selTime)+' · 👤 '+esc(n)+(isCod?' '+esc(r):'');document.getElementById('confirm-pay').innerHTML='\u{1F4B3} '+(payM==='coupon'?'\u{1F39F}\uFE0F Kupon':payM==='cash'?'\u{1F4B5} Tunai':'\u{1F4F1} QR Pay')+(payM==='qr'&&!stagedProof?' \u00B7 <span style="color:#FFB347">\u26A0 tiada resit - penjual tak dapat sahkan bayaran</span>':'');document.getElementById('confirm-sub').textContent='RM'+total.toFixed(2);document.getElementById('confirm-cod').style.display=isCod?'flex':'none';document.getElementById('confirm-total').textContent='RM'+Math.max(0,total+(isCod?1:0)-_fr).toFixed(2);if(document.getElementById('confirm-modal').style.display!=='flex')track('checkout_open');document.getElementById('confirm-modal').style.display='flex';});
 function clip(s,max){return String(s==null?'':s).trim().slice(0,max)}
 function saveCart(){try{localStorage.setItem('mms_cart',JSON.stringify(cart))}catch(e){}}
@@ -1466,9 +1466,9 @@ if(payM==='qr'&&!stagedProof){toast('⚠ Hantar resit dahulu');closeConfirm();re
   // again - and this guard lives here as well as on the checkout button,
   // because a gate that exists in one place and not the other is how that
   // got through to begin with.
-  if(!isCod&&!selTime)selTime='Bila siap';if(!selTime){highlight('pickup-time','⚠ Please choose a time first');return}
+  if(!isCod&&!selTime)selTime='Bila siap';if(!selTime){highlight('pickup-time','⚠ Sila pilih masa dahulu');return}
   const when=selTime;
-  let msg='Hi '+SHOP+'! Pesanan:\n',total=0;const ordMap={};
+  let msg='Hi '+SHOP+'! Pesanan:\n',total=0;const ordMap={};const _prices=[];
   Object.entries(cart).forEach(([id,list])=>{
     const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);
     if(!MENU[ci]||!MENU[ci].items[vi])return;
@@ -1479,16 +1479,16 @@ if(payM==='qr'&&!stagedProof){toast('⚠ Hantar resit dahulu');closeConfirm();re
       const okey=item.name+'|'+al.join(',');
       ordMap[okey]=ordMap[okey]||{name:clip(item.name,60),price:+(item.price+ac).toFixed(2),adds:al.slice(0,10).map(x=>clip(x,40)),qty:0};
       ordMap[okey].qty++;
-      total+=item.price+ac
+      total+=item.price+ac;_prices.push(+(item.price+ac).toFixed(2))
     })
   });
-  const cod=isCod?1:0;total+=cod;const freeAmt=(payM==='coupon'&&_revPrice[cpnLine]!=null)?_revPrice[cpnLine]:0;total-=freeAmt;if(total<0)total=0;
+  const cod=isCod?1:0;total+=cod;if(payM==='coupon'&&_prices[cpnLine]==null){toast('Pilih semula minuman percuma di Review');closeConfirm();_sending=false;btn.disabled=false;btn.textContent='Hantar Pesanan';return}const freeAmt=(payM==='coupon'&&_prices[cpnLine]!=null)?_prices[cpnLine]:0;total-=freeAmt;if(total<0)total=0;
   _sending=true;btn.disabled=true;btn.textContent='Menghantar...';
 
   // Off the device, not off the form: the stamp prompt is where a number comes
   // from now, and this is the order after the one that collected it.
   const phone=clip((loadCustomer()||{}).ph||'',20);
-  const payload={name:n,room:r,delivery:isCod?'cod':'pickup',time:clip(when,40),payment:payM,items:Object.values(ordMap).slice(0,50),subtotal:+(total-cod).toFixed(2),total:+total.toFixed(2),status:'baru'};
+  const payload={name:n,room:r,delivery:isCod?'cod':'pickup',time:clip(when,40),payment:payM,items:Object.values(ordMap).slice(0,50),subtotal:+(total+freeAmt-cod).toFixed(2),total:+total.toFixed(2),status:'baru'};
   if(phone)payload.phone=phone;
   if(payM==='coupon'){payload.coupon=cpnCode;payload.free=+freeAmt.toFixed(2);payload.freeItem=clip(_revLabel[cpnLine]||'',60)}
 
@@ -1522,7 +1522,7 @@ if(payM==='qr'&&!stagedProof){toast('⚠ Hantar resit dahulu');closeConfirm();re
   });
   msg+='\n'+(isCod?'COD (+RM1)':'Ambil sendiri');
   msg+='\nMasa: '+fmtTimeLabel(when);
-  msg+='\nBayar: '+(payM==='cash'?'Tunai':'QR Pay');
+  msg+='\nBayar: '+(payM==='coupon'?'Kupon':payM==='cash'?'Tunai':'QR Pay');
   msg+='\nNama: '+n+(isCod?' ('+r+')':'');
   msg+='\nJumlah: RM'+total.toFixed(2);
 
@@ -2166,23 +2166,26 @@ async function maybeMintCoupon(orderId){
     if(d.free)return;
     const ph=String(d.phone==null?'':d.phone).trim();
     if(!ph)return;
-    const q=await db.collection('orders').where('phone','==',ph).limit(300).get();
+    const q=await db.collection('orders').where('phone','==',ph).limit(1000).get();
     const n=q.docs.filter(function(x){const v=x.data()||{};return v.status==='done'&&!v.free}).length;
     if(n<5||n%5!==0)return;
     const mRef=db.collection('milestones').doc(ph.replace(/\D/g,'')+'_'+n);
-    if((await mRef.get()).exists)return;
     const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    let code='',tries=0;
-    do{code='';for(let i=0;i<8;i++)code+=A[Math.floor(Math.random()*A.length)];tries++}
-    while(tries<5&&(await db.collection('coupons').doc(code).get()).exists);
-    const b=db.batch();
-    b.set(db.collection('coupons').doc(code),{used:false,at:firebase.firestore.FieldValue.serverTimestamp(),exp:new Date(Date.now()+30*86400000),ord:orderId,by:n});
-    b.set(mRef,{code:code,at:firebase.firestore.FieldValue.serverTimestamp(),n:n});
-    await b.commit();
+    let code='';
+    await db.runTransaction(async function(tx){
+      const m=await tx.get(mRef);
+      if(m.exists)return;
+      let tries=0;
+      do{code='';for(let i=0;i<8;i++)code+=A[Math.floor(Math.random()*A.length)];tries++}
+      while(tries<5&&(await tx.get(db.collection('coupons').doc(code))).exists);
+      tx.set(db.collection('coupons').doc(code),{used:false,at:firebase.firestore.FieldValue.serverTimestamp(),exp:new Date(Date.now()+30*86400000),ord:orderId,by:n});
+      tx.set(mRef,{code:code,at:firebase.firestore.FieldValue.serverTimestamp(),n:n});
+    });
+    if(!code)return;
     admNote('<div style="font-family:var(--fd);font-weight:800;font-size:21px;color:#00D4AA;margin-bottom:10px">Kupon pesanan ke-'+n+' &#127903;</div>'+'<div style="font-size:14px;color:#9A9385;line-height:1.6;margin-bottom:14px">Pelanggan ini sudah lengkap '+n+' pesanan. Beri kod ini kepadanya: satu minuman percuma, sah 30 hari.</div>'+'<div style="font-family:var(--fd);font-weight:800;font-size:30px;letter-spacing:3px;color:#F0F0F0;text-align:center;background:rgba(0,212,170,0.1);border:1px dashed rgba(0,212,170,0.5);border-radius:12px;padding:14px;margin-bottom:14px">'+code+'</div>'+'<div style="font-size:13px;color:#9A9385;line-height:1.5">Hantar melalui WhatsApp pesanan ini, atau salin kod di atas.</div>');
   }catch(e){console.warn('kupon gagal:',e)}
 }
-function admUpdOrder(id,status){const db=getDb();if(!db)return;db.collection('orders').doc(id).update({status}).catch(e=>console.warn(e));db.collection('tracking').doc(id).update({status:status,at:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){});if(status==='done')setTimeout(function(){maybeMintCoupon(id)},1200)}
+function admUpdOrder(id,status){const db=getDb();if(!db)return;db.collection('orders').doc(id).update({status}).then(function(){if(status==='done')maybeMintCoupon(id)}).catch(e=>console.warn(e));db.collection('tracking').doc(id).update({status:status,at:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){})}
 function admDelOrder(id){
   const o=_admVisDocs.find(function(x){return x.id===id});
   const prev=o?(o.status||'baru'):'baru';

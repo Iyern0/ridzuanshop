@@ -43,7 +43,8 @@ service cloud.firestore {
           ])
           && d.keys().hasOnly([
             'name', 'room', 'delivery', 'time', 'payment',
-            'items', 'subtotal', 'total', 'status', 'createdAt', 'phone', 'no'
+            'items', 'subtotal', 'total', 'status', 'createdAt', 'phone', 'no',
+            'coupon', 'free', 'freeItem'
           ])
 
           // who it is from
@@ -74,7 +75,23 @@ service cloud.firestore {
           && d.time is string && d.time.size() >= 1 && d.time.size() <= 40
 
           // how they pay
-          && d.payment in ['cash', 'qr']
+          && d.payment in ['cash', 'qr', 'coupon']
+
+          // A coupon order must name a real coupon that is still unused and
+          // unexpired. The coupon is burned by the same transaction that writes
+          // this order; rules cannot prove the burn happened, so the seller is
+          // shown the code on the order and a coupon left unused is the audit
+          // trail. Without this check, a crafted request could label any order
+          // 'coupon' and pay nothing.
+          && (!d.keys().hasAny(['coupon'])
+              || (d.coupon is string && d.coupon.size() == 8
+                  && get(/databases/$(database)/documents/coupons/$(d.coupon)).data.used == false
+                  && get(/databases/$(database)/documents/coupons/$(d.coupon)).data.exp > request.time))
+          && (d.payment != 'coupon'
+              || (d.keys().hasAny(['coupon', 'free'])
+                  && d.free is number && d.free > 0 && d.free <= 100
+                  && (!d.keys().hasAny(['freeItem'])
+                      || (d.freeItem is string && d.freeItem.size() <= 60))))
 
           // what they bought
           && d.items is list && d.items.size() >= 1 && d.items.size() <= 50
@@ -88,7 +105,8 @@ service cloud.firestore {
           // settled in person, so a forged row is at worst a bogus line in
           // the admin queue. Closing this properly needs a trusted server
           // (Cloud Function), which costs money.
-          && d.total is number && d.total > 0 && d.total <= 1100
+          && d.total is number && d.total <= 1100
+          && (d.payment == 'coupon' ? d.total >= 0 : d.total > 0)
 
           // a customer may only ever create a brand new order
           && d.status == 'baru'
@@ -210,7 +228,7 @@ service cloud.firestore {
     // their fifth order: one drink free, valid 30 days, one use.
     //
     // The code IS the document id and it is the only credential - 8 chars
-    // from a 31-character alphabet (about 40 bits), with LIST denied so the
+    // from a 32-character alphabet (40 bits), with LIST denied so the
     // collection cannot be enumerated. The document carries no name, no
     // phone and no items, so reading one tells you nothing about anybody.
     //
@@ -227,7 +245,12 @@ service cloud.firestore {
       allow list: if isAdmin();
       allow create, delete: if isAdmin();
       allow update: if (resource.data.used == false
+                    && resource.data.exp is timestamp
+                    && resource.data.exp > request.time
                     && request.resource.data.used == true
+                    && request.resource.data.usedAt is timestamp
+                    && request.resource.data.ord is string
+                    && request.resource.data.ord.size() == 6
                     && request.resource.data.diff(resource.data)
                          .affectedKeys().hasOnly(['used', 'usedAt', 'ord']))
                    || isAdmin();
