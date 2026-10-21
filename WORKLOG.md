@@ -1277,6 +1277,19 @@ code at checkout and taps which drink is free.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/verify-coupon.js`
 **Status:** ✅ confirmed in the browser with seeded data; the live reads are admin-only and were proven earlier (anonymous `coupons` list → 403).
 
+### 2026-10-21 16:40 — Every order pushes to the seller's phone
+**What happened:** Orders arrived with no notification: the ntfy alert only fired on a payment claim, by an earlier decision. A new order now pushes too, and it was observed arriving on the topic before anything was pushed to GitHub.
+**Found / changed:**
+- `notifyOrderPush(o)` posts to the same topic with `Title: Pesanan baru #012 - Ambil sendiri - RM2.50`, `Priority: high`, `Tags: shopping_cart`, `Click: <site>?admin=1&order=<code>`. Body: `1 minuman. Belum dibayar - tekan untuk buka pesanan.`
+- Payload rule unchanged: order number, delivery kind and total only. No name, no block, no room, no items, and the order id in Click is worthless without the login.
+- Called first thing after a successful save in `sendWa`, before the chime, so the phone knows before the customer's screen settles.
+- "Reliable" is one retry after 1.2s and a bounded 7s per attempt, with the failure logged rather than swallowed — the silent-catch bug from an earlier afternoon is the reason that comment exists.
+- **Verified before pushing:** `verify-coupon.js` all green, `verify-n60.js` 21/21, `rules-preflight.js` reports local == live, and a real order (RJ55WK, RM2.50, pickup) placed through the browser produced exactly one ntfy message, read back from ntfy's own API: `2026-10-21T05:53:57Z [4] "Pesanan baru #012 - Ambil sendiri - RM2.50"`. The baseline before the order was zero messages in 12 h.
+- Test orders removed afterwards (RJ55WK plus two older leftovers).
+- `sw.js` `v36` → `v37-20261021`.
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/verify-coupon.js`, `tools/cleanup-test-orders.js`
+**Status:** ✅ confirmed — seen on the topic, not inferred from the code.
+
 ## Withdrawn results
 
 - **"The `members` rules are unpublished."** Repeated in the log and in several answers to the

@@ -1371,6 +1371,38 @@ function notifyOwnerClaim(o){
   }
 }
 
+// A new order, pushed to the seller's phone. The claim alert is about money
+// that needs checking; this one is about a drink that needs making, so they
+// carry different titles and colours and a glance tells them apart.
+//
+// Same rule on the payload: order facts only. The order id rides in Click so a
+// tap opens that order, and that id is worthless without the login.
+//
+// "Reliable" here means one retry and a bounded wait, so a flaky connection does
+// not lose the alert with nothing in the console.
+function notifyOrderPush(o){
+  if(typeof fetch!=='function')return;
+  const no=(o.no?'#'+fmtNo(o.no):'#?');
+  const kind=o.pay==='coupon'?'Kupon':(o.room?'COD':'Ambil sendiri');
+  const title=asciiHeader('Pesanan baru '+no+' - '+kind+(o.total!=null?(' - RM'+Number(o.total).toFixed(2)):''));
+  const body=(o.items?o.items+' minuman':'Pesanan baru')+'. Belum dibayar - tekan untuk buka pesanan.';
+  const click=asciiHeader(SITE_URL+'?admin=1'+(o.code?('&order='+encodeURIComponent(o.code)):''));
+  const send=function(){
+    var ctrl=null,timer=null;
+    try{if(typeof AbortController!=='undefined')ctrl=new AbortController()}catch(e){}
+    if(ctrl)timer=setTimeout(function(){try{ctrl.abort()}catch(e){}},7000);
+    return fetch('https://ntfy.sh/'+NTFY_TOPIC,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain; charset=utf-8','Title':title,'Priority':'high','Tags':'shopping_cart',
+               'Click':click,'Icon':asciiHeader(SITE_URL+'icons/icon-192.png')},
+      body:body,signal:ctrl?ctrl.signal:undefined
+    }).then(function(r){if(timer)clearTimeout(timer);if(!r.ok)throw new Error('ntfy '+r.status);return true})
+      .catch(function(e){if(timer)clearTimeout(timer);throw e});
+  };
+  send().catch(function(){return new Promise(function(res){setTimeout(res,1200)}).then(send)})
+        .catch(function(err){console.warn('notifikasi pesanan gagal:',err)});
+}
+
 let _actx=null;
 function beep(freq,dur,vol){try{if(!_actx)_actx=new(window.AudioContext||window.webkitAudioContext)();if(_actx.state==='suspended')_actx.resume();const o=_actx.createOscillator(),g=_actx.createGain();o.connect(g);g.connect(_actx.destination);o.type='sine';o.frequency.value=freq||880;const now=_actx.currentTime;g.gain.setValueAtTime(vol||0.10,now);g.gain.exponentialRampToValueAtTime(0.001,now+(dur||0.12));o.start(now);o.stop(now+(dur||0.12))}catch(e){}}
 function buzz(ms){try{if(navigator.vibrate)navigator.vibrate(ms||15)}catch(e){}}
@@ -1674,6 +1706,7 @@ if(payM==='qr'&&!stagedProof){toast('⚠ Hantar resit dahulu');closeConfirm();re
   const proof=(payM==='qr'&&stagedProof)?stagedProof:'';
   const disp={code:code,no:orderNo,items:OrdDisplay(ordMap),total:total,isCod:isCod,r:r,n:n,when:when,pay:payM,_claim:!!proof};
   if(!saved){showDone({...disp,warn:true});return}
+  notifyOrderPush({code:code,no:orderNo,items:items,total:total,room:r,pay:payM});
   track('order_sent');chime();buzzOk();
   // Deliberately no push to the seller for the order itself. An order arriving
   // is not the thing they need to act on - a payment claim is. Sending both
