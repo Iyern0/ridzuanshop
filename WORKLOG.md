@@ -1330,6 +1330,16 @@ code at checkout and taps which drink is free.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/list-rooms.js`, `tools/verify-coupon.js`
 **Status:** ✅ confirmed in the browser against the three shapes found in the live data.
 
+### 2026-10-21 18:35 — One less label in the time section
+**What happened:** On Ambil Sendiri, the time section showed "We will notify you when it's done" and "Order for later? 👇" above the time input. Both are gone; the section is now a label ("Masa Ambil") and the input.
+**Found / changed:**
+- The delivery handler held **two** assignments for `#pickup-note` - my first fix changed one and the second, further along the same line, put it back. That is why the note survived a change that looked applied. Found by driving both delivery modes rather than reading the diff.
+- `#time-more` and `#pickup-note` are now forced to `display:none` everywhere, and the markup starts them hidden so nothing flashes before a delivery is chosen.
+- Verified by clicking each mode twice: pickup → note none, heading none, input block, label "⏰ Masa Ambil"; COD → slots flex, input none, note none, heading none.
+- `sw.js` `v40` → `v41-20261021`; `verify-coupon.js` green, `verify-n60.js` 21/21.
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/verify-coupon.js`
+**Status:** ✅ confirmed in the browser, both modes, in both directions.
+
 ## Withdrawn results
 
 - **"The `members` rules are unpublished."** Repeated in the log and in several answers to the
