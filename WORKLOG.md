@@ -1087,6 +1087,22 @@ flagged in the new `README.md`.
 **Status:** ✅ confirmed — `git status` in `app\` reports only the pre-existing modification to
 `transit-widget/DESIGN.md`, which belongs to the other project.
 
+### 2026-10-21 12:08 — The verifier was stale, not the code; 21/21 pass
+**What happened:** `verify-n60.js` reported one failure — "review warns a QR order has no
+receipt" — which would have read as a regression. The feature is present in the checkout line.
+The assertion expected the literal characters `·` and `⚠`, but that line was later rewritten
+with `\u00B7` / `\u26A0` escapes so the source holds no non-ASCII bytes, and the regex could
+never match again.
+**Found / changed:** The assertion now matches the shape rather than the glyphs. Re-run:
+21 of 21 checks pass and both inline script blocks parse (138,059 and 73 chars). The oversized
+PDF guard — the 21st defect carried in the handover as "next move" — was already present in
+`claimPicked` and committed as `9c97de4` (`fix: refuse oversized PDF at pick time instead of
+ticking green`), so there was nothing left to apply.
+**Artefacts:** `tools\verify-n60.js`
+**Status:** ✅ confirmed for the 21 known fixes. This is not proof that no unknown defect exists:
+the 4-seat review panel has still not run against the packet, and the admin-only screens have
+only ever been checked by reading.
+
 ## Withdrawn results
 
 - **"The `members` rules are unpublished."** Repeated in the log and in several answers to the
