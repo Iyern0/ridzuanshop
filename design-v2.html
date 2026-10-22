@@ -849,7 +849,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--ink);font-size:16px;
 /* ---- the menu: a line of glasses, one size, read top to bottom ---------- */
 .grid{display:block;max-width:760px;margin:0 auto;
   padding:0 var(--gutter) calc(132px + env(safe-area-inset-bottom))}
-.card{display:grid;grid-template-columns:auto 1fr auto;
+.card{display:grid;grid-template-columns:46px minmax(0,1fr) auto;
   grid-template-areas:"art name price" "art tag qty";
   column-gap:18px;row-gap:3px;align-items:center;
   background:none;border:0;border-radius:0;padding:15px 0;min-height:76px;
@@ -973,6 +973,56 @@ body{font-family:var(--fb);background:var(--bg);color:var(--ink);font-size:16px;
 #confirm-modal .box{background:#131315}
 #wa-send{border-radius:0;box-shadow:none !important}
 
+/* ---- page frame: one column on a phone, menu + facts rail on a desk ------ */
+.page{display:grid;grid-template-columns:minmax(0,1fr);align-content:start}
+.col{min-width:0}
+.rail{padding:6px var(--gutter) 8px;max-width:760px;margin:0 auto;width:100%}
+.rail-h{font-family:var(--fd);font-weight:400;font-size:30px;color:var(--ink);
+  letter-spacing:-0.02em;line-height:1;margin-bottom:16px}
+.facts{margin:0}
+.facts .f{display:grid;grid-template-columns:76px 1fr;gap:14px;padding:9px 0;align-items:baseline}
+.facts dt{font-family:var(--fb);font-size:12.5px;font-weight:500;color:var(--muted);letter-spacing:0.03em}
+.facts dd{margin:0;font-family:var(--fb);font-size:15px;font-weight:400;color:var(--ink-dim);line-height:1.45}
+.picker{width:100%;margin-top:18px;background:none;border:1px solid rgba(255,255,255,0.16);
+  border-radius:0;color:var(--ink);font-family:var(--fb);font-size:15px;font-weight:500;
+  padding:15px;cursor:pointer;transition:background var(--d-2) var(--eo),color var(--d-2) var(--eo)}
+.picker:active{background:#C08D62;border-color:#C08D62;color:#0A0A0B}
+@media (hover:hover){.picker:hover{border-color:#C08D62;color:#DDB183}}
+.rail-note{font-family:var(--fb);font-size:13px;color:var(--muted);line-height:1.5;margin-top:12px}
+
+@media (min-width:940px){
+  .page{grid-template-columns:minmax(0,1fr) 306px;column-gap:76px;
+    max-width:1128px;margin:0 auto;padding:0 28px}
+  .col{grid-column:1}
+  .rail{grid-column:2;grid-row:1;position:sticky;top:30px;align-self:start;
+    padding:34px 0 0;max-width:none;margin:0}
+  .hero{padding-left:0;padding-right:0}
+  #status-bar,.aux,.bar,.sec,.grid{padding-left:0;padding-right:0;max-width:none}
+  .page-foot{padding-left:0;padding-right:0}
+}
+
+/* ---- a row now carries a line of information as well as a price --------- */
+.grid{gap:0}
+.card{grid-template-areas:"art name price" "art desc price" "art tag  qty";row-gap:2px;padding:16px 0}
+.card .e,.card .photo{width:46px;height:62px}
+.card .e svg{width:46px;height:62px}
+/* a failed photo is replaced in place by the drawn glass, which arrives as a
+   bare <svg> and so needs its own placement */
+.card>svg{grid-area:art;width:46px;height:62px;display:block}
+.card .n{font-size:17px;font-weight:500;line-height:1.25;align-self:start}
+.card .d{grid-area:desc;align-self:start;font-family:var(--fb);font-size:13.5px;font-weight:400;
+  color:var(--muted);line-height:1.4;letter-spacing:0.005em;margin-top:1px}
+.card .p{align-self:start;padding-top:1px}
+.card .badge,.card .badge-new,.card .sold{margin-top:1px}
+
+/* ---- the close: the shop's own line, at the size it deserves ------------- */
+.page-foot{max-width:760px;margin:0 auto;padding:40px var(--gutter) calc(120px + env(safe-area-inset-bottom));
+  text-align:left;font-family:var(--fb);font-size:13px;color:var(--muted);line-height:1.6}
+.page-foot,.page-foot i,.page-foot b{text-align:left}
+.page-foot i{font-style:normal;font-family:var(--fd);font-size:24px;color:var(--ink);
+  display:block;margin-bottom:6px;letter-spacing:-0.01em}
+.page-foot b{color:var(--ink-dim);font-weight:500}
+
 @media (prefers-reduced-motion:reduce){
   .wordmark span,.wordmark em{animation:none;clip-path:none;transform:none}
 }
@@ -982,6 +1032,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--ink);font-size:16px;
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="theme-color" content="#C08D62">
 </head><body>
+<div class="page"><div class="col">
 <header class="hero">
  <h1 class="wordmark" aria-label="Minum Malam Siswa"><span class="wm1">Minum</span><span class="wm2"><em>malam</em></span><span class="wm3">Siswa</span></h1>
  <p class="hero-sub">Ais sejuk, hantar terus ke bilik.</p>
@@ -992,9 +1043,21 @@ body{font-family:var(--fb);background:var(--bg);color:var(--ink);font-size:16px;
 <div id="admin-btn-wrap" class="aux" style="display:none"><button id="admin-btn" class="ghost" onclick="enterAdmin()" style="display:none">Admin</button></div>
 <div id="founder" class="founder" style="display:none"></div>
 
-<div class="bar" style="position:relative"><span>Pesanan</span><div class="stamps" id="stamps"></div><span class="count" id="loy-count">0</span><span class="cpn-wrap"><button id="cpn-btn" class="cpn-btn" onclick="event.stopPropagation();toggleCpnPop()" aria-label="Kupon"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16a1 1 0 0 1 1 1v2.2a2 2 0 0 0 0 3.6V16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2.2a2 2 0 0 0 0-3.6V8a1 1 0 0 1 1-1Z"/><path d="M9.5 7v10" stroke-dasharray="2 2.4"/></svg><span class="dot" id="cpn-dot">0</span></button><div id="cpn-pop" class="cpn-pop" onclick="event.stopPropagation()"></div></span></div>
+<div class="bar" style="position:relative"><span>Kad loyal</span><div class="stamps" id="stamps"></div><span class="count" id="loy-count">0</span><span class="cpn-wrap"><button id="cpn-btn" class="cpn-btn" onclick="event.stopPropagation();toggleCpnPop()" aria-label="Kupon"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16a1 1 0 0 1 1 1v2.2a2 2 0 0 0 0 3.6V16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2.2a2 2 0 0 0 0-3.6V8a1 1 0 0 1 1-1Z"/><path d="M9.5 7v10" stroke-dasharray="2 2.4"/></svg><span class="dot" id="cpn-dot">0</span></button><div id="cpn-pop" class="cpn-pop" onclick="event.stopPropagation()"></div></span></div>
 <div class="sec"><h2><span>Minuman</span></h2><div class="l"></div></div>
 <div id="menu-root"></div>
+</div><!-- /.col -->
+<aside class="rail" aria-label="Maklumat kedai">
+ <h2 class="rail-h">Malam ini</h2>
+ <dl class="facts">
+  <div class="f"><dt>Buka</dt><dd>10:30 malam — 2:00 pagi, setiap malam</dd></div>
+  <div class="f"><dt>Hantar</dt><dd>COD RM1 ke blok · ambil sendiri percuma</dd></div>
+  <div class="f"><dt>Bayar</dt><dd>Tunai, DuitNow QR atau kupon</dd></div>
+  <div class="f"><dt>Loyal</dt><dd>Beli 5, yang ke-6 kami belanja</dd></div>
+ </dl>
+ <button class="picker" onclick="pickForMe()">Pilih untuk saya</button>
+ <p class="rail-note">Tak tahu nak minum apa? Tekan dan kami pilih satu dari menu.</p>
+</aside>
 <div id="cart-bar"><div class="info"><div class="count" id="cart-count">0 items</div><div class="total" id="cart-total">RM0.00</div></div><button id="cartb">Review Order</button></div>
 <div class="modal" id="cust"><div class="bg" onclick="closeCust()"></div><div class="box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-family:var(--fd);font-weight:400;font-size:25px;color:var(--ink)"><span id="c-title" style="font-family:var(--fb);font-weight:500;font-size:17px;color:var(--ink)">Drink</span></span><button onclick="closeCust()" style="background:none;border:none;color:#9A9385;font-size:20px;cursor:pointer">✕</button></div>
 <div class="cgrp"><div class="cgrp-h"><span>Pemanis</span><b>pilih satu</b></div><div class="copts" id="c-sweet"></div></div>
@@ -1024,7 +1087,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--ink);font-size:16px;
 <div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:14px;margin-bottom:16px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:14px;color:#9A9385;font-weight:700">Subtotal</span><span id="confirm-sub" style="font-size:14px;color:#F0F0F0;font-weight:700"></span></div><div id="confirm-cod" style="display:none;justify-content:space-between;margin-bottom:6px"><span style="font-size:14px;color:#9A9385;font-weight:700">📦 COD</span><span style="font-size:14px;color:#F0F0F0;font-weight:700">+RM1.00</span></div><div id="confirm-free" style="display:none;justify-content:space-between;margin-bottom:6px"><span style="font-size:14px;color:#9A9385;font-weight:700">&#127903; Kupon</span><span id="confirm-free-val" style="font-size:14px;color:#C08D62;font-weight:800"></span></div><div style="display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08)"><span style="font-family:var(--fd);font-weight:800;font-size:22px;color:#F0F0F0">Jumlah</span><span id="confirm-total" style="font-family:var(--fd);font-weight:800;font-size:26px;color:#C08D62">RM0.00</span></div></div>
 <button onclick="sendWa()" id="wa-send" style="width:100%;background:#25D366;color:#fff;border:none;font-family:var(--fd);font-weight:800;font-size:17px;padding:14px;border-radius:12px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,0.3)">Hantar Pesanan</button>
 </div></div>
-<div class="page-foot"><i>Minum sedap, harga mesra! 🧡</i><br>© <b>MINUM MALAM SISWA</b></div>
+<footer class="page-foot"><i>Minum sedap, harga mesra.</i><br>© <b>MINUM MALAM SISWA</b></footer>
 <div id="claim-view"></div>
 <div id="adm-detail"></div>
 <div id="adm-confirm"></div>
@@ -1800,6 +1863,25 @@ setTimeout(function(){_menuFirst=false},1100);
 // difference. Flat shapes only - no gradients - so it stays a drawing rather than
 // an imitation photograph. The colour is keyed off the drink name, which is what
 // the seller types in the admin panel, so a new drink gets its own glass free.
+// One line per drink, so the menu carries information instead of a name and a
+// price in a lot of air. Written for this card; the owner should confirm the
+// wording, and a drink with no note falls back to the generic line.
+const DRINK_NOTES=[['mangga','Mangga segar, masam manis'],['anggur','Anggur segar, wangi'],
+ ['milo','Milo pekat, ais penuh'],['indocafe','Kopi hitam, kurang manis'],
+ ['chocolate','Coklat pekat, rasa penuh'],['horlicks','Horlicks lembut, susu penuh'],
+ ['hazelnut','Kopi susu dengan hazelnut'],['mocha','Coklat dan kopi bercampur'],
+ ['bak','Kuih tempatan']];
+function drinkNote(name){const n=String(name||'').toLowerCase();
+  for(let i=0;i<DRINK_NOTES.length;i++){if(n.indexOf(DRINK_NOTES[i][0])>-1)return DRINK_NOTES[i][1]}
+  return 'Ais sejuk, bancuh segar'}
+// The one thing on the page the visitor can do that is different each visit.
+function pickForMe(){
+  const ok=[];
+  (MENU||[]).forEach(function(cat,ci){cat.items.forEach(function(v,vi){
+    const id='c'+ci+'v'+vi;if(!isDis(id))ok.push(id)})});
+  if(!ok.length){if(typeof toast==='function')toast('Menu kosong');return}
+  addToCart(ok[Math.floor(Math.random()*ok.length)]);
+}
 function glassArt(name){
   const n=String(name||'').toLowerCase();
   let liq='#A87B55';
@@ -1822,7 +1904,7 @@ function glassArt(name){
     +'<path d="'+g+'" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="1.2"/>'
     +'</svg>';
 }
-function draw(){const r=document.getElementById('menu-root');if(MENU&&MENU.length){track('menu_view',true)}if(!MENU||MENU.length===0){r.innerHTML='';upCart();drawLoy();drawDel();return}if(pruneCart()){saveCart();upCart()}let h='<div class="grid">';let _ai=0;MENU.forEach((cat,ci)=>{cat.items.forEach((v,vi)=>{const id='c'+ci+'v'+vi,_d=_menuFirst?(' style="animation-delay:'+Math.min(_ai++*38,420)+'ms"'):'',d=isDis(id),items=cart[id]||[],cq=items.length;const cheapest=(v.price===CHEAPEST_PRICE);let badge='';if(d)badge='';else if(v.pop)badge='<span class="badge">paling laku</span>';else if(cheapest)badge='<span class="badge-new">paling murah</span>';const dot=cq?'<span class="qty">'+cq+'</span>':'',sold=d?'<span class="sold">✕ Habis</span>':'';let e='';h+='<div class="card'+(d?' disabled':'')+(cq?' in-cart':'')+'"'+_d+' onclick="addToCart(\''+id+'\')">'+badge+dot+sold+(v.img?'<img class="photo" src="'+esc(v.img)+'" alt="'+esc(v.name)+'" loading="lazy" onerror="this.style.display=\'none\'">':'<div class="e">'+glassArt(v.name)+'</div>')+'<div class="n">'+esc(v.name)+'</div><div class="p">RM'+(Number(v.price)||0).toFixed(2)+'</div></div>';})});h+='</div>';r.innerHTML=h;upCart();drawLoy();drawDel();}
+function draw(){const r=document.getElementById('menu-root');if(MENU&&MENU.length){track('menu_view',true)}if(!MENU||MENU.length===0){r.innerHTML='';upCart();drawLoy();drawDel();return}if(pruneCart()){saveCart();upCart()}let h='<div class="grid">';let _ai=0;MENU.forEach((cat,ci)=>{cat.items.forEach((v,vi)=>{const id='c'+ci+'v'+vi,_d=_menuFirst?(' style="animation-delay:'+Math.min(_ai++*38,420)+'ms"'):'',d=isDis(id),items=cart[id]||[],cq=items.length;const cheapest=(v.price===CHEAPEST_PRICE);let badge='';if(d)badge='';else if(v.pop)badge='<span class="badge">paling laku</span>';else if(cheapest)badge='<span class="badge-new">paling murah</span>';const dot=cq?'<span class="qty">'+cq+'</span>':'',sold=d?'<span class="sold">✕ Habis</span>':'';let e='';h+='<div class="card'+(d?' disabled':'')+(cq?' in-cart':'')+'"'+_d+' onclick="addToCart(\''+id+'\')">'+badge+dot+sold+(v.img?'<img class="photo" src="'+esc(v.img)+'" alt="'+esc(v.name)+'" loading="lazy" onerror="this.outerHTML=glassArt(this.alt)">':'<div class="e">'+glassArt(v.name)+'</div>')+'<div class="n">'+esc(v.name)+'</div><div class="d">'+esc(drinkNote(v.name))+'</div><div class="p">RM'+(Number(v.price)||0).toFixed(2)+'</div></div>';})});h+='</div>';r.innerHTML=h;upCart();drawLoy();drawDel();}
 function fmtMin(m){m=((m%1440)+1440)%1440;const h=Math.floor(m/60),mm=m%60,ap=h<12?'AM':'PM';let hh=h%12;if(hh===0)hh=12;return hh+':'+(mm<10?'0':'')+mm+ap}
 function isOpenNow(){const n=new Date(),m=n.getHours()*60+n.getMinutes();const o=HOURS[0],c=HOURS[1];return o<=c?(m>=o&&m<c):(m>=o||m<c)}
 function minsUntilClose(){const n=new Date(),m=n.getHours()*60+n.getMinutes();const c=HOURS[1];let d=c-m;if(d<=0)d+=1440;return d}
@@ -3284,6 +3366,7 @@ document.addEventListener('visibilitychange',function(){if(document.visibilitySt
 })();
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
 </script>
+</div><!-- /.page -->
 <script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js')</script>
 <!-- Build marker. Its only job is to answer "which shell is this browser
      actually running?" — the question a stale service-worker cache makes

@@ -1583,3 +1583,15 @@ otifyOwnerClaim fires ? closing the QR path that previously reached the seller w
 **Known, not fixed:** the stock `lint.mjs` gate still FAILs on gradients, hairlines, shadows and emoji that live in the *legacy* layer under the new one — the old rules still exist in the file because v2 overrides rather than deletes. Visible emoji were removed from the funnel surfaces; the admin screens and the order-complete screen still carry theirs. `design-v2.html` has no service-worker registration change, so it is not a replacement for `index.html` until that is decided.
 **Artefacts:** `app/design-v2.html` (new, 264 KB), `app/.gitignore` (admitted it to the whitelist).
 **Status:** ✅ confirmed in headless captures at 390/768/1440 and by driving the funnel; ⚠️ not yet seen on a real phone by the owner
+
+### 2026-10-22 16:18 — Design v2, second look: it was empty, so it got substance
+**What happened:** The owner's first reaction to v2 was "it looks empty are you designing it properly?" That was correct, and it is the exact failure the direction sheet warned about: taking the ornament away is only half the job, and a page that lost its cards and gained nothing reads as thin.
+**Found / changed:** Four things were added, all of them content rather than decoration.
+1. **A facts rail**, on a desk layout: below 940px the page is one column, at 940px and up it is `menu | 306px rail`. The rail carries the shop's real terms — hours, COD RM1 to the block / free pickup, payment methods, the 5+1 loyalty rule — and it closes the empty right half of a wide screen.
+2. **A note under every drink.** Nine one-liners ("Mangga segar, masam manis", "Milo pekat, ais penuh"). Written for this card; the owner should confirm the wording. A drink with no note falls back to "Ais sejuk, bancuh segar".
+3. **"Pilih untuk saya"**, the one live thing the direction asks for: a random available drink opens its sheet. Real menu data, thumb-sized, no fake numbers.
+4. **The close**: the footer is now the shop's own line at 24px, left-aligned with the column, and the heart emoji is gone.
+**Two real bugs found while measuring, both fixed:** the drink note had no grid area and so auto-placed — the RM1.00 row put its note where the glass belongs; and that same row's `v.img` points at a photo that 404s, so the row rendered with a hole. A failed photo now falls back to the drawn glass (`onerror` swaps in `glassArt`), which is what every other drink gets.
+**Measured:** 390 / 1440 — `scrollWidth` = `clientWidth`, 9 rows, row height 94px, no auto-placed cells left on a row (every child reports a named area), footer text-align left.
+**Artefacts:** `app/design-v2.html`.
+**Status:** ✅ confirmed in headless captures at 390 and 1440; ⚠️ drink notes are new copy, not from Firestore
