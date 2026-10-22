@@ -1506,3 +1506,14 @@ otifyOwnerClaim fires ? closing the QR path that previously reached the seller w
 - Untouched, and still open: the admin password rotation, and the plaintext `tools/ADMIN-CREDENTIALS.txt` + `tools/creds.js`.
 **Artefacts:** three files removed from `Downloads` (recoverable from the Recycle Bin); no repository file changed
 **Status:** ✅ verified absent by re-scan
+
+### 2026-10-22 13:22 — The plaintext admin password is off the disk
+**What happened:** The owner rotated the admin password themselves and asked for the stored copy to be removed. Both files are recycled.
+**Found / changed:**
+- Recycled `tools\ADMIN-CREDENTIALS.txt` (477 bytes) and `tools\creds.js` (419 bytes) to the Recycle Bin after resolving each path and confirming it was a regular file. They were **never tracked by git** — `tools\` sits outside the `app\` repository — so no plaintext password ever entered version control.
+- Four scripts referenced them and are now dead: `after-login.js:19`, `verify-auth.js:9`, `verify-passchange.js:8`, `setup.js:10,22`. `require('./creds.js')` now throws `MODULE_NOT_FOUND`, which is a loud failure rather than a silent fallback. They were setup-era one-offs; `setup.js` could not run anyway, needing an absent `service-account.json`.
+- `app/.gitignore:43` still lists `ADMIN-CREDENTIALS.txt`; left in place deliberately, so a future stray copy cannot be committed.
+- **State file corrected:** `DRINKS-ORDER.md:79` still pointed at `Desktop\fb-admin-setup\ADMIN-CREDENTIALS.txt`, a path that no longer exists. Replaced with the rotated credential's real home and the three dead scripts.
+- `tools/README.md:27` still describes the old file; not corrected, since that README is the setup walkthrough, not current state.
+**Artefacts:** two files removed from `tools\` (recoverable from the Recycle Bin); `DRINKS-ORDER.md` updated
+**Status:** ✅ verified absent; the workspace holds no plaintext admin password

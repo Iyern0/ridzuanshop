@@ -76,8 +76,13 @@ All of the following is **done and verified against the live project**:
 | `firestore.rules` published | ✅ deployed, compiled clean |
 | `settings/admin` (old plaintext password) | ✅ unreadable via rules |
 
-Admin credentials are in `C:\Users\kiifu\Desktop\fb-admin-setup\ADMIN-CREDENTIALS.txt`.
-**Change that password** once you've saved it: Firebase Console → Authentication → Users.
+The admin password was **rotated on 2026-10-22** and lives in the owner's password manager.
+No plaintext copy remains in this workspace: `tools\ADMIN-CREDENTIALS.txt` and `tools\creds.js`
+were recycled on 2026-10-22, so `after-login.js`, `verify-auth.js` and `verify-passchange.js`
+now fail with `MODULE_NOT_FOUND` — they were setup-era one-offs.
+
+To change it again: Firebase Console → Authentication → Users → `zjasneh5@gmail.com` → ⋮ → Reset password.
+Only `tools/token.js` still authenticates without a password, via the `firebase login` session.
 
 ### The account that matters
 `minum-malam-siswa` is owned by **`zjasneh5@gmail.com`** — note the **5**.
