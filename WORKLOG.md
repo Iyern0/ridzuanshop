@@ -1517,3 +1517,13 @@ otifyOwnerClaim fires ? closing the QR path that previously reached the seller w
 - `tools/README.md:27` still describes the old file; not corrected, since that README is the setup walkthrough, not current state.
 **Artefacts:** two files removed from `tools\` (recoverable from the Recycle Bin); `DRINKS-ORDER.md` updated
 **Status:** ✅ verified absent; the workspace holds no plaintext admin password
+
+### 2026-10-22 13:24 — The setup pipeline is retired, and the docs say so
+**What happened:** With the credential files gone, four scripts could only fail and the walkthrough that described them was instructions to rebuild the exposure. Removed the scripts and rewrote both documents.
+**Found / changed:**
+- Recycled `tools\setup.js` (6880 B), `after-login.js` (5060 B), `verify-auth.js` (3320 B), `verify-passchange.js` (2810 B) after resolving each path. Nothing else referenced them except documentation.
+- `tools/README.md` rewritten: it still told the owner to save a Firebase Admin key to `service-account.json`. Now it opens with the retirement, states plainly why that key must not be downloaded again, lists only the scripts that still run, and points at the console for anything auth-related.
+- `DRINKS-ORDER.md` "If you ever need to redo it" and "Redeploying rules" corrected. Both named folders that no longer exist (`Desktop\fb-admin-setup`, `Desktop\claude`) and a `firebase deploy` command that cannot run, the CLI not being installed. Replaced with `tools\deploy-rules.js`, which publishes over the Rules REST API with `token.js`.
+- `tools\` holds 184 remaining `.js` files, most of them one-off records from individual bug passes; kept, and labelled as history rather than workflow.
+**Artefacts:** four files removed from `tools\` (recoverable from the Recycle Bin); `tools/README.md` and `DRINKS-ORDER.md` rewritten
+**Status:** ✅ documentation now matches what the machine can actually do

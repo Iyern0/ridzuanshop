@@ -91,20 +91,30 @@ browser is signed into a different Google account. Use an incognito window and s
 in as `zjasneh5@gmail.com`.
 
 ### If you ever need to redo it
-```powershell
-cd C:\Users\kiifu\Desktop\fb-admin-setup
-firebase login          # must be zjasneh5@gmail.com
-node after-login.js     # enables the provider + (re)creates the admin user
-```
-Helper scripts in that folder:
-`probe.js` (is Auth on? are orders private?), `verify-auth.js` (end-to-end auth check),
-`inventory.js` / `show-menu.js` (read live data), `cleanup-tests.js` (remove test orders).
+The setup pipeline is gone. `setup.js`, `after-login.js`, `verify-auth.js` and
+`verify-passchange.js` were recycled on 2026-10-22 together with the plaintext password
+they were built around, and `service-account.json` was never present. **Do not download a
+service-account key to recreate it** — nothing needs one, and a Firebase Admin key bypasses
+`firestore.rules` completely, with no login.
+
+Enabling the provider and creating or resetting the admin user are console-only now:
+Firebase Console → Authentication → Sign-in method / Users.
+
+What still works from `tools\`: `token.js` (OAuth token from the `firebase login` session,
+carries project IAM), `probe.js` (unauthenticated checks), `verify-n60.js` and
+`verify-coupon.js` (the app verifiers), `launch-probe.js`, and the live readers
+`inventory.js`, `show-menu.js`, `read-order.js`.
 
 ### Redeploying rules after an edit
+The firebase CLI is **not installed** on this machine. Publish over the Rules REST API
+instead:
+
 ```powershell
-cd C:\Users\kiifu\Desktop\claude
-firebase deploy --only firestore:rules --project minum-malam-siswa
+cd "C:\Users\kiifu\Desktop\MINUM MALAM SISWA\tools"
+node deploy-rules.js
 ```
+
+`check-deployed-rules.js` compares the repository file against the live source afterwards.
 
 ---
 
