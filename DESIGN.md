@@ -59,6 +59,25 @@ the cart button and the panel close button.
 - **Cart bar** — 1px top border instead of a 3px mint slab, safe-area bottom
   padding, 44px button.
 
+## Motion rules (pass 2)
+
+Audited against the motion checklist with Jakub-led weighting (production polish)
+and Emil's restraint, since this is a shopping flow used repeatedly on a phone.
+
+| Rule | Why |
+|---|---|
+| Nothing loops forever on a customer screen | A cushion of pulsing dots and halos is the signature of generated UI, and it spends frames on a screen left open for ten minutes |
+| Animate once, when the state changes | A sweep when a delivery status lands carries information; the same sweep on repeat does not |
+| Two exceptions, both documented in code | The status dot's slow opacity breath (live open/closed indicator) and nothing else |
+| Four durations only: `--d-1` 120ms → `--d-4` 320ms | There were 17 ad-hoc durations for ~20 animations |
+| Static content does not animate in | The section heading and status bar used to fade in on mount; text should be there when the eye arrives |
+| Entrances get `--eo`, press feedback gets `--sp` | Overshoot belongs on a tap, not on a drawer or a modal |
+| Hover changes a value, it does not perform | The gradient sweep on primary buttons became a `brightness()` lift plus a `scale(.985)` on press |
+| `prefers-reduced-motion` caps iteration count, not just duration | A `0.001ms` infinite loop still loops |
+
+Measured on the rendered page: **0** infinite animations, **0** animations or
+transitions over 320ms.
+
 ## Known gaps (next passes)
 
 1. Two drinks show "Paling Laku" at once — `v.pop` is set on more than one item
@@ -66,4 +85,7 @@ the cart button and the panel close button.
 2. Emoji are still used as section icons in the cart modal (🍬 🌿 ➕ ✨).
 3. `.card .n` reserves two lines so prices line up across the grid; names that
    fit one line sit in a taller box by design.
-4. `@keyframes glow` is now unused — remove with the motion pass.
+4. **Admin screens still carry two looping glows** (`.o-clam.unseen` clamGlow,
+   `.a-receipt` recPulse). Left alone deliberately: internal screens, out of
+   scope for the storefront passes, and they do flag that something needs
+   attention. Fix them if the admin views ever get their own pass.

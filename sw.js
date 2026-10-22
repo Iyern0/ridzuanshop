@@ -1,7 +1,7 @@
 // MINUM MALAM SISWA — service worker
 // Cache name is versioned. Bump V when the app changes so old shells get evicted.
-// Current: v46 (design pass 1: warm charcoal tokens, no hero glow, card medallions)
-const V = 'v46-20261022';
+// Current: v47 (design pass 2: no looping decorative motion, one duration scale)
+const V = 'v47-20261022';
 const SHELL = ['./', './index.html', './drinks-order.html', './manifest.json'];
 
 self.addEventListener('install', (e) => {
