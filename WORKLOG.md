@@ -1415,3 +1415,15 @@ otifyOwnerClaim fires ? closing the QR path that previously reached the seller w
 **Found / changed:** checkout click handler + sendWa in drinks-order.html and index.html (byte-identical). sw.js V bumped to v24-20261020.
 **Artefacts:** app/drinks-order.html, app/index.html, app/sw.js
 **Status:** ?? provisional ? one review seat PASS (ultra); other three seats rate-limited, user waived re-review
+
+### 2026-10-22 11:58 — Delivery fee config was ignored (plus favicon and sw.js cleanup)
+**What happened:** Bug sweep on the live app. The admin's delivery-fee setting (`DELS[].f`) was saved but never charged: checkout and sendWa hardcoded `+RM1` for COD, and the review, WhatsApp message and confirmation receipt hardcoded `COD (+RM1)`.
+**Found / changed:** Added `delFee(t)` reading `DELS[].f` (fallback 1 for COD, 0 otherwise) and used it in `upCart`, the review total + label, `sendWa`, the WhatsApp message and the confirmation receipt; `#cod-row` now updates its amount. Verified in headless Chrome: default COD total RM3.50 and label `COD (+RM1.00)`; with `DELS[0].f=2.5` the total becomes RM5.00 and the label `COD (+RM2.50)`. Also added the missing `<link rel="icon">` (favicon.ico was 404 on every load) and fixed the mojibake header in `sw.js`; `sw.js` V bumped `v43-20261021` → `v44-20261022`. `index.html` re-copied byte-identical. `tools/verify-coupon.js` updated for the new total expression plus a guard that the fee is read from config.
+**Artefacts:** `app/drinks-order.html`, `app/index.html`, `app/sw.js`, `tools/verify-coupon.js`, `../README.md`
+**Status:** ✅ confirmed in the browser; not deployed (no push yet)
+
+### 2026-10-22 11:58 — CORRECTION to 2026-10-16 11:06 (new-order notifications)
+**What happened:** The 2026-10-16 11:06 entry says new-order notifications were removed entirely. That was true at the time, but commit `b77d07f` (2026-10-21) deliberately re-added the order push; `837329b` is its ancestor, so the silence pass was later superseded.
+**Found / changed:** Current behaviour is two pushes by design: `notifyOrderPush` when an order lands (a drink to make) and `notifyOwnerClaim` when a payment claim is made (money to check). Corrected the stale call-site comment in `drinks-order.html` and the README line that claimed "payment claim only".
+**Artefacts:** `app/drinks-order.html`, `../README.md`
+**Status:** ✅ confirmed via `git log -S` and `git merge-base --is-ancestor`

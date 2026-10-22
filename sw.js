@@ -1,7 +1,7 @@
-﻿// MINUM MALAM SISWA 窶・service worker
+// MINUM MALAM SISWA — service worker
 // Cache name is versioned. Bump V when the app changes so old shells get evicted.
-// Current: V24 (QR orders require a receipt; notification fires on claim)
-const V = 'v43-20261021';
+// Current: v44 (delivery fee read from config, favicon link)
+const V = 'v44-20261022';
 const SHELL = ['./', './index.html', './drinks-order.html', './manifest.json'];
 
 self.addEventListener('install', (e) => {
