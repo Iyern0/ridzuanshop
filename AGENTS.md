@@ -1,12 +1,12 @@
 # Agent guide — MINUM MALAM SISWA
 
-App-specific rules (source `drinks-order.html` mirrored byte-identically to `index.html`, bump `sw.js` on every release, never commit `transit-widget/DESIGN.md`) live in `README.md`. Current app state is in `DRINKS-ORDER.md`; history is in `WORKLOG.md`.
+App-specific rules (source `drinks-order.html` mirrored byte-identically to `index.html`, bump `sw.js` on every release, never commit `transit-widget/DESIGN.md`) live in `../README.md`. Current app state is in `DRINKS-ORDER.md`; history is in `WORKLOG.md`.
 
 ## Agent skills
 
 ### Issue tracker
 
-Local Markdown: issues live as files under `.scratch/<feature>/`. See `docs/agents/issue-tracker.md`.
+GitHub issues in `Iyern0/ridzuanshop`, driven with the `gh` CLI. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 

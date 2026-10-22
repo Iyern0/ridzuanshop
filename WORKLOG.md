@@ -1439,3 +1439,26 @@ otifyOwnerClaim fires ? closing the QR path that previously reached the seller w
 **Found / changed:** `.bar` had `z-index:900` while `.modal` is `600`, so the bar's stacking context won the paint order. Lowered `.bar` to `z-index:250` — still above the unpositioned menu cards (the coupon bubble needs the stacking context) but below overlay `300`, cart panel `400` and modal `600`. Verified in headless Chrome: with the menu modal open, `elementFromPoint` at the bar's centre now returns the modal content, not the bar; the coupon bubble still opens above the cards (`hitInsidePop: true`). `sw.js` v44 → `v45-20261022`; `index.html` mirrored byte-identical.
 **Artefacts:** `app/drinks-order.html`, `app/index.html`, `app/sw.js`
 **Status:** ✅ confirmed in the browser; not deployed
+
+### 2026-10-22 12:19 — Deployment state confirmed from the far end, and the repo name settled
+**What happened:** Answered "which repo is this?" against GitHub's API rather than the working tree, and checked what the live site is actually serving.
+**Found / changed:** The GitHub repo is `Iyern0/ridzuanshop`, already configured as `origin`. `Iyern0/minum-malam-siswa` returns 404 — `minum-malam-siswa` is the Firebase *project* id, not a repository, which is where the name comes from. Remote `main` is at `3e19d2a`, so the three local commits are unpushed: `a842bda` (configured delivery fee, favicon, sw v44), `35a51b3` (skills config), `a873a08` (loyalty bar z-index). Live `sw.js` reads `v43-20261021` against local `v45-20261022` and still carries the mojibake header that `a842bda` fixed, so the live site is serving the pre-`a842bda` build — read from the deployed file, not inferred from git.
+**Artefacts:** — (read-only; nothing changed)
+**Status:** ✅ confirmed
+
+### 2026-10-22 12:25 — CORRECTION: the three commits are pushed, and live is on v45
+**What happened:** The entry above said three local commits were unpushed. They went out at 12:20:59 and the live site has rebuilt on them, so that line is withdrawn here rather than edited.
+**Found / changed:** `pushed_at` reads 2026-10-22T04:20:59Z (12:20:59 local); GitHub's `main` now serves `a873a08`, and the local `origin/main` ref matches it at 0 ahead. Live `sw.js` reads `v45-20261022` with the mojibake header gone, checked from two independent clients — the first fetch of the bare URL still returned `v43`, which was a stale CDN cache on that URL and not a failed build, so the cache-busted fetch is the one that counts. Separately: the workspace root is no longer a git repository (a tooling-created one was renamed to `.git.bak`); `app\` is unaffected. The repo-name question stands as recorded — `Iyern0/ridzuanshop` exists, `Iyern0/minum-malam-siswa` does not.
+**Artefacts:** `WORKLOG.md` only (verification; no app file changed)
+**Status:** ✅ confirmed from the deployed file and the GitHub API
+
+### 2026-10-22 12:34 — The issue tracker is GitHub, not local markdown
+**What happened:** The bootstrap at 12:05 wrote a local-markdown tracker (`.scratch/<feature>/`), but the deck panel had been set to the **GitHub** backend for `Iyern0/ridzuanshop`. Two records, one repo, opposite answers — and the deck's setup check was failing because it looks for `docs/agents/issue-tracker.md` at the *workspace root*, not here.
+**Found / changed:**
+- `docs/agents/issue-tracker.md` rewritten from the skill's GitHub template: issues live in this repo's GitHub Issues, `gh` CLI, PRs not a triage surface.
+- `AGENTS.md`'s Issue tracker line now says GitHub, and its pointer to the app rules reads `../README.md` — `README.md` alone was ambiguous, since this repo has no README of its own.
+- At the workspace root (not versioned): a thin `AGENTS.md` saying this folder is a workspace and the repo is `app/`, plus `docs/agents/*.md` reduced to pointers at the three files here. That keeps one source of truth in the repo while still satisfying the deck's root-level path check. No `## Agent skills` content is duplicated.
+- `.scratch/` is left in place. Nothing writes there now, but removing it is a separate call.
+**Verified:** the root check file exists and declares GitHub; `git status` shows only the three intended files plus the pre-existing `transit-widget/DESIGN.md`; `deck_context` still resolves `Iyern0/ridzuanshop` with preflight ok.
+**Artefacts:** `docs/agents/issue-tracker.md`, `AGENTS.md`; root `AGENTS.md` and `docs/agents/{issue-tracker,triage-labels,domain}.md`
+**Status:** ✅ confirmed locally, not pushed
