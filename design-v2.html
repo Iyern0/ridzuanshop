@@ -998,7 +998,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--ink);font-size:16px;
     padding:34px 0 0;max-width:none;margin:0}
   .hero{padding-left:0;padding-right:0}
   #status-bar,.aux,.bar,.sec,.grid{padding-left:0;padding-right:0;max-width:none}
-  .page-foot{padding-left:0;padding-right:0}
+  .page-foot{grid-column:1;padding-left:0;padding-right:0}
 }
 
 /* ---- a row now carries a line of information as well as a price --------- */
@@ -1016,7 +1016,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--ink);font-size:16px;
 .card .badge,.card .badge-new,.card .sold{margin-top:1px}
 
 /* ---- the close: the shop's own line, at the size it deserves ------------- */
-.page-foot{max-width:760px;margin:0 auto;padding:40px var(--gutter) calc(120px + env(safe-area-inset-bottom));
+.page-foot{max-width:none;margin:0;padding:40px var(--gutter) calc(120px + env(safe-area-inset-bottom));
   text-align:left;font-family:var(--fb);font-size:13px;color:var(--muted);line-height:1.6}
 .page-foot,.page-foot i,.page-foot b{text-align:left}
 .page-foot i{font-style:normal;font-family:var(--fd);font-size:24px;color:var(--ink);
