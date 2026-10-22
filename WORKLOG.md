@@ -1557,3 +1557,10 @@ otifyOwnerClaim fires ? closing the QR path that previously reached the seller w
 **Measured:** cart panel with an empty basket — `panelClass="panel is-empty open"`, every `#panel .opt` hidden, `.ft` hidden. Layout still 390 = 390 with zero overflowing elements.
 **Artefacts:** `drinks-order.html`, `index.html` (mirror, SHA256 match), `sw.js` (`v47` → `v48-20261022`), `DESIGN.md` (funnel table), `WORKLOG.md`.
 **Status:** ✅ confirmed in the running page (empty state, repeat order, preselected options)
+
+### 2026-10-22 15:03 — Recheck: the empty storefront capture was a slow fetch, not a regression
+**What happened:** The first capture of the live site after pass 3 showed the hero, status bar and section heading but zero menu cards and zero loyalty stamps. That pattern — config rendered, menu absent — could equally have been a broken `draw()` or a menu fetch that had not landed, so it was re-tested rather than waved through.
+**Found / changed:** Nothing was broken. A second navigation with a 6s wait returned `cards: 9, stamps: 5`, status text present, no page error, `scrollWidth` 390 = `clientWidth` 390. The first attempt used the harness's default 4.5s wait, which was not enough on that cold navigation; `initConfig` had rendered the opening-hours sentence while the menu read was still in flight.
+**Note for future checks:** a short capture can show a half-initialised storefront. Wait for `.card` to exist rather than for a fixed number of seconds.
+**Artefacts:** none; no code changed in this entry.
+**Status:** ✅ confirmed — live site renders 9 cards at 390px, `sw.js v48-20261022`
