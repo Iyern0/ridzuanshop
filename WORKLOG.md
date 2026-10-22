@@ -1427,3 +1427,9 @@ otifyOwnerClaim fires ? closing the QR path that previously reached the seller w
 **Found / changed:** Current behaviour is two pushes by design: `notifyOrderPush` when an order lands (a drink to make) and `notifyOwnerClaim` when a payment claim is made (money to check). Corrected the stale call-site comment in `drinks-order.html` and the README line that claimed "payment claim only".
 **Artefacts:** `app/drinks-order.html`, `../README.md`
 **Status:** ✅ confirmed via `git log -S` and `git merge-base --is-ancestor`
+
+### 2026-10-22 12:05 — Repo configured for the Matt Pocock engineering skills
+**What happened:** Ran the `/setup-matt-pocock-skills` bootstrap: local-markdown issue tracker, default triage labels, single-context domain docs.
+**Found / changed:** Created `docs/agents/issue-tracker.md` (local `.scratch/` template), `docs/agents/triage-labels.md` (the five canonical labels, unchanged), `docs/agents/domain.md` (single-context: root `GLOSSARY.md` + `docs/adr/`; no `GLOSSARY-MAP.md` or per-context glossaries yet), `AGENTS.md` with the `## Agent skills` block, and `.scratch/.gitkeep`. Re-admitted `AGENTS.md`, `docs/**` and `.scratch/**` in the whitelist `.gitignore`. Verification: 15/15 checks (files, block, lazy-glossary rules, no old CONTEXT names). No `CONTEXT.md`/`CONTEXT-MAP.md` existed to rename.
+**Artefacts:** `app/AGENTS.md`, `app/docs/agents/*.md`, `app/.scratch/.gitkeep`, `app/.gitignore`
+**Status:** ✅ confirmed

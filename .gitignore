@@ -29,6 +29,11 @@
 # --- Documentation ----------------------------------------------------
 !/DRINKS-ORDER.md
 !/WORKLOG.md
+!/AGENTS.md
+!/docs/
+!/docs/**
+!/.scratch/
+!/.scratch/**
 
 # ---------------------------------------------------------------------------
 # Credentials and private keys — never commit, whatever else changes.
