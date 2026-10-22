@@ -8,23 +8,46 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
-:root{--fd:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;--fb:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif}
-body{font-family:var(--fb);background:#131010;color:#F0F0F0;min-height:100vh;overflow-x:hidden}
-.hero{background:linear-gradient(160deg,#131010 0%,#1E1913 50%,#131010 100%);border-bottom:3px solid #00D4AA;padding:32px 20px 24px;text-align:center}
-.hero h1{font-family:var(--fd);font-weight:800;font-size:clamp(30px,10vw,52px);color:#F0F0F0;text-shadow:0 0 20px rgba(0,212,170,0.3),3px 3px 0 rgba(0,0,0,0.5);letter-spacing:-0.5px}
-.hero h1 span{color:#00D4AA}.hero .sub{font-size:14px;color:#9A9385;margin-top:6px;font-weight:700}
-.bar{background:#1E1913;border-bottom:1px solid rgba(255,255,255,0.08);padding:12px 16px;display:flex;align-items:center;justify-content:center;gap:12px;font-size:13px;color:#9A9385;font-weight:700}
-.stamps{display:flex;gap:5px}.stamp{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:13px}
-.stamp.filled{background:#00D4AA;border-color:#00D4AA}.bar .count{font-family:var(--fd);font-weight:800;font-size:24px;color:#00D4AA}
-.sec{display:flex;align-items:center;gap:10px;padding:20px 16px 8px;max-width:640px;margin:0 auto}
-.sec h2{font-family:var(--fd);font-weight:800;font-size:22px;color:#F0F0F0;white-space:nowrap}
-.sec h2 span{color:#00D4AA}.sec .l{flex:1;height:2px;background:rgba(255,255,255,0.08)}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0 16px 16px;max-width:640px;margin:0 auto}
-.card{background:#1E1913;border:1.5px solid rgba(255,255,255,0.08);border-radius:14px;padding:16px 12px;cursor:pointer;transition:border-color 0.2s,box-shadow 0.2s,transform 0.1s;-webkit-tap-highlight-color:transparent;user-select:none;position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px}
-.card:active{transform:scale(0.96)}.card:hover{border-color:#00D4AA;box-shadow:0 0 20px rgba(0,212,170,0.1)}
-.card.disabled{opacity:0.3;pointer-events:none}.card.disabled.admin-mode{pointer-events:auto;cursor:pointer}.card.in-cart{border-color:#00D4AA;box-shadow:0 0 0 1px #00D4AA}
-.card .e{font-size:36px}.card .n{font-family:var(--fd);font-weight:800;font-size:15px;color:#F0F0F0}.card .p{font-family:var(--fd);font-weight:800;font-size:19px;color:#FFB347}
-.card .badge{position:absolute;top:-5px;right:-5px;background:#FF6B6B;color:#fff;font-size:11px;font-weight:900;padding:2px 8px;border-radius:999px;animation:glow 2s ease-in-out infinite}
+:root{--fd:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;--fb:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+  /* ===== design tokens (pass 1 of the front-end rework) ==================
+     Colour, type steps, radii and the tap target live here so a screen can be
+     retuned without hunting hexes through 2,900 lines of inline styles.
+     The background is warm charcoal, not neutral black: on a phone at 11pm a
+     neutral #131010 reads as "the default dark theme", a warm one reads as
+     lamplight, which is what a night stall actually looks like.
+     ====================================================================== */
+  --bg:#12100E;--surface:#1B1713;--surface2:rgba(255,255,255,0.045);
+  --line:rgba(255,255,255,0.07);--line2:rgba(255,255,255,0.12);
+  --ink:#F2EFE9;--ink-dim:#C9C3B8;--muted:#9A9385;
+  --mint:#00D4AA;--gold:#FFB347;--red:#FF6B6B;--wa:#25D366;
+  --t-hero:clamp(27px,8.2vw,42px);--t-h2:19px;--t-name:14.5px;--t-price:19px;--t-sub:12.5px;--t-meta:13px;
+  --r-card:16px;--r-pill:999px;--gutter:16px;--tap:44px}
+body{font-family:var(--fb);background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden;-webkit-text-size-adjust:100%}
+.hero{background:linear-gradient(180deg,#1B1713 0%,#12100E 100%);border-bottom:1px solid var(--line);padding:calc(26px + env(safe-area-inset-top)) 18px 20px;text-align:center}
+.hero h1{font-family:var(--fd);font-weight:800;font-size:var(--t-hero);color:var(--ink);letter-spacing:-0.6px;line-height:1.04;text-wrap:balance}
+.hero h1 span{color:var(--mint)}.hero .sub{font-size:var(--t-sub);color:var(--muted);margin-top:9px;font-weight:700;letter-spacing:0.1px;line-height:1.45}
+.bar{background:var(--surface);border-bottom:1px solid var(--line);padding:10px var(--gutter);display:flex;align-items:center;justify-content:center;gap:10px;font-size:var(--t-meta);color:var(--muted);font-weight:700}
+.stamps{display:flex;gap:4px}.stamp{width:26px;height:26px;border-radius:50%;background:var(--surface2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;transition:background .2s,border-color .2s}
+.stamp.filled{background:var(--mint);border-color:var(--mint)}
+.bar .count{font-family:var(--fd);font-weight:800;font-size:19px;color:var(--mint);letter-spacing:-0.3px;min-width:1ch;text-align:center}
+.bar #cpn-btn{width:var(--tap);height:var(--tap)}
+.sec{display:flex;align-items:center;gap:12px;padding:22px var(--gutter) 10px;max-width:640px;margin:0 auto}
+.sec h2{font-family:var(--fd);font-weight:800;font-size:var(--t-h2);color:var(--ink);white-space:nowrap;letter-spacing:-0.3px}
+.sec h2 span{color:var(--ink)}
+.sec .l{flex:1;height:1px;background:linear-gradient(90deg,var(--line2),transparent)}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:0 var(--gutter) calc(20px + env(safe-area-inset-bottom));max-width:640px;margin:0 auto}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);padding:14px 12px 15px;cursor:pointer;transition:border-color .18s var(--eo),transform .12s var(--eo);-webkit-tap-highlight-color:transparent;user-select:none;position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;min-height:130px;justify-content:center}
+.card:active{transform:scale(0.975)}
+/* Hover only where a pointer exists: on a phone :hover sticks after a tap and
+   leaves a card looking permanently selected. */
+@media (hover:hover){.card:hover{border-color:var(--line2);background:#201B16}}
+.card.disabled{opacity:0.32;pointer-events:none}.card.disabled.admin-mode{pointer-events:auto;cursor:pointer}.card.in-cart{border-color:var(--mint);box-shadow:inset 0 0 0 1px var(--mint)}
+/* Every drink gets the same 56px medallion behind its emoji, so the grid reads
+   as a set of objects on a shelf instead of emoji floating in empty space. */
+.card .e{font-size:31px;line-height:1;width:56px;height:56px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:radial-gradient(circle at 50% 36%,rgba(255,179,71,0.11),rgba(255,255,255,0.035) 72%);border:1px solid var(--line)}
+.card .n{font-family:var(--fd);font-weight:800;font-size:var(--t-name);color:var(--ink);line-height:1.25;letter-spacing:-0.1px;min-height:2.5em;display:flex;align-items:center}
+.card .p{font-family:var(--fd);font-weight:800;font-size:var(--t-price);color:var(--gold);letter-spacing:-0.3px;line-height:1}
+.card .badge{position:absolute;top:0;right:0;background:rgba(255,107,107,0.14);color:#FFA3A3;border-left:1px solid rgba(255,107,107,0.28);border-bottom:1px solid rgba(255,107,107,0.28);font-size:10px;font-weight:900;letter-spacing:0.3px;padding:3px 9px;border-radius:0 var(--r-card) 0 11px}
 @keyframes glow{0%,100%{box-shadow:0 0 4px rgba(255,107,107,0.3)}50%{box-shadow:0 0 12px rgba(255,107,107,0.5)}}
 .card .qty{position:absolute;top:-5px;left:-5px;background:#00D4AA;color:#000;font-size:12px;font-weight:900;min-width:22px;height:22px;border-radius:999px;display:flex;align-items:center;justify-content:center;padding:0 5px}
 .card.admin-mode .qty{top:-5px;left:28px}
@@ -35,13 +58,13 @@ body{font-family:var(--fb);background:#131010;color:#F0F0F0;min-height:100vh;ove
 .card-toggle.off{background:#FF6B6B;color:#fff;border-color:#FF6B6B}
 .card-toggle:active{transform:scale(0.9)}
 .card .sold{bottom:8px;right:8px}
-.status-bar{display:flex;align-items:center;justify-content:center;gap:8px;padding:9px 16px;font-size:14px;font-weight:800;letter-spacing:0.2px}
+.status-bar{display:flex;align-items:flex-start;justify-content:center;gap:7px;padding:9px 14px;font-size:12.5px;font-weight:800;letter-spacing:0.15px;line-height:1.45;text-align:left}
 .status-bar.open{background:linear-gradient(90deg,rgba(0,212,170,0.18),rgba(0,212,170,0.06));color:#00D4AA;border-bottom:1px solid rgba(0,212,170,0.25)}
 .status-bar.closed{background:linear-gradient(90deg,rgba(255,107,107,0.16),rgba(255,107,107,0.05));color:#FF8A8A;border-bottom:1px solid rgba(255,107,107,0.22)}
-.status-bar .dot{width:9px;height:9px;border-radius:50%;background:currentColor;flex-shrink:0}
+.status-bar .dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0;margin-top:5px}
 .status-bar.open .dot{animation:pulse 1.8s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.45;transform:scale(0.8)}}
-.badge-new{position:absolute;top:-5px;right:-5px;background:#FFB347;color:#000;font-size:11px;font-weight:900;padding:2px 8px;border-radius:999px}
+.badge-new{position:absolute;top:0;right:0;background:rgba(255,179,71,0.14);color:#FFC978;border-left:1px solid rgba(255,179,71,0.28);border-bottom:1px solid rgba(255,179,71,0.28);font-size:10px;font-weight:900;letter-spacing:0.3px;padding:3px 9px;border-radius:0 var(--r-card) 0 11px}
 .founder{display:flex;align-items:center;gap:12px;max-width:640px;margin:14px auto 0;padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px}
 .founder img{width:46px;height:46px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #00D4AA}
 .founder .fi{flex:1;min-width:0}
@@ -219,22 +242,22 @@ button:disabled:active{transform:none}
 }
 
 @media(min-width:700px){.grid{grid-template-columns:repeat(3,1fr);max-width:720px}}
-#cart-bar{position:fixed;bottom:0;left:0;right:0;background:#2A2419;border-top:3px solid #00D4AA;padding:10px 16px 12px;display:none;align-items:center;gap:12px;z-index:200;box-shadow:0 -4px 20px rgba(0,0,0,0.6)}
+#cart-bar{position:fixed;bottom:0;left:0;right:0;background:#221C15;border-top:1px solid var(--line2);padding:10px 16px calc(12px + env(safe-area-inset-bottom));display:none;align-items:center;gap:12px;z-index:200;box-shadow:0 -4px 20px rgba(0,0,0,0.6)}
 #cart-bar.show{display:flex}
 #cart-bar .info{flex:1;min-width:0}
 #cart-bar .count{font-size:13px;color:#9A9385;font-weight:700}
 #cart-bar .total{font-family:var(--fd);font-weight:800;font-size:26px;color:#00D4AA}
-#cartb{flex-shrink:0;background:#00D4AA;color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:15px;padding:12px 24px;border-radius:10px;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,0.3)}
+#cartb{flex-shrink:0;min-height:var(--tap);background:var(--mint);color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:15px;padding:12px 24px;border-radius:10px;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,0.3)}
 #cartb:active{transform:scale(0.95)}
 .overlay{position:fixed;inset:0;z-index:300;display:none}.overlay.open{display:block}
 .overlay .bg{position:absolute;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(3px)}
 .panel{position:fixed;bottom:0;left:0;right:0;max-height:80vh;background:#2A2419;border-top:4px solid #00D4AA;border-radius:20px 20px 0 0;z-index:400;display:flex;flex-direction:column;transform:translateY(100%);transition:transform 0.35s cubic-bezier(0.34,1.1,0.64,1)}
 .panel.open{transform:translateY(0)}
-@media(min-width:600px){.panel{left:auto;right:0;bottom:0;top:0;max-height:100vh;max-width:420px;border-radius:0;border-left:3px solid #00D4AA;border-top:none;transform:translateX(100%)}.panel.open{transform:translateX(0)}}
+@media(min-width:600px){.panel{left:auto;right:0;bottom:0;top:0;max-height:100vh;max-width:420px;border-radius:0;border-left:1px solid var(--line2);border-top:none;transform:translateX(100%)}.panel.open{transform:translateX(0)}}
 .panel .h{width:40px;height:4px;background:rgba(255,255,255,0.15);border-radius:4px;margin:12px auto 0;flex-shrink:0}
 .panel .hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 10px;border-bottom:1px solid rgba(255,255,255,0.08)}
 .panel .hd h2{font-family:var(--fd);font-weight:800;font-size:26px;color:#00D4AA}
-.panel .hd .x{background:rgba(255,255,255,0.06);border:none;color:#F0F0F0;font-size:18px;width:32px;height:32px;border-radius:50%;cursor:pointer}
+.panel .hd .x{background:rgba(255,255,255,0.06);border:none;color:#F0F0F0;font-size:18px;width:var(--tap);height:var(--tap);border-radius:50%;cursor:pointer}
 .panel .bd{overflow-y:auto;flex:1;padding:8px 18px}.empty{text-align:center;padding:40px 20px;color:#9A9385;font-size:15px;font-weight:700}
 .item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.08)}
 .ii{flex:1;min-width:0}.ii .nm{font-weight:800;font-size:14px}.ii .sb{font-size:12px;color:#9A9385;font-weight:600;margin-top:2px}
@@ -715,14 +738,14 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="theme-color" content="#00D4AA">
 </head><body>
-<div class="hero"><h1>🌙 <span>MINUM</span> MALAM SISWA</h1><div class="sub">⏰ 10:30PM — 2:00AM · 🚗 COD (RM1) / Free Pickup</div></div>
+<div class="hero"><h1>🌙 <span>MINUM</span> MALAM SISWA</h1><div class="sub">10:30PM — 2:00AM · COD (RM1) / Free Pickup</div></div>
 <div id="status-bar" class="status-bar"></div>
 <div style="text-align:center;margin-top:12px"><button id="my-order" onclick="openMyOrder()" style="display:none;background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.3);color:#00D4AA;font-weight:800;font-size:14px;padding:9px 18px;border-radius:999px;cursor:pointer">📦 Pesanan saya</button></div>
 <div id="admin-btn-wrap" style="text-align:center;margin-top:8px;display:none"><button id="admin-btn" onclick="enterAdmin()" style="display:none;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.14);color:#8A8377;font-weight:800;font-size:13px;padding:7px 14px;border-radius:999px;cursor:pointer">🔧 Admin</button></div>
 <div id="founder" class="founder" style="display:none"></div>
 
-<div class="bar" style="position:relative"><span>&#127873; Pesanan</span><div class="stamps" id="stamps"></div><span class="count" id="loy-count">0</span><span class="cpn-wrap"><button id="cpn-btn" class="cpn-btn" onclick="event.stopPropagation();toggleCpnPop()" aria-label="Kupon"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16a1 1 0 0 1 1 1v2.2a2 2 0 0 0 0 3.6V16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2.2a2 2 0 0 0 0-3.6V8a1 1 0 0 1 1-1Z"/><path d="M9.5 7v10" stroke-dasharray="2 2.4"/></svg><span class="dot" id="cpn-dot">0</span></button><div id="cpn-pop" class="cpn-pop" onclick="event.stopPropagation()"></div></span></div>
-<div class="sec"><h2>🧋 <span>Minuman</span></h2><div class="l"></div></div>
+<div class="bar" style="position:relative"><span>Pesanan</span><div class="stamps" id="stamps"></div><span class="count" id="loy-count">0</span><span class="cpn-wrap"><button id="cpn-btn" class="cpn-btn" onclick="event.stopPropagation();toggleCpnPop()" aria-label="Kupon"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16a1 1 0 0 1 1 1v2.2a2 2 0 0 0 0 3.6V16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2.2a2 2 0 0 0 0-3.6V8a1 1 0 0 1 1-1Z"/><path d="M9.5 7v10" stroke-dasharray="2 2.4"/></svg><span class="dot" id="cpn-dot">0</span></button><div id="cpn-pop" class="cpn-pop" onclick="event.stopPropagation()"></div></span></div>
+<div class="sec"><h2><span>Minuman</span></h2><div class="l"></div></div>
 <div id="menu-root"></div>
 <div id="cart-bar"><div class="info"><div class="count" id="cart-count">0 items</div><div class="total" id="cart-total">RM0.00</div></div><button id="cartb">Review Order</button></div>
 <div class="modal" id="cust"><div class="bg" onclick="closeCust()"></div><div class="box"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-family:var(--fd);font-weight:800;font-size:24px;color:#00D4AA">✨ <span id="c-title" style="font-family:var(--fb);font-weight:800;font-size:18px;color:#F0F0F0">Drink</span></span><button onclick="closeCust()" style="background:none;border:none;color:#9A9385;font-size:20px;cursor:pointer">✕</button></div>
