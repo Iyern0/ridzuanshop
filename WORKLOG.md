@@ -1627,6 +1627,26 @@ there is no shell to evict. Bump both only when v2 replaces the storefront.
 **Status:** ✅ confirmed in headless captures; ⚠️ still unseen by the owner on a real phone,
 and v2 is still not the storefront — that decision is the owner's.
 
+### 2026-10-23 03:20 — Design v3: the counter, built and shipped as v50
+**What happened:** The owner rejected v2 ("i dont like the frontend you design right
+now please fix it make it more modern"), so v3 was built from first principles on top
+of the same HTML/JS, then promoted over `index.html` + `drinks-order.html` and pushed.
+**Found:** v2's failure was not taste in isolation — it had removed the card grid and
+the plate the drinks stand on, so at 390px the menu read as a printed list. v3 keeps
+one shape (a pale plate per drink), one accent (lime `#C6F53C` on price tags, open pill,
+primary action) and raises density to a 2-col phone grid / 4-col at >=720.
+The glass drawings that existed in v2 were kept and generalised into `glassSVG(name)`,
+which maps name keywords to a liquid hue, so a drink added in admin gets a plausible
+glass; `photos/<id>.jpg` still wins when present.
+**Changed:** `app/design-v3.html` (new, the source file), `app/index.html`,
+`app/drinks-order.html` (identical copies), `app/sw.js` `V` -> `v50-20261023`,
+`app/.gitignore` admits `!/design-v3.html` (the whitelist was silently ignoring it).
+`#build-tag` and `#foot-build` both say v50 so the three markers agree.
+**Measured:** 390 and 1280 with the CDP harness — no horizontal overflow, no broken
+images, no console errors on the promoted root.
+**Status:** ✅ promoted and pushed; ⚠️ unseen by the owner on a real phone, and
+"modern" is now a judgement call the screenshots have to earn.
+
 ### 2026-10-23 02:20 — A deploy check read the old file, because Pages caches HTML
 **What happened:** After the push above, `Invoke-WebRequest` on the live `design-v2.html`
 returned the new build (270,472 bytes, contains `foot-build`), but the headless browser

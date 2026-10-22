@@ -1,7 +1,7 @@
 // MINUM MALAM SISWA — service worker
 // Cache name is versioned. Bump V when the app changes so old shells get evicted.
-// Current: v49 (build marker in the page corner, so a stale cache is visible at a glance)
-const V = 'v49-20261022';
+// Current: v50 (build marker in the page corner, so a stale cache is visible at a glance)
+const V = 'v50-20261023';
 const SHELL = ['./', './index.html', './drinks-order.html', './manifest.json'];
 
 self.addEventListener('install', (e) => {

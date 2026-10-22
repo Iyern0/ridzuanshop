@@ -3,12 +3,13 @@
 What the storefront looks like, and why. This is the **current state** file for
 visual decisions; `WORKLOG.md` holds the history of how it got here.
 
-Scope: the customer-facing pages. Two shells exist:
+Scope: the customer-facing pages. Three shells exist:
 
 | Shell | Status |
 |---|---|
-| `index.html` = `drinks-order.html` | **The live storefront.** Everything down to "Build marker" describes it. |
-| `design-v2.html` | **A candidate**, served at `/design-v2.html`, not linked from the storefront and not the PWA shell. See "Design v2" at the bottom. |
+| `index.html` = `drinks-order.html` | **The live storefront, v50.** It is `design-v3.html`, copied verbatim. See "Design v3" for what it is. |
+| `design-v3.html` | The v50 shell's source file. Kept so the storefront can be rebuilt from one file; identical to `index.html`. |
+| `design-v2.html` | **Superseded** — the owner rejected it ("i dont like the frontend you design right now"). Kept only as history. |
 
 The admin screens inside both files are internal and deliberately lag behind.
 
@@ -99,9 +100,9 @@ Four changes, all aimed at taps removed and dead ends closed:
 Validation was already good — inline `toast()` plus field `highlight()`, no
 `alert()`. It was left alone.
 
-## Build marker (v49)
+## Build marker (v50)
 
-A fixed `v49` pill sits at the bottom-left of the storefront (`#build-tag`). It
+A fixed `v50` pill sits at the bottom-left of the storefront (`#build-tag`). It
 exists because a service-worker cache makes "is this the new build?" impossible
 to answer by looking, and the owner was told a change had shipped while seeing
 none of it.
@@ -122,7 +123,44 @@ the case it is meant to detect.
 **Bump it in the same commit as `sw.js` `V`.** Two numbers that can disagree are
 worse than none.
 
-## Design v2 — the unlit room (candidate shell)
+## Design v3 — the counter (v50, live)
+
+The owner rejected v2 in one line: *"i dont like the frontend you design right now
+please fix it make it more modern"*. v3 is the answer, built in `design-v3.html`
+and then copied over `index.html` + `drinks-order.html`. Same HTML/JS as v1 — only
+the CSS layer, a handful of copy strings and one glass-drawing function changed.
+
+**The idea:** the page is the counter at 1AM. Warm near-black ground, drinks stand
+on pale plates like real glasses, and one high-energy colour — lime — does the
+pointing: price tags, the open-status pill, the primary action. Nothing else is
+bright, so the bright things read as instructions.
+
+| Layer | Choice | Why |
+|---|---|---|
+| Ground | `#141311`, plates `#ECEFE4`, ink `#F2F1EA`, muted `#9AA094` | Warm black, not blue-black; cream plates make the drinks the only saturated things |
+| Accent | lime `#C6F53C` on price tags, open pill, primary button | One accent = one instruction. Mint/gold/red all retired from the surface. |
+| Type | Plus Jakarta Sans 800 display + Nunito body, unchanged | Already in the CSP and already read well; the change is scale, not face |
+| Hero | title 22px → 40px at ≥720, status pill, one dim hours line, no top bar | The brand row was the thing that made it look like a template |
+| Menu | 2-col grid on phones, 4-col ≥720, section label + hairline | Density is what "modern" reads as on a phone |
+| Card | pale plate, big drink drawing, lime price tag bottom-left, name 15.5px, note 13px muted | No boxes-in-boxes; the plate is the only shape |
+| Glass fallback | `glassSVG(name)` maps drink keywords to a liquid hue (teh → amber, anggur → purple, milo → brown …) | A drink added in the admin panel gets a plausible glass with no design work; `photos/<id>.jpg` still wins when it exists |
+
+Funnel surfaces were restyled to match: the basket sheet is cream-on-warm-black,
+quantity is a real stepper, delivery choices are segmented cards with inline SVG
+icons (no emoji), and Add/Review are lime.
+
+**Known gaps of v3:** the per-drink notes are still hardcoded copy (same gap as
+v2), the admin screens are untouched, and the whole legacy v1 CSS layer is still
+in the file — v3 overrides rather than deletes it, so the design lint gate still
+flags the old values. `app/photos/` does not exist, so every card shows the drawn
+glass; dropping `<id>.jpg` files in changes that with no code edit.
+
+**Build marker is v50** in three places that must agree: `#build-tag` pill,
+footer `#foot-build`, and `sw.js` `const V`.
+
+## Design v2 — the unlit room (rejected)
+
+Superseded by v3; kept only because the reasoning is worth not repeating.
 
 `design-v2.html` is a second customer shell built beside the live one, because the
 three passes above changed the surface and the owner still read the result as the
