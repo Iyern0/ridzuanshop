@@ -1433,3 +1433,9 @@ otifyOwnerClaim fires ? closing the QR path that previously reached the seller w
 **Found / changed:** Created `docs/agents/issue-tracker.md` (local `.scratch/` template), `docs/agents/triage-labels.md` (the five canonical labels, unchanged), `docs/agents/domain.md` (single-context: root `GLOSSARY.md` + `docs/adr/`; no `GLOSSARY-MAP.md` or per-context glossaries yet), `AGENTS.md` with the `## Agent skills` block, and `.scratch/.gitkeep`. Re-admitted `AGENTS.md`, `docs/**` and `.scratch/**` in the whitelist `.gitignore`. Verification: 15/15 checks (files, block, lazy-glossary rules, no old CONTEXT names). No `CONTEXT.md`/`CONTEXT-MAP.md` existed to rename.
 **Artefacts:** `app/AGENTS.md`, `app/docs/agents/*.md`, `app/.scratch/.gitkeep`, `app/.gitignore`
 **Status:** ✅ confirmed
+
+### 2026-10-22 12:10 — Loyalty bar painted over open modals
+**What happened:** The `🎁 Pesanan` loyalty bar stayed visible on top of the menu-item modal (and every other modal). Reported via a page annotation on the live preview.
+**Found / changed:** `.bar` had `z-index:900` while `.modal` is `600`, so the bar's stacking context won the paint order. Lowered `.bar` to `z-index:250` — still above the unpositioned menu cards (the coupon bubble needs the stacking context) but below overlay `300`, cart panel `400` and modal `600`. Verified in headless Chrome: with the menu modal open, `elementFromPoint` at the bar's centre now returns the modal content, not the bar; the coupon bubble still opens above the cards (`hitInsidePop: true`). `sw.js` v44 → `v45-20261022`; `index.html` mirrored byte-identical.
+**Artefacts:** `app/drinks-order.html`, `app/index.html`, `app/sw.js`
+**Status:** ✅ confirmed in the browser; not deployed

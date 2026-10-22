@@ -704,9 +704,11 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
   .c-row>b{color:#E9E4DA;font-weight:700;text-align:right;line-height:1.45}
   #adm-detail .d-alt{background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.3);color:#00D4AA;
    font-family:var(--fb);font-size:14px;font-weight:800;padding:12px 16px;border-radius:10px;cursor:pointer}
-  /* the loyalty bar owns a stacking context so the coupon bubble can sit above
-     the menu; without it the cards painted over the bubble */
-  .bar{position:relative;z-index:900}
+  /* The loyalty bar owns a stacking context so the coupon bubble can sit above
+     the menu cards. Keep it BELOW the overlay/panel/modal layers (300/400/600):
+     at 900 it painted over every modal, so the bar stayed visible while a menu
+     item was open. Menu cards are unpositioned, so 250 still beats them. */
+  .bar{position:relative;z-index:250}
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
