@@ -1496,3 +1496,13 @@ otifyOwnerClaim fires ? closing the QR path that previously reached the seller w
 - What is genuinely exposed is the admin login: `tools/ADMIN-CREDENTIALS.txt` plus `tools/creds.js`, and that password no longer signs in. `tools/setup.js`, the one script that would want a key file, cannot run — it requires `service-account.json`, which is absent.
 **Artefacts:** none changed (read-only API checks)
 **Status:** ✅ confirmed against the APIs · 🔁 supersedes the credential clause of the 2026-10-21 20:40 audit
+
+### 2026-10-22 13:26 — The three stray keys are off the disk
+**What happened:** The owner asked for the Downloads cleanup to be done rather than described.
+**Found / changed:**
+- Swept all 7 JSON files in `Downloads` for a `private_key` + `client_email` pair, not just filenames matching a pattern: exactly 3 matched, and **none** named the live project.
+- Recycled — not permanently deleted — all three, so the action is reversible from the Recycle Bin: `menuorder-f6d71-…-3ff739ebc0.json`, `menuorder-f6d71-…-57ee8d1c96.json`, `mms-order-…-51f58c6cfb.json`. Each path was resolved and confirmed to be a regular file before the call.
+- Re-scan after the delete: 0 service-account key files remain in `Downloads`. The live project's key count is still `0`.
+- Untouched, and still open: the admin password rotation, and the plaintext `tools/ADMIN-CREDENTIALS.txt` + `tools/creds.js`.
+**Artefacts:** three files removed from `Downloads` (recoverable from the Recycle Bin); no repository file changed
+**Status:** ✅ verified absent by re-scan
