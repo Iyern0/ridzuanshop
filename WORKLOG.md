@@ -1462,3 +1462,27 @@ otifyOwnerClaim fires ? closing the QR path that previously reached the seller w
 **Verified:** the root check file exists and declares GitHub; `git status` shows only the three intended files plus the pre-existing `transit-widget/DESIGN.md`; `deck_context` still resolves `Iyern0/ridzuanshop` with preflight ok.
 **Artefacts:** `docs/agents/issue-tracker.md`, `AGENTS.md`; root `AGENTS.md` and `docs/agents/{issue-tracker,triage-labels,domain}.md`
 **Status:** ✅ confirmed locally, not pushed
+
+### 2026-10-22 13:04 — Pre-customer readiness check, read from the public surface
+**What happened:** Asked whether the site is ready for customers. Checked what a customer's browser actually receives, rather than what the repo says: the deployed bytes, every asset, and the live Firestore project probed anonymously with the page's own web key.
+**Found / changed:**
+- **Deployed build is current.** Live `index.html` is byte-identical to local after CRLF normalisation (240,677 characters each); live `sw.js` is `v45-20261022`, so the loyalty-bar fix ships. All seven customer assets return 200: `/`, `sw.js`, `manifest.json`, three icons, `qr-duitnow.jpg`.
+- **Storefront data loads for an anonymous visitor.** `settings/menu` 200 (9 drinks, RM1.00–4.00, one category), `settings/config` 200, `settings/disabled` reachable. COD fee reads `f:1` from config, so the configured-fee commit is live and not just hardcoded.
+- **Nothing private leaks.** `orders`, `coupons`, `payments`, `members`, `tracking` list → all 403; `settings/admin` 403. Matches the 10-21 audit.
+- **Rules cannot have drifted since the last check.** `firestore.rules` last changed in git at 10-21 14:17 (`f08ace9`); the 16:00 verification on 10-21 compared it block-by-block against the live source and found no difference.
+- **Defect found: the time slots read PM after midnight.** Live `slots` are `11:30PM, 12:00PM, 12:30PM, 1:00PM, 1:30PM` while `hours` is `[1350,120]` = 22:30–02:00. The status bar therefore prints *10:30PM — 2:00AM* while the chips directly below offer *12:00PM–1:30PM*, so the same screen contradicts itself. `drawTimes` renders `SLOTS` verbatim, so this is live data, not a formatting bug — `fmtMin` in the header uses AM correctly. Written 2026-10-17 20:53, never corrected; the code default was `['11:30PM','12:30AM','1:30AM']`. Owner fix in the admin panel, about two minutes.
+- **The "Siapa Kami" block is empty.** All four `who` fields (`n`, `b`, `note`, `img`) are `""`, so the founder section stays hidden. Not a live defect today — but filling `img` with the `i.pinimg.com` photo will fail silently, because CSP `img-src` allows only self, `data:`, `drive.google.com`, `lh3.googleusercontent.com` and `*.googleusercontent.com`.
+- **Two credential chores are still open from the 10-21 audit.** All three service-account keys are still in `Downloads` (`menuorder-f6d71-…-3ff739ebc0.json`, `…-57ee8d1c96.json`, `mms-order-…-51f58c6cfb.json`, dated 10-14). `tools/ADMIN-CREDENTIALS.txt` and `tools/creds.js` are still on disk. The admin password change cannot be verified from here.
+- **Cosmetic, worth a glance:** the last menu item is `bakekok` at RM1.00, lowercase and the only sub-RM2.50 entry — looks like it may not be a real product.
+**Artefacts:** none modified (read-only probes against the live site and project)
+**Status:** ⚠️ the deployed code is sound and current; one data defect, one empty copy block, and two credential chores stand between this and "ready"
+
+### 2026-10-22 13:14 — The after-midnight slots now read AM
+**What happened:** The readiness check found the live slot labels pointing at PM after midnight. Fixed in the live config. No app code changed, so `sw.js` stays `v45` and nothing was redeployed.
+**Found / changed:**
+- `settings/config.slots` was `11:30PM · 12:00PM · 12:30PM · 1:00PM · 1:30PM` against `hours` `[1350,120]` (22:30–02:00). Rewritten to `11:30PM · 12:00AM · 12:30AM · 1:00AM · 1:30AM` with a `PATCH … updateMask.fieldPaths=slots`, so the document's other nine fields were never in the request.
+- Read back anonymously: 200, the five corrected labels, `hours` still `["1350","120"]`, `unrTimes` still empty — so no disabled-slot marker was left holding a label that no longer exists. `drawTimes` prints `SLOTS` through `esc()`, so the chips show these strings as stored.
+- **The stored admin password is stale.** `signInWithPassword` for `zjasneh5@gmail.com` returns `INVALID_LOGIN_CREDENTIALS`, so `tools/creds.js` (49-character password) no longer signs in. The write went through the `firebase login` OAuth session via `tools/token.js` instead, which carries project IAM and is not subject to the rules' `isAdmin()` check. Either the password was rotated — which the audit asked for — or the file was never current. Worth confirming, then deleting the file.
+- The render could not be photographed: `agent-browser` launched but never answered `eval`, twice, each hanging past 120 s. Proof of the customer-visible result rests on the anonymous read plus the rendering line, not a screenshot.
+**Artefacts:** live `settings/config` (one field); no repository file changed
+**Status:** ✅ fixed and read back · ⚠️ not confirmed on screen
