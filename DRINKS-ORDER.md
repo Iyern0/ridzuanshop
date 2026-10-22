@@ -123,6 +123,7 @@ node deploy-rules.js
 |---|---|
 | `drinks-order.html` | Main app (edit this) |
 | `index.html` | Copy of above (GitHub Pages serves this) |
+| `design-v2.html` | **Candidate second shell**, served at `/design-v2.html`, not linked and not the PWA shell. See `DESIGN.md` → "Design v2". |
 | `firestore.rules` | **Security rules — paste into console** |
 | `manifest.json` | PWA manifest |
 | `sw.js` | Service worker — carries a `const V` cache version. Bump `V` on release; do not pin the value here, it goes stale |

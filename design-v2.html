@@ -797,14 +797,17 @@ body{font-family:var(--fb);background:var(--bg);color:var(--ink);font-size:16px;
   text-align:left;max-width:760px;margin:0 auto}
 .hero h1.wordmark{font-family:var(--fd);font-weight:400;font-size:var(--t-hero);color:var(--ink);
   letter-spacing:-0.035em;line-height:0.86;text-align:left}
-.wordmark span,.wordmark em{display:block;animation:maskUp 620ms cubic-bezier(0.22,1,0.36,1) both}
+/* One-shot reveal of the poster. Held to --d-4: the project's motion budget is
+   120-320ms, and 620ms read as the page loading slowly rather than as type
+   arriving. */
+.wordmark span,.wordmark em{display:block;animation:maskUp var(--d-4) cubic-bezier(0.22,1,0.36,1) both}
 /* One face, one colour: the italic is the only emphasis the headline gets, so
    the old `.hero h1 span{color:--mint}` accent is cancelled here. */
 .hero h1.wordmark span,.hero h1.wordmark em{color:var(--ink)}
 .wordmark em{font-style:italic;padding-left:0.02em}
-.wordmark .wm1{animation-delay:40ms}
-.wordmark .wm2{animation-delay:120ms}
-.wordmark .wm3{animation-delay:200ms}
+.wordmark .wm1{animation-delay:0ms}
+.wordmark .wm2{animation-delay:80ms}
+.wordmark .wm3{animation-delay:160ms}
 @keyframes maskUp{from{clip-path:inset(0 0 105% 0);transform:translateY(0.16em)}
   to{clip-path:inset(-25% 0 -25% 0);transform:none}}
 .hero-sub{font-family:var(--fb);font-size:17px;color:var(--ink-dim);margin-top:20px;
@@ -906,7 +909,13 @@ body{font-family:var(--fb);background:var(--bg);color:var(--ink);font-size:16px;
 .panel,.modal .box{background:#131315;border:0;border-radius:0}
 .panel .hd h2,.modal .box h2{font-family:var(--fd);font-weight:400;letter-spacing:-0.01em}
 .empty-cta{background:#C08D62;color:#0A0A0B;border:0;border-radius:0;font-weight:600}
-#build-tag{background:#131315;color:var(--muted);border-radius:0;opacity:0.5}
+/* The build marker answers one question — "which shell am I looking at?" — on
+   load, and then gets out of the way. It used to sit over the bottom-left drink
+   forever; at 390px that is the Indocafe glass. It fades at 6s and the number
+   also lives in the footer, so it is never the only place to read it. */
+#build-tag{background:#131315;color:var(--muted);border-radius:0;animation:buildFade var(--d-4) linear 5.6s forwards}
+@keyframes buildFade{from{opacity:0.55}to{opacity:0}}
+@media (prefers-reduced-motion:reduce){#build-tag{display:none}}
 
 /* ---- the drink sheet: a list to read, not a stack of pills -------------- */
 .cgrp{margin-bottom:26px}
@@ -1087,7 +1096,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--ink);font-size:16px;
 <div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:14px;margin-bottom:16px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:14px;color:#9A9385;font-weight:700">Subtotal</span><span id="confirm-sub" style="font-size:14px;color:#F0F0F0;font-weight:700"></span></div><div id="confirm-cod" style="display:none;justify-content:space-between;margin-bottom:6px"><span style="font-size:14px;color:#9A9385;font-weight:700">📦 COD</span><span style="font-size:14px;color:#F0F0F0;font-weight:700">+RM1.00</span></div><div id="confirm-free" style="display:none;justify-content:space-between;margin-bottom:6px"><span style="font-size:14px;color:#9A9385;font-weight:700">&#127903; Kupon</span><span id="confirm-free-val" style="font-size:14px;color:#C08D62;font-weight:800"></span></div><div style="display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08)"><span style="font-family:var(--fd);font-weight:800;font-size:22px;color:#F0F0F0">Jumlah</span><span id="confirm-total" style="font-family:var(--fd);font-weight:800;font-size:26px;color:#C08D62">RM0.00</span></div></div>
 <button onclick="sendWa()" id="wa-send" style="width:100%;background:#25D366;color:#fff;border:none;font-family:var(--fd);font-weight:800;font-size:17px;padding:14px;border-radius:12px;cursor:pointer;box-shadow:0 4px 0 rgba(0,0,0,0.3)">Hantar Pesanan</button>
 </div></div>
-<footer class="page-foot"><i>Minum sedap, harga mesra.</i><br>© <b>MINUM MALAM SISWA</b></footer>
+<footer class="page-foot"><i>Minum sedap, harga mesra.</i><br>© <b>MINUM MALAM SISWA</b> · <span id="foot-build">v49</span></footer>
 <div id="claim-view"></div>
 <div id="adm-detail"></div>
 <div id="adm-confirm"></div>

@@ -3,8 +3,14 @@
 What the storefront looks like, and why. This is the **current state** file for
 visual decisions; `WORKLOG.md` holds the history of how it got here.
 
-Scope: the customer-facing page (`index.html` = `drinks-order.html`, one file).
-The admin screens inside the same file are internal and deliberately lag behind.
+Scope: the customer-facing pages. Two shells exist:
+
+| Shell | Status |
+|---|---|
+| `index.html` = `drinks-order.html` | **The live storefront.** Everything down to "Build marker" describes it. |
+| `design-v2.html` | **A candidate**, served at `/design-v2.html`, not linked from the storefront and not the PWA shell. See "Design v2" at the bottom. |
+
+The admin screens inside both files are internal and deliberately lag behind.
 
 ## Direction — warm lamplight, not default dark mode
 
@@ -116,7 +122,60 @@ the case it is meant to detect.
 **Bump it in the same commit as `sw.js` `V`.** Two numbers that can disagree are
 worse than none.
 
-## Known gaps (next passes)
+## Design v2 — the unlit room (candidate shell)
+
+`design-v2.html` is a second customer shell built beside the live one, because the
+three passes above changed the surface and the owner still read the result as the
+same site. It is **not the storefront** until the owner says so: `index.html` keeps
+serving v1, the service worker precache does not include v2, and nothing links to it.
+
+**The idea, in one sentence:** the drinks become the lit objects in an unlit room.
+Every decision below follows from that sentence, which is why there are no cards,
+no frames and no coloured bands — a frame around a lit object is what a shop window
+is, and a shop window is not a table at 1AM.
+
+| Layer | Choice | Why |
+|---|---|---|
+| Ground | one colour, `#0A0A0B`; no gradients, no section borders | A room has one floor. Bands and boxes were what made v1 read as an app. |
+| Display type | Instrument Serif, roman + italic, one size (`--t-hero` clamp 56→120px) | The wordmark is the poster: three stacked lines, the italic as the only emphasis. |
+| UI type | Inter Tight 400/500, prices set in the serif | Two faces, five sizes. |
+| Accent | bronze `#C08D62`; warm ink `#D9C7AE`; red `#C0654E` for sold out | Mint and gold were re-pointed here, including inside the admin CSS, so the admin screens sit in the same room. WhatsApp green `#25D366` survives: it is the mark, not decoration. |
+| Menu | one column of glasses drawn in code (`glassArt(name)`), price in serif, name at one size, a one-line note under each | A printed menu, not a wall of tiles. A new drink in the admin panel gets its own glass with no design work. |
+| Wide screen | ≥940px becomes `menu | 306px facts rail` | The rail carries the shop's real terms (hours, COD RM1 / free pickup, payment, 5+1). It exists because removing the cards left the right half empty — the failure the direction sheet warns about. |
+| Footer | the shop's own line at 24px, left-aligned to the column | v1's centred footer with a heart emoji read as a template. |
+
+**Why the type is not Boska.** The dealt direction named Boska from fontshare; this
+page's CSP allows `fonts.googleapis.com` / `fonts.gstatic.com` only, so the face was
+redrawn rather than the CSP widened.
+
+**Motion.** The wordmark reveals once through a clip-path mask, `--d-4` 320ms, three
+lines staggered 0 / 80 / 160ms. It was 620ms, which broke the 320ms budget above and
+read as a slow load rather than as type arriving. The status dot keeps v1's single
+documented infinite breath, and only while the shop is open.
+
+**Build marker in v2.** Same `v49` number, two places: the fixed bottom-left pill
+now fades out 5.6s after load (`buildFade`, `--d-4`), and the number is also printed
+in the footer. Reason: at 390px the pill sat permanently on top of the Indocafe
+glass, which looks like a bug rather than a diagnostic. Under
+`prefers-reduced-motion` the pill is not rendered at all and the footer is the only
+place to read it.
+
+**Known gaps of v2** (kept here so they are not rediscovered):
+
+1. **The drink notes are hardcoded copy**, not Firestore data — the owner has not
+   approved the wording, and an admin edit to a drink name leaves its note stale.
+2. **The legacy v1 layer is still in the file.** v2 overrides rather than deletes,
+   so the old gradients, hairlines, shadows and emoji still exist in CSS and in the
+   admin markup. The design lint gate therefore still fails on them; that is
+   expected, not a regression.
+3. **Only the customer surface is v2.** The admin screens inherit the palette
+   because the hexes were re-pointed, but their layout, cards and two looping glows
+   are untouched.
+4. **No service worker adoption.** Putting v2 live means copying it over
+   `drinks-order.html` + `index.html` and bumping `V`; until that happens the PWA
+   shell keeps serving v1.
+
+## Known gaps (v1, next passes)
 
 1. Two drinks show "Paling Laku" at once — `v.pop` is set on more than one item
    in `settings/menu`. Data, not styling.

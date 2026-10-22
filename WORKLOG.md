@@ -1595,3 +1595,34 @@ otifyOwnerClaim fires ? closing the QR path that previously reached the seller w
 **Measured:** 390 / 1440 — `scrollWidth` = `clientWidth`, 9 rows, row height 94px, no auto-placed cells left on a row (every child reports a named area), footer text-align left.
 **Artefacts:** `app/design-v2.html`.
 **Status:** ✅ confirmed in headless captures at 390 and 1440; ⚠️ drink notes are new copy, not from Firestore
+
+### 2026-10-23 02:10 — v2: the marker stops sitting on a drink, and the poster reveal joins the budget
+**What happened:** Re-opened the project from a handoff written at 15:12, which predates the
+build marker and design v2. Before asking the owner anything, v2 was re-measured **on the live
+URL** (not local) at 390 and 1440, and two defects showed up in the numbers rather than in taste.
+**Found / changed:**
+1. `#build-tag` at 390px sat at y=816 over the **Indocafe Ais** row — a diagnostic pill parked
+   on a glass reads as a bug. It now fades out 5.6s after load (`buildFade`, `--d-4`), and the
+   number is also printed in the footer (`#foot-build`), so it is never unreadable. Under
+   `prefers-reduced-motion` the pill is not rendered; the footer carries the number.
+2. The wordmark reveal was **620ms**, which contradicts this project's own documented budget
+   (four durations, `--d-1` 120ms → `--d-4` 320ms) and reads as a slow load. Now
+   `var(--d-4)`, delays 0 / 80 / 160ms.
+3. `DESIGN.md` had no v2 section at all, and its scope line still claimed one customer page.
+   Both fixed: a "Design v2 — the unlit room" section with direction, type, colour, layout,
+   marker behaviour and four known gaps.
+**Measured:** live `/design-v2.html` before the change — 390px: 9 cards, row height 94px,
+5 stamps, `scrollWidth` 390 = `clientWidth` 390, 0 infinite animations, both faces loaded,
+tag overlapping `["Indocafe Ais"]`, one animation over budget (`SPAN.wm1 0.62s`). 1440px:
+`scrollWidth` 1425 = `clientWidth` 1425, the only off-viewport elements are the parked
+`#panel` at x=1425..1758 (known). After the change, local: tag opacity `0` at 9s, footer
+`v49`, zero animations over budget, zero infinite, no overflow at 390 or 1440.
+**Funnel re-checked against the changed file:** tapping a drink opens the sheet, the add button
+reads `+ Add to Cart · RM2.50`, after the tap the bar reads `1 item(s) RM2.50 Review Order` and
+the card shows a `1` badge — the CSS/footer edits did not touch behaviour.
+**Not changed on purpose:** `sw.js` `V` and the `v49` number — `index.html` is untouched, so
+there is no shell to evict. Bump both only when v2 replaces the storefront.
+**Artefacts:** `app/design-v2.html`, `app/DESIGN.md`, `app/WORKLOG.md`,
+`.scratch/shots/live-v2-390.png`, `live-v2-1440.png`, `v2-fix-390.png`, `v2-fix-1440.png`.
+**Status:** ✅ confirmed in headless captures; ⚠️ still unseen by the owner on a real phone,
+and v2 is still not the storefront — that decision is the owner's.
