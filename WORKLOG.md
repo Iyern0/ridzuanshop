@@ -1546,3 +1546,14 @@ otifyOwnerClaim fires ? closing the QR path that previously reached the seller w
 **Left alone deliberately:** two looping glows remain in the admin screens (`clamGlow`, `recPulse`). Internal views, out of scope for the storefront passes, flagged in `DESIGN.md`.
 **Artefacts:** `drinks-order.html`, `index.html` (mirror), `sw.js` (`v46` → `v47-20261022`), `DESIGN.md` (motion rules table).
 **Status:** ✅ confirmed by computed-style audit and isolated stepper render
+
+### 2026-10-22 15:05 — Design pass 3: fewer taps, real empty state, repeat order
+**What happened:** Third and last pass, on the ordering funnel. Four changes, each removing a tap or closing a dead end. Validation was already in good shape (inline `toast()` + `highlight()`, no `alert()`), so it was left alone.
+**Found / changed:**
+1. `defaultAdds()` existed and was never called. `openCust` set `custAdds=[]`, and `confirmCust` rejects an add with "⚠ Sila pilih pemanis" until a sweetener is chosen — so every drink cost two mandatory taps before the primary button would accept anything. `openCust` now starts from `defaultAdds()`. Verified in the running page: opening a drink yields `["s:Normal","l:Normal (100%)"]`.
+2. Empty basket was "🧺 Belum ada pesanan" with no action, while delivery method, name, block, time picker and a disabled Review Order button all stayed on screen — a form for nothing. `upCart()` now toggles `.panel.is-empty`, CSS hides `.opt` and `.ft`, and the state offers a mint "Lihat menu" button that closes the panel.
+3. Added `repeatLastOrder()`: rebuilds the basket from `mms_last`. Matching is by drink **name**, not the positional cart key (`c0v3`), because a menu edit would silently repoint a positional key at a different drink. Sold-out or removed drinks are skipped, and the toast names up to three. Tested by seeding a last order of 2× Extrajoss Mangga + 1× Milo Ais + 1 discontinued entry: 3 lines landed in the cart, the discontinued one was skipped, count read "3 item(s)", toast "✓ 3 item ditambah".
+4. `drawTimes()` renders a sentence instead of an empty row when `SLOTS` is empty: type a time or use "bila siap".
+**Measured:** cart panel with an empty basket — `panelClass="panel is-empty open"`, every `#panel .opt` hidden, `.ft` hidden. Layout still 390 = 390 with zero overflowing elements.
+**Artefacts:** `drinks-order.html`, `index.html` (mirror, SHA256 match), `sw.js` (`v47` → `v48-20261022`), `DESIGN.md` (funnel table), `WORKLOG.md`.
+**Status:** ✅ confirmed in the running page (empty state, repeat order, preselected options)

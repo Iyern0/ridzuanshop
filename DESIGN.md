@@ -78,6 +78,21 @@ and Emil's restraint, since this is a shopping flow used repeatedly on a phone.
 Measured on the rendered page: **0** infinite animations, **0** animations or
 transitions over 320ms.
 
+## Funnel (pass 3)
+
+The order path is menu → drink options → basket → delivery/payment → WhatsApp.
+Four changes, all aimed at taps removed and dead ends closed:
+
+| Change | Before | After |
+|---|---|---|
+| Drink options | Sweetener and level both unselected; `confirmCust` rejected the add with a toast until a sweetener was picked | `defaultAdds()` was written but never called — now preselected, so "Add to cart" works on the first tap |
+| Empty basket | "🧺 Belum ada pesanan" and nothing else, while the delivery method, name field, time picker and a disabled Review Order button stayed on screen | State plus a "Lihat menu" button; every form section hides via `.panel.is-empty` |
+| Repeat order | Rebuilding the same basket by hand | "↻ Ulang pesanan lepas" re-adds the last order, matched by drink **name** rather than the positional cart key, skipping items that are gone or sold out and saying which |
+| No time slots | An empty row | A sentence saying no slots are free and to type a time or use "bila siap" |
+
+Validation was already good — inline `toast()` plus field `highlight()`, no
+`alert()`. It was left alone.
+
 ## Known gaps (next passes)
 
 1. Two drinks show "Paling Laku" at once — `v.pop` is set on more than one item

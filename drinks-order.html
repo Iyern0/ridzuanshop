@@ -277,7 +277,17 @@ button:disabled:active{transform:none}
 .panel .hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 10px;border-bottom:1px solid rgba(255,255,255,0.08)}
 .panel .hd h2{font-family:var(--fd);font-weight:800;font-size:26px;color:#00D4AA}
 .panel .hd .x{background:rgba(255,255,255,0.06);border:none;color:#F0F0F0;font-size:18px;width:var(--tap);height:var(--tap);border-radius:50%;cursor:pointer}
-.panel .bd{overflow-y:auto;flex:1;padding:8px 18px}.empty{text-align:center;padding:40px 20px;color:#9A9385;font-size:15px;font-weight:700}
+.panel .bd{overflow-y:auto;flex:1;padding:8px 18px}.empty{text-align:center;padding:34px 20px;color:#9A9385;font-size:16px;font-weight:800}
+/* Empty-cart actions (design pass 3): the panel used to say "Belum ada pesanan"
+   and offer nothing, so a customer who opened the cart with nothing in it had
+   one move — the system back gesture. Now the primary action returns to the
+   menu, and a returning customer gets their last order in one tap. */
+.empty-cta{display:block;width:100%;max-width:280px;margin:16px auto 0;min-height:var(--tap);background:var(--mint);color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:15px;border-radius:12px;cursor:pointer}
+.empty-alt{display:block;width:100%;max-width:280px;margin:0 auto;min-height:var(--tap);background:rgba(255,255,255,0.05);border:1px solid var(--line2);color:var(--ink-dim);font-family:var(--fd);font-weight:800;font-size:14px;border-radius:12px;cursor:pointer}
+.empty-alt:active,.empty-cta:active{transform:scale(.985)}
+/* Empty basket: show the empty state and nothing else. */
+.panel.is-empty .opt,.panel.is-empty .ft{display:none}
+.panel.is-empty .bd{padding-top:0}
 .item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.08)}
 .ii{flex:1;min-width:0}.ii .nm{font-weight:800;font-size:14px}.ii .sb{font-size:12px;color:#9A9385;font-weight:600;margin-top:2px}
 .iq{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border-radius:8px;padding:4px 8px;flex-shrink:0}
@@ -777,7 +787,7 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
 </div></div>
 <div class="overlay" id="overlay"><div class="bg" onclick="closeCart()"></div></div>
 <div class="panel" id="panel"><div class="h"></div><div class="hd"><h2>🛒 Pesanan</h2><button class="x" onclick="closeCart()">✕</button></div>
-<div class="bd"><div class="empty" id="empty">🧺 Belum ada pesanan</div><div id="items"></div>
+<div class="bd"><div class="empty" id="empty"><div style="font-size:30px;line-height:1;margin-bottom:8px">🧺</div>Bakul kosong<div style="font-size:13px;font-weight:600;color:#9A9385;margin-top:5px;line-height:1.5">Pilih minuman dari menu untuk mula pesan.</div><div id="repeat-wrap" style="display:none;margin-top:14px"><button onclick="repeatLastOrder()" class="empty-alt">↻ Ulang pesanan lepas</button></div><button onclick="closeCart()" class="empty-cta">Lihat menu</button></div><div id="items"></div>
 <div class="opt"><div class="l">📋 Menu</div><div id="items-summary" style="font-size:14px;color:#9A9385;font-weight:600;margin-top:4px"></div></div>
 <div class="opt"><div class="l">🚗 Delivery Method</div><div class="dt" id="del"></div></div>
 <div id="cust-note" class="opt" style="display:none;align-items:center;gap:8px;padding:10px 12px;background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.18);border-radius:10px;margin-top:10px"><span id="cust-note-txt" style="font-size:13px;color:#00D4AA;font-weight:800">✓ Maklumat anda diingati pada peranti ini</span><button onclick="clearCustomer()" style="margin-left:auto;background:none;border:none;color:#9A9385;font-size:12px;font-weight:800;text-decoration:underline;cursor:pointer;flex-shrink:0">Bukan anda?</button></div>
@@ -1576,7 +1586,9 @@ function drawFounder(){const el=document.getElementById('founder');if(!el)return
 function syncTimeButton(){const b=document.getElementById('time-toggle');if(!b)return;b.textContent=(selTime==='ASAP'||!selTime?'ASAP':selTime)+' ▾'}
 function toggleTimePick(){const d=document.getElementById('time-pick');if(!d)return;const open=d.style.display==='block';d.style.display=open?'none':'block';if(open)selTime='ASAP';drawTimes();syncTimeButton()}
 function drawStatus(){const el=document.getElementById('status-bar');if(!el)return;const o=HOURS[0],c=HOURS[1];if(isOpenNow()){const left=minsUntilClose();const lft=left<60?left+' minit':Math.floor(left/60)+' jam '+(left%60)+' min';el.className='status-bar open';el.innerHTML='<span class="dot"></span> BUKA SEKARANG · tutup dalam '+lft+' ('+fmtMin(c)+')'}else{el.className='status-bar closed';el.innerHTML='<span class="dot"></span> TUTUP · buka '+fmtMin(o)+' — anda masih boleh lihat menu'}clearTimeout(window._statusTmr);window._statusTmr=setTimeout(drawStatus,30000)}
-function drawTimes(){document.getElementById('times').innerHTML=SLOTS.map((t,i)=>{const u=unrTimes.includes(t),a=selTime===t?' active':'';return'<button class="t-btn'+a+(u?' unavail':'')+(admin?' admin-mode':'')+'" onclick="selT('+i+')"'+(u&&!admin?' disabled':'')+'>'+esc(t)+'</button>'}).join('')}
+function drawTimes(){const _el=document.getElementById('times');
+  if(!SLOTS.length){_el.innerHTML='<div style="font-size:13px;color:#9A9385;font-weight:700;padding:4px 2px;line-height:1.5">Tiada slot masa tersedia sekarang. Taip masa yang anda mahu di bawah, atau pesan bila siap.</div>';return}
+  _el.innerHTML=SLOTS.map((t,i)=>{const u=unrTimes.includes(t),a=selTime===t?' active':'';return'<button class="t-btn'+a+(u?' unavail':'')+(admin?' admin-mode':'')+'" onclick="selT('+i+')"'+(u&&!admin?' disabled':'')+'>'+esc(t)+'</button>'}).join('')}
 function selT(i){const t=SLOTS[i];if(t===undefined)return;if(admin){const k=unrTimes.indexOf(t);if(k>-1)unrTimes.splice(k,1);else unrTimes.push(t);saveConfig();drawTimes();return}if(unrTimes.includes(t)){toast('❌ Time not available');return}selTime=t;const _pi=document.getElementById('pickup-time');if(_pi)_pi.value='';drawTimes()}
 function drawCust(){if(!custItem||!MENU[custItem.ci]||!MENU[custItem.ci].items[custItem.vi]){closeCust();return}const sw=document.getElementById('c-sweet'),lv=document.getElementById('c-level'),ex=document.getElementById('c-extra');sw.innerHTML='';lv.innerHTML='';ex.innerHTML='';ADDS.forEach(a=>{const s=custAdds.includes(a.id),d=disAdds.includes(a.id);const ch='<button type="button" class="opt-btn'+(s?' sel':'')+(d?' dis':'')+'" onclick="togC(\''+a.id+'\')">'
     +'<span class="ob-dot"></span>'
@@ -1585,15 +1597,53 @@ function drawCust(){if(!custItem||!MENU[custItem.ci]||!MENU[custItem.ci].items[c
     +'</button>';if(a.grp==='s')sw.innerHTML+=ch;else if(a.grp==='l')lv.innerHTML+=ch;else ex.innerHTML+=ch;});const at=custAdds.reduce((s,id)=>{const a=findAdd(id);return s+(a?a.price:0)},0);document.getElementById('c-price').textContent=(at+(custItem?MENU[custItem.ci].items[custItem.vi].price:0)).toFixed(2);}
 let _addClicks={},_addTmr={};
 function togC(addId){const a=findAdd(addId);if(!a)return;if(disAdds.includes(addId)&&!admin){toast('❌ '+a.name+' habis');return}if(admin){_addClicks[addId]=(_addClicks[addId]||0)+1;clearTimeout(_addTmr[addId]);_addTmr[addId]=setTimeout(()=>{_addClicks[addId]=0},2000);if(_addClicks[addId]>=4){_addClicks[addId]=0;if(disAdds.includes(addId)){disAdds=disAdds.filter(x=>x!==addId);toast('✓ '+a.name+' diaktifkan')}else{disAdds.push(addId);toast('❌ '+a.name+' dilumpuhkan')}saveConfig();drawCust();return}}const idx=custAdds.indexOf(addId);if(idx>-1){custAdds.splice(idx,1)}else{if(a.grp==='s'||a.grp==='l'){custAdds=custAdds.filter(id=>{const x=findAdd(id);return x&&x.grp!==a.grp})}custAdds.push(addId)}drawCust()}
-function openCust(ci,vi){track('item_open');custItem={ci,vi};custAdds=[];document.getElementById('c-title').textContent=MENU[ci].items[vi].name;drawCust();document.getElementById('cust').style.display='flex'}
+/* Defaults are pre-selected on purpose (design pass 3). `defaultAdds()` already
+   existed but was never called, so opening a drink meant two mandatory taps —
+   one for the sweetener, one for the level — before "Add to cart" would even
+   accept the tap, because confirmCust rejects a missing sweetener. Preselecting
+   the first available option of each required group removes those taps and the
+   rejection toast with them. Anything the customer picks replaces the default. */
+function openCust(ci,vi){track('item_open');custItem={ci,vi};custAdds=defaultAdds();document.getElementById('c-title').textContent=MENU[ci].items[vi].name;drawCust();document.getElementById('cust').style.display='flex'}
 function closeCust(){custItem=null;custAdds=[];document.getElementById('cust').style.display='none'}
 function confirmCust(){if(!custItem)return;const hasSweet=custAdds.some(id=>{const a=findAdd(id);return a&&a.grp==='s'});const anySweetAvail=ADDS.some(a=>a.grp==='s'&&!disAdds.includes(a.id));if(!hasSweet&&anySweetAvail){toast('⚠ Sila pilih pemanis');return}const id='c'+custItem.ci+'v'+custItem.vi;if(!cart[id])cart[id]=[];cart[id].push({adds:[...custAdds]});saveCart();track('add_cart');buzz(15);closeCust();draw();toast('✓ Ditambah')}
 function defaultAdds(){const out=[];const s=ADDS.find(a=>a.grp==='s'&&!disAdds.includes(a.id));const l=ADDS.find(a=>a.grp==='l'&&!disAdds.includes(a.id));if(s)out.push(s.id);if(l)out.push(l.id);return out}
 function addToCart(id){if(isDis(id)){toast('❌ Item habis');return}const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;openCust(ci,vi)}
 function remInst(key,idx){if(cart[key]){cart[key].splice(idx,1);if(cart[key].length===0)delete cart[key];saveCart();draw()}}
-function upCart(){drawDel();const e=Object.entries(cart);let totalItems=0;e.forEach(([_,v])=>totalItems+=v.length);const bar=document.getElementById('cart-bar');if(totalItems>0){bar.classList.add('show');document.getElementById('cart-count').textContent=totalItems+' item(s)';}else{bar.classList.remove('show');}document.getElementById('checkout').disabled=totalItems===0;drawTimes();drawDel();syncTimeButton();let total=0,html='';e.forEach(([id,items])=>{if(!MENU)return;const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;const item=MENU[ci].items[vi];items.forEach((inst,i)=>{const ac=inst.adds.reduce((s,aid)=>{const a=findAdd(aid);return s+(a?a.price:0)},0);const base=Number(item.price)||0;total+=base+ac;const al=inst.adds.map(aid=>{const a=findAdd(aid);return a?a.name:''}).filter(Boolean).join(', ');html+='<div class="item"><div class="ii"><div class="nm">'+esc(item.name)+'</div><div class="sb">RM'+(base+ac).toFixed(2)+(al?' <span style="color:#9A9385">· '+esc(al)+'</span>':'')+'</div></div><div class="iq"><button onclick="remInst(\''+id+'\','+i+')" style="color:#FF6B6B">−</button><button onclick="addToCart(\''+id+'\')" style="color:#00D4AA">+</button></div></div>';});});document.getElementById('items').innerHTML=html;document.getElementById('items-summary').textContent=totalItems+' item(s) · RM'+total.toFixed(2);const cod=(isCod===true?delFee('cod'):0);const _cfv=document.getElementById('cod-fee-val');if(_cfv)_cfv.textContent='RM'+delFee('cod').toFixed(2);document.getElementById('sub').textContent='RM'+total.toFixed(2);document.getElementById('total').textContent='RM'+(total+cod).toFixed(2);document.getElementById('cart-total').textContent='RM'+(total+cod).toFixed(2);document.getElementById('empty').style.display=totalItems?'none':'block';document.getElementById('cod-row').style.display=isCod===true?'flex':'none';}
+function upCart(){drawDel();const e=Object.entries(cart);let totalItems=0;e.forEach(([_,v])=>totalItems+=v.length);const bar=document.getElementById('cart-bar');if(totalItems>0){bar.classList.add('show');document.getElementById('cart-count').textContent=totalItems+' item(s)';}else{bar.classList.remove('show');}document.getElementById('checkout').disabled=totalItems===0;drawTimes();drawDel();syncTimeButton();let total=0,html='';e.forEach(([id,items])=>{if(!MENU)return;const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;const item=MENU[ci].items[vi];items.forEach((inst,i)=>{const ac=inst.adds.reduce((s,aid)=>{const a=findAdd(aid);return s+(a?a.price:0)},0);const base=Number(item.price)||0;total+=base+ac;const al=inst.adds.map(aid=>{const a=findAdd(aid);return a?a.name:''}).filter(Boolean).join(', ');html+='<div class="item"><div class="ii"><div class="nm">'+esc(item.name)+'</div><div class="sb">RM'+(base+ac).toFixed(2)+(al?' <span style="color:#9A9385">· '+esc(al)+'</span>':'')+'</div></div><div class="iq"><button onclick="remInst(\''+id+'\','+i+')" style="color:#FF6B6B">−</button><button onclick="addToCart(\''+id+'\')" style="color:#00D4AA">+</button></div></div>';});});document.getElementById('items').innerHTML=html;document.getElementById('items-summary').textContent=totalItems+' item(s) · RM'+total.toFixed(2);const cod=(isCod===true?delFee('cod'):0);const _cfv=document.getElementById('cod-fee-val');if(_cfv)_cfv.textContent='RM'+delFee('cod').toFixed(2);document.getElementById('sub').textContent='RM'+total.toFixed(2);document.getElementById('total').textContent='RM'+(total+cod).toFixed(2);document.getElementById('cart-total').textContent='RM'+(total+cod).toFixed(2);document.getElementById('empty').style.display=totalItems?'none':'block';document.getElementById('cod-row').style.display=isCod===true?'flex':'none';const _rw=document.getElementById('repeat-wrap');if(_rw){const _lo=loadMyOrder();_rw.style.display=(_lo&&Array.isArray(_lo.items)&&_lo.items.length)?'block':'none'}
+/* An empty basket should not show a delivery method, a name field, a time
+   picker and a disabled Review Order button — that is a form for nothing. The
+   panel gets .is-empty and CSS hides everything but the empty state. */
+document.getElementById('panel').classList.toggle('is-empty',totalItems===0)}
 function openCart(){document.getElementById('overlay').classList.add('open');document.getElementById('panel').classList.add('open')}
 function closeCart(){document.getElementById('overlay').classList.remove('open');document.getElementById('panel').classList.remove('open')}
+/* Re-order from the last saved order (design pass 3). Repeat customers are the
+   norm at a stall, and rebuilding the same basket by hand was the longest part
+   of the funnel. Matching is by drink NAME, not by cart key: keys are positional
+   ('c0v3') and a menu edit would silently point them at the wrong drink. Names
+   that no longer exist, or are sold out, are skipped and reported instead of
+   being added as something else. */
+function repeatLastOrder(){
+  const o=loadMyOrder();
+  if(!o||!Array.isArray(o.items)||!o.items.length){toast('Tiada pesanan lepas');return}
+  if(!MENU||!MENU.length){toast('Menu belum dimuatkan');return}
+  const flat=[];MENU.forEach((cat,ci)=>cat.items.forEach((v,vi)=>flat.push({ci,vi,v})));
+  const norm=s=>String(s||'').trim().toLowerCase();
+  let added=0;const missing=[];
+  o.items.forEach(entry=>{
+    const hit=flat.find(f=>norm(f.v.name)===norm(entry.name));
+    const key=hit?('c'+hit.ci+'v'+hit.vi):null;
+    if(!hit||isDis(key)){missing.push(entry.name);return}
+    const adds=(entry.adds||[]).map(n=>{const a=ADDS.find(x=>norm(x.name)===norm(n));return a&&!disAdds.includes(a.id)?a.id:null}).filter(Boolean);
+    if(!cart[key])cart[key]=[];
+    const qty=Math.max(1,Math.min(20,Number(entry.qty)||1));
+    for(let i=0;i<qty;i++)cart[key].push({adds:[...adds]});
+    added+=qty;
+  });
+  if(!added){toast('Tiada item yang masih tersedia');return}
+  saveCart();draw();upCart();
+  toast('✓ '+added+' item ditambah');
+  if(missing.length)setTimeout(()=>toast('Tidak tersedia: '+missing.slice(0,3).join(', ')),1500);
+}
 let codFreeUp=false;
 function cartInstances(){let k=0;Object.keys(cart).forEach(function(id){const c=cart[id];if(c&&c.length)k+=c.length});return k}
 // The cart holds nothing but the coupon's own drink.
