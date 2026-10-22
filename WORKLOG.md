@@ -1626,3 +1626,20 @@ there is no shell to evict. Bump both only when v2 replaces the storefront.
 `.scratch/shots/live-v2-390.png`, `live-v2-1440.png`, `v2-fix-390.png`, `v2-fix-1440.png`.
 **Status:** ✅ confirmed in headless captures; ⚠️ still unseen by the owner on a real phone,
 and v2 is still not the storefront — that decision is the owner's.
+
+### 2026-10-23 02:20 — A deploy check read the old file, because Pages caches HTML
+**What happened:** After the push above, `Invoke-WebRequest` on the live `design-v2.html`
+returned the new build (270,472 bytes, contains `foot-build`), but the headless browser
+navigating the *same URL* still measured the **old** build: no footer number, `maskUp`
+at 0.62s, `#build-tag` still at 0.55 opacity after 9s. Two instruments, two answers.
+**Found:** the browser served GitHub Pages' HTTP cache. Pages sends HTML with a short
+freshness lifetime (~10 min), so a second navigation inside that window never reaches the
+network. Adding a `?cb=<epoch>` query string forced a real fetch and the measurement
+matched the deployment exactly.
+**Consequence for this project:** "the live page still looks old" has **three** possible
+causes, and they must be ruled out in this order — (1) the CDN/browser HTTP cache, checked
+by appending a cache-busting query; (2) the service-worker shell cache, checked by the
+`#build-tag` number; (3) an actually failed deploy, checked by curl bytes and content.
+Only the third one is a code problem.
+**Artefacts:** none; no code changed.
+**Status:** ✅ confirmed — same URL, cache-busted, reproduced the new build at 390 and 1440.
