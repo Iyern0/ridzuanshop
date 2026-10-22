@@ -93,6 +93,29 @@ Four changes, all aimed at taps removed and dead ends closed:
 Validation was already good — inline `toast()` plus field `highlight()`, no
 `alert()`. It was left alone.
 
+## Build marker (v49)
+
+A fixed `v49` pill sits at the bottom-left of the storefront (`#build-tag`). It
+exists because a service-worker cache makes "is this the new build?" impossible
+to answer by looking, and the owner was told a change had shipped while seeing
+none of it.
+
+The number is **baked into the HTML**, not read from `sw.js` at runtime — that
+is the whole mechanism. A stale cached shell shows the old number; a shell older
+than the marker shows nothing. Read live from the worker it would lie in exactly
+the case it is meant to detect.
+
+| Property | Value | Why |
+|---|---|---|
+| `pointer-events` | `none` | Must never swallow a tap. Confirmed with `elementFromPoint`. |
+| `z-index` | `150` | Under `#cart-bar`'s `200`, so an open cart covers it instead of clipping it in half. |
+| bottom | `calc(8px + env(safe-area-inset-bottom))` | Clears the iPhone home indicator. |
+| size / opacity | 10px, `0.55` | A diagnostic, not decoration. |
+| count | exactly one, in the storefront footer layer | Not on admin screens — they have their own version drift to deal with. |
+
+**Bump it in the same commit as `sw.js` `V`.** Two numbers that can disagree are
+worse than none.
+
 ## Known gaps (next passes)
 
 1. Two drinks show "Paling Laku" at once — `v.pop` is set on more than one item

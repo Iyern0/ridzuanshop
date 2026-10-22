@@ -241,6 +241,13 @@ GitHub Pages auto-deploys ~1 min after push.
 > first shell it ever cached was pinned forever. `sw.js` now uses a version constant and
 > skips all Firebase/googleapis/gstatic traffic. **Bump `V` on every release.**
 
+> **Version marker.** A fixed `#build-tag` pill sits bottom-left of the storefront and
+> prints the build number (`v49` at the time of writing). The number is baked into the
+> HTML on purpose: a browser running a stale cached shell shows the **old** number, or
+> nothing at all if its shell predates the marker. So when the owner says "nothing
+> changed", the first question is now "what does the corner say?" — not a screenshot
+> comparison. **Bump it in the same commit as `V`.** Details in `DESIGN.md`.
+
 ---
 
 ## Bugs fixed in the 2026-10 security pass
