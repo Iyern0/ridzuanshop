@@ -1486,3 +1486,13 @@ otifyOwnerClaim fires ? closing the QR path that previously reached the seller w
 - The render could not be photographed: `agent-browser` launched but never answered `eval`, twice, each hanging past 120 s. Proof of the customer-visible result rests on the anonymous read plus the rendering line, not a screenshot.
 **Artefacts:** live `settings/config` (one field); no repository file changed
 **Status:** ✅ fixed and read back · ⚠️ not confirmed on screen
+
+### 2026-10-22 13:20 — CORRECTION: the three stray keys are not the live project's
+**What happened:** Teaching the credential fix meant finding out which project each leftover key actually opens. None of them opens the live one, so the 10-21 audit's phrase *"revoke the three service-account keys"* has been read as a live-project risk when it is not.
+**Found / changed:**
+- Both `menuorder-f6d71-…` files carry keys for `firebase-adminsdk-fbsvc@menuorder-f6d71.iam.gserviceaccount.com`; `mms-order-…` carries `…@mms-order.iam.gserviceaccount.com`. The live project is `minum-malam-siswa`. Three files, two projects, neither of them the shop.
+- Cloud Resource Manager lists exactly one project for this account: `minum-malam-siswa` (`ACTIVE`). `menuorder-f6d71` and `mms-order` are absent from the list, and Firestore answers `403 Cloud Firestore API has not been used in project … before or it is disabled` on both — so no customer data was ever stored there.
+- The live project holds **zero user-managed service-account keys** (`…/serviceAccounts/…/keys?keyTypes=USER_MANAGED` → 200, count `0`), and no key file for it exists on disk. Its only service account is the enabled Firebase default, which is harmless without a key.
+- What is genuinely exposed is the admin login: `tools/ADMIN-CREDENTIALS.txt` plus `tools/creds.js`, and that password no longer signs in. `tools/setup.js`, the one script that would want a key file, cannot run — it requires `service-account.json`, which is absent.
+**Artefacts:** none changed (read-only API checks)
+**Status:** ✅ confirmed against the APIs · 🔁 supersedes the credential clause of the 2026-10-21 20:40 audit
