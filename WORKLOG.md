@@ -1891,3 +1891,30 @@ paints again") and checked the deployed app in a real browser.
 **Artefacts:** commit `0a28a91`; screenshots `\.scratch\probe\live-v55-shop.png`,
 `live-v55-admin.png`.
 **Status:** ✅ confirmed live.
+
+### 2026-10-23 10:48 — An attacker's eye on the admin page: 11 attempts, 11 denials
+**What happened:** the owner asked whether the dashboard is safe. Instead of re-reading the
+rules and saying yes, I attacked the live site from a real browser with no login and recorded
+what the database answered. New probe: `\.scratch\probe\attack.js`.
+**Found / changed:**
+- Unauthenticated, against `https://iyern0.github.io/ridzuanshop/` (Firebase live, no stub):
+  `orders` list, `orders` update, `orders` delete, `settings/admin` get, `settings/menu` set,
+  `settings/config` set, `payments` list, `members` list, `coupons` list, `milestones` get,
+  `events` list -> **11/11 `permission-denied`**.
+- Public by design and confirmed reachable: `counters/<day>` (order counter) and
+  `tracking/<code>` (needs the exact 6-character code).
+- The gate is one line: `isAdmin()` = signed-in user whose email is exactly
+  `zjasneh5@gmail.com` (`firestore.rules:29-32`). Client-side `isAdmin(){return !!adminUser()}`
+  is decoration; editing it in devtools grants nothing because the token is what rules read.
+- The obsolete plaintext-password document `settings/admin` is unreadable even when the path is
+  known (`docId != 'admin'` at `firestore.rules:335`).
+- No credential ever entered version control: `git log --all -S password` shows only docs
+  commits; `tools\ADMIN-CREDENTIALS.txt` and `tools\creds.js` were recycled untracked. The
+  repo is **public**, so rules, the admin email and the Firebase web API key are all readable -
+  the API key is public by design and authorizes nothing on its own.
+- Remaining exposure, ranked: (1) the password itself, (2) the Gmail account behind it (a
+  password reset goes to that inbox), (3) open sign-up lets strangers mint accounts that rules
+  deny everything - nuisance orders/events only. Session persistence means the dashboard skips
+  the password on a device already signed in, mitigated by `IDLE_LOCK_MS=15*60*1000`.
+**Artefacts:** `\.scratch\probe\attack.js`; screenshot `\.scratch\probe\atk-v55.png`.
+**Status:** ✅ measured, not assumed.
