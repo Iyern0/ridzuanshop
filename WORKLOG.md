@@ -1693,3 +1693,17 @@ opens on "📥 Pesanan", and `lockAdmin()` closes the panel and shows the login 
 **Status:** ⚠️ provisional — verified in a headless browser only; the dashboard has not
 been opened on the owner's phone, and `python tools/build.py` has to run before every
 future commit, because `index.html` and `admin.html` are now generated.
+
+### 2026-10-23 09:47 — The dashboard's login looks like a page, not a dimmed overlay
+**What happened:** After the split, `/admin.html` opened with the old login box under a
+grey scrim — the scrim existed to dim the shop window that used to sit behind it, and
+behind it now is an empty page, so the card floated on grey with a hard outline.
+**Found / changed:** `body[data-page="admin"]` gets the page surface as its background,
+the login modal's scrim is switched off there, and the card carries its own shadow
+instead of an outline. Nothing outside the dashboard page is touched.
+**Measured:** live `/admin.html` at 390x844 — scrim computed `none`, 0 console errors;
+`/?admin=1&order=TEST123` still redirects to `/admin.html` with the query intact, so the
+notification deep link keeps working.
+**Artefacts:** `app/src/css/app.css` (three rules + card shadow), `app/index.html` and
+`app/admin.html` (rebuilt).
+**Status:** ✅ confirmed live (\`fe036db\`).
