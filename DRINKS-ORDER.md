@@ -15,7 +15,7 @@ PWA web app for a student stall (10:30PM–2:00AM). Customers browse menu, order
 - **Firebase Firestore** — ALL data stored here (no Gist, no token)
 - **Firebase Auth (Email/Password)** — gates the admin dashboard
 - **WhatsApp** — orders sent via wa.me deep link
-- **Look** — v53 shell, authored in `src/`; v50's single file is kept as `design-v3.html` for reference, and what/why is in `DESIGN.md`
+- **Look** — v54 shell, authored in `src/`; v50's single file is kept as `design-v3.html` for reference, and what/why is in `DESIGN.md`
 - **Type** — Plus Jakarta Sans 800 for display, Nunito for body, named once as `--fd` / `--fb` in `:root`. No text below 11px; inputs are 16px so iOS does not zoom the page when a field is focused.
 - **PWA** — manifest.json, icons, service worker (installable)
 

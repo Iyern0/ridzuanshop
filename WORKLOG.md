@@ -1780,3 +1780,38 @@ completes (3 recorded writes), done screen `display:flex`, build tag `v53`; cont
 **Artefacts:** `app/src/css/app.css`, `app/src/js/customer.js`, `app/tools/build.py`,
 `app/sw.js`, the three rebuilt pages.
 **Status:** ✅ confirmed locally, pending push.
+
+### 2026-10-23 12:10 — The dashboard stops wearing the old dark suit (v54)
+**What happened:** the admin dashboard became its own page in v51 but kept the CSS it
+wore as a dark sheet over the shop. This pass repainted it for the pale page it now
+is, and measured every text node on every tab to prove the result.
+**Found / changed:**
+- Seven card surfaces were still `#171412` (`.a-stat`, `#claim-view .cv-box`, `.o-row`,
+  `#adm-detail .d-box`, `.cpn-pop`, `.cpn-pop:before`, `.c-card`) with ink text on them.
+  All become `var(--surface)`; the selected option's inset ring and the row hover stay
+  ink-tinted.
+- Light-on-dark text that no longer had a dark bed: `.o-clam.unseen` pale blue on pale
+  blue -> `#134D86`; `.a-receipt.on` -> white on `#1D5FA8`; `.cpn-row button.go` dark
+  glyph on ink -> `var(--bg)`; `.c-row>b` near-white -> `var(--ink)`, `.c-row>span` ->
+  `var(--muted)`; the delete cross -> `#9C2A12`; the coupon sphere `.cpn-btn` -> a light
+  round button.
+- The sidebar was still `#141110` with `var(--muted)` links (1.9:1): now `var(--surface)`.
+- The row controls (33px, 14px glyph) were `var(--muted)` on a tint (4.33:1) and the
+  delete cross `var(--red)` (4.07:1): now `var(--ink-dim)` and `#9C2A12`.
+- `.a-bulk button` had been pulled into the "anything painted ink keeps its text
+  legible" rule while being a pale button, so its label was `#F7FAF5` on a pale tint
+  (1.36:1). Removed from that group.
+- Gold chrome that read as a different product: the delivery segment's active pill,
+  the list price column and the order location line now use the ink tokens. Gold stays
+  on warnings and the "Popular" badge, where it means something.
+**Measured:** contrast walk (`\.scratch\probe\admin-audit.js`, every text node of menu,
+add-ons, schedule, delivery, coupons, orders, analytics, settings and the order detail
+panel, WCAG AA 4.5 / 3.0, faded rows exempt): **25 fails of 207 nodes** on the first run
+(add-ons 14, schedule 5, delivery 6), **0 fails** after; worst non-faded pair 5.04:1.
+**Artefacts:** `app/src/css/app.css`, `app/src/js/admin.js`, `app/tools/build.py`,
+`app/sw.js`, `app/DRINKS-ORDER.md`, the three rebuilt pages.
+**Status:** ✅ confirmed locally, pending push.
+
+### CORRECTION (the v53 entry above)
+The v53 entry ends "pending push"; it was in fact pushed as `d2e4419` and is live
+(`sw.js` served `v53-20261023`, the contracts job passed in 14 s, run 39887236656).

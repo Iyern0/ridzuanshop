@@ -130,7 +130,7 @@ function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
         +'<div style="display:flex;gap:5px;margin-top:10px">'
         +[0,1,2,3,4].map(function(i){return '<span style="flex:1;height:6px;border-radius:3px;background:'+(i<step?'#101A16':'rgba(16,26,22,0.12)')+'"></span>'}).join('')
         +'</div>'
-        +'<div style="font-size:11.5px;color:#6B7A73;margin-top:6px">'+step+'/5 setakat ini</div>';
+        +'<div style="font-size:11.5px;color:var(--muted);margin-top:6px">'+step+'/5 setakat ini</div>';
       return;
     }
     pop.innerHTML='<h4>You have '+a.length+' coupon'+(a.length>1?'s':'')+'</h4>'
@@ -397,7 +397,7 @@ async function couponCheck(){
   if(code.length!==8){msg.style.color='#C6381E';msg.textContent='Kod mesti 8 aksara - semak semula kupon itu.';return}
   const db=getDb();
   if(!db){msg.style.color='#C6381E';msg.textContent='Tiada sambungan. Cuba lagi.';return}
-  msg.style.color='#6B7A73';msg.textContent='Menyemak kupon...';
+  msg.style.color='var(--muted)';msg.textContent='Menyemak kupon...';
   try{
     const snap=await db.collection('coupons').doc(code).get();
     if(!snap.exists){msg.style.color='#C6381E';msg.textContent='Kupon tidak dijumpai. Semak huruf dan nombor.';return}
@@ -552,7 +552,7 @@ if(payM==='qr'&&!stagedProof){toast('⚠ Hantar resit dahulu');closeConfirm();re
   cpnCode='';cpnOk=false;cpnLine=-1;
   {const _ci=document.getElementById('inp-coupon');if(_ci)_ci.value='';
    const _cs=document.getElementById('coupon-section');if(_cs)_cs.style.display='none';
-   const _cm=document.getElementById('coupon-msg');if(_cm){_cm.style.color='#6B7A73';_cm.textContent='Masukkan kod yang penjual beri. Satu kod untuk satu minuman percuma (add-on tetap dikenakan).'}}
+   const _cm=document.getElementById('coupon-msg');if(_cm){_cm.style.color='var(--muted)';_cm.textContent='Masukkan kod yang penjual beri. Satu kod untuk satu minuman percuma (add-on tetap dikenakan).'}}
   // The checkout receipt block goes back to blank for the next order, and the
   // payment choice is cleared on screen as well as in state, so the QR section
   // does not linger showing a resit that has already been sent.
@@ -818,9 +818,9 @@ function claimBlockHtml(p){
   const box=p?'block':'none';
   return '<div id="'+p+'claim-panel" style="display:'+box+';background:rgba(16,26,22,0.04);border:1px solid rgba(16,26,22,0.1);border-radius:12px;padding:14px;margin-bottom:12px;text-align:left">'
     +'<div style="font-size:13px;font-weight:800;color:#101A16;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">💰 Bayar sekarang</div>'
-    +'<div style="font-size:13px;color:#6B7A73;font-weight:600;margin-bottom:12px;line-height:1.5">Scan QR di atas, kemudian hantar resit (gambar atau PDF) supaya penjual boleh sahkan bayaran anda.</div>'
+    +'<div style="font-size:13px;color:var(--muted);font-weight:600;margin-bottom:12px;line-height:1.5">Scan QR di atas, kemudian hantar resit (gambar atau PDF) supaya penjual boleh sahkan bayaran anda.</div>'
     +'<input type="file" id="'+p+'claim-file" accept="image/*,application/pdf" style="display:none" onchange="claimPicked(\''+p+'\')">'
-    +'<label for="'+p+'claim-file" class="filelbl">📎 Pilih resit — gambar atau PDF <span style="color:#C6381E">(wajib)</span></label>'
+    +'<label for="'+p+'claim-file" class="filelbl">📎 Pilih resit — gambar atau PDF <span style="color:var(--red-ink)">(wajib)</span></label>'
     +'<div id="'+p+'claim-file-name" style="display:none;font-size:13px;color:#101A16;font-weight:700;margin-bottom:10px">✓ Resit dipilih</div>'
     +'<button id="'+p+'claim-send" onclick="sendClaim(\''+p+'\')" style="width:100%;background:#101A16;color:#F7FAF5;border:none;font-weight:800;font-size:14px;padding:13px;border-radius:10px;cursor:pointer">Saya dah bayar</button></div>';
 }

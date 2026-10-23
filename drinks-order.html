@@ -19,7 +19,7 @@
      ====================================================================== */
   --bg:#EFF3F0;--surface:#FFFFFF;--surface2:#E7EDE8;
   --line:rgba(16,26,22,0.10);--line2:rgba(16,26,22,0.06);
-  --ink:#0E1713;--ink-dim:#39443F;--muted:#67736D;
+  --ink:#0E1713;--ink-dim:#39443F;--muted:#5E6A64;--red-ink:#A82D14;
   --mint:#0E1713;--gold:#0E1713;--red:#C6381E;--wa:#25D366;
   --tag:#C9F14B;
   --t-hero:22px;--t-h2:11px;--t-name:13px;--t-price:12px;--t-sub:11.5px;--t-meta:11px;
@@ -55,7 +55,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--ink);min-height:100v
 .card .e{font-size:31px;line-height:1;width:56px;height:56px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:radial-gradient(circle at 50% 36%,rgba(138,90,0,0.11),rgba(16,26,22,0.035) 72%);border:1px solid var(--line)}
 .card .n{font-family:var(--fd);font-weight:800;font-size:var(--t-name);color:var(--ink);line-height:1.25;letter-spacing:-0.1px;min-height:2.5em;display:flex;align-items:center}
 .card .p{font-family:var(--fd);font-weight:800;font-size:var(--t-price);color:var(--gold);letter-spacing:-0.3px;line-height:1}
-.card .badge{position:absolute;top:0;right:0;background:rgba(198,56,30,0.14);color:#C6381E;border-left:1px solid rgba(198,56,30,0.28);border-bottom:1px solid rgba(198,56,30,0.28);font-size:10px;font-weight:900;letter-spacing:0.3px;padding:3px 9px;border-radius:0 var(--r-card) 0 11px}
+.card .badge{position:absolute;top:0;right:0;background:rgba(198,56,30,0.14);color:var(--red-ink);border-left:1px solid rgba(198,56,30,0.28);border-bottom:1px solid rgba(198,56,30,0.28);font-size:10px;font-weight:900;letter-spacing:0.3px;padding:3px 9px;border-radius:0 var(--r-card) 0 11px}
 /* `@keyframes glow` lived here: a red box-shadow loop on the "Paling Laku"
    badge. The badge became a static corner tag in design pass 1, so it went. */
 .card .qty{position:absolute;top:-5px;left:-5px;background:#101A16;color:#F7FAF5;font-size:12px;font-weight:900;min-width:22px;height:22px;border-radius:999px;display:flex;align-items:center;justify-content:center;padding:0 5px}
@@ -64,7 +64,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--ink);min-height:100v
 .card-toggle{position:absolute;top:-5px;left:-5px;width:28px;height:28px;border-radius:50%;border:2px solid rgba(16,26,22,0.15);font-size:14px;cursor:pointer;z-index:5;display:none;align-items:center;justify-content:center;transition:transform var(--d-1) var(--eo),border-color var(--d-2) var(--eo),background var(--d-2) var(--eo)}
 .card.admin-mode .card-toggle{display:flex}
 .card-toggle.on{background:#101A16;color:#F7FAF5;border-color:#101A16}
-.card-toggle.off{background:#C6381E;color:#fff;border-color:#C6381E}
+.card-toggle.off{background:#C6381E;color:#fff;border-color:var(--red-ink)}
 .card-toggle:active{transform:scale(0.9)}
 .card .sold{bottom:8px;right:8px}
 .status-bar{display:flex;align-items:flex-start;justify-content:center;gap:7px;padding:9px 14px;font-size:12.5px;font-weight:800;letter-spacing:0.15px;line-height:1.45;text-align:left}
@@ -83,7 +83,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--ink);min-height:100v
 .founder img{width:46px;height:46px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #101A16}
 .founder .fi{flex:1;min-width:0}
 .founder .fn{font-weight:800;font-size:14px;color:#101A16}
-.founder .fs{font-size:12px;color:#6B7A73;font-weight:700;margin-top:2px}
+.founder .fs{font-size:12px;color:var(--muted);font-weight:700;margin-top:2px}
 .founder .fb{background:#25D366;color:#fff;border:none;font-weight:800;font-size:13px;padding:8px 14px;border-radius:999px;cursor:pointer;flex-shrink:0;text-decoration:none;display:inline-block}
 .photo{width:100%;aspect-ratio:1;border-radius:10px;object-fit:cover;margin-bottom:6px;background:rgba(16,26,22,0.04)}
 .done{position:fixed;inset:0;z-index:1200;background:#EFF3F0;display:none;flex-direction:column;align-items:center;justify-content:flex-start;padding:24px 16px 32px;text-align:center;overflow-y:auto}
@@ -266,7 +266,7 @@ button:disabled:active{transform:none}
 #cart-bar{position:fixed;bottom:0;left:0;right:0;background:#FFFFFF;border-top:1px solid var(--line2);padding:10px 16px calc(12px + env(safe-area-inset-bottom));display:none;align-items:center;gap:12px;z-index:200;box-shadow:0 -4px 20px rgba(16,26,22,0.54)}
 #cart-bar.show{display:flex}
 #cart-bar .info{flex:1;min-width:0}
-#cart-bar .count{font-size:13px;color:#6B7A73;font-weight:700}
+#cart-bar .count{font-size:13px;color:var(--muted);font-weight:700}
 #cart-bar .total{font-family:var(--fd);font-weight:800;font-size:26px;color:#101A16}
 #cartb{flex-shrink:0;min-height:var(--tap);background:var(--mint);color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:15px;padding:12px 24px;border-radius:10px;cursor:pointer;box-shadow:0 3px 0 rgba(16,26,22,0.27)}
 #cartb:active{transform:scale(0.95)}
@@ -279,7 +279,7 @@ button:disabled:active{transform:none}
 .panel .hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 10px;border-bottom:1px solid rgba(16,26,22,0.08)}
 .panel .hd h2{font-family:var(--fd);font-weight:800;font-size:26px;color:#101A16}
 .panel .hd .x{background:rgba(16,26,22,0.06);border:none;color:#101A16;font-size:18px;width:var(--tap);height:var(--tap);border-radius:50%;cursor:pointer}
-.panel .bd{overflow-y:auto;flex:1;padding:8px 18px}.empty{text-align:center;padding:34px 20px;color:#6B7A73;font-size:16px;font-weight:800}
+.panel .bd{overflow-y:auto;flex:1;padding:8px 18px}.empty{text-align:center;padding:34px 20px;color:var(--muted);font-size:16px;font-weight:800}
 /* Empty-cart actions (design pass 3): the panel used to say "Belum ada pesanan"
    and offer nothing, so a customer who opened the cart with nothing in it had
    one move — the system back gesture. Now the primary action returns to the
@@ -291,13 +291,13 @@ button:disabled:active{transform:none}
 .panel.is-empty .opt,.panel.is-empty .ft{display:none}
 .panel.is-empty .bd{padding-top:0}
 .item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(16,26,22,0.08)}
-.ii{flex:1;min-width:0}.ii .nm{font-weight:800;font-size:14px}.ii .sb{font-size:12px;color:#6B7A73;font-weight:600;margin-top:2px}
+.ii{flex:1;min-width:0}.ii .nm{font-weight:800;font-size:14px}.ii .sb{font-size:12px;color:var(--muted);font-weight:600;margin-top:2px}
 .iq{display:flex;align-items:center;gap:6px;background:rgba(16,26,22,0.05);border-radius:8px;padding:4px 8px;flex-shrink:0}
 .iq button{background:none;border:none;font-size:18px;font-weight:900;cursor:pointer;width:26px;height:26px;border-radius:50%}
 .iq button:hover{background:rgba(16,26,22,0.15)}
 .opt{padding:14px 0;border-bottom:1px solid rgba(16,26,22,0.08)}
-.opt .l{font-size:13px;font-weight:800;color:#6B7A73;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
-.dt{display:flex;gap:8px}.dt button{flex:1;background:rgba(16,26,22,0.04);border:1.5px solid rgba(16,26,22,0.08);color:#6B7A73;font-family:var(--fd);font-weight:800;font-size:14px;padding:8px;border-radius:8px;cursor:pointer;text-align:center}
+.opt .l{font-size:13px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+.dt{display:flex;gap:8px}.dt button{flex:1;background:rgba(16,26,22,0.04);border:1.5px solid rgba(16,26,22,0.08);color:var(--muted);font-family:var(--fd);font-weight:800;font-size:14px;padding:8px;border-radius:8px;cursor:pointer;text-align:center}
 .dt button.active{background:rgba(16,26,22,0.1);border-color:#101A16;color:#101A16}
 .dt button.unavail{opacity:0.25;cursor:not-allowed;text-decoration:line-through}.dt button.unavail.admin-mode{opacity:0.4;cursor:pointer}
 .ts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
@@ -306,7 +306,7 @@ button:disabled:active{transform:none}
 .ts button.unavail{opacity:0.25;cursor:not-allowed;text-decoration:line-through}.ts button.unavail.admin-mode{opacity:0.4;cursor:pointer}.ts button.admin-mode{cursor:pointer}
 .ft{padding:12px 18px 18px;border-top:1px solid rgba(16,26,22,0.08)}
 .ft .tr{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-.ft .tr span{font-family:var(--fd);font-weight:800;font-size:15px;color:#6B7A73}
+.ft .tr span{font-family:var(--fd);font-weight:800;font-size:15px;color:var(--muted)}
 .ft .tr .am{font-family:var(--fd);font-weight:800;font-size:26px;color:#101A16}
 .ft .go{width:100%;margin-top:12px;background:#25D366;color:#fff;border:none;font-family:var(--fd);font-weight:800;font-size:15px;padding:10px;border-radius:10px;cursor:pointer;box-shadow:0 3px 0 rgba(16,26,22,0.27)}
 .ft .go:active{transform:scale(0.97)}.ft .go:disabled{background:#333;color:#555;cursor:not-allowed;box-shadow:none}
@@ -315,27 +315,27 @@ button:disabled:active{transform:none}
 .chip.sel{background:rgba(16,26,22,0.1)!important;border-color:#101A16!important;color:#101A16!important}.chip.dis{opacity:0.35}
 .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#101A16;color:#F7FAF5;font-family:var(--fd);font-weight:800;font-size:14px;padding:10px 22px;border-radius:999px;z-index:999;opacity:0;transition:opacity 0.25s,transform 0.25s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.page-foot{text-align:center;padding:20px;color:#6B7A73;font-size:13px;font-weight:700}.page-foot b{color:#101A16}
+.page-foot{text-align:center;padding:20px;color:var(--muted);font-size:13px;font-weight:700}.page-foot b{color:#101A16}
 .modal{position:fixed;inset:0;z-index:600;display:none;align-items:center;justify-content:center;padding:20px}
 .modal .bg{position:absolute;inset:0;background:rgba(16,26,22,0.68);backdrop-filter:blur(3px);cursor:pointer}
 .modal .box{position:relative;background:#FFFFFF;border:1.5px solid #101A16;border-radius:20px;padding:24px;max-width:380px;width:100%}
 @keyframes in{from{transform:scale(0.9) translateY(20px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
 #admin-panel{display:none;position:fixed;inset:0;z-index:1000;background:#EFF3F0;color:#101A16}
 #admin-panel.show{display:flex}
-.adm-side{width:220px;background:#191510;border-right:1px solid rgba(16,26,22,0.06);display:flex;flex-direction:column;flex-shrink:0}
+.adm-side{width:220px;background:var(--surface);border-right:1px solid rgba(16,26,22,0.06);display:flex;flex-direction:column;flex-shrink:0}
 .adm-side .brand{padding:22px 18px;font-family:var(--fd);font-weight:800;font-size:19px;color:#101A16;border-bottom:1px solid rgba(16,26,22,0.06);display:flex;align-items:center;justify-content:space-between}
 .adm-side .brand .x{display:none;background:rgba(16,26,22,0.06);border:1px solid rgba(16,26,22,0.14);color:#101A16;font-size:15px;font-weight:800;width:34px;height:34px;border-radius:9px;cursor:pointer;flex-shrink:0}
 @media (max-width:760px){.adm-side .brand .x{display:block}}
 html[data-mob="1"] .adm-side .brand .x{display:block}
 .adm-side nav{flex:1;overflow-y:auto;padding:12px 0}
-.adm-side nav a{display:flex;align-items:center;gap:11px;padding:14px 18px;font-size:14px;font-weight:700;color:#6B7A73;cursor:pointer;transition:all .15s;border-left:3px solid transparent;text-decoration:none}
+.adm-side nav a{display:flex;align-items:center;gap:11px;padding:14px 18px;font-size:14px;font-weight:700;color:var(--muted);cursor:pointer;transition:all .15s;border-left:3px solid transparent;text-decoration:none}
 /* Emoji are not a fixed width, so without this every label starts at a
    different x and the column looks ragged. */
 .adm-side nav a .ic{width:22px;text-align:center;flex-shrink:0;font-size:15px;line-height:1}
 .adm-side nav a:hover{background:rgba(16,26,22,0.03);color:#101A16}
 .adm-side nav a.active{color:#101A16;background:rgba(16,26,22,0.06);border-left-color:#101A16}
 .adm-side .exit{padding:16px;border-top:1px solid rgba(16,26,22,0.06)}
-.adm-side .exit button{width:100%;padding:10px;background:rgba(198,56,30,0.1);border:1px solid rgba(198,56,30,0.2);color:#C6381E;font-family:var(--fb);font-weight:800;font-size:14px;border-radius:10px;cursor:pointer}
+.adm-side .exit button{width:100%;padding:10px;background:rgba(198,56,30,0.1);border:1px solid rgba(198,56,30,0.2);color:var(--red-ink);font-family:var(--fb);font-weight:800;font-size:14px;border-radius:10px;cursor:pointer}
 .adm-main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
 .adm-main .hd{padding:18px 22px;border-bottom:1px solid rgba(16,26,22,0.06);display:flex;align-items:center;justify-content:space-between}
 .adm-main .hd h2{font-family:var(--fd);font-weight:800;font-size:24px;color:#101A16}
@@ -347,7 +347,7 @@ html[data-mob="1"] .adm-side .brand .x{display:block}
 @media (max-width:760px){
   .adm-main .hd{padding:12px 13px;gap:10px;justify-content:flex-start}
   .adm-main .hd h2{font-size:19px;cursor:pointer}
-  .adm-main .hd h2:after{content:" ▾";font-size:12px;color:#6B7A73}
+  .adm-main .hd h2:after{content:" ▾";font-size:12px;color:var(--muted)}
   .adm-burger{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;flex-shrink:0;background:rgba(16,26,22,0.06);border:1px solid rgba(16,26,22,0.12);border-radius:10px;color:#101A16;font-size:17px;cursor:pointer}
   /* flex-shrink:0 alone was not enough: the sidebar is a flex child of the
      panel, so it has to leave the flow entirely to stop reserving its width. */
@@ -370,7 +370,7 @@ html[data-mob="1"] .adm-side .brand .x{display:block}
    desktop window. Nothing sets data-mob for a real visitor. */
 html[data-mob="1"] .adm-main .hd{padding:12px 13px;gap:10px;justify-content:flex-start}
 html[data-mob="1"] .adm-main .hd h2{font-size:19px;cursor:pointer}
-html[data-mob="1"] .adm-main .hd h2:after{content:" ▾";font-size:12px;color:#6B7A73}
+html[data-mob="1"] .adm-main .hd h2:after{content:" ▾";font-size:12px;color:var(--muted)}
 html[data-mob="1"] .adm-burger{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;flex-shrink:0;background:rgba(16,26,22,0.06);border:1px solid rgba(16,26,22,0.12);border-radius:10px;color:#101A16;font-size:17px;cursor:pointer}
 html[data-mob="1"] .adm-side{position:fixed;left:0;top:0;bottom:0;z-index:900;width:min(252px,80vw);transform:translateX(-100%);box-shadow:0 0 40px rgba(16,26,22,0.63)}
 html[data-mob="1"] .adm-side.open{transform:none}
@@ -399,10 +399,10 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
 .adm-main .hd{padding:14px 16px}
 .adm-main .pg{padding:14px 16px}
 }
-.a-sec{font-size:12px;font-weight:800;color:#6B7A73;text-transform:uppercase;letter-spacing:0.5px;padding:14px 0 6px;border-bottom:1px solid rgba(16,26,22,0.06);margin-bottom:8px}
+.a-sec{font-size:12px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;padding:14px 0 6px;border-bottom:1px solid rgba(16,26,22,0.06);margin-bottom:8px}
 .a-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(16,26,22,0.04)}
 .a-row .n{flex:1;font-weight:700;font-size:14px}
-.a-row .p{font-family:var(--fd);font-weight:800;font-size:17px;color:#8A5A00;flex-shrink:0}
+.a-row .p{font-family:var(--fd);font-weight:800;font-size:17px;color:var(--ink);flex-shrink:0}
 .a-row .b{display:flex;gap:6px;flex-shrink:0}
 .a-row .b button{width:32px;height:32px;border-radius:8px;border:none;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s}
 .a-form{background:rgba(16,26,22,0.03);border:1px solid rgba(16,26,22,0.06);border-radius:12px;padding:16px;margin-top:16px}
@@ -415,7 +415,7 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
 .block-grid button:hover{border-color:#101A16}
 .a-chip.on{background:rgba(16,26,22,0.1);border-color:#101A16;color:#101A16}
 .a-filter{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
-.a-filter button{padding:12px 22px;border-radius:10px;border:1.5px solid rgba(16,26,22,0.1);background:rgba(16,26,22,0.04);color:#6B7A73;font-size:14px;font-weight:800;cursor:pointer;transition:all .15s}
+.a-filter button{padding:12px 22px;border-radius:10px;border:1.5px solid rgba(16,26,22,0.1);background:rgba(16,26,22,0.04);color:var(--muted);font-size:14px;font-weight:800;cursor:pointer;transition:all .15s}
 .a-filter button.on{border-color:#101A16;background:rgba(16,26,22,0.12);color:#101A16}
 .a-bulk{margin-bottom:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 .a-bulk button{background:#101A16;color:#F7FAF5;border:none;font-family:var(--fd);font-weight:800;font-size:15px;padding:12px 24px;border-radius:10px;cursor:pointer}
@@ -431,18 +431,18 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
 
 /* ===================== ADMIN — redesigned ===================== */
 #admin-panel{background:#EFF3F0}
-.adm-side{width:236px;background:#141110;border-right:1px solid rgba(16,26,22,0.05)}
+.adm-side{width:236px;background:var(--surface);border-right:1px solid rgba(16,26,22,0.05)}
 .adm-side .brand{padding:20px 20px 14px;font-size:17px;letter-spacing:.5px;border-bottom:none}
 .adm-side nav{flex:1;overflow-y:auto;padding:0 12px 16px}
-.adm-side nav .grp{font-size:11px;font-weight:800;color:#6B7A73;letter-spacing:1.4px;text-transform:uppercase;padding:16px 12px 8px}
-.adm-side nav a{display:flex;align-items:center;gap:12px;padding:11px 12px;margin-bottom:2px;border-radius:10px;font-size:14px;color:#6B7A73}
+.adm-side nav .grp{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:1.4px;text-transform:uppercase;padding:16px 12px 8px}
+.adm-side nav a{display:flex;align-items:center;gap:12px;padding:11px 12px;margin-bottom:2px;border-radius:10px;font-size:14px;color:var(--muted)}
 .adm-side nav a:hover{background:rgba(16,26,22,0.05);color:#101A16}
 .adm-side nav a.active{background:rgba(16,26,22,0.11);color:#101A16;box-shadow:inset 0 0 0 1px rgba(16,26,22,0.22)}
 .adm-side nav a .ic{width:22px;text-align:center;font-size:15px;flex-shrink:0}
-.adm-side .toggle{display:flex;align-items:center;justify-content:space-between;width:100%;padding:11px 12px;margin-bottom:2px;border-radius:10px;font-size:14px;color:#6B7A73;background:none;border:none;cursor:pointer;font-family:var(--fb);font-weight:700;transition:background .16s,color .16s}
+.adm-side .toggle{display:flex;align-items:center;justify-content:space-between;width:100%;padding:11px 12px;margin-bottom:2px;border-radius:10px;font-size:14px;color:var(--muted);background:none;border:none;cursor:pointer;font-family:var(--fb);font-weight:700;transition:background .16s,color .16s}
 .adm-side .toggle:hover{background:rgba(16,26,22,0.05);color:#101A16}
 .adm-side .toggle.open{color:#101A16}
-.adm-side .toggle .car{display:inline-block;transition:transform .22s var(--sp);color:#6B7A73}
+.adm-side .toggle .car{display:inline-block;transition:transform .22s var(--sp);color:var(--muted)}
 .adm-side .toggle.open .car{transform:rotate(90deg)}
 .adm-side .subnav{overflow:hidden;max-height:0;transition:max-height .26s var(--sp)}
 .adm-side .subnav.open{max-height:400px}
@@ -456,12 +456,12 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
 /* ---- orders toolbar: one row, sticky, replaces 4 pills + 3 stat boxes ---- */
 .a-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px;position:sticky;top:0;z-index:5;padding:10px 0 12px;background:linear-gradient(#EFF3F0 74%,rgba(14,12,11,0))}
 .a-seg{display:flex;background:rgba(16,26,22,0.05);border-radius:11px;padding:3px;gap:2px;flex-wrap:wrap}
-.a-seg button{border:none;background:transparent;color:#6B7A73;font-family:var(--fb);font-size:14px;font-weight:800;padding:9px 15px;border-radius:8px;cursor:pointer;transition:background .16s,color .16s;white-space:nowrap}
+.a-seg button{border:none;background:transparent;color:var(--muted);font-family:var(--fb);font-size:14px;font-weight:800;padding:9px 15px;border-radius:8px;cursor:pointer;transition:background .16s,color .16s;white-space:nowrap}
 .a-seg button .c{opacity:.5;margin-left:6px}
 .a-seg button:hover{color:#101A16}
 .a-seg button.on{background:#101A16;color:#F7FAF5}
 .a-seg button.on .c{opacity:.7}
-.a-bar .sum{margin-left:auto;font-size:14px;font-weight:700;color:#7A7268;text-align:right}
+.a-bar .sum{margin-left:auto;font-size:14px;font-weight:700;color:var(--muted);text-align:right}
 .a-bar .sum b{color:#101A16;font-family:var(--fd);font-weight:800;font-size:18px;letter-spacing:.5px}
 .a-bar .sum i{font-style:normal;color:#101A16}
 .a-bar .sum span{display:block}
@@ -470,7 +470,7 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
 .a-bulk{margin-bottom:14px}
 .a-bulk button{background:rgba(16,26,22,0.12);border:1px solid rgba(16,26,22,0.3);color:#101A16;font-size:14px;padding:10px 18px}
 .a-search{margin-bottom:14px}
-.a-empty{text-align:center;padding:56px 20px;color:#6B7A73;font-weight:700;font-size:14px}
+.a-empty{text-align:center;padding:56px 20px;color:var(--muted);font-weight:700;font-size:14px}
 .a-empty .big{font-size:40px;display:block;margin-bottom:12px;opacity:.6}
 
 @media(max-width:760px){
@@ -500,20 +500,20 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
 /* ---- row actions: one quiet icon-button, not five colour chips ---- */
 .a-row{padding:11px 0;align-items:center}
 .a-row .n{font-size:14px;color:#101A16}
-.a-row .p{font-size:15px;color:#8A5A00}
+.a-row .p{font-size:15px;color:var(--ink)}
 .a-row .b{gap:6px}
 .a-row .b button{
   width:33px;height:33px;border-radius:9px;
   background:rgba(16,26,22,0.045)!important;
   border:1px solid rgba(16,26,22,0.07)!important;
-  color:#6B7A73!important;
+  color:var(--ink-dim)!important;
   font-size:14px;cursor:pointer;
   display:inline-flex;align-items:center;justify-content:center;
   transition:background .16s,color .16s,border-color .16s;
 }
 .a-row .b button:hover{background:rgba(16,26,22,0.11)!important;color:#101A16!important;border-color:rgba(16,26,22,0.14)!important}
 .a-row .b button:disabled{opacity:.22;cursor:default}
-.a-row .b button:disabled:hover{background:rgba(16,26,22,0.045)!important;color:#6B7A73!important}
+.a-row .b button:disabled:hover{background:rgba(16,26,22,0.045)!important;color:var(--muted)!important}
 
 /* the availability switch is the one control worth seeing at a glance */
 .a-row .b button[onclick^="togDis"],
@@ -523,21 +523,21 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
 .a-row .b button[onclick^="admTogBlockDis"]:hover{background:rgba(16,26,22,0.18)!important}
 
 /* reorder arrows are the quietest thing in the row */
-.a-row .b button[onclick^="admMove"]{color:#6B7A73!important;border-color:transparent!important;background:transparent!important}
-.a-row .b button[onclick^="admDel"]{color:#B4707A!important}
-.a-row .b button[onclick^="admDel"]:hover{color:#C6381E!important;border-color:rgba(198,56,30,0.35)!important;background:rgba(198,56,30,0.12)!important}
+.a-row .b button[onclick^="admMove"]{color:var(--ink-dim)!important;border-color:transparent!important;background:transparent!important}
+.a-row .b button[onclick^="admDel"]{color:#9C2A12!important}
+.a-row .b button[onclick^="admDel"]:hover{color:var(--red-ink)!important;border-color:rgba(198,56,30,0.35)!important;background:rgba(198,56,30,0.12)!important}
 
-.a-sec{font-size:11px;font-weight:800;color:#6B7A73;letter-spacing:1.4px;text-transform:uppercase;padding:22px 0 8px;margin-bottom:2px;border-bottom:1px solid rgba(16,26,22,0.05)}
+.a-sec{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:1.4px;text-transform:uppercase;padding:22px 0 8px;margin-bottom:2px;border-bottom:1px solid rgba(16,26,22,0.05)}
 .a-sec:first-child{padding-top:4px}
 .a-row.off{opacity:.45}
 .a-row.off .n{text-decoration:line-through}
 
 /* ---- analytics summary (used by the Analitis tab) ---- */
 .a-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
-.a-stat{background:#171412;border:1px solid rgba(16,26,22,0.06);border-radius:14px;padding:16px 18px}
-.a-stat .label{font-size:11px;font-weight:800;color:#6B7A73;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:8px}
+.a-stat{background:var(--surface);border:1px solid rgba(16,26,22,0.06);border-radius:14px;padding:16px 18px}
+.a-stat .label{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:1.4px;text-transform:uppercase;margin-bottom:8px}
 .a-stat .count{font-family:var(--fd);font-weight:800;font-size:32px;color:#101A16;line-height:1}
-.a-stat .rev{font-size:13px;color:#6B7A73;font-weight:700;margin-top:7px}
+.a-stat .rev{font-size:13px;color:var(--muted);font-weight:700;margin-top:7px}
 @media(max-width:560px){.a-stats{grid-template-columns:1fr}}
 
 /* the funnel bars were tuned against the old palette */
@@ -545,7 +545,7 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
 .fn-bar{height:8px;border-radius:999px;background:rgba(16,26,22,0.06);overflow:hidden}
 .fn-bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#101A16,#25D366)}
 
-.a-bulk button.danger{background:rgba(198,56,30,0.1);border:1px solid rgba(198,56,30,0.3);color:#C6381E}
+.a-bulk button.danger{background:rgba(198,56,30,0.1);border:1px solid rgba(198,56,30,0.3);color:var(--red-ink)}
 .a-bulk button.danger:hover{background:rgba(198,56,30,0.2)}
 /* "Tutup" is now the only secondary action on the receipt, so give it the
    weight of a button rather than a bare underlined word. */
@@ -559,44 +559,44 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
 .filelbl:hover{background:rgba(16,26,22,0.1);border-color:rgba(16,26,22,0.45)}
 #claim-view{position:fixed;inset:0;z-index:1300;display:none;align-items:center;justify-content:center;padding:20px}
 #claim-view .cv-bg{position:absolute;inset:0;background:rgba(16,26,22,0.77)}
-#claim-view .cv-box{position:relative;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;background:#171412;border:1px solid rgba(16,26,22,0.1);border-radius:16px;padding:16px}
+#claim-view .cv-box{position:relative;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;background:var(--surface);border:1px solid rgba(16,26,22,0.1);border-radius:16px;padding:16px}
 #claim-view .cv-hd{display:flex;justify-content:space-between;align-items:center;font-weight:800;color:#101A16;margin-bottom:12px}
 #claim-view .cv-hd button{background:rgba(16,26,22,0.08);border:none;color:#101A16;font-size:15px;width:32px;height:32px;border-radius:50%;cursor:pointer}
 #claim-view img{width:100%;border-radius:10px;display:block}
 #claim-view .cv-ref{margin-top:12px;font-size:14px;font-weight:800;color:#101A16;word-break:break-all}
 
 /* ===================== order rows ===================== */
-.o-row{background:#171412;border:1px solid rgba(16,26,22,0.06);border-radius:12px;margin-bottom:8px;overflow:hidden;cursor:pointer;transition:border-color .16s,background .16s}
+.o-row{background:var(--surface);border:1px solid rgba(16,26,22,0.06);border-radius:12px;margin-bottom:8px;overflow:hidden;cursor:pointer;transition:border-color .16s,background .16s}
 .o-row:hover{border-color:rgba(16,26,22,0.13);background:#EFF3F0}
 .o-row.is-done{opacity:.72}
 .o-main{display:flex;align-items:center;gap:10px;padding:12px 14px 8px}
 .o-rail{width:3px;height:26px;border-radius:2px;flex-shrink:0}
 .o-num{font-family:var(--fd);font-weight:800;font-size:19px;color:#101A16;flex-shrink:0;letter-spacing:.5px}
-.o-num.legacy{font-family:var(--fb);font-size:13px;color:#6B7A73;font-weight:800}
+.o-num.legacy{font-family:var(--fb);font-size:13px;color:var(--muted);font-weight:800}
 .o-nm{font-weight:800;font-size:15px;color:#101A16;flex-shrink:0;max-width:34%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.o-where{font-size:14px;font-weight:700;color:#8A5A00;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.o-where.muted{color:#6B7A73}
+.o-where{font-size:14px;font-weight:700;color:var(--ink-dim);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.o-where.muted{color:var(--muted)}
 .o-clam{font-size:14px;flex-shrink:0}
 .o-money{font-size:16px;color:#101A16;flex-shrink:0;font-family:var(--fd);font-weight:800;letter-spacing:.5px}
 .o-ctrls{display:flex;align-items:center;gap:8px;padding:0 14px 11px}
 .o-step{display:flex;background:rgba(16,26,22,0.05);border-radius:9px;padding:2px;gap:2px}
-.o-step button{border:none;background:transparent;color:#6B7A73;font-family:var(--fb);font-size:13px;font-weight:800;padding:7px 13px;border-radius:7px;cursor:pointer;transition:background .16s,color .16s}
+.o-step button{border:none;background:transparent;color:var(--muted);font-family:var(--fb);font-size:13px;font-weight:800;padding:7px 13px;border-radius:7px;cursor:pointer;transition:background .16s,color .16s}
 .o-step button:hover{color:#101A16}
 .o-step button.on{background:#101A16;color:#F7FAF5}
 .o-step.big{margin-bottom:16px}
 .o-step.big button{flex:1;padding:12px 8px;font-size:14px}
 .o-more{color:#4E4840;font-size:18px;font-weight:800;flex-shrink:0;padding:0 2px}
-.o-foot{text-align:center;color:#6B7A73;font-size:13px;font-weight:700;padding:14px 0 4px}
+.o-foot{text-align:center;color:var(--muted);font-size:13px;font-weight:700;padding:14px 0 4px}
 
 /* ===================== detail panel ===================== */
 #adm-detail{position:fixed;inset:0;z-index:1250;display:none;align-items:center;justify-content:center;padding:20px}
 #adm-detail .d-bg{position:absolute;inset:0;background:rgba(16,26,22,0.72)}
-#adm-detail .d-box{position:relative;background:#171412;border:1px solid rgba(16,26,22,0.1);border-radius:16px;padding:20px;width:100%;max-width:460px;max-height:88vh;overflow-y:auto;animation:in .22s var(--eo)}
+#adm-detail .d-box{position:relative;background:var(--surface);border:1px solid rgba(16,26,22,0.1);border-radius:16px;padding:20px;width:100%;max-width:460px;max-height:88vh;overflow-y:auto;animation:in .22s var(--eo)}
 #adm-detail .d-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:4px}
 #adm-detail .d-t{font-size:19px;font-weight:800;color:#101A16}
 #adm-detail .d-hd button{background:rgba(16,26,22,0.07);border:none;color:#101A16;font-size:15px;width:34px;height:34px;border-radius:50%;cursor:pointer;flex-shrink:0}
-#adm-detail .d-when{font-size:13px;color:#6B7A73;font-weight:700;margin-bottom:16px}
-#adm-detail .d-sec{font-size:11px;font-weight:800;color:#6B7A73;letter-spacing:1.4px;text-transform:uppercase;margin:18px 0 8px}
+#adm-detail .d-when{font-size:13px;color:var(--muted);font-weight:700;margin-bottom:16px}
+#adm-detail .d-sec{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:1.4px;text-transform:uppercase;margin:18px 0 8px}
 /* One card per drink. The add-ons used to run together as a comma list -
    "Normal (100%), No Sugar/Condensed Milk, Kaw" - which is a wall of text
    when you are reading it at speed between two other things. Each one gets
@@ -609,19 +609,19 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
 #adm-detail .d-nm i{font-style:normal;margin-right:8px}
 #adm-detail .d-adds{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 #adm-detail .d-add{background:rgba(16,26,22,0.055);border:1px solid rgba(16,26,22,0.1);border-radius:999px;color:#4A554F;font-family:var(--fb);font-size:12px;font-weight:700;padding:4px 10px}
-#adm-detail .d-line{font-family:var(--fd);font-weight:800;font-size:14px;color:#6B7A73;white-space:nowrap;margin-top:2px}
+#adm-detail .d-line{font-family:var(--fd);font-weight:800;font-size:14px;color:var(--muted);white-space:nowrap;margin-top:2px}
 #adm-detail .d-grid>div{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid rgba(16,26,22,0.04);font-size:14px}
-#adm-detail .d-grid span{color:#6B7A73;font-weight:700}
+#adm-detail .d-grid span{color:var(--muted);font-weight:700}
 #adm-detail .d-grid b{color:#101A16;font-weight:800;text-align:right;word-break:break-word}
 #adm-detail .d-total{display:flex;justify-content:space-between;align-items:center;padding:14px 0 4px}
-#adm-detail .d-total span{font-size:14px;color:#6B7A73;font-weight:800}
+#adm-detail .d-total span{font-size:14px;color:var(--muted);font-weight:800}
 #adm-detail .d-total b{font-family:var(--fd);font-weight:800;font-size:28px;color:#101A16;letter-spacing:.5px}
 #adm-detail .d-claim{margin:14px 0;background:rgba(29,95,168,0.09);border:1px solid rgba(29,95,168,0.26);border-radius:10px;padding:12px}
 #adm-detail .d-claim div{font-size:13px;font-weight:800;color:#1D5FA8;margin-bottom:10px}
 #adm-detail .d-claim button{width:100%;background:rgba(29,95,168,0.16);border:1px solid rgba(29,95,168,0.35);color:#1D5FA8;font-family:var(--fb);font-size:14px;font-weight:800;padding:10px;border-radius:9px;cursor:pointer}
 #adm-detail .d-acts{display:flex;gap:8px;margin-top:10px}
-#adm-detail .d-wa{flex:1;background:rgba(37,211,102,0.14);border:1px solid rgba(37,211,102,0.32);color:#25D366;font-family:var(--fb);font-size:14px;font-weight:800;padding:12px;border-radius:10px;cursor:pointer}
-#adm-detail .d-del{background:rgba(198,56,30,0.1);border:1px solid rgba(198,56,30,0.28);color:#C6381E;font-family:var(--fb);font-size:14px;font-weight:800;padding:12px 16px;border-radius:10px;cursor:pointer}
+#adm-detail .d-wa{flex:1;background:rgba(37,211,102,0.14);border:1px solid rgba(37,211,102,0.32);color:#0B7A3E;font-family:var(--fb);font-size:14px;font-weight:800;padding:12px;border-radius:10px;cursor:pointer}
+#adm-detail .d-del{background:rgba(198,56,30,0.1);border:1px solid rgba(198,56,30,0.28);color:var(--red-ink);font-family:var(--fb);font-size:14px;font-weight:800;padding:12px 16px;border-radius:10px;cursor:pointer}
 @media(max-width:760px){
   .o-main{flex-wrap:nowrap;gap:8px;padding:11px 12px 6px}
   .o-num{font-size:17px}
@@ -643,17 +643,17 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
 #adm-confirm .c-no{background:rgba(16,26,22,0.08);color:#4A554F}
 #adm-confirm .c-yes{background:#C6381E;color:#EFF3F0}
 /* bin on the row */
-.o-del{margin-left:auto;background:transparent;border:none;color:#6B7A73;font-size:14px;cursor:pointer;padding:2px 4px;flex-shrink:0;transition:color .16s}
-.o-del:hover{color:#C6381E}
+.o-del{margin-left:auto;background:transparent;border:none;color:var(--muted);font-size:14px;cursor:pointer;padding:2px 4px;flex-shrink:0;transition:color .16s}
+.o-del:hover{color:var(--red-ink)}
 .o-restore{background:rgba(16,26,22,0.12);border:1px solid rgba(16,26,22,0.3);color:#101A16;font-family:var(--fb);font-size:13px;font-weight:800;padding:8px 14px;border-radius:9px;cursor:pointer;flex-shrink:0}
 .o-restore:hover{background:rgba(16,26,22,0.2)}
-.o-note{font-size:12px;color:#6B7A73;font-weight:700}
+.o-note{font-size:12px;color:var(--muted);font-weight:700}
 .o-row.is-gone{opacity:.5}
 
 /* delivery filter sits beside the status filter as a quieter second control */
-.a-seg.del{background:rgba(138,90,0,0.07);box-shadow:inset 0 0 0 1px rgba(138,90,0,0.16)}
-.a-seg.del button.on{background:#8A5A00;color:#EFF3F0}
-.a-seg .dlb{font-size:11px;font-weight:800;color:#6B7A73;letter-spacing:1px;text-transform:uppercase;padding:0 8px 0 10px;align-self:center;white-space:nowrap}
+.a-seg.del{background:rgba(16,26,22,0.05);box-shadow:inset 0 0 0 1px rgba(16,26,22,0.08)}
+.a-seg.del button.on{background:#101A16;color:#F7FAF5}
+.a-seg .dlb{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:1px;text-transform:uppercase;padding:0 8px 0 10px;align-self:center;white-space:nowrap}
 @media(max-width:760px){
   .a-bar{gap:8px}
   .a-seg.del{width:100%}
@@ -664,30 +664,30 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
 .cgrp{margin-bottom:20px}
 .cgrp-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px}
 .cgrp-h span{font-size:14px;font-weight:800;color:#101A16;letter-spacing:.2px}
-.cgrp-h b{font-size:11px;font-weight:800;color:#6B7A73;letter-spacing:1.1px;text-transform:uppercase;white-space:nowrap}
+.cgrp-h b{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:1.1px;text-transform:uppercase;white-space:nowrap}
 .copts{display:grid;grid-template-columns:1fr;gap:8px}
 .opt-btn{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:#FFFFFF;border:1.5px solid rgba(16,26,22,0.09);border-radius:999px;padding:12px 18px 12px 14px;font-family:var(--fb);font-size:14px;font-weight:800;color:#101A16;cursor:pointer;transition:transform .2s var(--sp),background .2s var(--eo),border-color .2s var(--eo),color .2s var(--eo)}
 .opt-btn:hover{border-color:rgba(16,26,22,0.45);background:#FFFFFF}
 .opt-btn:active{transform:scale(0.975)}
 .opt-btn .ob-dot{width:19px;height:19px;border-radius:50%;border:2px solid rgba(16,26,22,0.2);flex-shrink:0;transition:background .2s var(--eo),border-color .2s var(--eo)}
 .opt-btn.sel{background:rgba(16,26,22,0.14);border-color:#101A16;color:#101A16}
-.opt-btn.sel .ob-dot{background:#101A16;border-color:#101A16;box-shadow:inset 0 0 0 3px #171412}
+.opt-btn.sel .ob-dot{background:#101A16;border-color:#101A16;box-shadow:inset 0 0 0 3px var(--surface2)}
 .opt-btn.dis{opacity:.32;cursor:not-allowed;text-decoration:line-through}
 .opt-btn.dis:hover{border-color:rgba(16,26,22,0.09);background:#FFFFFF}
 /* the name wraps rather than truncating - "Con..." tells a customer nothing */
 .opt-btn .ob-name{flex:1;min-width:0;line-height:1.35;white-space:normal;overflow-wrap:break-word}
 .opt-btn .ob-price{flex-shrink:0;font-size:13px;font-weight:800;color:#8A5A00}
-.opt-btn .ob-price.free{color:#6B7A73;font-weight:700}
+.opt-btn .ob-price.free{color:var(--muted);font-weight:700}
 /* receipt button in the orders list */
 .o-clam{background:rgba(29,95,168,0.14);border:1px solid rgba(29,95,168,0.32);color:#1D5FA8;font-family:var(--fb);font-size:12px;font-weight:800;padding:5px 10px;border-radius:999px;cursor:pointer;flex-shrink:0;transition:background .16s}
 .o-clam:hover{background:rgba(29,95,168,0.26)}
 /* A receipt you have not opened yet glows until you look at it. */
-.o-clam.unseen{background:rgba(29,95,168,0.2);border-color:rgba(90,200,250,0.75);color:#BFE8FF;animation:clamGlow 1.9s ease-in-out infinite}
+.o-clam.unseen{background:rgba(29,95,168,0.2);border-color:rgba(29,95,168,0.55);color:#134D86;animation:clamGlow 1.9s ease-in-out infinite}
 @keyframes clamGlow{0%,100%{box-shadow:0 0 0 0 rgba(90,200,250,0)}50%{box-shadow:0 0 0 3px rgba(90,200,250,0.22),0 0 14px 2px rgba(90,200,250,0.45)}}
 
 .a-receipt{display:flex;align-items:center;gap:6px;background:rgba(29,95,168,0.12);border:1px solid rgba(29,95,168,0.32);color:#1D5FA8;font-family:var(--fb);font-size:14px;font-weight:800;padding:9px 14px;border-radius:11px;cursor:pointer;transition:background .16s}
 .a-receipt:hover{background:rgba(29,95,168,0.24)}
-.a-receipt.on{background:#1D5FA8;color:#0B1620}
+.a-receipt.on{background:#1D5FA8;color:#FFFFFF}
 .a-receipt .c{opacity:.6;margin-left:2px}
 /* a slow pulse so a waiting receipt is noticed without hunting for it */
 .a-receipt:not(.on){animation:recPulse 2.4s ease-in-out infinite}
@@ -713,51 +713,51 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
 #mybar .mb-see{background:rgba(16,26,22,0.07);color:#101A16;font-size:13px;padding:9px 11px;border-radius:9px}
 #mybar .mb-more{background:#101A16;color:#F7FAF5;font-size:13px;padding:9px 13px;border-radius:9px}
   .cpn-wrap{position:relative;display:inline-flex;align-items:center}.cpn-btn{display:none;position:relative;width:42px;height:42px;border-radius:50%;
-   border:1px solid rgba(16,26,22,0.7);color:#5FF0CE;font-size:17px;cursor:pointer;
-   align-items:center;justify-content:center;background:radial-gradient(circle at 50% 32%,rgba(16,26,22,0.42),rgba(16,26,22,0.06));
-   box-shadow:0 0 8px rgba(16,26,22,0.22)}
+   border:1px solid var(--line);color:var(--ink);font-size:17px;cursor:pointer;
+   align-items:center;justify-content:center;background:var(--surface);
+   box-shadow:0 1px 0 rgba(16,26,22,0.06),0 6px 16px rgba(16,26,22,0.10)}
   /* This button used to pulse its glow forever (cpnPulse, 2.8s infinite) to
      advertise a discount that frequently is not there. A steady tint is enough;
      the count dot carries "there is something waiting" when that is true. */
-  .cpn-btn.mute{border-color:rgba(16,26,22,0.16);color:#6B7A73;background:rgba(16,26,22,0.04);animation:none;box-shadow:none}  .cpn-btn.mute .dot{display:none!important}
+  .cpn-btn.mute{border-color:rgba(16,26,22,0.16);color:var(--muted);background:rgba(16,26,22,0.04);animation:none;box-shadow:none}  .cpn-btn.mute .dot{display:none!important}
   .cpn-btn .dot{position:absolute;top:-3px;right:-3px;min-width:17px;height:17px;border-radius:9px;
    background:#8A5A00;color:#FFFFFF;font-family:var(--fd);font-weight:800;font-size:11px;
    display:none;align-items:center;justify-content:center;padding:0 4px}
   .cpn-pop{display:none;position:fixed;z-index:9999;width:min(320px,88vw);
-   background:#171412;border:1px solid rgba(16,26,22,0.4);border-radius:16px;padding:15px;
+   background:var(--surface);border:1px solid rgba(16,26,22,0.4);border-radius:16px;padding:15px;
    box-shadow:0 18px 40px rgba(16,26,22,0.50),0 0 26px rgba(16,26,22,0.18);
    transform-origin:top right;animation:cpnPopIn 170ms ease-out}
   @keyframes cpnPopIn{from{transform:translateY(-6px) scale(0.95);opacity:0}to{transform:none;opacity:1}}
-  .cpn-pop:before{content:none;position:absolute;top:-8px;right:15px;width:14px;height:14px;background:#171412;
+  .cpn-pop:before{content:none;position:absolute;top:-8px;right:15px;width:14px;height:14px;background:var(--surface);
    border-left:1px solid rgba(16,26,22,0.4);border-top:1px solid rgba(16,26,22,0.4);transform:rotate(45deg)}
   .cpn-pop h4{margin:0 0 2px;font-family:var(--fd);font-weight:800;font-size:15px;color:#101A16}
-  .cpn-pop .sub{font-size:11.5px;color:#6B7A73;margin-bottom:11px;line-height:1.5}
+  .cpn-pop .sub{font-size:11.5px;color:var(--muted);margin-bottom:11px;line-height:1.5}
   .cpn-row{display:flex;align-items:center;gap:7px;background:rgba(16,26,22,0.07);
    border:1px solid rgba(16,26,22,0.28);border-radius:12px;padding:10px 11px;margin-bottom:8px}
   .cpn-row:last-child{margin-bottom:0}
   .cpn-row .code{flex:1;font-family:var(--fd);font-weight:800;font-size:18px;letter-spacing:2.5px;color:#101A16}
   .cpn-row button{border:1px solid rgba(16,26,22,0.18);border-radius:8px;font-family:var(--fd);font-weight:800;font-size:11px;
    padding:8px 10px;cursor:pointer;background:transparent;color:#4A554F}
-  .cpn-row button.go{background:#101A16;border-color:#101A16;color:#07110E}
+  .cpn-row button.go{background:#101A16;border-color:#101A16;color:var(--bg)}
   .c-chip{font-family:var(--fd);font-weight:800;font-size:12px;padding:7px 12px;border-radius:999px;
    background:rgba(16,26,22,0.05);border:1px solid rgba(16,26,22,0.1);color:#4A554F}
   .c-chip.ok{color:#101A16;border-color:rgba(16,26,22,0.4);background:rgba(16,26,22,0.1)}
-  .c-chip.dim{color:#6B7A73}
+  .c-chip.dim{color:var(--muted)}
   .c-tab{font-family:var(--fd);font-weight:800;font-size:12px;padding:8px 13px;border-radius:10px;cursor:pointer;
-   background:rgba(16,26,22,0.04);border:1px solid rgba(16,26,22,0.08);color:#6B7A73}
+   background:rgba(16,26,22,0.04);border:1px solid rgba(16,26,22,0.08);color:var(--muted)}
   .c-tab.on{background:rgba(16,26,22,0.14);border-color:rgba(16,26,22,0.45);color:#101A16}
-  .c-card{background:#171412;border:1px solid rgba(16,26,22,0.08);border-radius:14px;padding:13px 14px}
+  .c-card{background:var(--surface);border:1px solid rgba(16,26,22,0.08);border-radius:14px;padding:13px 14px}
   .c-top{display:flex;align-items:center;gap:9px;margin-bottom:9px;flex-wrap:wrap}
   .c-code{font-family:var(--fd);font-weight:800;font-size:19px;letter-spacing:2.5px;color:#101A16;flex:1;min-width:130px}
   .c-pill{font-family:var(--fd);font-weight:800;font-size:10.5px;padding:5px 9px;border-radius:999px;letter-spacing:0.3px}
   .c-pill.ok{background:rgba(16,26,22,0.16);color:#101A16;border:1px solid rgba(16,26,22,0.4)}
-  .c-pill.dim{background:rgba(16,26,22,0.06);color:#6B7A73;border:1px solid rgba(16,26,22,0.12)}
+  .c-pill.dim{background:rgba(16,26,22,0.06);color:var(--muted);border:1px solid rgba(16,26,22,0.12)}
   .c-pill.warn{background:rgba(138,90,0,0.14);color:#8A5A00;border:1px solid rgba(138,90,0,0.4)}
   .c-cp{background:transparent;border:1px solid rgba(16,26,22,0.16);color:#4A554F;border-radius:8px;
    font-family:var(--fd);font-weight:800;font-size:11px;padding:6px 9px;cursor:pointer}
   .c-row{display:flex;gap:10px;justify-content:space-between;padding:6px 0;border-top:1px solid rgba(16,26,22,0.05);font-size:12.5px}
-  .c-row>span{color:#6B7A73;font-weight:700;flex-shrink:0}
-  .c-row>b{color:#E9E4DA;font-weight:700;text-align:right;line-height:1.45}
+  .c-row>span{color:var(--muted);font-weight:700;flex-shrink:0}
+  .c-row>b{color:var(--ink);font-weight:700;text-align:right;line-height:1.45}
   #adm-detail .d-alt{background:rgba(16,26,22,0.1);border:1px solid rgba(16,26,22,0.3);color:#101A16;
    font-family:var(--fb);font-size:14px;font-weight:800;padding:12px 16px;border-radius:10px;cursor:pointer}
   /* The loyalty bar owns a stacking context so the coupon bubble can sit above
@@ -954,7 +954,7 @@ body:has(.panel.open) .toast,body:has(.modal[style*="flex"]) .toast{
 /* a sold-out tag is a fact, not a price */
 .tag.is-off{background:rgba(16,26,22,0.07);color:var(--muted);box-shadow:none}
 /* --- anything painted ink keeps its text legible --- */
-.card .qty,.card-toggle.on,.a-bulk button,.a-seg button.on,.o-step button.on,#mybar .mb-more,
+.card .qty,.card-toggle.on,.a-seg button.on,.o-step button.on,#mybar .mb-more,
 #toast-act,#claim-send,#admin-login-btn{color:#F7FAF5}
 
 /* ---- keep the counter honest about reduced motion ---------------------- */
@@ -969,6 +969,15 @@ body[data-page="admin"]{background:#EFF3F0}
 body[data-page="admin"] #admin-login{background:none}
 body[data-page="admin"] #admin-login .bg{display:none}/* the card is the whole page here, so it can carry its own depth instead of a scrim */
 body[data-page="admin"] #admin-login .box{border:0;box-shadow:0 18px 50px rgba(16,26,22,.12),0 1px 0 rgba(255,255,255,.7) inset}
+/* ---- v54: the dashboard is a pale page, not a dark app -------------------
+   The panel used to be a dark sheet laid over the shop, and its cards kept the
+   v2 near-black surfaces after it became a page of its own: white ink text sat
+   on #171412, pale blue on pale blue, mint on a dark sphere, brown gold on what
+   is now a white surface. A contrast walk over every text node of every tab
+   measured 25 failures across 207 nodes on the first run and none after the
+   surfaces, the sidebar, the row controls and the gold chrome were put right
+   (worst non-faded pair now 5.04:1). */
+
 </style>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
@@ -1024,7 +1033,7 @@ body[data-page="admin"] #admin-login .box{border:0;box-shadow:0 18px 50px rgba(1
 <div style="background:rgba(16,26,22,0.04);border-radius:12px;padding:14px;margin-bottom:16px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:14px;color:#6B7A73;font-weight:700">Subtotal</span><span id="confirm-sub" style="font-size:14px;color:#101A16;font-weight:700"></span></div><div id="confirm-cod" style="display:none;justify-content:space-between;margin-bottom:6px"><span style="font-size:14px;color:#6B7A73;font-weight:700">📦 COD</span><span style="font-size:14px;color:#101A16;font-weight:700">+RM1.00</span></div><div id="confirm-free" style="display:none;justify-content:space-between;margin-bottom:6px"><span style="font-size:14px;color:#6B7A73;font-weight:700">&#127903; Kupon</span><span id="confirm-free-val" style="font-size:14px;color:#101A16;font-weight:800"></span></div><div style="display:flex;justify-content:space-between;padding-top:8px;border-top:1px solid rgba(16,26,22,0.08)"><span style="font-family:var(--fd);font-weight:800;font-size:22px;color:#101A16">Jumlah</span><span id="confirm-total" style="font-family:var(--fd);font-weight:800;font-size:26px;color:#101A16">RM0.00</span></div></div>
 <button onclick="sendWa()" id="wa-send" style="width:100%;background:#25D366;color:#fff;border:none;font-family:var(--fd);font-weight:800;font-size:17px;padding:14px;border-radius:12px;cursor:pointer;box-shadow:0 4px 0 rgba(16,26,22,0.27)">Hantar Pesanan</button>
 </div></div>
-<footer class="page-foot"><i>Minum sedap, harga mesra.</i>© <b>MINUM MALAM SISWA</b> · <span id="foot-build">v53</span></footer>
+<footer class="page-foot"><i>Minum sedap, harga mesra.</i>© <b>MINUM MALAM SISWA</b> · <span id="foot-build">v54</span></footer>
 <div class="toast" id="toast"></div>
 <div class="modal" id="stamp-ask"><div class="bg" onclick="dismissStampAsk()"></div><div class="box">
 <div style="font-family:var(--fd);font-weight:800;font-size:22px;color:#101A16;margin-bottom:7px">🎁 Beli 5 Percuma 1</div>
@@ -1248,7 +1257,7 @@ function drawFounder(){const el=document.getElementById('founder');if(!el)return
 function syncTimeButton(){const b=document.getElementById('time-toggle');if(!b)return;b.textContent=(selTime==='ASAP'||!selTime?'ASAP':selTime)+' ▾'}
 function drawStatus(){const el=document.getElementById('status-bar');if(!el)return;const o=HOURS[0],c=HOURS[1];if(isOpenNow()){const left=minsUntilClose();const lft=left<60?left+' minit':Math.floor(left/60)+' jam '+(left%60)+' min';el.className='status-bar open';el.innerHTML='<span class="dot"></span> BUKA SEKARANG · tutup dalam '+lft+' ('+fmtMin(c)+')'}else{el.className='status-bar closed';el.innerHTML='<span class="dot"></span> TUTUP · buka '+fmtMin(o)+' — anda masih boleh lihat menu'}clearTimeout(window._statusTmr);window._statusTmr=setTimeout(drawStatus,30000)}
 function drawTimes(){const _el=document.getElementById('times');
-  if(!SLOTS.length){_el.innerHTML='<div style="font-size:13px;color:#6B7A73;font-weight:700;padding:4px 2px;line-height:1.5">Tiada slot masa tersedia sekarang. Taip masa yang anda mahu di bawah, atau pesan bila siap.</div>';return}
+  if(!SLOTS.length){_el.innerHTML='<div style="font-size:13px;color:var(--muted);font-weight:700;padding:4px 2px;line-height:1.5">Tiada slot masa tersedia sekarang. Taip masa yang anda mahu di bawah, atau pesan bila siap.</div>';return}
   _el.innerHTML=SLOTS.map((t,i)=>{const u=unrTimes.includes(t),a=selTime===t?' active':'';return'<button class="t-btn'+a+(u?' unavail':'')+(admin?' admin-mode':'')+'" onclick="selT('+i+')"'+(u&&!admin?' disabled':'')+'>'+esc(t)+'</button>'}).join('')}
 function selT(i){const t=SLOTS[i];if(t===undefined)return;if(admin){const k=unrTimes.indexOf(t);if(k>-1)unrTimes.splice(k,1);else unrTimes.push(t);saveConfig();drawTimes();return}if(unrTimes.includes(t)){toast('❌ Time not available');return}selTime=t;const _pi=document.getElementById('pickup-time');if(_pi)_pi.value='';drawTimes()}
 function drawCust(){if(!custItem||!MENU[custItem.ci]||!MENU[custItem.ci].items[custItem.vi]){closeCust();return}const sw=document.getElementById('c-sweet'),lv=document.getElementById('c-level'),ex=document.getElementById('c-extra');sw.innerHTML='';lv.innerHTML='';ex.innerHTML='';ADDS.forEach(a=>{const s=custAdds.includes(a.id),d=disAdds.includes(a.id);const ch='<button type="button" class="opt-btn'+(s?' sel':'')+(d?' dis':'')+'" onclick="togC(\''+a.id+'\')">'
@@ -1281,7 +1290,7 @@ function addsLine(adds){
   return out.join(' · ');
 }
 function remInst(key,idx){if(cart[key]){cart[key].splice(idx,1);if(cart[key].length===0)delete cart[key];saveCart();draw()}}
-function upCart(){if(!document.getElementById('cart-bar'))return;drawDel();const e=Object.entries(cart);let totalItems=0;e.forEach(([_,v])=>totalItems+=v.length);const bar=document.getElementById('cart-bar');if(totalItems>0){bar.classList.add('show');document.getElementById('cart-count').textContent=totalItems+' item';}else{bar.classList.remove('show');}document.getElementById('checkout').disabled=totalItems===0;drawTimes();drawDel();syncTimeButton();let total=0,html='';e.forEach(([id,items])=>{if(!MENU)return;const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;const item=MENU[ci].items[vi];items.forEach((inst,i)=>{const ac=inst.adds.reduce((s,aid)=>{const a=findAdd(aid);return s+(a?a.price:0)},0);const base=Number(item.price)||0;total+=base+ac;const al=addsLine(inst.adds);html+='<div class="item"><div class="ii"><div class="nm">'+esc(item.name)+'</div><div class="sb">RM'+(base+ac).toFixed(2)+(al?' <span style="color:#6B7A73">· '+esc(al)+'</span>':'')+'</div></div><div class="iq"><button onclick="remInst(\''+id+'\','+i+')" style="color:#C6381E">−</button><button onclick="addToCart(\''+id+'\')" style="color:#101A16">+</button></div></div>';});});document.getElementById('items').innerHTML=html;document.getElementById('items-summary').textContent=totalItems+' item · RM'+total.toFixed(2);const cod=(isCod===true?delFee('cod'):0);const _cfv=document.getElementById('cod-fee-val');if(_cfv)_cfv.textContent='RM'+delFee('cod').toFixed(2);document.getElementById('sub').textContent='RM'+total.toFixed(2);document.getElementById('total').textContent='RM'+(total+cod).toFixed(2);document.getElementById('cart-total').textContent='RM'+(total+cod).toFixed(2);document.getElementById('empty').style.display=totalItems?'none':'block';document.getElementById('cod-row').style.display=isCod===true?'flex':'none';const _rw=document.getElementById('repeat-wrap');if(_rw){const _lo=loadMyOrder();_rw.style.display=(_lo&&Array.isArray(_lo.items)&&_lo.items.length)?'block':'none'}
+function upCart(){if(!document.getElementById('cart-bar'))return;drawDel();const e=Object.entries(cart);let totalItems=0;e.forEach(([_,v])=>totalItems+=v.length);const bar=document.getElementById('cart-bar');if(totalItems>0){bar.classList.add('show');document.getElementById('cart-count').textContent=totalItems+' item';}else{bar.classList.remove('show');}document.getElementById('checkout').disabled=totalItems===0;drawTimes();drawDel();syncTimeButton();let total=0,html='';e.forEach(([id,items])=>{if(!MENU)return;const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;const item=MENU[ci].items[vi];items.forEach((inst,i)=>{const ac=inst.adds.reduce((s,aid)=>{const a=findAdd(aid);return s+(a?a.price:0)},0);const base=Number(item.price)||0;total+=base+ac;const al=addsLine(inst.adds);html+='<div class="item"><div class="ii"><div class="nm">'+esc(item.name)+'</div><div class="sb">RM'+(base+ac).toFixed(2)+(al?' <span style="color:var(--muted)">· '+esc(al)+'</span>':'')+'</div></div><div class="iq"><button onclick="remInst(\''+id+'\','+i+')" style="color:var(--red-ink)">−</button><button onclick="addToCart(\''+id+'\')" style="color:#101A16">+</button></div></div>';});});document.getElementById('items').innerHTML=html;document.getElementById('items-summary').textContent=totalItems+' item · RM'+total.toFixed(2);const cod=(isCod===true?delFee('cod'):0);const _cfv=document.getElementById('cod-fee-val');if(_cfv)_cfv.textContent='RM'+delFee('cod').toFixed(2);document.getElementById('sub').textContent='RM'+total.toFixed(2);document.getElementById('total').textContent='RM'+(total+cod).toFixed(2);document.getElementById('cart-total').textContent='RM'+(total+cod).toFixed(2);document.getElementById('empty').style.display=totalItems?'none':'block';document.getElementById('cod-row').style.display=isCod===true?'flex':'none';const _rw=document.getElementById('repeat-wrap');if(_rw){const _lo=loadMyOrder();_rw.style.display=(_lo&&Array.isArray(_lo.items)&&_lo.items.length)?'block':'none'}
 /* An empty basket should not show a delivery method, a name field, a time
    picker and a disabled Semak pesanan button — that is a form for nothing. The
    panel gets .is-empty and CSS hides everything but the empty state. */
@@ -1299,7 +1308,7 @@ function drawDel(){
     const label=d.t==='cod'&&onlyFree?'&#128230; COD +RM1':esc(d.l);
     return '<button class="dt-btn'+(a?' active':'')+(di?' unavail':'')+(admin?' admin-mode':'')+'" data-type="'+d.t+'">'+label+'</button>';
   }).join('')
-  +(onlyFree?'<div style="margin-top:8px;font-size:12px;color:#6B7A73;line-height:1.5">&#127903; Minuman percuma diambil sendiri. Nak dihantar ke bilik? Tekan COD dan RM1 penghantaran dikenakan.</div>':'');
+  +(onlyFree?'<div style="margin-top:8px;font-size:12px;color:var(--muted);line-height:1.5">&#127903; Minuman percuma diambil sendiri. Nak dihantar ke bilik? Tekan COD dan RM1 penghantaran dikenakan.</div>':'');
 }
 let selBlock='';
 let BLOCKS=['Intan','Delima','Baiduri Wing A','Baiduri Wing B'];let disBlocks=[];
@@ -1519,7 +1528,7 @@ function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
         +'<div style="display:flex;gap:5px;margin-top:10px">'
         +[0,1,2,3,4].map(function(i){return '<span style="flex:1;height:6px;border-radius:3px;background:'+(i<step?'#101A16':'rgba(16,26,22,0.12)')+'"></span>'}).join('')
         +'</div>'
-        +'<div style="font-size:11.5px;color:#6B7A73;margin-top:6px">'+step+'/5 setakat ini</div>';
+        +'<div style="font-size:11.5px;color:var(--muted);margin-top:6px">'+step+'/5 setakat ini</div>';
       return;
     }
     pop.innerHTML='<h4>You have '+a.length+' coupon'+(a.length>1?'s':'')+'</h4>'
@@ -1786,7 +1795,7 @@ async function couponCheck(){
   if(code.length!==8){msg.style.color='#C6381E';msg.textContent='Kod mesti 8 aksara - semak semula kupon itu.';return}
   const db=getDb();
   if(!db){msg.style.color='#C6381E';msg.textContent='Tiada sambungan. Cuba lagi.';return}
-  msg.style.color='#6B7A73';msg.textContent='Menyemak kupon...';
+  msg.style.color='var(--muted)';msg.textContent='Menyemak kupon...';
   try{
     const snap=await db.collection('coupons').doc(code).get();
     if(!snap.exists){msg.style.color='#C6381E';msg.textContent='Kupon tidak dijumpai. Semak huruf dan nombor.';return}
@@ -1941,7 +1950,7 @@ if(payM==='qr'&&!stagedProof){toast('⚠ Hantar resit dahulu');closeConfirm();re
   cpnCode='';cpnOk=false;cpnLine=-1;
   {const _ci=document.getElementById('inp-coupon');if(_ci)_ci.value='';
    const _cs=document.getElementById('coupon-section');if(_cs)_cs.style.display='none';
-   const _cm=document.getElementById('coupon-msg');if(_cm){_cm.style.color='#6B7A73';_cm.textContent='Masukkan kod yang penjual beri. Satu kod untuk satu minuman percuma (add-on tetap dikenakan).'}}
+   const _cm=document.getElementById('coupon-msg');if(_cm){_cm.style.color='var(--muted)';_cm.textContent='Masukkan kod yang penjual beri. Satu kod untuk satu minuman percuma (add-on tetap dikenakan).'}}
   // The checkout receipt block goes back to blank for the next order, and the
   // payment choice is cleared on screen as well as in state, so the QR section
   // does not linger showing a resit that has already been sent.
@@ -2207,9 +2216,9 @@ function claimBlockHtml(p){
   const box=p?'block':'none';
   return '<div id="'+p+'claim-panel" style="display:'+box+';background:rgba(16,26,22,0.04);border:1px solid rgba(16,26,22,0.1);border-radius:12px;padding:14px;margin-bottom:12px;text-align:left">'
     +'<div style="font-size:13px;font-weight:800;color:#101A16;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px">💰 Bayar sekarang</div>'
-    +'<div style="font-size:13px;color:#6B7A73;font-weight:600;margin-bottom:12px;line-height:1.5">Scan QR di atas, kemudian hantar resit (gambar atau PDF) supaya penjual boleh sahkan bayaran anda.</div>'
+    +'<div style="font-size:13px;color:var(--muted);font-weight:600;margin-bottom:12px;line-height:1.5">Scan QR di atas, kemudian hantar resit (gambar atau PDF) supaya penjual boleh sahkan bayaran anda.</div>'
     +'<input type="file" id="'+p+'claim-file" accept="image/*,application/pdf" style="display:none" onchange="claimPicked(\''+p+'\')">'
-    +'<label for="'+p+'claim-file" class="filelbl">📎 Pilih resit — gambar atau PDF <span style="color:#C6381E">(wajib)</span></label>'
+    +'<label for="'+p+'claim-file" class="filelbl">📎 Pilih resit — gambar atau PDF <span style="color:var(--red-ink)">(wajib)</span></label>'
     +'<div id="'+p+'claim-file-name" style="display:none;font-size:13px;color:#101A16;font-weight:700;margin-bottom:10px">✓ Resit dipilih</div>'
     +'<button id="'+p+'claim-send" onclick="sendClaim(\''+p+'\')" style="width:100%;background:#101A16;color:#F7FAF5;border:none;font-weight:800;font-size:14px;padding:13px;border-radius:10px;cursor:pointer">Saya dah bayar</button></div>';
 }
@@ -2386,5 +2395,5 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(8px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v53</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(8px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v54</div>
 </body>
