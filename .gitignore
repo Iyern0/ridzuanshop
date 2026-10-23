@@ -23,6 +23,8 @@
 !/tools/
 !/tools/**
 !/sw.js
+!/.github/
+!/.github/**
 !/design-v2.html
 !/design-v3.html
 !/manifest.json
@@ -70,3 +72,4 @@ ADMIN-CREDENTIALS.txt
 
 # Split intermediates: regenerable, and 1 MB of JSON
 /.scratch/depmap.json
+__pycache__/

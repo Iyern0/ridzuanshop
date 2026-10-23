@@ -1,0 +1,50 @@
+name: contracts
+
+# The app is one static build: authored parts in src/, three built pages, one
+# service-worker cache name, and a Firestore rulebook that has to agree with the
+# order the customer page writes. Each job below is a contract between those
+# pieces that has silently broken once. Nothing here deploys - GitHub Pages takes
+# the committed files - so this workflow only answers "is this commit shippable?"
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # HEAD^ and the PR base are both needed for the "a shell change bumps
+          # sw.js" check, so the full history has to be here.
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: JS parts parse
+        run: |
+          for f in src/js/*.js; do
+            node --check "$f"
+          done
+
+      - name: Build is deterministic and the committed pages are current
+        run: |
+          python tools/build.py
+          git diff --exit-code -- index.html admin.html drinks-order.html
+
+      - name: Contracts
+        env:
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          base="${PR_BASE:-HEAD^}"
+          python tools/check-contracts.py --git-base "$base"

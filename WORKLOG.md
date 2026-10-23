@@ -1707,3 +1707,33 @@ notification deep link keeps working.
 **Artefacts:** `app/src/css/app.css` (three rules + card shadow), `app/index.html` and
 `app/admin.html` (rebuilt).
 **Status:** ✅ confirmed live (`fe036db`).
+
+### 2026-10-23 10:05 — The shop gets built under both its names, and CI starts holding the contracts
+**What happened:** v51 shipped only two of the three pages the deploy needs: the build wrote
+`index.html` and `admin.html`, while `drinks-order.html` was still the stale v50 copy the QR
+cards point at. Fixed by building the shop page once and writing it twice, then adding the
+checks that would have caught it.
+**Found / changed:**
+- `tools/build.py`: `outputs()` builds the shop page once and writes it to `index.html` and
+  `drinks-order.html` (byte-identical by construction), plus `admin.html`; `VERSION` is `v52`;
+  `--check` verifies the files on disk instead of writing them.
+- `tools/check-contracts.py` (new): six contracts — artifacts current, mirror equal, sw cache
+  name/build markers agree with `VERSION`, order payload keys ⊆ `firestore.rules`'s
+  `hasOnly`/⊇ `hasAll`, page ownership, and `--git-base` "a shell change also bumped sw.js".
+- `.github/workflows/contract.yml` (new): node --check each `src/js` part, build twice and
+  `git diff --exit-code` the three pages, then the contract script.
+- `.gitignore`: admits `/.github/**`, ignores `__pycache__/`.
+**Measured:** build is idempotent (`build.py` twice, then `--check` says current); mirror hashes
+equal; payload keys (16) exactly the rulebook's `hasOnly` set; contract script exits 0 with
+cache `v52-20261023`.
+- Real browser, local server, customer funnel driven by clicks with the order transaction
+  recorded instead of written: modal opens, 1 item in the basket, cart bar shows, panel opens,
+  pickup + cash accepted, order transaction writes `counters/2026-10-23`, `orders/<code>`,
+  `tracking/<code>` with keys name/room/delivery/time/payment/items/subtotal/total/status/
+  dev/no/createdAt, done screen shows the code, `wa.me` handoff URL built, build tag `v52`.
+- Same funnel against the old v50 file shows the same done screen, so the pale receipt rows are
+  inherited from v3, not a regression from the split.
+**Artefacts:** `app/tools/build.py`, `app/tools/check-contracts.py`,
+`app/.github/workflows/contract.yml`, `app/.gitignore`, `app/sw.js` (`V = 'v52-20261023'`),
+the three built pages, `app/AGENTS.md`, `app/DRINKS-ORDER.md` (new CI contracts table).
+**Status:** ✅ confirmed locally, pushed as v52.
