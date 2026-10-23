@@ -1757,3 +1757,26 @@ the three pages are served from the new build, and the CI contract job runs and 
   Windows checkout would have reported "stale" for files that were correct.
 **Artefacts:** `app/WORKLOG.md`; commit `5b9f933` (11 files).
 **Status:** ✅ confirmed live.
+
+### 2026-10-23 11:35 — The order receipt stops being pale on pale (v53)
+**What happened:** the screen every customer sees last — "Pesanan Diterima" — was still
+wearing the v2 dark theme: near-white labels on a near-white card, dark-green step labels on
+a black pill, and a WhatsApp-green button with white text. Measured it, fixed it against the
+light palette tokens, and shipped v53.
+**Found / changed:**
+- Contrast audit of all 20 text nodes in `#done` (composited background, WCAG AA thresholds):
+  **9 failed before**, worst `1.08:1` (step label `#04241E` on `#101A16`), receipt rows
+  `1.36:1` (`#C8C8D8` on the card), "Selesai" `1.98:1` (white on `#25D366`).
+- `src/css/app.css`: receipt rows → `var(--ink-dim)`; filled and unfilled step pills →
+  `var(--ink-dim)` / `var(--bg)` on `var(--ink)`; `#done-status` → `var(--ink-dim)`;
+  order code → `var(--ink)`, code chip → `var(--tag)` with ink text (matches the lime tag
+  used by the primary CTA); `.go2` → lime tag with ink text, disabled state →
+  `var(--line2)`/`var(--muted)`.
+- `src/js/customer.js:669`: the add-on list inside a receipt row had an inline `#6B7A73`
+  (3.72:1); now `#39443F`.
+- `tools/build.py` `VERSION = "v53"`; `sw.js` `V = 'v53-20261023'`.
+**Measured:** after the fix, 0 of 20 text nodes fail, **minimum ratio 7.91:1**; funnel still
+completes (3 recorded writes), done screen `display:flex`, build tag `v53`; contracts hold.
+**Artefacts:** `app/src/css/app.css`, `app/src/js/customer.js`, `app/tools/build.py`,
+`app/sw.js`, the three rebuilt pages.
+**Status:** ✅ confirmed locally, pending push.

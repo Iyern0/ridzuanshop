@@ -1,4 +1,4 @@
-"""Build the app's pages from app/src/.
+﻿"""Build the app's pages from app/src/.
 
     python app/tools/build.py           # writes index.html, drinks-order.html, admin.html
     python app/tools/build.py --check   # verifies the files on disk are current; writes nothing
@@ -21,7 +21,7 @@ import io, os, sys
 
 APP = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(APP, "src")
-VERSION = "v52"
+VERSION = "v53"
 
 # The shop page is written twice, under both of its names.
 SHOP_PAGES = ("index.html", "drinks-order.html")

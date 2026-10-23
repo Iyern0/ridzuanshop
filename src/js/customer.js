@@ -666,7 +666,7 @@ function openMyOrder(){const o=loadMyOrder();if(!o)return;_lastSt='';showDone({.
 function showDone(o){
   const el=document.getElementById('done');if(!el)return;
   el._msg=o;
-  const rows=(o.items||[]).map(i=>'<div class="r"><span>'+i.qty+'x '+esc(i.name)+(i.adds&&i.adds.length?' <span style="color:#6B7A73">· '+esc(i.adds.join(', '))+'</span>':'')+'</span><b>RM'+(i.price*i.qty).toFixed(2)+'</b></div>').join('');
+  const rows=(o.items||[]).map(i=>'<div class="r"><span>'+i.qty+'x '+esc(i.name)+(i.adds&&i.adds.length?' <span style="color:#39443F">· '+esc(i.adds.join(', '))+'</span>':'')+'</span><b>RM'+(i.price*i.qty).toFixed(2)+'</b></div>').join('');
   el.innerHTML='<div class="tick">'+(o.warn?'⚠':'✓')+'</div>'
     +'<h2>'+(o.warn?'Pesanan disimpan':'Pesanan Diterima')+'</h2>'
     +'<div class="code">'+(o.no?'Pesanan #'+fmtNo(o.no):(o.code?'#'+esc(o.code):''))+(o.no&&o.code?'<span class="done-chip">'+esc(o.code)+'</span>':'')+'</div>'
