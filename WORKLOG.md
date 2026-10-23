@@ -1833,3 +1833,43 @@ The v53 entry ends "pending push"; it was in fact pushed as `d2e4419` and is liv
 `v54-orders2.png`, `v54-before-detail.png`, `v54-after-detail.png`,
 `live-admin-v54.png`.
 **Status:** ✅ confirmed live.
+
+### 2026-10-23 11:05 — Menu edits land without a reload, and checkout stops throwing
+**What happened:** `settings/menu` is now pushed to both pages, so a drink or a price
+edited in the dashboard reaches an already-open shop page — grid, price tag and cart bar —
+with no reload. Fixing it also turned up the reason the shop's order confirmation was
+blank: the render threw before it could paint.
+**Found / changed:**
+- `app/src/js/core.js` owns the menu read for both pages: `MENU_DOC` loader (`loadMenu`),
+  `paintMenu()` (draws the grid, recomputes the cart bar, then dispatches `mms:menu`),
+  `computeCheapest()`/`CHEAPEST_PRICE`, and `menuCats()` which drops malformed categories
+  so one bad document cannot take the page down. `initConfig()` now does
+  `await loadMenu()` and subscribes to `settings/menu` beside `settings/config`.
+- `app/src/js/customer.js`: the page-local loader and `computeCheapest` are gone (the shared
+  ones are used), `DEFAULT_MENU` stays put and is only used when the document is missing.
+- `app/src/js/admin.js`: `document.addEventListener('mms:menu', …)` repaints the Minuman tab
+  after a push, but not while a name/price/image field is filled or a row is being edited,
+  because `admMenu()` rewrites the add form along with the rows. `admSaveMI()` now creates
+  the `Minuman` category when the menu is empty instead of returning silently.
+- **Bug fixed (live since v51):** `drinkEmoji()` lived in `admin.js` but the shop's
+  `#checkout` handler calls it. Tapping Checkout threw
+  `ReferenceError: drinkEmoji is not defined`, so `#confirm-modal` never opened — the
+  customer saw nothing. Moved to `core.js`, where both pages see it.
+- `customer.js`: deleted `watchOrders()` — it called the dashboard's `ordersQ`, which does
+  not exist on the shop page, and nothing has called it since the dashboard got its own page.
+- Ten malformed inline styles in `admin.js` (`background:…;#9C2A12`, a property name eaten by
+  an earlier scripted edit) are now `color:#9C2A12`.
+**Verified (local build, stubbed Firestore, real Chrome):**
+- shop, menu push: 9 cards → 2 cards, `RM3.50` → `RM6.60`; cart bar `1 item RM3.50` →
+  `1 item RM6.60` with the cart contents untouched.
+- dashboard, menu push: 0 rows → 2 rows; while `Barli Ais` sat in the name field a second
+  push left the tab alone (still 2 rows, field intact); after clearing, 3 rows.
+- checkout: `#confirm-modal` `display:flex`, items `🍹 Extrajoss Mangga … RM2.50`, total
+  `RM2.50`, WhatsApp button visible.
+- funnel audit through the done screen: 20 text nodes, 0 failures, minimum 7.91:1, three
+  writes recorded. Admin contrast audit: 0 failures across all ten sections.
+- `python tools/check-contracts.py`: all contracts hold (cache `v55-20261023`).
+**Artefacts:** `app/src/js/{core,customer,admin,boot-customer}.js`; rebuilt `index.html`,
+`drinks-order.html`, `admin.html`; `sw.js` → `v55-20261023`; probes
+`\.scratch\probe\{fake-db,cart-live,admin-menu-live,checkout-guard}.js`.
+**Status:** ✅ confirmed locally, pending push.

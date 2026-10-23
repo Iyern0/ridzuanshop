@@ -43,7 +43,7 @@ document.querySelector('.hero h1').addEventListener('click',function(){
 
 
 
-(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await loadMenu();await initConfig();initDis();fillCustomer();drawCpnBtn();loadMyCoupons();verifyWallet();
+(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await initConfig();initDis();fillCustomer();drawCpnBtn();loadMyCoupons();verifyWallet();
   document.addEventListener('visibilitychange',function(){if(!document.hidden){loadMyCoupons();verifyWallet()}});
   window.addEventListener('focus',function(){loadMyCoupons();verifyWallet()});drawLoy();drawDel();// A remembered session never opens anything here - on this page it only
 // lights up the Admin link, which leads to admin.html.

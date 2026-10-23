@@ -21,7 +21,7 @@ import io, os, sys
 
 APP = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(APP, "src")
-VERSION = "v54"
+VERSION = "v55"
 
 # The shop page is written twice, under both of its names.
 SHOP_PAGES = ("index.html", "drinks-order.html")

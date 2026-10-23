@@ -111,13 +111,41 @@ function applyCfg(d){
 }
 async function loadConfig(){const d=await fsGet(CONFIG_DOC);if(d)applyCfg(d)}
 async function saveConfig(){return await fsSet(CONFIG_DOC,getConfig())}
-async function initConfig(){await loadConfig();const db=getDb();if(db)db.doc(CONFIG_DOC).onSnapshot(snap=>{if(!snap.exists)return;const d=snap.data();applyCfg(d);drawStatus();
+
+// settings/menu — the drink list. It is edited from the dashboard and read by the
+// shop, so the loader lives here rather than in the shop page: without it the
+// dashboard's Minuman tab draws its add form over an empty list.
+let CHEAPEST_PRICE=0;
+function computeCheapest(){let c=Infinity;(MENU||[]).forEach(function(cat){var it=(cat&&cat.items)||[];it.forEach(function(v){if(typeof v.price==='number'&&v.price>0&&v.price<c)c=v.price})});CHEAPEST_PRICE=(c===Infinity?0:c)}
+function menuCats(list){return (Array.isArray(list)?list:[]).filter(function(c){return c&&Array.isArray(c.items)})}
+async function loadMenu(){const d=await fsGet(MENU_DOC);const cats=menuCats(d&&d.items);if(cats.length>0){MENU=cats}else if(typeof DEFAULT_MENU!=='undefined'){MENU=JSON.parse(JSON.stringify(DEFAULT_MENU));await fsSet(MENU_DOC,{items:MENU})}else{MENU=[]}computeCheapest();paintMenu()}
+// One repaint for both pages: the shop redraws its grid and the cart bar (a new
+// price must not wait for a reload to reach the cart), the dashboard listens for
+// the event and refreshes its Minuman tab.
+// Shared by the dashboard's order detail and the shop's order confirmation.
+function drinkEmoji(n){
+  n=String(n||'');
+  if(n.includes('Milo'))return '🥤';
+  if(n.includes('Extrajoss'))return '🍹';
+  if(n.includes('Indocafe'))return '☕';
+  if(n.includes('Chocolate'))return '🍫';
+  if(n.includes('Horlicks'))return '🥛';
+  if(n.includes('Hazelnut'))return '🌰';
+  if(n.includes('Mocha'))return '🍵';
+  return '🧋';
+}
+function paintMenu(){if(document.getElementById('menu-root')){draw();if(document.getElementById('cart-bar'))upCart()}document.dispatchEvent(new Event('mms:menu'))}
+async function initConfig(){await loadConfig();await loadMenu();const db=getDb();if(db)db.doc(CONFIG_DOC).onSnapshot(snap=>{if(!snap.exists)return;const d=snap.data();applyCfg(d);drawStatus();
     // The snapshot is shared by both pages. This half of it paints the shop
     // window, which the dashboard page does not own; without the check the
     // dashboard throws on the first config push.
     const shopPage=!!document.getElementById('menu-root');
     if(shopPage){if(loadCustomer())fillCustomer();if(d.who&&typeof d.who==='object')drawFounder();draw();drawTimes();drawDel();drawCust()}
-    drawBlocks()})}
+    drawBlocks()})
+  // The menu is edited from the dashboard, often while a phone sits on the shop
+  // page with the app already open. Push it, so a new drink or a new price shows
+  // up there without a reload.
+  if(db)db.doc(MENU_DOC).onSnapshot(snap=>{if(!snap.exists)return;const d=snap.data();const cats=menuCats(d&&d.items);if(!cats.length){console.warn('settings/menu has no drink list');return}MENU=cats;computeCheapest();paintMenu()})}
 /* ---- v3: the counter's copy ------------------------------------------------
    One line per drink, written to be true of an iced, freshly-mixed cup sold at
    a night stall. The owner edits these in MENU_NOTES; anything unlisted falls

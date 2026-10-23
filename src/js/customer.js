@@ -2,8 +2,6 @@
 const DEFAULT_MENU=[{name:'Minuman',items:[
 {name:'Milo Ais',price:3.50,pop:true},{name:'Extrajoss Susu Mangga',price:2.50,pop:true},{name:'Extrajoss Susu Anggur',price:2.50,pop:false},{name:'Indocafe Ais',price:3.50,pop:false},{name:'Belgian Chocolate',price:4.00,pop:false},{name:'Horlicks Ais',price:3.50,pop:false},{name:'Hazelnut Latte',price:4.00,pop:false},{name:'Mocha',price:4.00,pop:false},{name:'Teh Tarik Air Asia',price:4.00,pop:false},
 ]}];
-function computeCheapest(){let c=Infinity;(MENU||[]).forEach(function(cat){var it=(cat&&cat.items)||[];it.forEach(function(v){if(typeof v.price==='number'&&v.price>0&&v.price<c)c=v.price})});CHEAPEST_PRICE=(c===Infinity?0:c)}
-let CHEAPEST_PRICE=0;
 // A QR order that has not attached a receipt yet is the one job on the done
 // screen. Used by the receipt panel and by the stamp prompt, so they cannot
 // disagree about whether anything is still pending.
@@ -330,10 +328,8 @@ function buzzOk(){try{if(navigator.vibrate)navigator.vibrate([18,50,18])}catch(e
 // Resets by itself at midnight because the date is part of the document id.
 // ---------------------------------------------------------------------------
 function dayKey(d){d=d||new Date();const z=function(n){return n<10?'0'+n:''+n};return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate())}
-function watchOrders(cb,err){const db=getDb();const q=db?ordersQ(db):null;if(!q)return null;return q.onSnapshot(s=>cb(s.docs.map(d=>({id:d.id,...d.data()}))),err)}
 async function saveOrder(order){const db=getDb();if(!db)return false;try{await db.collection('orders').add({...order,createdAt:firebase.firestore.FieldValue.serverTimestamp()});if(!document.hidden)toast('Pesanan disimpan');return true}catch(e){console.warn('Firestore write gagal:',e);return false}}
 
-async function loadMenu(){const d=await fsGet(MENU_DOC);if(d&&Array.isArray(d.items)&&d.items.length>0){MENU=d.items;computeCheapest();}else{MENU=JSON.parse(JSON.stringify(DEFAULT_MENU));await fsSet(MENU_DOC,{items:MENU})}draw();const db=getDb();if(db)db.doc(MENU_DOC).onSnapshot(snap=>{if(snap.exists&&snap.data().items){MENU=snap.data().items;computeCheapest();draw()}})}
 async function initDis(){const d=await fsGet(DIS_DOC);if(d)dis=d;draw();const db=getDb();if(db)db.doc(DIS_DOC).onSnapshot(snap=>{if(snap.exists){dis=snap.data();draw()}})}
 
 let _menuFirst=true;
