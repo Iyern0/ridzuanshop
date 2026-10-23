@@ -1815,3 +1815,21 @@ panel, WCAG AA 4.5 / 3.0, faded rows exempt): **25 fails of 207 nodes** on the f
 ### CORRECTION (the v53 entry above)
 The v53 entry ends "pending push"; it was in fact pushed as `d2e4419` and is live
 (`sw.js` served `v53-20261023`, the contracts job passed in 14 s, run 39887236656).
+
+### 2026-10-23 12:40 — v54 is live, and the contracts job stayed green
+**What happened:** pushed `3f247d9` and confirmed the pale dashboard in production.
+**Found / changed:**
+- GitHub Actions: `contracts` success (run 39889252861), Pages deployment success.
+- Live: `sw.js` serves `const V = 'v54-20261023';`; shop 185,017 chars, admin 195,237
+  chars, both tagged `v54`; the served stylesheet carries
+  `.adm-side{width:236px;background:var(--surface)`.
+- Contrast walk against the live admin page (fabricated orders, every tab): 0 fails of
+  207 nodes, same as local; detail panel minimum 4.63:1.
+- Before/after captured from the same fabricated order list: at v53 the order rows were
+  `#171412` with ink text (`#001 Ali Test`, `RM7.50` effectively invisible) and the
+  sidebar's nav labels were unreadable; at v54 the rows are white cards and the sidebar is
+  the page surface.
+**Artefacts:** commit `3f247d9`; screenshots `\.scratch\probe\v54-before-orders.png`,
+`v54-orders2.png`, `v54-before-detail.png`, `v54-after-detail.png`,
+`live-admin-v54.png`.
+**Status:** ✅ confirmed live.
