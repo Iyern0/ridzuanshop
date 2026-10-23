@@ -13,7 +13,7 @@
   --ink:#F2EFE9;--ink-dim:#C9C2B8;--muted:#9C948A;--red-ink:#FF8A70;
   --mint:#00D4AA;--gold:#FFB347;--red:#FF6B4A;--wa:#25D366;
   --tag:#FFB347;
-  --t-hero:clamp(30px,8.6vw,44px);--t-h2:11px;--t-name:13px;--t-price:12px;--t-sub:11.5px;--t-meta:11px;
+  --t-hero:clamp(27px,7.6vw,40px);--t-h2:11px;--t-name:13px;--t-price:12px;--t-sub:11.5px;--t-meta:11px;
   --r-card:18px;--r-pill:999px;--gutter:14px;--tap:44px;
   /* Four durations replace the 17 ad-hoc values that were scattered here
      (170/180/200/220/250/280/300/320/340/380/400/420/450/480/500/550/620ms).
