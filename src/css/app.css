@@ -1,0 +1,955 @@
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+:root{--fd:'Bricolage Grotesque',system-ui,-apple-system,'Segoe UI',sans-serif;--fb:'Schibsted Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;
+  /* ===== design tokens ---------------------------------------------------
+     Colour, type steps, radii and the tap target live here so a screen can be
+     retuned without hunting hexes through 2,900 lines of inline styles.
+     V3 is a cold counter, not a dark room: pale green-grey ground (the colour
+     a wet stainless counter reads under a fluorescent tube), pure white plates
+     so the drink is the only thing with colour in it, and one lime tag doing
+     every job that used to be a badge. Light is a decision here, not a theme.
+     ====================================================================== */
+  --bg:#EFF3F0;--surface:#FFFFFF;--surface2:#E7EDE8;
+  --line:rgba(16,26,22,0.10);--line2:rgba(16,26,22,0.06);
+  --ink:#0E1713;--ink-dim:#39443F;--muted:#67736D;
+  --mint:#0E1713;--gold:#0E1713;--red:#C6381E;--wa:#25D366;
+  --tag:#C9F14B;
+  --t-hero:22px;--t-h2:11px;--t-name:13px;--t-price:12px;--t-sub:11.5px;--t-meta:11px;
+  --r-card:18px;--r-pill:999px;--gutter:14px;--tap:44px;
+  /* Four durations replace the 17 ad-hoc values that were scattered here
+     (170/180/200/220/250/280/300/320/340/380/400/420/450/480/500/550/620ms).
+     Small elements get --d-1, state changes --d-2, surfaces --d-3, and only
+     entrances/exits that carry meaning get --d-4. Nothing interactive should
+     need more than --d-4. */
+  --d-1:120ms;--d-2:180ms;--d-3:240ms;--d-4:320ms}
+body{font-family:var(--fb);background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden;-webkit-text-size-adjust:100%}
+.hero{background:linear-gradient(180deg,#EFF3F0 0%,#EFF3F0 100%);border-bottom:1px solid var(--line);padding:calc(26px + env(safe-area-inset-top)) 18px 20px;text-align:center}
+.hero h1{font-family:var(--fd);font-weight:800;font-size:var(--t-hero);color:var(--ink);letter-spacing:-0.6px;line-height:1.04;text-wrap:balance}
+.hero h1 span{color:var(--mint)}.hero .sub{font-size:var(--t-sub);color:var(--muted);margin-top:9px;font-weight:700;letter-spacing:0.1px;line-height:1.45}
+.bar{background:var(--surface);border-bottom:1px solid var(--line);padding:10px var(--gutter);display:flex;align-items:center;justify-content:center;gap:10px;font-size:var(--t-meta);color:var(--muted);font-weight:700}
+.stamps{display:flex;gap:4px}.stamp{width:26px;height:26px;border-radius:50%;background:var(--surface2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:12px;transition:background .2s,border-color .2s}
+.stamp.filled{background:var(--mint);border-color:var(--mint)}
+.bar .count{font-family:var(--fd);font-weight:800;font-size:19px;color:var(--mint);letter-spacing:-0.3px;min-width:1ch;text-align:center}
+.bar #cpn-btn{width:var(--tap);height:var(--tap)}
+.sec{display:flex;align-items:center;gap:12px;padding:22px var(--gutter) 10px;max-width:640px;margin:0 auto}
+.sec h2{font-family:var(--fd);font-weight:800;font-size:var(--t-h2);color:var(--ink);white-space:nowrap;letter-spacing:-0.3px}
+.sec h2 span{color:var(--ink)}
+.sec .l{flex:1;height:1px;background:linear-gradient(90deg,var(--line2),transparent)}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:0 var(--gutter) calc(20px + env(safe-area-inset-bottom));max-width:640px;margin:0 auto}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);padding:14px 12px 15px;cursor:pointer;transition:border-color .18s var(--eo),transform .12s var(--eo);-webkit-tap-highlight-color:transparent;user-select:none;position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;min-height:130px;justify-content:center}
+.card:active{transform:scale(0.975)}
+/* Hover only where a pointer exists: on a phone :hover sticks after a tap and
+   leaves a card looking permanently selected. */
+@media (hover:hover){.card:hover{border-color:var(--line2);background:#201B16}}
+.card.disabled{opacity:0.32;pointer-events:none}.card.disabled.admin-mode{pointer-events:auto;cursor:pointer}.card.in-cart{border-color:var(--mint);box-shadow:inset 0 0 0 1px var(--mint)}
+/* Every drink gets the same 56px medallion behind its emoji, so the grid reads
+   as a set of objects on a shelf instead of emoji floating in empty space. */
+.card .e{font-size:31px;line-height:1;width:56px;height:56px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:radial-gradient(circle at 50% 36%,rgba(138,90,0,0.11),rgba(16,26,22,0.035) 72%);border:1px solid var(--line)}
+.card .n{font-family:var(--fd);font-weight:800;font-size:var(--t-name);color:var(--ink);line-height:1.25;letter-spacing:-0.1px;min-height:2.5em;display:flex;align-items:center}
+.card .p{font-family:var(--fd);font-weight:800;font-size:var(--t-price);color:var(--gold);letter-spacing:-0.3px;line-height:1}
+.card .badge{position:absolute;top:0;right:0;background:rgba(198,56,30,0.14);color:#C6381E;border-left:1px solid rgba(198,56,30,0.28);border-bottom:1px solid rgba(198,56,30,0.28);font-size:10px;font-weight:900;letter-spacing:0.3px;padding:3px 9px;border-radius:0 var(--r-card) 0 11px}
+/* `@keyframes glow` lived here: a red box-shadow loop on the "Paling Laku"
+   badge. The badge became a static corner tag in design pass 1, so it went. */
+.card .qty{position:absolute;top:-5px;left:-5px;background:#101A16;color:#F7FAF5;font-size:12px;font-weight:900;min-width:22px;height:22px;border-radius:999px;display:flex;align-items:center;justify-content:center;padding:0 5px}
+.card.admin-mode .qty{top:-5px;left:28px}
+.card .sold{position:absolute;bottom:8px;right:8px;background:rgba(68,68,68,0.8);color:#aaa;font-size:11px;padding:2px 8px;border-radius:5px}
+.card-toggle{position:absolute;top:-5px;left:-5px;width:28px;height:28px;border-radius:50%;border:2px solid rgba(16,26,22,0.15);font-size:14px;cursor:pointer;z-index:5;display:none;align-items:center;justify-content:center;transition:transform var(--d-1) var(--eo),border-color var(--d-2) var(--eo),background var(--d-2) var(--eo)}
+.card.admin-mode .card-toggle{display:flex}
+.card-toggle.on{background:#101A16;color:#F7FAF5;border-color:#101A16}
+.card-toggle.off{background:#C6381E;color:#fff;border-color:#C6381E}
+.card-toggle:active{transform:scale(0.9)}
+.card .sold{bottom:8px;right:8px}
+.status-bar{display:flex;align-items:flex-start;justify-content:center;gap:7px;padding:9px 14px;font-size:12.5px;font-weight:800;letter-spacing:0.15px;line-height:1.45;text-align:left}
+.status-bar.open{background:linear-gradient(90deg,rgba(16,26,22,0.18),rgba(16,26,22,0.06));color:#101A16;border-bottom:1px solid rgba(16,26,22,0.25)}
+.status-bar.closed{background:linear-gradient(90deg,rgba(198,56,30,0.16),rgba(198,56,30,0.05));color:#FF8A8A;border-bottom:1px solid rgba(198,56,30,0.22)}
+.status-bar .dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0;margin-top:5px}
+/* The one loop kept on purpose, and the reason is in the code so the next
+   reader does not "fix" it: this dot is the live open/closed indicator, and a
+   slow opacity breath carries a state the sentence alone spells out but does
+   not feel. Opacity only — the old scale() made a 7px dot shimmer and forced
+   a repaint every frame. */
+.status-bar.open .dot{animation:pulse 2.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.badge-new{position:absolute;top:0;right:0;background:rgba(138,90,0,0.14);color:#8A5A00;border-left:1px solid rgba(138,90,0,0.28);border-bottom:1px solid rgba(138,90,0,0.28);font-size:10px;font-weight:900;letter-spacing:0.3px;padding:3px 9px;border-radius:0 var(--r-card) 0 11px}
+.founder{display:flex;align-items:center;gap:12px;max-width:640px;margin:14px auto 0;padding:12px 16px;background:rgba(16,26,22,0.03);border:1px solid rgba(16,26,22,0.07);border-radius:14px}
+.founder img{width:46px;height:46px;border-radius:50%;object-fit:cover;flex-shrink:0;border:2px solid #101A16}
+.founder .fi{flex:1;min-width:0}
+.founder .fn{font-weight:800;font-size:14px;color:#101A16}
+.founder .fs{font-size:12px;color:#6B7A73;font-weight:700;margin-top:2px}
+.founder .fb{background:#25D366;color:#fff;border:none;font-weight:800;font-size:13px;padding:8px 14px;border-radius:999px;cursor:pointer;flex-shrink:0;text-decoration:none;display:inline-block}
+.photo{width:100%;aspect-ratio:1;border-radius:10px;object-fit:cover;margin-bottom:6px;background:rgba(16,26,22,0.04)}
+.done{position:fixed;inset:0;z-index:1200;background:#EFF3F0;display:none;flex-direction:column;align-items:center;justify-content:flex-start;padding:24px 16px 32px;text-align:center;overflow-y:auto}
+.done.show{display:flex}
+.done .tick{width:56px;height:56px;border-radius:50%;background:rgba(16,26,22,0.12);border:2.5px solid #101A16;display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:8px;animation:in .35s cubic-bezier(0.34,1.56,0.64,1)}
+.done h2{font-family:var(--fd);font-weight:800;font-size:24px;color:#101A16;letter-spacing:-0.4px;margin-bottom:6px;line-height:1.1}
+.done .code{display:inline-flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;font-family:var(--fd);font-weight:800;font-size:18px;color:#8A5A00;letter-spacing:0.3px;margin:0 0 12px;line-height:1.2}
+.done .code .done-chip{display:inline-flex;align-items:center;background:rgba(138,90,0,0.12);border:1px solid rgba(138,90,0,0.35);color:#8A5A00;font-size:12px;font-weight:800;letter-spacing:0.6px;padding:3px 10px;border-radius:999px}
+.done .box2{width:100%;max-width:360px;background:rgba(16,26,22,0.04);border:1px solid rgba(16,26,22,0.08);border-radius:14px;padding:12px 14px;margin-bottom:12px;text-align:left}
+.done .box2 .r{display:flex;justify-content:space-between;align-items:baseline;gap:12px;font-size:14px;color:#C8C8D8;padding:6px 0;line-height:1.3}
+.done .box2 .r span{flex:1;min-width:0}
+.done .box2 .r b{color:#101A16;text-align:right;word-break:break-word}
+.done .box2 .r.tot{border-top:1px solid rgba(16,26,22,0.08);margin-top:4px;padding-top:10px}
+.done .box2 .r.tot b{color:#101A16;font-size:16px}
+.done .steps{display:flex;align-items:center;gap:4px;justify-content:center;flex-wrap:wrap;margin:4px 0 8px;max-width:360px}
+/* overflow:hidden clips the light wave to the pill, and flex:0 0 auto stops the
+   pills shrinking into their own clip on a narrow screen - overflow:hidden
+   drops the automatic min-width, so without this the text can be cut off. */
+.done .st{position:relative;overflow:hidden;flex:0 0 auto;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:800;
+  background:rgba(16,26,22,0.05);color:#666;box-shadow:inset 0 0 0 1px rgba(16,26,22,0.06);
+  transition:background var(--d-4) var(--eo),color var(--d-4) var(--eo),box-shadow var(--d-4) var(--eo)}
+/* Every reached step fills solid, the frontier included, so the row reads left
+   to right as a fill line. The frontier is set apart by its ring and its
+   breathing, never by being darker: a gap in the fill made the row look like
+   it had gone backwards. */
+.done .st.on{background:#101A16;color:#06302A;box-shadow:inset 0 0 0 1px #101A16}
+.done .st.cur{background:#101A16;color:#04241E}
+.done .arw{color:#4A4A4A;font-size:14px;font-weight:800;line-height:1;transition:color var(--d-3) var(--eo),transform var(--d-3) var(--eo)}
+.done .arw.on{color:#101A16}
+#done-status{transition:opacity .3s var(--eo),transform .3s var(--sp);font-size:13px;color:#6B7A73;font-weight:700;margin:0 0 12px;text-align:center;max-width:360px}
+#done-status.swap{opacity:0;transform:translateY(4px)}
+.done .go2{width:100%;max-width:360px;background:#25D366;color:#fff;border:none;font-family:var(--fd);font-weight:800;font-size:16px;padding:13px;border-radius:12px;cursor:pointer;box-shadow:0 4px 0 rgba(16,26,22,0.27);margin-bottom:8px}
+.done .go2:disabled{background:#333;color:#666;box-shadow:none}
+.done .alt{background:rgba(16,26,22,0.06);border:1px solid rgba(16,26,22,0.11);color:#4A554F;border-radius:10px;padding:10px 24px;font-size:14px;text-decoration:none;margin-top:4px}
+.warnbox{max-width:360px;font-size:13px;color:#8A5A00;font-weight:700;margin-bottom:12px;line-height:1.6}
+#paid-mark,#claim-state{width:100%;max-width:360px;border-radius:10px;padding:8px 12px;margin:0 0 8px;font-size:13px;font-weight:800;text-align:center}
+#paid-mark{background:rgba(16,26,22,0.12);border:1px solid rgba(16,26,22,0.3);color:#101A16}
+#claim-state{background:rgba(138,90,0,0.12);border:1px solid rgba(138,90,0,0.3);color:#8A5A00}
+
+/* ===== motion system =====================================================
+   Durations stay short and the curves overshoot slightly, which is what
+   reads as "physical" rather than "animated". Everything is disabled under
+   prefers-reduced-motion at the bottom of this block.
+   ======================================================================== */
+:root{
+  --sp:cubic-bezier(0.34,1.56,0.64,1);
+  --eo:cubic-bezier(0.22,1,0.36,1);
+  --eio:cubic-bezier(0.65,0,0.35,1);
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(16px) scale(0.965)}to{opacity:1;transform:none}}
+@keyframes riseIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes doneAlert{from{box-shadow:inset 0 0 0 3px rgba(16,26,22,0)}to{box-shadow:inset 0 0 0 3px rgba(16,26,22,1)}}
+.done-note{margin:14px auto 0;font-size:13px;font-weight:800;color:#101A16;max-width:280px}
+.done.alert{animation:doneAlert .4s ease-out;box-shadow:inset 0 0 0 3px rgba(16,26,22,.85)}
+@keyframes popIn{0%{transform:scale(0.9);opacity:0}60%{transform:scale(1.03)}100%{transform:scale(1);opacity:1}}
+@keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.07)}100%{transform:scale(1)}}
+@keyframes tickIn{0%{transform:scale(0.4);opacity:0}55%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+/* `@keyframes sheen` was the gradient sweep behind the old CTA hover; replaced
+   by a brightness lift. Removed rather than left dormant. */
+@keyframes floatUp{from{opacity:0;transform:translateY(24px) scale(0.96)}to{opacity:1;transform:none}}
+
+/* --- cards --- */
+.card{animation:cardIn var(--d-4) var(--eo) both;transition:border-color var(--d-2) var(--eo),box-shadow var(--d-2) var(--eo),transform var(--d-1) var(--sp),background var(--d-3) var(--eo),opacity var(--d-3) var(--eo)}
+.card:active{transform:scale(0.955)}
+.card:hover{border-color:#101A16}
+.card.in-cart{animation:pop var(--d-4) var(--sp)}
+
+/* --- every control gets a physical press --- */
+button,a.adm-link,.fb{-webkit-tap-highlight-color:transparent;transition:transform .2s var(--sp),background .22s var(--eo),border-color .22s var(--eo),color .22s var(--eo),opacity .22s var(--eo),box-shadow .25s var(--eo)}
+button:active{transform:scale(0.93)}
+button:disabled:active{transform:none}
+
+/* --- cart bar rises --- */
+#cart-bar{transform:translateY(115%);transition:transform var(--d-4) var(--eo),opacity var(--d-2) var(--eo);display:flex;opacity:0;pointer-events:none}
+#cart-bar.show{transform:none;opacity:1;pointer-events:auto}
+
+/* --- bottom sheet + side panel --- */
+.panel{transition:transform var(--d-4) var(--eo)}
+.overlay{opacity:0;transition:opacity .3s var(--eo)}
+.overlay.open{opacity:1}
+
+/* --- modals --- */
+.modal .box{animation:in var(--d-4) var(--eo) both}
+.modal .bg{animation:fadeIn var(--d-3) var(--eo) both}
+.modal{animation:fadeIn var(--d-2) var(--eo) both}
+
+/* --- toast --- */
+.toast{transition:opacity .26s var(--eo),transform .4s var(--sp)}
+.toast:not(.show){transform:translateX(-50%) translateY(16px) scale(0.92)}
+
+/* --- chips, slots, blocks pop when chosen --- */
+.chip,.ts button,.block-grid button{transition:transform .22s var(--sp),background .22s var(--eo),border-color .22s var(--eo),color .22s var(--eo)}
+.chip.sel,.ts button.active,.block-grid button.active{animation:pop var(--d-4) var(--sp)}
+
+/* --- receipt --- */
+.done{animation:fadeIn var(--d-3) var(--eo)}
+.done .tick{animation:tickIn var(--d-4) var(--sp) both}
+.done h2{animation:riseIn var(--d-4) var(--eo) .06s both}
+.done .code{animation:riseIn var(--d-4) var(--eo) .12s both}
+.done .box2{animation:riseIn var(--d-4) var(--eo) .18s both}
+.done .steps{animation:riseIn var(--d-4) var(--eo) .24s both}
+
+/* --- order stepper: motion once per status change ----------------------
+   The row fills left to right and each pill plays a single light sweep as its
+   status lands. It used to run four infinite waves, a breathing frontier with
+   a looping halo, and a permanently nudging chevron -- seven loops at once, on
+   the one screen a customer leaves open for ten minutes while waiting for a
+   drink. That is decoration, battery and repaint buying no new information.
+   Motion now happens once per status change, which is when it means something.
+   ---------------------------------------------------------------------- */
+@keyframes stWave{0%{transform:translateX(-160%) skewX(-20deg)}26%,100%{transform:translateX(420%) skewX(-20deg)}}
+.done .st::after{content:'';position:absolute;top:-3px;bottom:-3px;left:0;width:30%;pointer-events:none;
+  background:linear-gradient(100deg,rgba(16,26,22,0) 0%,rgba(16,26,22,0.42) 50%,rgba(16,26,22,0) 100%);
+  transform:translateX(-160%) skewX(-20deg);opacity:0}
+.done .st.pop::after{animation:stWave .42s var(--eo) 1 both;opacity:1}
+.done .st[data-i="1"]::after{animation-delay:.14s}
+.done .st[data-i="2"]::after{animation-delay:.28s}
+.done .st[data-i="3"]::after{animation-delay:.42s}
+/* The frontier step holds a static ring instead of breathing forever: the ring
+   already says "you are here", and it says it without spending a frame budget. */
+.done .st.cur{box-shadow:inset 0 0 0 1px #101A16,0 0 0 3px rgba(16,26,22,0.26)}
+@keyframes stPop{0%{transform:scale(0.8)}58%{transform:scale(1.15)}100%{transform:scale(1)}}
+.done .st.pop{animation:stPop var(--d-4) var(--sp) both}
+/* the chevron leaving the frontier points onward, statically */
+.done .arw.next{color:#101A16;opacity:1}
+/* Landed: the motion stops, the row settles, and the last step blooms once. */
+@keyframes stFinish{
+  0%{box-shadow:inset 0 0 0 1px #101A16,0 0 0 0 rgba(16,26,22,0.55)}
+  100%{box-shadow:inset 0 0 0 1px #101A16,0 0 0 20px rgba(16,26,22,0)}}
+.done .steps.fin .st::after{animation:none;opacity:0}
+.done .steps.fin .st:last-child{animation:stFinish 1s var(--eo) 1 both}
+
+@media (prefers-reduced-motion: reduce){
+  /* the blanket rule above only shortens durations, and a shortened infinite
+     loop still spins, so these are switched off outright */
+  .done .st,.done .st::after,.done .arw,.done .steps.fin .st:last-child{animation:none !important}
+  .done .st::after{opacity:0}
+}
+.done .go2{animation:riseIn var(--d-4) var(--eo) .28s both}
+.done .alt{animation:fadeIn var(--d-3) var(--eo) .32s both}
+
+
+/* --- my-order + trust --- */
+#my-order{animation:floatUp var(--d-4) var(--eo) both}
+
+/* --- status bar ---
+   Also static text on mount; the .4s riseIn is gone. Its state *changes* still
+   ease — see the .open/.closed colour transitions. */
+
+/* --- menu section header ---
+   No mount animation here: it is a static text heading and should be there
+   when the eye arrives, not arrive after the eye. (A .5s fadeIn ran here.) */
+
+/* --- admin polish --- */
+.a-filter button{transition:transform .2s var(--sp),background .22s var(--eo),border-color .22s var(--eo),color .22s var(--eo)}
+#admin-panel{animation:fadeIn .3s var(--eo)}
+.adm-side nav a{transition:background .22s var(--eo),color .22s var(--eo),border-color .22s var(--eo)}
+.adm-main .pg{animation:fadeIn .32s var(--eo)}
+
+/* --- primary CTA hover ---------------------------------------------------
+   A 100deg gradient sweep used to run across every primary button on hover
+   (`animation: sheen`). A moving highlight on a persistent button is a
+   signature generated-UI effect and it costs a repaint mid-press. A plain
+   brightness lift reads as a response to the pointer without performing. */
+#cartb,#checkout,.ft .go,.done .go2{transition:filter var(--d-2) var(--eo),transform var(--d-1) var(--eo)}
+#cartb:not(:disabled):hover,#checkout:not(:disabled):hover,.ft .go:not(:disabled):hover,.done .go2:not(:disabled):hover{filter:brightness(1.07)}
+#cartb:not(:disabled):active,#checkout:not(:disabled):active,.ft .go:not(:disabled):active,.done .go2:not(:disabled):active{transform:scale(.985)}
+
+/* --- respect the user's motion preference ---
+   Short durations alone are not enough: a .001ms infinite loop still loops, so
+   iteration-count is capped as well. That makes every looping animation above a
+   single 0ms pass, including the status dot and anything in the admin screens. */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation-duration:.001ms !important;animation-delay:0ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important;scroll-behavior:auto !important}
+  #cart-bar{transform:none;opacity:1;pointer-events:auto}
+}
+
+@media(min-width:700px){.grid{grid-template-columns:repeat(3,1fr);max-width:720px}}
+#cart-bar{position:fixed;bottom:0;left:0;right:0;background:#FFFFFF;border-top:1px solid var(--line2);padding:10px 16px calc(12px + env(safe-area-inset-bottom));display:none;align-items:center;gap:12px;z-index:200;box-shadow:0 -4px 20px rgba(16,26,22,0.54)}
+#cart-bar.show{display:flex}
+#cart-bar .info{flex:1;min-width:0}
+#cart-bar .count{font-size:13px;color:#6B7A73;font-weight:700}
+#cart-bar .total{font-family:var(--fd);font-weight:800;font-size:26px;color:#101A16}
+#cartb{flex-shrink:0;min-height:var(--tap);background:var(--mint);color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:15px;padding:12px 24px;border-radius:10px;cursor:pointer;box-shadow:0 3px 0 rgba(16,26,22,0.27)}
+#cartb:active{transform:scale(0.95)}
+.overlay{position:fixed;inset:0;z-index:300;display:none}.overlay.open{display:block}
+.overlay .bg{position:absolute;inset:0;background:rgba(16,26,22,0.63);backdrop-filter:blur(3px)}
+.panel{position:fixed;bottom:0;left:0;right:0;max-height:80vh;background:#FFFFFF;border-top:1px solid var(--line2);border-radius:20px 20px 0 0;z-index:400;display:flex;flex-direction:column;transform:translateY(100%);transition:transform var(--d-4) var(--eo)}
+.panel.open{transform:translateY(0)}
+@media(min-width:600px){.panel{left:auto;right:0;bottom:0;top:0;max-height:100vh;max-width:420px;border-radius:0;border-left:1px solid var(--line2);border-top:none;transform:translateX(100%)}.panel.open{transform:translateX(0)}}
+.panel .h{width:40px;height:4px;background:rgba(16,26,22,0.15);border-radius:4px;margin:12px auto 0;flex-shrink:0}
+.panel .hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 10px;border-bottom:1px solid rgba(16,26,22,0.08)}
+.panel .hd h2{font-family:var(--fd);font-weight:800;font-size:26px;color:#101A16}
+.panel .hd .x{background:rgba(16,26,22,0.06);border:none;color:#101A16;font-size:18px;width:var(--tap);height:var(--tap);border-radius:50%;cursor:pointer}
+.panel .bd{overflow-y:auto;flex:1;padding:8px 18px}.empty{text-align:center;padding:34px 20px;color:#6B7A73;font-size:16px;font-weight:800}
+/* Empty-cart actions (design pass 3): the panel used to say "Belum ada pesanan"
+   and offer nothing, so a customer who opened the cart with nothing in it had
+   one move — the system back gesture. Now the primary action returns to the
+   menu, and a returning customer gets their last order in one tap. */
+.empty-cta{display:block;width:100%;max-width:280px;margin:16px auto 0;min-height:var(--tap);background:var(--mint);color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:15px;border-radius:12px;cursor:pointer}
+.empty-alt{display:block;width:100%;max-width:280px;margin:0 auto;min-height:var(--tap);background:rgba(16,26,22,0.05);border:1px solid var(--line2);color:var(--ink-dim);font-family:var(--fd);font-weight:800;font-size:14px;border-radius:12px;cursor:pointer}
+.empty-alt:active,.empty-cta:active{transform:scale(.985)}
+/* Empty basket: show the empty state and nothing else. */
+.panel.is-empty .opt,.panel.is-empty .ft{display:none}
+.panel.is-empty .bd{padding-top:0}
+.item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(16,26,22,0.08)}
+.ii{flex:1;min-width:0}.ii .nm{font-weight:800;font-size:14px}.ii .sb{font-size:12px;color:#6B7A73;font-weight:600;margin-top:2px}
+.iq{display:flex;align-items:center;gap:6px;background:rgba(16,26,22,0.05);border-radius:8px;padding:4px 8px;flex-shrink:0}
+.iq button{background:none;border:none;font-size:18px;font-weight:900;cursor:pointer;width:26px;height:26px;border-radius:50%}
+.iq button:hover{background:rgba(16,26,22,0.15)}
+.opt{padding:14px 0;border-bottom:1px solid rgba(16,26,22,0.08)}
+.opt .l{font-size:13px;font-weight:800;color:#6B7A73;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+.dt{display:flex;gap:8px}.dt button{flex:1;background:rgba(16,26,22,0.04);border:1.5px solid rgba(16,26,22,0.08);color:#6B7A73;font-family:var(--fd);font-weight:800;font-size:14px;padding:8px;border-radius:8px;cursor:pointer;text-align:center}
+.dt button.active{background:rgba(16,26,22,0.1);border-color:#101A16;color:#101A16}
+.dt button.unavail{opacity:0.25;cursor:not-allowed;text-decoration:line-through}.dt button.unavail.admin-mode{opacity:0.4;cursor:pointer}
+.ts{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.ts button{background:rgba(16,26,22,0.04);border:1.5px solid rgba(16,26,22,0.08);color:#101A16;font-family:var(--fb);font-size:14px;font-weight:700;padding:8px 16px;border-radius:8px;cursor:pointer}
+.ts button:hover{border-color:#101A16}.ts button.active{background:rgba(16,26,22,0.15);border-color:#101A16;color:#101A16}
+.ts button.unavail{opacity:0.25;cursor:not-allowed;text-decoration:line-through}.ts button.unavail.admin-mode{opacity:0.4;cursor:pointer}.ts button.admin-mode{cursor:pointer}
+.ft{padding:12px 18px 18px;border-top:1px solid rgba(16,26,22,0.08)}
+.ft .tr{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.ft .tr span{font-family:var(--fd);font-weight:800;font-size:15px;color:#6B7A73}
+.ft .tr .am{font-family:var(--fd);font-weight:800;font-size:26px;color:#101A16}
+.ft .go{width:100%;margin-top:12px;background:#25D366;color:#fff;border:none;font-family:var(--fd);font-weight:800;font-size:15px;padding:10px;border-radius:10px;cursor:pointer;box-shadow:0 3px 0 rgba(16,26,22,0.27)}
+.ft .go:active{transform:scale(0.97)}.ft .go:disabled{background:#333;color:#555;cursor:not-allowed;box-shadow:none}
+.inp{background:rgba(16,26,22,0.06);border:1.5px solid rgba(16,26,22,0.08);border-radius:8px;color:#101A16;font-family:var(--fb);font-size:16px;font-weight:700;padding:10px 12px;outline:none;width:100%}
+.chip{background:#FFFFFF;border:1.5px solid rgba(16,26,22,0.08);border-radius:999px;padding:8px 16px;font-size:14px;font-weight:700;color:#101A16;cursor:pointer;white-space:nowrap;display:inline-block;margin:2px}
+.chip.sel{background:rgba(16,26,22,0.1)!important;border-color:#101A16!important;color:#101A16!important}.chip.dis{opacity:0.35}
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#101A16;color:#F7FAF5;font-family:var(--fd);font-weight:800;font-size:14px;padding:10px 22px;border-radius:999px;z-index:999;opacity:0;transition:opacity 0.25s,transform 0.25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.page-foot{text-align:center;padding:20px;color:#6B7A73;font-size:13px;font-weight:700}.page-foot b{color:#101A16}
+.modal{position:fixed;inset:0;z-index:600;display:none;align-items:center;justify-content:center;padding:20px}
+.modal .bg{position:absolute;inset:0;background:rgba(16,26,22,0.68);backdrop-filter:blur(3px);cursor:pointer}
+.modal .box{position:relative;background:#FFFFFF;border:1.5px solid #101A16;border-radius:20px;padding:24px;max-width:380px;width:100%}
+@keyframes in{from{transform:scale(0.9) translateY(20px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+#admin-panel{display:none;position:fixed;inset:0;z-index:1000;background:#EFF3F0;color:#101A16}
+#admin-panel.show{display:flex}
+.adm-side{width:220px;background:#191510;border-right:1px solid rgba(16,26,22,0.06);display:flex;flex-direction:column;flex-shrink:0}
+.adm-side .brand{padding:22px 18px;font-family:var(--fd);font-weight:800;font-size:19px;color:#101A16;border-bottom:1px solid rgba(16,26,22,0.06);display:flex;align-items:center;justify-content:space-between}
+.adm-side .brand .x{display:none;background:rgba(16,26,22,0.06);border:1px solid rgba(16,26,22,0.14);color:#101A16;font-size:15px;font-weight:800;width:34px;height:34px;border-radius:9px;cursor:pointer;flex-shrink:0}
+@media (max-width:760px){.adm-side .brand .x{display:block}}
+html[data-mob="1"] .adm-side .brand .x{display:block}
+.adm-side nav{flex:1;overflow-y:auto;padding:12px 0}
+.adm-side nav a{display:flex;align-items:center;gap:11px;padding:14px 18px;font-size:14px;font-weight:700;color:#6B7A73;cursor:pointer;transition:all .15s;border-left:3px solid transparent;text-decoration:none}
+/* Emoji are not a fixed width, so without this every label starts at a
+   different x and the column looks ragged. */
+.adm-side nav a .ic{width:22px;text-align:center;flex-shrink:0;font-size:15px;line-height:1}
+.adm-side nav a:hover{background:rgba(16,26,22,0.03);color:#101A16}
+.adm-side nav a.active{color:#101A16;background:rgba(16,26,22,0.06);border-left-color:#101A16}
+.adm-side .exit{padding:16px;border-top:1px solid rgba(16,26,22,0.06)}
+.adm-side .exit button{width:100%;padding:10px;background:rgba(198,56,30,0.1);border:1px solid rgba(198,56,30,0.2);color:#C6381E;font-family:var(--fb);font-weight:800;font-size:14px;border-radius:10px;cursor:pointer}
+.adm-main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.adm-main .hd{padding:18px 22px;border-bottom:1px solid rgba(16,26,22,0.06);display:flex;align-items:center;justify-content:space-between}
+.adm-main .hd h2{font-family:var(--fd);font-weight:800;font-size:24px;color:#101A16}
+/* On a phone the sidebar was taking 220 of ~380 pixels and the filter bar
+   another two rows, which left almost nothing for the orders - the list itself
+   was the hard part to read. Both now fold away and are opened from the header. */
+.adm-burger{display:none}
+.adm-backdrop{display:none;position:fixed;inset:0;background:rgba(16,26,22,0.56);z-index:899}
+@media (max-width:760px){
+  .adm-main .hd{padding:12px 13px;gap:10px;justify-content:flex-start}
+  .adm-main .hd h2{font-size:19px;cursor:pointer}
+  .adm-main .hd h2:after{content:" ▾";font-size:12px;color:#6B7A73}
+  .adm-burger{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;flex-shrink:0;background:rgba(16,26,22,0.06);border:1px solid rgba(16,26,22,0.12);border-radius:10px;color:#101A16;font-size:17px;cursor:pointer}
+  /* flex-shrink:0 alone was not enough: the sidebar is a flex child of the
+     panel, so it has to leave the flow entirely to stop reserving its width. */
+  .adm-side{position:fixed;left:0;top:0;bottom:0;z-index:900;width:min(252px,80vw);transform:translateX(-100%);transition:transform .24s var(--sp);box-shadow:0 0 40px rgba(16,26,22,0.63)}
+  .adm-side.open{transform:none}
+  .adm-backdrop.show{display:block}
+  .a-bar.fold{display:none}
+  .o-row{margin-bottom:9px}
+  .adm-side .brand{padding:20px 16px;font-size:19px}
+  .adm-side nav{padding:6px 0}
+  .adm-side nav a{padding:18px 16px;font-size:16px;min-height:58px}
+  .adm-side nav .grp{padding:20px 16px 8px}
+  .adm-side .exit{padding:14px 16px;display:flex;flex-direction:column;gap:9px}
+  .adm-side .exit button{padding:15px;font-size:15px}
+  .adm-side nav a .ic{width:28px;font-size:19px}
+  .adm-side .toggle{padding:15px 14px;font-size:15px;min-height:56px}
+  .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-height:56px}
+}
+/* ?mob=1 - the same rules, forced, so the phone layout can be looked at in a
+   desktop window. Nothing sets data-mob for a real visitor. */
+html[data-mob="1"] .adm-main .hd{padding:12px 13px;gap:10px;justify-content:flex-start}
+html[data-mob="1"] .adm-main .hd h2{font-size:19px;cursor:pointer}
+html[data-mob="1"] .adm-main .hd h2:after{content:" ▾";font-size:12px;color:#6B7A73}
+html[data-mob="1"] .adm-burger{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;flex-shrink:0;background:rgba(16,26,22,0.06);border:1px solid rgba(16,26,22,0.12);border-radius:10px;color:#101A16;font-size:17px;cursor:pointer}
+html[data-mob="1"] .adm-side{position:fixed;left:0;top:0;bottom:0;z-index:900;width:min(252px,80vw);transform:translateX(-100%);box-shadow:0 0 40px rgba(16,26,22,0.63)}
+html[data-mob="1"] .adm-side.open{transform:none}
+html[data-mob="1"] .adm-backdrop.show{display:block}
+html[data-mob="1"] .a-bar.fold{display:none}
+html[data-mob="1"] .o-row{margin-bottom:9px}
+html[data-mob="1"] .adm-side .brand{padding:20px 16px;font-size:19px}
+html[data-mob="1"] .adm-side nav{padding:6px 0}
+html[data-mob="1"] .adm-side nav a{padding:18px 16px;font-size:16px;min-height:58px}
+html[data-mob="1"] .adm-side nav .grp{padding:20px 16px 8px}
+html[data-mob="1"] .adm-side .exit{padding:14px 16px;display:flex;flex-direction:column;gap:9px}
+html[data-mob="1"] .adm-side .exit button{padding:15px;font-size:15px}
+html[data-mob="1"] .adm-side nav a .ic{width:28px;font-size:19px}
+html[data-mob="1"] .adm-side .toggle{padding:15px 14px;font-size:15px;min-height:56px}
+html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-height:56px}
+.adm-main .pg{flex:1;padding:20px 22px;overflow-y:auto}
+@media(max-width:700px){
+#admin-panel.show{flex-direction:column}
+.adm-side{width:100%;flex-direction:row;border-right:none;border-bottom:1px solid rgba(16,26,22,0.06)}
+.adm-side .brand{display:none}
+.adm-side nav{display:flex;overflow-x:auto;padding:0;-webkit-overflow-scrolling:touch;gap:0;flex:1}
+.adm-side nav a{white-space:nowrap;padding:16px 16px;border-left:none;border-bottom:3px solid transparent;font-size:14px;font-weight:800}
+.adm-side nav a.active{border-bottom-color:#101A16}
+.adm-side .exit{padding:8px 10px;border-top:none;border-left:1px solid rgba(16,26,22,0.06);display:flex;align-items:center}
+.adm-side .exit button{padding:7px 12px;font-size:13px}
+.adm-main .hd{padding:14px 16px}
+.adm-main .pg{padding:14px 16px}
+}
+.a-sec{font-size:12px;font-weight:800;color:#6B7A73;text-transform:uppercase;letter-spacing:0.5px;padding:14px 0 6px;border-bottom:1px solid rgba(16,26,22,0.06);margin-bottom:8px}
+.a-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(16,26,22,0.04)}
+.a-row .n{flex:1;font-weight:700;font-size:14px}
+.a-row .p{font-family:var(--fd);font-weight:800;font-size:17px;color:#8A5A00;flex-shrink:0}
+.a-row .b{display:flex;gap:6px;flex-shrink:0}
+.a-row .b button{width:32px;height:32px;border-radius:8px;border:none;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s}
+.a-form{background:rgba(16,26,22,0.03);border:1px solid rgba(16,26,22,0.06);border-radius:12px;padding:16px;margin-top:16px}
+.a-form .row{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.a-form .chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+#block-section{display:none}
+.block-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px}
+.block-grid button{background:rgba(16,26,22,0.04);border:1.5px solid rgba(16,26,22,0.08);color:#101A16;font-family:var(--fd);font-weight:800;font-size:16px;padding:10px;border-radius:8px;cursor:pointer;text-align:center}
+.block-grid button.active{background:rgba(16,26,22,0.1);border-color:#101A16;color:#101A16}
+.block-grid button:hover{border-color:#101A16}
+.a-chip.on{background:rgba(16,26,22,0.1);border-color:#101A16;color:#101A16}
+.a-filter{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.a-filter button{padding:12px 22px;border-radius:10px;border:1.5px solid rgba(16,26,22,0.1);background:rgba(16,26,22,0.04);color:#6B7A73;font-size:14px;font-weight:800;cursor:pointer;transition:all .15s}
+.a-filter button.on{border-color:#101A16;background:rgba(16,26,22,0.12);color:#101A16}
+.a-bulk{margin-bottom:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.a-bulk button{background:#101A16;color:#F7FAF5;border:none;font-family:var(--fd);font-weight:800;font-size:15px;padding:12px 24px;border-radius:10px;cursor:pointer}
+.a-search{background:rgba(16,26,22,0.06);border:1.5px solid rgba(16,26,22,0.08);border-radius:10px;color:#101A16;font-family:var(--fb);font-size:16px;font-weight:700;padding:12px 16px;width:100%;max-width:400px;margin-bottom:16px;outline:none}
+/* Block chips, under the search box. Hidden until the box is clicked so the
+   list stays uncluttered. The counts come from the current status and delivery
+   filters, before any typed name narrows it, so they hold still while typing. */
+.a-blocks{display:none;flex-wrap:wrap;gap:8px;margin:-8px 0 16px;align-items:center}
+.a-blocks .blk{background:rgba(16,26,22,0.05);border:1px solid rgba(16,26,22,0.1);border-radius:999px;color:#4A554F;font-family:var(--fb);font-size:13px;font-weight:800;padding:7px 13px;cursor:pointer;transition:background .16s,color .16s,border-color .16s}
+.a-blocks .blk:hover{background:rgba(16,26,22,0.1);color:#101A16}
+.a-blocks .blk.on{background:rgba(16,26,22,0.16);border-color:rgba(16,26,22,0.42);color:#101A16}
+.a-blocks .blk .c{font-family:var(--fd);font-weight:800;font-size:12px;margin-left:7px;opacity:.85}
+
+/* ===================== ADMIN — redesigned ===================== */
+#admin-panel{background:#EFF3F0}
+.adm-side{width:236px;background:#141110;border-right:1px solid rgba(16,26,22,0.05)}
+.adm-side .brand{padding:20px 20px 14px;font-size:17px;letter-spacing:.5px;border-bottom:none}
+.adm-side nav{flex:1;overflow-y:auto;padding:0 12px 16px}
+.adm-side nav .grp{font-size:11px;font-weight:800;color:#6B7A73;letter-spacing:1.4px;text-transform:uppercase;padding:16px 12px 8px}
+.adm-side nav a{display:flex;align-items:center;gap:12px;padding:11px 12px;margin-bottom:2px;border-radius:10px;font-size:14px;color:#6B7A73}
+.adm-side nav a:hover{background:rgba(16,26,22,0.05);color:#101A16}
+.adm-side nav a.active{background:rgba(16,26,22,0.11);color:#101A16;box-shadow:inset 0 0 0 1px rgba(16,26,22,0.22)}
+.adm-side nav a .ic{width:22px;text-align:center;font-size:15px;flex-shrink:0}
+.adm-side .toggle{display:flex;align-items:center;justify-content:space-between;width:100%;padding:11px 12px;margin-bottom:2px;border-radius:10px;font-size:14px;color:#6B7A73;background:none;border:none;cursor:pointer;font-family:var(--fb);font-weight:700;transition:background .16s,color .16s}
+.adm-side .toggle:hover{background:rgba(16,26,22,0.05);color:#101A16}
+.adm-side .toggle.open{color:#101A16}
+.adm-side .toggle .car{display:inline-block;transition:transform .22s var(--sp);color:#6B7A73}
+.adm-side .toggle.open .car{transform:rotate(90deg)}
+.adm-side .subnav{overflow:hidden;max-height:0;transition:max-height .26s var(--sp)}
+.adm-side .subnav.open{max-height:400px}
+.adm-side .exit{padding:14px 12px;border-top:1px solid rgba(16,26,22,0.05);display:flex;flex-direction:column;gap:8px}
+.adm-side .exit button{padding:10px;border-radius:10px;font-size:14px}
+.adm-main .hd{padding:24px 30px 12px;align-items:baseline;flex-wrap:wrap;gap:10px}
+.adm-main .hd h2{font-size:25px;letter-spacing:.5px}
+.adm-main .pg{padding:0 30px 36px}
+.adm-main .pg > *{max-width:920px}
+
+/* ---- orders toolbar: one row, sticky, replaces 4 pills + 3 stat boxes ---- */
+.a-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px;position:sticky;top:0;z-index:5;padding:10px 0 12px;background:linear-gradient(#EFF3F0 74%,rgba(14,12,11,0))}
+.a-seg{display:flex;background:rgba(16,26,22,0.05);border-radius:11px;padding:3px;gap:2px;flex-wrap:wrap}
+.a-seg button{border:none;background:transparent;color:#6B7A73;font-family:var(--fb);font-size:14px;font-weight:800;padding:9px 15px;border-radius:8px;cursor:pointer;transition:background .16s,color .16s;white-space:nowrap}
+.a-seg button .c{opacity:.5;margin-left:6px}
+.a-seg button:hover{color:#101A16}
+.a-seg button.on{background:#101A16;color:#F7FAF5}
+.a-seg button.on .c{opacity:.7}
+.a-bar .sum{margin-left:auto;font-size:14px;font-weight:700;color:#7A7268;text-align:right}
+.a-bar .sum b{color:#101A16;font-family:var(--fd);font-weight:800;font-size:18px;letter-spacing:.5px}
+.a-bar .sum i{font-style:normal;color:#101A16}
+.a-bar .sum span{display:block}
+
+/* ---- order card: left status rail, no duplicated block text ---- */
+.a-bulk{margin-bottom:14px}
+.a-bulk button{background:rgba(16,26,22,0.12);border:1px solid rgba(16,26,22,0.3);color:#101A16;font-size:14px;padding:10px 18px}
+.a-search{margin-bottom:14px}
+.a-empty{text-align:center;padding:56px 20px;color:#6B7A73;font-weight:700;font-size:14px}
+.a-empty .big{font-size:40px;display:block;margin-bottom:12px;opacity:.6}
+
+@media(max-width:760px){
+  #admin-panel.show{flex-direction:column}
+  .adm-side{width:100%;flex-direction:column;border-right:none;border-bottom:1px solid rgba(16,26,22,0.05)}
+  .adm-side .brand{padding:12px 14px 6px;font-size:14px}
+  .adm-side nav{padding:0 8px 8px;display:flex;flex-wrap:wrap;gap:6px}
+  .adm-side nav .grp{display:none}
+  .adm-side nav a{margin-bottom:0;padding:9px 12px;font-size:14px}
+  .adm-side .subnav{width:100%;display:flex;flex-wrap:wrap;gap:6px}
+  .adm-side .subnav.open{max-height:none}
+  .adm-side .exit{flex-direction:row;padding:10px}
+  .adm-side .exit button{flex:1;padding:9px;font-size:13px}
+  .adm-main .hd{padding:18px 16px 10px}
+  .adm-main .hd h2{font-size:21px}
+  .adm-main .pg{padding:0 16px 28px}
+  .a-bar{margin-bottom:10px;padding:6px 0 8px}
+  .a-bar .sum{margin-left:0;width:100%;text-align:left;display:flex;gap:14px;flex-wrap:wrap;font-size:13px}
+  .a-bar .sum span{display:inline}
+  /* the spacer must not compete with the stepper for free space, or the three
+     status buttons collapse to about 39px each */
+}
+@media (prefers-reduced-motion: reduce){
+  .adm-side .subnav{transition:none}
+}
+
+/* ---- row actions: one quiet icon-button, not five colour chips ---- */
+.a-row{padding:11px 0;align-items:center}
+.a-row .n{font-size:14px;color:#101A16}
+.a-row .p{font-size:15px;color:#8A5A00}
+.a-row .b{gap:6px}
+.a-row .b button{
+  width:33px;height:33px;border-radius:9px;
+  background:rgba(16,26,22,0.045)!important;
+  border:1px solid rgba(16,26,22,0.07)!important;
+  color:#6B7A73!important;
+  font-size:14px;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;
+  transition:background .16s,color .16s,border-color .16s;
+}
+.a-row .b button:hover{background:rgba(16,26,22,0.11)!important;color:#101A16!important;border-color:rgba(16,26,22,0.14)!important}
+.a-row .b button:disabled{opacity:.22;cursor:default}
+.a-row .b button:disabled:hover{background:rgba(16,26,22,0.045)!important;color:#6B7A73!important}
+
+/* the availability switch is the one control worth seeing at a glance */
+.a-row .b button[onclick^="togDis"],
+.a-row .b button[onclick^="admTogDis"],
+.a-row .b button[onclick^="admTogBlockDis"]{color:#101A16!important;border-color:rgba(16,26,22,0.28)!important;background:rgba(16,26,22,0.09)!important}
+.a-row .b button[onclick^="admTogDis"]:hover,
+.a-row .b button[onclick^="admTogBlockDis"]:hover{background:rgba(16,26,22,0.18)!important}
+
+/* reorder arrows are the quietest thing in the row */
+.a-row .b button[onclick^="admMove"]{color:#6B7A73!important;border-color:transparent!important;background:transparent!important}
+.a-row .b button[onclick^="admDel"]{color:#B4707A!important}
+.a-row .b button[onclick^="admDel"]:hover{color:#C6381E!important;border-color:rgba(198,56,30,0.35)!important;background:rgba(198,56,30,0.12)!important}
+
+.a-sec{font-size:11px;font-weight:800;color:#6B7A73;letter-spacing:1.4px;text-transform:uppercase;padding:22px 0 8px;margin-bottom:2px;border-bottom:1px solid rgba(16,26,22,0.05)}
+.a-sec:first-child{padding-top:4px}
+.a-row.off{opacity:.45}
+.a-row.off .n{text-decoration:line-through}
+
+/* ---- analytics summary (used by the Analitis tab) ---- */
+.a-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.a-stat{background:#171412;border:1px solid rgba(16,26,22,0.06);border-radius:14px;padding:16px 18px}
+.a-stat .label{font-size:11px;font-weight:800;color:#6B7A73;letter-spacing:1.4px;text-transform:uppercase;margin-bottom:8px}
+.a-stat .count{font-family:var(--fd);font-weight:800;font-size:32px;color:#101A16;line-height:1}
+.a-stat .rev{font-size:13px;color:#6B7A73;font-weight:700;margin-top:7px}
+@media(max-width:560px){.a-stats{grid-template-columns:1fr}}
+
+/* the funnel bars were tuned against the old palette */
+.fn-row{margin-bottom:13px}
+.fn-bar{height:8px;border-radius:999px;background:rgba(16,26,22,0.06);overflow:hidden}
+.fn-bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#101A16,#25D366)}
+
+.a-bulk button.danger{background:rgba(198,56,30,0.1);border:1px solid rgba(198,56,30,0.3);color:#C6381E}
+.a-bulk button.danger:hover{background:rgba(198,56,30,0.2)}
+/* "Tutup" is now the only secondary action on the receipt, so give it the
+   weight of a button rather than a bare underlined word. */
+.done .alt{background:rgba(16,26,22,0.06);border:1px solid rgba(16,26,22,0.11);color:#4A554F;border-radius:10px;padding:11px 26px;font-size:14px;text-decoration:none;margin-top:4px}
+.done .alt:hover{background:rgba(16,26,22,0.11);color:#101A16}
+#toast-act{font-family:var(--fb)}
+
+.warnText{color:#8A5A00}
+
+.filelbl{display:block;text-align:center;background:rgba(16,26,22,0.06);border:1px dashed rgba(16,26,22,0.22);color:#4A554F;font-weight:800;font-size:14px;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:10px}
+.filelbl:hover{background:rgba(16,26,22,0.1);border-color:rgba(16,26,22,0.45)}
+#claim-view{position:fixed;inset:0;z-index:1300;display:none;align-items:center;justify-content:center;padding:20px}
+#claim-view .cv-bg{position:absolute;inset:0;background:rgba(16,26,22,0.77)}
+#claim-view .cv-box{position:relative;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;background:#171412;border:1px solid rgba(16,26,22,0.1);border-radius:16px;padding:16px}
+#claim-view .cv-hd{display:flex;justify-content:space-between;align-items:center;font-weight:800;color:#101A16;margin-bottom:12px}
+#claim-view .cv-hd button{background:rgba(16,26,22,0.08);border:none;color:#101A16;font-size:15px;width:32px;height:32px;border-radius:50%;cursor:pointer}
+#claim-view img{width:100%;border-radius:10px;display:block}
+#claim-view .cv-ref{margin-top:12px;font-size:14px;font-weight:800;color:#101A16;word-break:break-all}
+
+/* ===================== order rows ===================== */
+.o-row{background:#171412;border:1px solid rgba(16,26,22,0.06);border-radius:12px;margin-bottom:8px;overflow:hidden;cursor:pointer;transition:border-color .16s,background .16s}
+.o-row:hover{border-color:rgba(16,26,22,0.13);background:#EFF3F0}
+.o-row.is-done{opacity:.72}
+.o-main{display:flex;align-items:center;gap:10px;padding:12px 14px 8px}
+.o-rail{width:3px;height:26px;border-radius:2px;flex-shrink:0}
+.o-num{font-family:var(--fd);font-weight:800;font-size:19px;color:#101A16;flex-shrink:0;letter-spacing:.5px}
+.o-num.legacy{font-family:var(--fb);font-size:13px;color:#6B7A73;font-weight:800}
+.o-nm{font-weight:800;font-size:15px;color:#101A16;flex-shrink:0;max-width:34%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.o-where{font-size:14px;font-weight:700;color:#8A5A00;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.o-where.muted{color:#6B7A73}
+.o-clam{font-size:14px;flex-shrink:0}
+.o-money{font-size:16px;color:#101A16;flex-shrink:0;font-family:var(--fd);font-weight:800;letter-spacing:.5px}
+.o-ctrls{display:flex;align-items:center;gap:8px;padding:0 14px 11px}
+.o-step{display:flex;background:rgba(16,26,22,0.05);border-radius:9px;padding:2px;gap:2px}
+.o-step button{border:none;background:transparent;color:#6B7A73;font-family:var(--fb);font-size:13px;font-weight:800;padding:7px 13px;border-radius:7px;cursor:pointer;transition:background .16s,color .16s}
+.o-step button:hover{color:#101A16}
+.o-step button.on{background:#101A16;color:#F7FAF5}
+.o-step.big{margin-bottom:16px}
+.o-step.big button{flex:1;padding:12px 8px;font-size:14px}
+.o-more{color:#4E4840;font-size:18px;font-weight:800;flex-shrink:0;padding:0 2px}
+.o-foot{text-align:center;color:#6B7A73;font-size:13px;font-weight:700;padding:14px 0 4px}
+
+/* ===================== detail panel ===================== */
+#adm-detail{position:fixed;inset:0;z-index:1250;display:none;align-items:center;justify-content:center;padding:20px}
+#adm-detail .d-bg{position:absolute;inset:0;background:rgba(16,26,22,0.72)}
+#adm-detail .d-box{position:relative;background:#171412;border:1px solid rgba(16,26,22,0.1);border-radius:16px;padding:20px;width:100%;max-width:460px;max-height:88vh;overflow-y:auto;animation:in .22s var(--eo)}
+#adm-detail .d-hd{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:4px}
+#adm-detail .d-t{font-size:19px;font-weight:800;color:#101A16}
+#adm-detail .d-hd button{background:rgba(16,26,22,0.07);border:none;color:#101A16;font-size:15px;width:34px;height:34px;border-radius:50%;cursor:pointer;flex-shrink:0}
+#adm-detail .d-when{font-size:13px;color:#6B7A73;font-weight:700;margin-bottom:16px}
+#adm-detail .d-sec{font-size:11px;font-weight:800;color:#6B7A73;letter-spacing:1.4px;text-transform:uppercase;margin:18px 0 8px}
+/* One card per drink. The add-ons used to run together as a comma list -
+   "Normal (100%), No Sugar/Condensed Milk, Kaw" - which is a wall of text
+   when you are reading it at speed between two other things. Each one gets
+   its own chip now, and the line's own price is spelled out so the total
+   below it adds up in your head without arithmetic. */
+#adm-detail .d-items{display:flex;flex-direction:column;gap:9px}
+#adm-detail .d-it{display:grid;grid-template-columns:auto 1fr auto;gap:11px;align-items:start;background:rgba(16,26,22,0.035);border:1px solid rgba(16,26,22,0.07);border-radius:12px;padding:11px 13px}
+#adm-detail .d-q{font-family:var(--fd);font-weight:800;font-size:13px;color:#101A16;background:rgba(16,26,22,0.12);border:1px solid rgba(16,26,22,0.26);border-radius:9px;padding:4px 8px;min-width:34px;text-align:center;margin-top:1px}
+#adm-detail .d-nm{font-family:var(--fd);font-weight:800;font-size:16px;color:#101A16;letter-spacing:-0.2px}
+#adm-detail .d-nm i{font-style:normal;margin-right:8px}
+#adm-detail .d-adds{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+#adm-detail .d-add{background:rgba(16,26,22,0.055);border:1px solid rgba(16,26,22,0.1);border-radius:999px;color:#4A554F;font-family:var(--fb);font-size:12px;font-weight:700;padding:4px 10px}
+#adm-detail .d-line{font-family:var(--fd);font-weight:800;font-size:14px;color:#6B7A73;white-space:nowrap;margin-top:2px}
+#adm-detail .d-grid>div{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid rgba(16,26,22,0.04);font-size:14px}
+#adm-detail .d-grid span{color:#6B7A73;font-weight:700}
+#adm-detail .d-grid b{color:#101A16;font-weight:800;text-align:right;word-break:break-word}
+#adm-detail .d-total{display:flex;justify-content:space-between;align-items:center;padding:14px 0 4px}
+#adm-detail .d-total span{font-size:14px;color:#6B7A73;font-weight:800}
+#adm-detail .d-total b{font-family:var(--fd);font-weight:800;font-size:28px;color:#101A16;letter-spacing:.5px}
+#adm-detail .d-claim{margin:14px 0;background:rgba(29,95,168,0.09);border:1px solid rgba(29,95,168,0.26);border-radius:10px;padding:12px}
+#adm-detail .d-claim div{font-size:13px;font-weight:800;color:#1D5FA8;margin-bottom:10px}
+#adm-detail .d-claim button{width:100%;background:rgba(29,95,168,0.16);border:1px solid rgba(29,95,168,0.35);color:#1D5FA8;font-family:var(--fb);font-size:14px;font-weight:800;padding:10px;border-radius:9px;cursor:pointer}
+#adm-detail .d-acts{display:flex;gap:8px;margin-top:10px}
+#adm-detail .d-wa{flex:1;background:rgba(37,211,102,0.14);border:1px solid rgba(37,211,102,0.32);color:#25D366;font-family:var(--fb);font-size:14px;font-weight:800;padding:12px;border-radius:10px;cursor:pointer}
+#adm-detail .d-del{background:rgba(198,56,30,0.1);border:1px solid rgba(198,56,30,0.28);color:#C6381E;font-family:var(--fb);font-size:14px;font-weight:800;padding:12px 16px;border-radius:10px;cursor:pointer}
+@media(max-width:760px){
+  .o-main{flex-wrap:nowrap;gap:8px;padding:11px 12px 6px}
+  .o-num{font-size:17px}
+  .o-nm{max-width:38%}
+  .o-where{flex:1;min-width:0}
+  .o-ctrls{flex-wrap:nowrap;gap:6px;padding:0 12px 10px}
+  .o-step{flex:1;min-width:0}
+  .o-step button{flex:1;padding:8px 4px;font-size:13px}
+  .o-more{display:none}
+}
+
+/* in-app confirmation - cannot be suppressed the way window.confirm can */
+#adm-confirm{position:fixed;inset:0;z-index:1350;display:none;align-items:center;justify-content:center;padding:24px}
+#adm-confirm .c-bg{position:absolute;inset:0;background:rgba(16,26,22,0.74)}
+#adm-confirm .c-box{position:relative;background:#EFF3F0;border:1px solid rgba(16,26,22,0.12);border-radius:16px;padding:20px;width:100%;max-width:360px}
+#adm-confirm .c-msg{font-size:15px;font-weight:800;color:#101A16;line-height:1.5;margin-bottom:18px}
+#adm-confirm .c-row{display:flex;gap:10px}
+#adm-confirm button{flex:1;font-family:var(--fb);font-size:14px;font-weight:800;padding:13px;border-radius:10px;cursor:pointer;border:none}
+#adm-confirm .c-no{background:rgba(16,26,22,0.08);color:#4A554F}
+#adm-confirm .c-yes{background:#C6381E;color:#EFF3F0}
+/* bin on the row */
+.o-del{margin-left:auto;background:transparent;border:none;color:#6B7A73;font-size:14px;cursor:pointer;padding:2px 4px;flex-shrink:0;transition:color .16s}
+.o-del:hover{color:#C6381E}
+.o-restore{background:rgba(16,26,22,0.12);border:1px solid rgba(16,26,22,0.3);color:#101A16;font-family:var(--fb);font-size:13px;font-weight:800;padding:8px 14px;border-radius:9px;cursor:pointer;flex-shrink:0}
+.o-restore:hover{background:rgba(16,26,22,0.2)}
+.o-note{font-size:12px;color:#6B7A73;font-weight:700}
+.o-row.is-gone{opacity:.5}
+
+/* delivery filter sits beside the status filter as a quieter second control */
+.a-seg.del{background:rgba(138,90,0,0.07);box-shadow:inset 0 0 0 1px rgba(138,90,0,0.16)}
+.a-seg.del button.on{background:#8A5A00;color:#EFF3F0}
+.a-seg .dlb{font-size:11px;font-weight:800;color:#6B7A73;letter-spacing:1px;text-transform:uppercase;padding:0 8px 0 10px;align-self:center;white-space:nowrap}
+@media(max-width:760px){
+  .a-bar{gap:8px}
+  .a-seg.del{width:100%}
+  .a-seg.del button{flex:1}
+}
+
+/* ---- drink sheet: one oval per option ---- */
+.cgrp{margin-bottom:20px}
+.cgrp-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:10px}
+.cgrp-h span{font-size:14px;font-weight:800;color:#101A16;letter-spacing:.2px}
+.cgrp-h b{font-size:11px;font-weight:800;color:#6B7A73;letter-spacing:1.1px;text-transform:uppercase;white-space:nowrap}
+.copts{display:grid;grid-template-columns:1fr;gap:8px}
+.opt-btn{display:flex;align-items:center;gap:11px;width:100%;text-align:left;background:#FFFFFF;border:1.5px solid rgba(16,26,22,0.09);border-radius:999px;padding:12px 18px 12px 14px;font-family:var(--fb);font-size:14px;font-weight:800;color:#101A16;cursor:pointer;transition:transform .2s var(--sp),background .2s var(--eo),border-color .2s var(--eo),color .2s var(--eo)}
+.opt-btn:hover{border-color:rgba(16,26,22,0.45);background:#FFFFFF}
+.opt-btn:active{transform:scale(0.975)}
+.opt-btn .ob-dot{width:19px;height:19px;border-radius:50%;border:2px solid rgba(16,26,22,0.2);flex-shrink:0;transition:background .2s var(--eo),border-color .2s var(--eo)}
+.opt-btn.sel{background:rgba(16,26,22,0.14);border-color:#101A16;color:#101A16}
+.opt-btn.sel .ob-dot{background:#101A16;border-color:#101A16;box-shadow:inset 0 0 0 3px #171412}
+.opt-btn.dis{opacity:.32;cursor:not-allowed;text-decoration:line-through}
+.opt-btn.dis:hover{border-color:rgba(16,26,22,0.09);background:#FFFFFF}
+/* the name wraps rather than truncating - "Con..." tells a customer nothing */
+.opt-btn .ob-name{flex:1;min-width:0;line-height:1.35;white-space:normal;overflow-wrap:break-word}
+.opt-btn .ob-price{flex-shrink:0;font-size:13px;font-weight:800;color:#8A5A00}
+.opt-btn .ob-price.free{color:#6B7A73;font-weight:700}
+/* receipt button in the orders list */
+.o-clam{background:rgba(29,95,168,0.14);border:1px solid rgba(29,95,168,0.32);color:#1D5FA8;font-family:var(--fb);font-size:12px;font-weight:800;padding:5px 10px;border-radius:999px;cursor:pointer;flex-shrink:0;transition:background .16s}
+.o-clam:hover{background:rgba(29,95,168,0.26)}
+/* A receipt you have not opened yet glows until you look at it. */
+.o-clam.unseen{background:rgba(29,95,168,0.2);border-color:rgba(90,200,250,0.75);color:#BFE8FF;animation:clamGlow 1.9s ease-in-out infinite}
+@keyframes clamGlow{0%,100%{box-shadow:0 0 0 0 rgba(90,200,250,0)}50%{box-shadow:0 0 0 3px rgba(90,200,250,0.22),0 0 14px 2px rgba(90,200,250,0.45)}}
+
+.a-receipt{display:flex;align-items:center;gap:6px;background:rgba(29,95,168,0.12);border:1px solid rgba(29,95,168,0.32);color:#1D5FA8;font-family:var(--fb);font-size:14px;font-weight:800;padding:9px 14px;border-radius:11px;cursor:pointer;transition:background .16s}
+.a-receipt:hover{background:rgba(29,95,168,0.24)}
+.a-receipt.on{background:#1D5FA8;color:#0B1620}
+.a-receipt .c{opacity:.6;margin-left:2px}
+/* a slow pulse so a waiting receipt is noticed without hunting for it */
+.a-receipt:not(.on){animation:recPulse 2.4s ease-in-out infinite}
+@keyframes recPulse{0%,100%{box-shadow:0 0 0 0 rgba(29,95,168,0)}50%{box-shadow:0 0 0 4px rgba(29,95,168,0.18)}}
+@media (prefers-reduced-motion: reduce){.a-receipt:not(.on){animation:none}.o-clam.unseen{animation:none;box-shadow:0 0 12px 2px rgba(90,200,250,0.45)}}
+.o-del svg{vertical-align:-2px}
+/* The nav is a COLUMN, at every width.
+   A legacy mobile rule put it into display:flex with horizontal scrolling, and
+   inside the drawer that wrapped into a ragged grid - two or three items per
+   row, with Analitis and Menu & Tetapan in oversized boxes. An unconditional
+   rule at the end beats it regardless of which media query it lives in. */
+.adm-side nav{display:flex;flex-direction:column;flex-wrap:nowrap;overflow-x:hidden;overflow-y:auto;align-items:stretch}
+.adm-side nav>*{width:100%;flex:0 0 auto;box-sizing:border-box}
+.adm-side nav a{justify-content:flex-start}
+/* The live order, on screen the whole time it is live.
+   Sticky rather than fixed, so it needs no page padding and cannot end up
+   covering the header. It used to be reachable only by tapping a small pill. */
+#mybar{display:none;position:sticky;top:0;z-index:400;background:#FFFFFF;border-bottom:1px solid rgba(16,26,22,0.22);padding:10px 14px;align-items:center;gap:11px;box-shadow:0 6px 18px rgba(16,26,22,0.32)}
+#mybar.on{display:flex}
+#mybar .mb-who{font-family:var(--fd);font-weight:800;font-size:14px;color:#101A16;flex-shrink:0}
+#mybar .mb-st{font-size:13px;font-weight:800;color:#101A16;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#mybar button{border:none;font-family:var(--fb);font-weight:800;cursor:pointer;flex-shrink:0}
+#mybar .mb-see{background:rgba(16,26,22,0.07);color:#101A16;font-size:13px;padding:9px 11px;border-radius:9px}
+#mybar .mb-more{background:#101A16;color:#F7FAF5;font-size:13px;padding:9px 13px;border-radius:9px}
+  .cpn-wrap{position:relative;display:inline-flex;align-items:center}.cpn-btn{display:none;position:relative;width:42px;height:42px;border-radius:50%;
+   border:1px solid rgba(16,26,22,0.7);color:#5FF0CE;font-size:17px;cursor:pointer;
+   align-items:center;justify-content:center;background:radial-gradient(circle at 50% 32%,rgba(16,26,22,0.42),rgba(16,26,22,0.06));
+   box-shadow:0 0 8px rgba(16,26,22,0.22)}
+  /* This button used to pulse its glow forever (cpnPulse, 2.8s infinite) to
+     advertise a discount that frequently is not there. A steady tint is enough;
+     the count dot carries "there is something waiting" when that is true. */
+  .cpn-btn.mute{border-color:rgba(16,26,22,0.16);color:#6B7A73;background:rgba(16,26,22,0.04);animation:none;box-shadow:none}  .cpn-btn.mute .dot{display:none!important}
+  .cpn-btn .dot{position:absolute;top:-3px;right:-3px;min-width:17px;height:17px;border-radius:9px;
+   background:#8A5A00;color:#FFFFFF;font-family:var(--fd);font-weight:800;font-size:11px;
+   display:none;align-items:center;justify-content:center;padding:0 4px}
+  .cpn-pop{display:none;position:fixed;z-index:9999;width:min(320px,88vw);
+   background:#171412;border:1px solid rgba(16,26,22,0.4);border-radius:16px;padding:15px;
+   box-shadow:0 18px 40px rgba(16,26,22,0.50),0 0 26px rgba(16,26,22,0.18);
+   transform-origin:top right;animation:cpnPopIn 170ms ease-out}
+  @keyframes cpnPopIn{from{transform:translateY(-6px) scale(0.95);opacity:0}to{transform:none;opacity:1}}
+  .cpn-pop:before{content:none;position:absolute;top:-8px;right:15px;width:14px;height:14px;background:#171412;
+   border-left:1px solid rgba(16,26,22,0.4);border-top:1px solid rgba(16,26,22,0.4);transform:rotate(45deg)}
+  .cpn-pop h4{margin:0 0 2px;font-family:var(--fd);font-weight:800;font-size:15px;color:#101A16}
+  .cpn-pop .sub{font-size:11.5px;color:#6B7A73;margin-bottom:11px;line-height:1.5}
+  .cpn-row{display:flex;align-items:center;gap:7px;background:rgba(16,26,22,0.07);
+   border:1px solid rgba(16,26,22,0.28);border-radius:12px;padding:10px 11px;margin-bottom:8px}
+  .cpn-row:last-child{margin-bottom:0}
+  .cpn-row .code{flex:1;font-family:var(--fd);font-weight:800;font-size:18px;letter-spacing:2.5px;color:#101A16}
+  .cpn-row button{border:1px solid rgba(16,26,22,0.18);border-radius:8px;font-family:var(--fd);font-weight:800;font-size:11px;
+   padding:8px 10px;cursor:pointer;background:transparent;color:#4A554F}
+  .cpn-row button.go{background:#101A16;border-color:#101A16;color:#07110E}
+  .c-chip{font-family:var(--fd);font-weight:800;font-size:12px;padding:7px 12px;border-radius:999px;
+   background:rgba(16,26,22,0.05);border:1px solid rgba(16,26,22,0.1);color:#4A554F}
+  .c-chip.ok{color:#101A16;border-color:rgba(16,26,22,0.4);background:rgba(16,26,22,0.1)}
+  .c-chip.dim{color:#6B7A73}
+  .c-tab{font-family:var(--fd);font-weight:800;font-size:12px;padding:8px 13px;border-radius:10px;cursor:pointer;
+   background:rgba(16,26,22,0.04);border:1px solid rgba(16,26,22,0.08);color:#6B7A73}
+  .c-tab.on{background:rgba(16,26,22,0.14);border-color:rgba(16,26,22,0.45);color:#101A16}
+  .c-card{background:#171412;border:1px solid rgba(16,26,22,0.08);border-radius:14px;padding:13px 14px}
+  .c-top{display:flex;align-items:center;gap:9px;margin-bottom:9px;flex-wrap:wrap}
+  .c-code{font-family:var(--fd);font-weight:800;font-size:19px;letter-spacing:2.5px;color:#101A16;flex:1;min-width:130px}
+  .c-pill{font-family:var(--fd);font-weight:800;font-size:10.5px;padding:5px 9px;border-radius:999px;letter-spacing:0.3px}
+  .c-pill.ok{background:rgba(16,26,22,0.16);color:#101A16;border:1px solid rgba(16,26,22,0.4)}
+  .c-pill.dim{background:rgba(16,26,22,0.06);color:#6B7A73;border:1px solid rgba(16,26,22,0.12)}
+  .c-pill.warn{background:rgba(138,90,0,0.14);color:#8A5A00;border:1px solid rgba(138,90,0,0.4)}
+  .c-cp{background:transparent;border:1px solid rgba(16,26,22,0.16);color:#4A554F;border-radius:8px;
+   font-family:var(--fd);font-weight:800;font-size:11px;padding:6px 9px;cursor:pointer}
+  .c-row{display:flex;gap:10px;justify-content:space-between;padding:6px 0;border-top:1px solid rgba(16,26,22,0.05);font-size:12.5px}
+  .c-row>span{color:#6B7A73;font-weight:700;flex-shrink:0}
+  .c-row>b{color:#E9E4DA;font-weight:700;text-align:right;line-height:1.45}
+  #adm-detail .d-alt{background:rgba(16,26,22,0.1);border:1px solid rgba(16,26,22,0.3);color:#101A16;
+   font-family:var(--fb);font-size:14px;font-weight:800;padding:12px 16px;border-radius:10px;cursor:pointer}
+  /* The loyalty bar owns a stacking context so the coupon bubble can sit above
+     the menu cards. Keep it BELOW the overlay/panel/modal layers (300/400/600):
+     at 900 it painted over every modal, so the bar stayed visible while a menu
+     item was open. Menu cards are unpositioned, so 250 still beats them. */
+  .bar{position:relative;z-index:250}
+/* ============================================================================
+   DESIGN V3 — "PETI AIS"  (the tagged counter)
+
+   The stall is a cooler on the roadside at 1am: a wet stainless top under one
+   fluorescent tube, cups standing on it, each with a price written on a sticker
+   slapped on the side. So the page is that counter — pale, cold, flat, with no
+   shading anywhere — and the drinks are white plates on it. Every state a drink
+   can be in lives on the same small sticker: a price, "Habis", or the number of
+   them you already have in the bakul. Nothing else is allowed to compete:
+   no badges, no second accent, no gradient, no shadow.
+
+   Everything is additive; every id and class the JavaScript touches is intact.
+   ========================================================================= */
+
+/* ---- the shop's name, at the size a shop sign actually is ---------------- */
+.hero{background:none;border:0;text-align:left;padding:calc(16px + env(safe-area-inset-top)) var(--gutter) 0;
+  max-width:1180px;margin:0 auto}
+.hero .hrow{display:flex;flex-direction:column;align-items:flex-start;gap:9px;min-width:0}
+.hero h1{font-family:var(--fd);font-weight:800;font-size:var(--t-hero);line-height:1.02;letter-spacing:-0.038em;
+  color:var(--ink);margin:0;text-align:left;max-width:100%}
+.hero .sub{font-size:var(--t-sub);color:var(--muted);font-weight:500;margin:7px 0 0;letter-spacing:0}
+.hero .wake{margin:10px 0 0}
+
+/* ---- status: one sticker, and it never pushes the name around ----------- */
+#status-bar{font-size:10.5px;font-weight:700;letter-spacing:0.01em;background:var(--tag);color:#0E1713;
+  border:0;border-radius:999px;padding:5px 9px;white-space:nowrap;max-width:100%;overflow:hidden;
+  text-overflow:ellipsis;line-height:1.2;display:inline-block;box-sizing:border-box;
+  -webkit-mask-image:linear-gradient(90deg,#000 88%,rgba(0,0,0,0.25));
+  mask-image:linear-gradient(90deg,#000 88%,rgba(0,0,0,0.25))}
+#status-bar:empty{display:none}
+
+/* ---- the buttons the shell injects -------------------------------------- */
+.ghostbtn{background:transparent;border:1px solid var(--line);color:var(--ink);font-family:var(--fb);
+  font-size:12px;font-weight:600;padding:9px 13px;border-radius:10px;cursor:pointer}
+
+/* ---- loyalty: five squares, filled with the tag ------------------------- */
+.bar{display:flex;align-items:center;justify-content:flex-start;gap:7px;background:transparent;border:0;
+  padding:14px var(--gutter) 4px;max-width:1180px;margin:0 auto;z-index:250}
+.bar>span:first-child{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted)}
+.stamps{display:flex;gap:4px}
+.stamp{width:18px;height:18px;border-radius:5px;background:transparent;border:1px solid var(--line);display:block}
+.stamp.on{background:var(--tag);border-color:var(--tag)}
+.bar .count{font-family:var(--fd);font-size:13px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;
+  margin-left:2px}
+.bar #cpn-btn,.cpn-btn{width:32px;height:32px;border:1px solid var(--line);border-radius:9px;background:transparent;
+  color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
+
+/* ---- section head: a label, not a title --------------------------------- */
+.sec{display:flex;align-items:center;gap:10px;padding:18px var(--gutter) 9px;max-width:1180px;margin:0 auto}
+.sec h2{font-family:var(--fb);font-size:var(--t-h2);font-weight:700;letter-spacing:0.09em;text-transform:uppercase;
+  color:var(--muted)}
+.sec h2 span{color:inherit}
+.sec .l{flex:1;height:1px;background:var(--line2)}
+
+/* ---- the counter: two plates on a phone, four on a desk ----------------- */
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 10px;
+  padding:0 var(--gutter) 118px;max-width:1180px;margin:0 auto}
+@media(min-width:560px){.grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 14px;padding-bottom:120px}}
+@media(min-width:900px){.grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:20px 16px}}
+
+/* ---- one drink, one plate ---------------------------------------------- */
+.card{position:relative;background:transparent;border:0;border-radius:0;padding:0;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;animation:none;transition:transform var(--d-1) var(--eo);display:block}
+.card:active{transform:scale(0.982)}
+.card:hover{border-color:transparent}
+.plate{position:relative;aspect-ratio:1/1;border-radius:var(--r-card);background:var(--surface);
+  border:1px solid var(--line);overflow:hidden;display:block}
+.plate .art{position:absolute;inset:0;display:grid;place-items:center}
+.plate .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:1}
+.nm{font-size:var(--t-name);font-weight:600;color:var(--ink);line-height:1.25;margin-top:7px;letter-spacing:-0.012em}
+.nt{font-size:11px;font-weight:400;color:var(--muted);line-height:1.35;margin-top:2px;overflow:hidden;
+  display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical}
+
+/* the sticker: price, sold out, or how many you have */
+.tag{position:absolute;left:8px;bottom:8px;z-index:2;background:var(--tag);color:#0E1713;font-size:12.5px;
+  font-family:var(--fd);font-weight:800;font-size:var(--t-price);letter-spacing:-0.02em;
+  font-variant-numeric:tabular-nums;padding:3px 7px 4px;border-radius:6px;transform:rotate(-2deg);
+  transition:transform var(--d-2) var(--eo)}
+.card:active .tag{transform:rotate(0deg) scale(1.03)}
+.tag.is-off{background:var(--surface2);color:var(--muted);transform:none}
+.cnt{position:absolute;right:7px;top:7px;z-index:2;min-width:22px;height:22px;padding:0 6px;border-radius:999px;
+  background:var(--ink);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;
+  font-variant-numeric:tabular-nums}
+.card.is-off{cursor:default}
+.card.is-off .photo{opacity:0.3;filter:grayscale(1)}
+.card.is-off .nm,.card.is-off .nt{color:var(--muted)}
+
+/* ---- the facts, under the counter -------------------------------------- */
+.band{margin:26px auto 0;padding:18px var(--gutter) 0;border-top:1px solid var(--line);max-width:1180px}
+.band dl{display:grid;grid-template-columns:1fr 1fr;gap:18px 14px}
+@media(min-width:760px){.band dl{grid-template-columns:repeat(4,1fr)}}
+.band dt{font-size:10px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:var(--muted)}
+.band dd{font-size:12.5px;font-weight:500;color:var(--ink);line-height:1.4;margin-top:4px}
+.pick{margin-top:20px;width:100%;background:transparent;border:1px solid var(--line);border-radius:12px;
+  padding:13px 14px;text-align:left;font-family:var(--fb);font-size:12.5px;font-weight:600;color:var(--ink);
+  cursor:pointer;transition:border-color var(--d-2)}
+.pick:hover{border-color:var(--ink)}
+.pick b{font-weight:700}
+
+/* ---- the bakul: one bar, floating, with the only filled button --------- */
+#cart-bar{left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));border-radius:16px;
+  background:var(--surface);border:1px solid var(--line);padding:9px 9px 9px 14px;display:none;
+  align-items:center;gap:10px;transform:translateY(130%);transition:transform var(--d-4) var(--eo);box-shadow:none}
+#cart-bar.show{display:flex;transform:none}
+#cart-bar .info{flex:1;min-width:0}
+#cart-bar .count{font-size:10.5px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted)}
+#cart-bar .total{font-family:var(--fd);font-weight:800;font-size:19px;color:var(--ink);letter-spacing:-0.03em;
+  font-variant-numeric:tabular-nums}
+#cart-bar #cartb{background:var(--tag);color:#0E1713;border:0;border-radius:11px;font-family:var(--fb);
+  font-size:13px;font-weight:700;padding:0 16px;height:44px;cursor:pointer;flex:0 0 auto;box-shadow:none}
+#cart-bar #cartb:active{transform:scale(0.97)}
+
+/* ---- the close --------------------------------------------------------- */
+.page-foot{text-align:center;padding:26px var(--gutter) calc(28px + env(safe-area-inset-bottom));
+  color:var(--muted);font-size:11px;font-weight:500;letter-spacing:0.01em}
+.page-foot b{color:var(--ink);font-weight:700;letter-spacing:0.04em}
+.page-foot i{font-style:normal;display:block;margin-bottom:4px;color:var(--ink-dim)}
+
+/* ---- surfaces the funnel opens: white sheets on the same counter -------- */
+.panel{background:var(--surface);border-top:1px solid var(--line);border-radius:20px 20px 0 0;box-shadow:none}
+.panel .hd h2{font-family:var(--fd);font-weight:800;color:var(--ink);letter-spacing:-0.03em;font-size:22px}
+.panel .h{background:var(--line2)}
+.modal .box{border-radius:18px;box-shadow:none;background:var(--surface)}
+.modal .bg{background:rgba(16,26,22,0.55)}
+.toast{background:var(--ink);color:#fff;border-radius:12px;font-family:var(--fb);font-weight:600;font-size:12.5px}
+
+
+/* ---- the funnel wears the same clothes as the counter ------------------- */
+.panel{max-height:88vh;background:var(--surface)}
+.panel .h{background:var(--line)}
+.panel .hd{padding:13px 16px 11px;border-bottom:1px solid var(--line2)}
+.panel .hd h2{font-size:21px;letter-spacing:-0.02em}
+.panel .hd .x{width:36px;height:36px;background:var(--line2);color:var(--ink);font-size:15px}
+.panel .bd{padding:4px 16px}
+.item{padding:12px 0;border-bottom:1px solid var(--line2)}
+.item .ii .nm{font-size:14.5px;font-weight:700;letter-spacing:-0.01em;color:var(--ink)}
+.item .ii .sb{font-size:12px;font-weight:600;color:var(--muted);margin-top:2px}
+.iq{background:var(--line2);border-radius:999px;padding:3px 5px}
+.iq button{width:28px;height:28px;border-radius:999px;font-size:16px;font-weight:800;line-height:1;
+  display:grid;place-items:center;color:var(--ink)}
+.opt{padding:15px 0;border-bottom:1px solid var(--line2)}
+.opt .l{font-size:10px;font-weight:700;letter-spacing:0.09em;color:var(--muted);margin-bottom:9px}
+.inp{background:#fff;border:1px solid var(--line);border-radius:10px;color:var(--ink);font-size:16px;
+  padding:12px 13px;font-weight:600}
+.inp:focus{outline:none;border-color:rgba(16,26,22,0.5)}
+.dt button{border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);
+  font-family:var(--fb);font-weight:700;font-size:13px}
+.dt button.active{background:var(--ink);border-color:var(--ink);color:#fff}
+.ts button,.block-grid button{border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);
+  font-family:var(--fb);font-weight:700;font-size:13px}
+.ts button.active,.block-grid button.active{background:var(--tag);border-color:var(--tag);color:#0E1713}
+.ft{border-top:1px solid var(--line2);padding:13px 16px calc(16px + env(safe-area-inset-bottom))}
+.ft .tr span{color:var(--muted);font-size:13px}
+.ft .tr .am{font-size:24px;color:var(--ink)}
+.ft .go{margin-top:12px;background:var(--tag);color:#0E1713;border-radius:11px;font-family:var(--fb);
+  font-weight:700;font-size:14.5px;letter-spacing:0.01em;padding:14px;box-shadow:none;cursor:pointer}
+.ft .go:disabled{background:var(--line2);color:var(--muted)}
+.empty{color:var(--muted);font-weight:600;font-size:14px}
+.empty-cta,.empty-alt{border-radius:10px;font-size:14px}
+.empty-cta{background:var(--tag);color:#0E1713}
+.empty-alt{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.toast{background:var(--ink);color:#fff;border-radius:10px;font-size:12.5px;font-weight:600;
+  max-width:calc(100% - 32px);box-shadow:0 8px 24px rgba(16,26,22,0.22)}
+/* --- the drink sheet: same ovals, quieter labels --- */
+.modal .box{padding:20px}
+.cgrp-h span{font-size:13.5px;font-weight:800;color:var(--ink);letter-spacing:-0.01em}
+.cgrp-h b{font-size:10px;letter-spacing:0.09em;color:var(--muted);font-weight:700;text-transform:uppercase}
+.opt-btn{border-radius:10px;border:1px solid var(--line);background:#fff}
+.opt-btn.sel{background:rgba(16,26,22,0.05);border-color:var(--ink)}
+.opt-btn.sel .ob-dot{background:var(--ink);border-color:var(--ink);box-shadow:inset 0 0 0 3px #fff}
+.opt-btn .ob-price{color:var(--muted);font-weight:700}
+.addbtn{width:100%;margin-top:6px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:var(--tag);color:#0E1713;border:0;border-radius:11px;padding:14px 16px;
+  font-family:var(--fb);font-weight:700;font-size:15px;cursor:pointer}
+.addbtn .pr{font-variant-numeric:tabular-nums;font-weight:800;letter-spacing:-0.01em}
+.addbtn:active{transform:scale(0.99)}
+.ft .tr .sub-val{font-family:var(--fd);font-weight:700;font-size:15px;color:var(--ink)}
+body:has(.panel.open) .toast,body:has(.modal[style*="flex"]) .toast{
+  bottom:auto;top:calc(14px + env(safe-area-inset-top))}
+/* ---- wide screens: the same counter, held in the middle --------------- */
+@media(min-width:720px){
+  #cart-bar{left:50%;right:auto;translate:-50% 0;width:min(680px,calc(100% - 24px))}
+  .grid{max-width:1180px;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px 16px}
+  .plate{border-radius:18px}
+  .hero h1{font-size:40px}
+}
+/* a sold-out tag is a fact, not a price */
+.tag.is-off{background:rgba(16,26,22,0.07);color:var(--muted);box-shadow:none}
+/* --- anything painted ink keeps its text legible --- */
+.card .qty,.card-toggle.on,.a-bulk button,.a-seg button.on,.o-step button.on,#mybar .mb-more,
+#toast-act,#claim-send,#admin-login-btn{color:#F7FAF5}
+
+/* ---- keep the counter honest about reduced motion ---------------------- */
+@media(prefers-reduced-motion:reduce){
+  .card,.tag,#cart-bar{transition:none}
+  .card:active{transform:none}
+}

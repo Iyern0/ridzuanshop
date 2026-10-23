@@ -1,6 +1,6 @@
 # Agent guide — MINUM MALAM SISWA
 
-App-specific rules (source `drinks-order.html` mirrored byte-identically to `index.html`, bump `sw.js` on every release, never commit `transit-widget/DESIGN.md`) live in `../README.md`. Current app state is in `DRINKS-ORDER.md`; history is in `WORKLOG.md`.
+App-specific rules (`app/src/` is the source; `python tools/build.py` writes `index.html` + `admin.html`; bump `sw.js` on every release; never commit `transit-widget/DESIGN.md`) live in `../README.md`. Current app state is in `DRINKS-ORDER.md`; history is in `WORKLOG.md`.
 
 ## Agent skills
 

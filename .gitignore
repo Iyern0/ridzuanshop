@@ -17,6 +17,11 @@
 !/.gitignore
 !/drinks-order.html
 !/index.html
+!/admin.html
+!/src/
+!/src/**
+!/tools/
+!/tools/**
 !/sw.js
 !/design-v2.html
 !/design-v3.html
@@ -62,3 +67,6 @@ ADMIN-CREDENTIALS.txt
 #   drinks-order-experiment.html drinks-order.bak.html
 #   drinks-corpus/ drinks-out/      (52 KB July snapshot of the app)
 # ---------------------------------------------------------------------------
+
+# Split intermediates: regenerable, and 1 MB of JSON
+/.scratch/depmap.json

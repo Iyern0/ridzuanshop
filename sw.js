@@ -1,8 +1,8 @@
 // MINUM MALAM SISWA — service worker
 // Cache name is versioned. Bump V when the app changes so old shells get evicted.
-// Current: v50 (build marker in the page corner, so a stale cache is visible at a glance)
-const V = 'v50-20261023';
-const SHELL = ['./', './index.html', './drinks-order.html', './manifest.json'];
+// Current: v51 (build marker in the page corner, so a stale cache is visible at a glance)
+const V = 'v51-20261023';
+const SHELL = ['./', './index.html', './admin.html', './drinks-order.html', './manifest.json'];
 
 self.addEventListener('install', (e) => {
   self.skipWaiting();
@@ -42,7 +42,10 @@ self.addEventListener('fetch', (e) => {
           caches.open(V).then((c) => c.put(req, cp));
           return r;
         })
-        .catch(() => caches.match(req).then((m) => m || caches.match('./index.html')))
+        // Offline: hand back the page that was asked for. The dashboard is a
+        // separate shell now, and answering an /admin request with the shop page
+        // would open the wrong app.
+        .catch(() => caches.match(req).then((m) => m || caches.match(url.pathname.indexOf('/admin') > -1 ? './admin.html' : './index.html')))
     );
     return;
   }
