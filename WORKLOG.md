@@ -1737,3 +1737,23 @@ cache `v52-20261023`.
 `app/.github/workflows/contract.yml`, `app/.gitignore`, `app/sw.js` (`V = 'v52-20261023'`),
 the three built pages, `app/AGENTS.md`, `app/DRINKS-ORDER.md` (new CI contracts table).
 **Status:** ✅ confirmed locally, pushed as v52.
+
+### 2026-10-23 10:50 — v52 is live, and the contract workflow passed on its first push
+**What happened:** pushed `5b9f933` and confirmed both halves of the change in production:
+the three pages are served from the new build, and the CI contract job runs and passes.
+**Found / changed:**
+- GitHub Actions `contracts` job: `completed / success`, 15 s (run 39885912429). Pages deploy
+  `completed / success`, 51 s.
+- Live byte counts: `/ridzuanshop/` and `/ridzuanshop/drinks-order.html` 183,975 chars
+  (same page under two names), `/ridzuanshop/admin.html` 194,106 chars; `sw.js` serves
+  `const V = 'v52-20261023';`.
+- Live ownership: shop page `<body data-page="shop">`, has `#menu-root`, no `#admin-panel`;
+  admin page `<body data-page="admin">`, has `#admin-panel`, no `#menu-root`.
+- Real browser against the live site: shop renders 9 cards, tag `v52`; admin renders its
+  login view (`display:flex`); the click-driven funnel completes and would write
+  `counters/2026-10-23` + `orders/S8BJPB` + `tracking/S8BJPB` with the same 16 keys.
+- `tools/build.py --check` and `tools/check-contracts.py` also pass on a CRLF checkout
+  (tested by converting a copy of the artifacts to CRLF): without the text-mode comparison a
+  Windows checkout would have reported "stale" for files that were correct.
+**Artefacts:** `app/WORKLOG.md`; commit `5b9f933` (11 files).
+**Status:** ✅ confirmed live.
