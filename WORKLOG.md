@@ -1706,4 +1706,4 @@ instead of an outline. Nothing outside the dashboard page is touched.
 notification deep link keeps working.
 **Artefacts:** `app/src/css/app.css` (three rules + card shadow), `app/index.html` and
 `app/admin.html` (rebuilt).
-**Status:** ✅ confirmed live (\`fe036db\`).
+**Status:** ✅ confirmed live (`fe036db`).
