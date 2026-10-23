@@ -1873,3 +1873,21 @@ blank: the render threw before it could paint.
 `drinks-order.html`, `admin.html`; `sw.js` → `v55-20261023`; probes
 `\.scratch\probe\{fake-db,cart-live,admin-menu-live,checkout-guard}.js`.
 **Status:** ✅ confirmed locally, pending push.
+
+### 2026-10-23 11:38 — v55 is live, and the confirmation panel opens in production
+**What happened:** pushed `0a28a91` ("feat: a menu edit reaches an open page, and checkout
+paints again") and checked the deployed app in a real browser.
+**Found / changed:**
+- GitHub Actions: `contracts` success in 17 s (run 39891058366); Pages deployment followed.
+- Live `sw.js` serves `const V = 'v55-20261023';`; shop `186,296` chars, admin `197,669`
+  chars, `drinks-order.html` mirrors the shop page.
+- Live shop page, driven in Chrome: `typeof drinkEmoji === 'function'`,
+  `typeof paintMenu === 'function'`, 9 cards, `data-page="shop"`; tapping Checkout opens
+  `#confirm-modal` (`display:flex`) with `🍹 Extrajoss Mangga … RM2.50`, total `RM2.50` and
+  the WhatsApp button visible. Before v55 the same tap threw
+  `ReferenceError: drinkEmoji is not defined` and painted nothing.
+- Live admin page, contrast walk over every tab: 0 failures; the Minuman tab renders the
+  drink rows from the pushed `settings/menu` document (66 nodes in that section).
+**Artefacts:** commit `0a28a91`; screenshots `\.scratch\probe\live-v55-shop.png`,
+`live-v55-admin.png`.
+**Status:** ✅ confirmed live.
