@@ -186,15 +186,15 @@ function liquidHue(name){
 function glassSVG(name){
   const col=liquidHue(name);
   return '<svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice" aria-hidden="true">'+
-    '<rect width="100" height="100" fill="#EAF0EA"/>'+
-    '<ellipse cx="50" cy="93.5" rx="19" ry="3.6" fill="rgba(16,26,22,0.10)"/>'+
-    '<path d="M29.5 17.5h41L64.6 85.6A6.4 6.4 0 0 1 58.2 91.4H41.8A6.4 6.4 0 0 1 35.4 85.6Z" fill="#fff"/>'+
+    '<rect width="100" height="100" fill="#1B1713"/>'+
+    '<ellipse cx="50" cy="93.5" rx="19" ry="3.6" fill="rgba(0,0,0,0.38)"/>'+
+    '<path d="M29.5 17.5h41L64.6 85.6A6.4 6.4 0 0 1 58.2 91.4H41.8A6.4 6.4 0 0 1 35.4 85.6Z" fill="rgba(242,239,233,0.10)"/>'+
     '<path d="M31.9 44h36.2l-3.5 40.9a5 5 0 0 1-5 4.5H40.4a5 5 0 0 1-5-4.5Z" fill="'+col+'"/>'+
     '<ellipse cx="50" cy="44" rx="18.1" ry="3.3" fill="'+col+'" opacity="0.62"/>'+
     '<rect x="39" y="49" width="13" height="13" rx="2.5" fill="rgba(255,255,255,0.42)" transform="rotate(12 45.5 55.5)"/>'+
     '<rect x="55.8" y="12" width="5.6" height="40" rx="2.8" fill="#C6F53C" transform="rotate(9 58.6 32)"/>'+
-    '<path d="M29.5 17.5h41l-0.9 4.6h-39.2Z" fill="rgba(16,26,22,0.06)"/>'+
-    '<path d="M29.5 17.5h41L64.6 85.6A6.4 6.4 0 0 1 58.2 91.4H41.8A6.4 6.4 0 0 1 35.4 85.6Z" fill="none" stroke="rgba(16,26,22,0.16)" stroke-width="1.3"/>'+
+    '<path d="M29.5 17.5h41l-0.9 4.6h-39.2Z" fill="rgba(242,239,233,0.07)"/>'+
+    '<path d="M29.5 17.5h41L64.6 85.6A6.4 6.4 0 0 1 58.2 91.4H41.8A6.4 6.4 0 0 1 35.4 85.6Z" fill="none" stroke="rgba(242,239,233,0.22)" stroke-width="1.3"/>'+
     '</svg>';
 }
 
