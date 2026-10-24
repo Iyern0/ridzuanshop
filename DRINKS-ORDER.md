@@ -294,3 +294,19 @@ Still open, by decision rather than oversight — full reasoning in
    `settings/config` is written whole-document, so a stale second tab can revert settings.
 4. `parseClock('10:30')` reads as **10:30 AM** — when editing opening hours, type the am/pm
    label, never a bare `10:30`.
+
+## Releasing it
+
+One command does the whole ritual, in the order that matters, and fails loudly if any
+part of it did not take:
+
+```
+node tools/release.mjs --tag v56
+git add drinks-order.html index.html sw.js && git commit -m "v56: ..." && git push
+```
+
+It mirrors `drinks-order.html` onto `index.html` (the two must stay byte-identical —
+GitHub Pages serves `index.html`, and drift means customers keep running last week's
+build while the source looks current), bumps the build marker in the corner and the
+service worker cache name, then verifies the mirror, the marker, `V` and that both
+files are in `SHELL`. Do not hand-edit either copy; run the command.

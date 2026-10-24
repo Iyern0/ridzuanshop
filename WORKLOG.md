@@ -1738,3 +1738,29 @@ live snapshot, and a 60s timer that stops when nothing is owed. Minting now also
 `coupons/{CODE}`; the wallet, banner, badge, toast and checkout all lead to the same code.
 **Artefacts:** `drinks-order.html`, `DRINKS-ORDER.md`, `.scratch/cdp-coupon-test.mjs`.
 **Status:** ✅ confirmed locally - shipped as `v53` (commit `268363e`).
+
+### 2026-10-24 23:10 — CORRECTION to v53/v54: the root URL was never updated
+**What happened:** the live site was checked at `drinks-order.html` and reported as
+shipped, but the URL customers actually open is the site root, which GitHub Pages serves
+from `index.html` — and the repo rule (README, AGENTS.md, DRINKS-ORDER.md) is that
+`index.html` is a byte-identical mirror of `drinks-order.html`. The v53 and v54 commits
+touched only `drinks-order.html`, so for ~2 hours the root served the **v52** build: no
+coupon wallet, no catch-up notification. Found by loading the live root in a brand-new
+browser profile: `typeof catchUp === 'undefined'`, `typeof couponsArrived === 'undefined'`,
+build marker still v52, while a direct fetch of `drinks-order.html` returned v54.
+**Found / changed:**
+- `index.html` is now mirrored byte-for-byte again, marker and `sw.js` bumped to `v55`,
+  so the stale-shell eviction also fires for anyone holding v52/v54.
+- `tools/release.mjs --tag vNN` does the whole release in the one order that matters:
+  mirror → page marker → SW cache name → verify (identical, marker agrees, V agrees,
+  both files listed in `SHELL`). Idempotent; exits non-zero on any mismatch.
+**Artefacts:** `drinks-order.html`, `index.html` (mirror), `sw.js` (`v55-20261024`),
+`tools/release.mjs`, `.scratch/patch-v55-mirror.cjs`, `.scratch/fresh-profile.mjs`.
+**Status:** ⚠️ v53/v54 features were **not** what customers saw; `v55` is the first build
+that carries them at the root. Verified by a fresh profile against the served root.
+
+### 2026-10-24 23:10 — v53/v54 note: two files, one truth
+The pairwise counts below are the version-history fact: `drinks-order.html` reached v54
+while `index.html` stayed at v52, because the release ritual was manual. That is exactly
+the failure the new `tools/release.mjs` exists to prevent; `DRINKS-ORDER.md` and
+`README.md` now point at the command instead of describing the ritual in prose.

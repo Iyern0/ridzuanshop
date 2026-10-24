@@ -24,6 +24,8 @@
 !/firestore.rules
 !/qr-duitnow.jpg
 !/gen_icons.py
+!/tools/
+!/tools/**
 !/icons/
 !/icons/**
 
@@ -35,6 +37,8 @@
 !/docs/
 !/docs/**
 !/.scratch/
+# Python bytecode inside tools/ is local state, not part of the release.
+/tools/__pycache__/
 !/.scratch/**
 
 # ---------------------------------------------------------------------------

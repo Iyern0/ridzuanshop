@@ -705,7 +705,7 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
 /* The live order, on screen the whole time it is live.
    Sticky rather than fixed, so it needs no page padding and cannot end up
    covering the header. It used to be reachable only by tapping a small pill. */
-#mybar{display:none;position:sticky;top:0;z-index:400;background:#1E1913;border-bottom:1px solid rgba(0,212,170,0.22);padding:10px 14px;align-items:center;gap:11px;box-shadow:0 6px 18px rgba(0,0,0,0.35)}
+#mybar{display:none;position:sticky;top:0;z-index:400;background:#1E1913;border-bottom:1px solid rgba(0,212,170,0.22);padding:calc(10px + env(safe-area-inset-top)) 14px 10px;align-items:center;gap:11px;box-shadow:0 6px 18px rgba(0,0,0,0.35)}
 #mybar.on{display:flex}
 #mybar .mb-who{font-family:var(--fd);font-weight:800;font-size:14px;color:#F0F0F0;flex-shrink:0}
 #mybar .mb-st{font-size:13px;font-weight:800;color:#00D4AA;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -723,6 +723,10 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
   .cpn-btn .dot{position:absolute;top:-3px;right:-3px;min-width:17px;height:17px;border-radius:9px;
    background:#FFB347;color:#1E1913;font-family:var(--fd);font-weight:800;font-size:11px;
    display:none;align-items:center;justify-content:center;padding:0 4px}
+  /* Two beats when a code arrives, then it stops. The steady tint above is the
+     resting state; this only marks the moment "something new is waiting". */
+  @keyframes cpnPulse{0%{box-shadow:0 0 0 0 rgba(0,212,170,0.55)}70%{box-shadow:0 0 0 12px rgba(0,212,170,0)}100%{box-shadow:0 0 0 0 rgba(0,212,170,0)}}
+  .cpn-btn.pulse{animation:cpnPulse 1.1s ease-out 2}
   .cpn-pop{display:none;position:fixed;z-index:9999;width:min(320px,calc(100vw - 24px));max-width:calc(100vw - 24px);box-sizing:border-box;
    background:#171412;border:1px solid rgba(0,212,170,0.4);border-radius:16px;padding:15px;
    box-shadow:0 18px 40px rgba(0,0,0,0.55),0 0 26px rgba(0,212,170,0.18);
@@ -1211,6 +1215,13 @@ function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
   function saveCpns(a){try{localStorage.setItem('mms_coupons',JSON.stringify(a.slice(0,10)))}catch(e){}}
   function addCpn(code,exp){code=String(code||'').toUpperCase();if(!code)return false;const a=cpns();if(a.some(function(c){return c.code===code}))return false;a.unshift({code:code,exp:exp||0,at:Date.now()});saveCpns(a);drawCpnBtn();return true}
   function dropCpn(code){saveCpns(cpns().filter(function(c){return c.code!==code}));drawCpnBtn()}
+  // The seller mints the code, so this device cannot be told at the moment it
+  // happens. It keeps every order code it ever placed instead of only the last
+  // one: a newer order used to replace mms_last, and a coupon earned on the
+  // older order could then never be discovered again.
+  const MY_CODES_KEY='mms_mycodes';
+  function myCodes(){try{const a=JSON.parse(localStorage.getItem(MY_CODES_KEY)||'[]');return Array.isArray(a)?a.filter(function(c){return typeof c==='string'&&/^[A-Z0-9]{6}$/.test(c)}):[]}catch(e){return[]}}
+  function rememberCode(code){code=String(code||'').toUpperCase();if(!/^[A-Z0-9]{6}$/.test(code))return;const a=myCodes().filter(function(c){return c!==code});a.unshift(code);try{localStorage.setItem(MY_CODES_KEY,JSON.stringify(a.slice(0,12)))}catch(e){}}
   function liveCpns(){const now=Date.now();return cpns().filter(function(c){return !c.exp||c.exp>now})}
   // A code is a bearer token: sharing is allowed, so the only truth is the
   // coupon document. Anything used - by this phone or another - leaves the
@@ -1296,16 +1307,34 @@ function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
     const sec=document.getElementById('pay-section');
     if(sec&&sec.scrollIntoView)sec.scrollIntoView({behavior:'smooth',block:'center'});
   }
-  // Read the code the seller's mint wrote onto this order's tracking document.
+  // What "a coupon arrived" looks like: the count dot is already the truth, so
+  // this only marks the moment - two beats on the ticket button and a line with
+  // a way in. Nothing is shown if the same code lands twice.
+  function couponArrived(){
+    drawCpnBtn();
+    const b=document.getElementById('cpn-btn');
+    if(b){b.classList.remove('pulse');void b.offsetWidth;b.classList.add('pulse')}
+    toastAction('\u{1F381} Anda dapat kupon percuma','Lihat',function(){toggleCpnPop()});
+  }
+  // The seller's mint writes the code onto that order's tracking document.
+  // Read every order this device placed, not just the newest: that is what
+  // makes a coupon appear on its own, with nobody messaging the customer.
   async function loadMyCoupons(){
     const db=getDb();if(!db)return;
-    const o=loadMyOrder();if(!o||!o.code)return;
-    try{
-      const snap=await db.collection('tracking').doc(o.code).get();
-      if(!snap.exists)return;
-      const d=snap.data()||{};
-      if(d.coupon)addCpn(d.coupon,d.couponExp&&d.couponExp.toMillis?d.couponExp.toMillis():0);
-    }catch(e){}
+    const o=loadMyOrder();if(o&&o.code)rememberCode(o.code);
+    const list=myCodes();if(!list.length)return;
+    let added=0,pending=false;
+    for(let i=0;i<list.length;i++){
+      try{
+        const snap=await db.collection('tracking').doc(list[i]).get();
+        if(!snap.exists){pending=true;continue}
+        const d=snap.data()||{};
+        if(d.coupon){if(addCpn(d.coupon,d.couponExp&&d.couponExp.toMillis?d.couponExp.toMillis():0))added++}
+        else pending=true;
+      }catch(e){pending=true}
+    }
+    loadMyCoupons._pending=pending;   // true while a code is still owed to us
+    if(added)couponArrived();
   }
   function drawLoy(){const l=getLoy();document.getElementById('loy-count').textContent=l.c;document.getElementById('stamps').innerHTML=stampRowHtml(l.c)}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2000)}
@@ -1491,6 +1520,9 @@ function notifyOrderPush(o){
   const title=asciiHeader('Pesanan baru '+no+' - '+kind+(o.total!=null?(' - RM'+Number(o.total).toFixed(2)):''));
   const body=(o.items?o.items+' minuman':'Pesanan baru')+'. Belum dibayar - tekan untuk buka pesanan.';
   const click=asciiHeader(SITE_URL+'?admin=1'+(o.code?('&order='+encodeURIComponent(o.code)):''));
+  // One alert per order per browser. A reload or a retry used to push the same
+  // "Pesanan baru" again, which is indistinguishable from spam without being it.
+  if(o.code){try{if(localStorage.getItem('mms_push_'+o.code))return;localStorage.setItem('mms_push_'+o.code,'1')}catch(e){}}
   const send=function(){
     var ctrl=null,timer=null;
     try{if(typeof AbortController!=='undefined')ctrl=new AbortController()}catch(e){}
@@ -1980,7 +2012,7 @@ function fillCustomer(){
   if(tx)tx.textContent=c.n?('✓ '+c.n+(c.block?(' · '+c.block+(c.room?' '+c.room:'')):'')):'✓ Maklumat anda diingati pada peranti ini';
   const w=document.getElementById('cust-note');if(w)w.style.display='flex';
 }
-function saveMyOrder(o){try{localStorage.setItem('mms_last',JSON.stringify({code:o.code,no:o.no,at:Date.now(),total:o.total,items:o.items,isCod:o.isCod,r:o.r,when:o.when,pay:o.pay,_claim:!!o._claim}));showMyOrderBtn()}catch(e){}}
+function saveMyOrder(o){try{localStorage.setItem('mms_last',JSON.stringify({code:o.code,no:o.no,at:Date.now(),total:o.total,items:o.items,isCod:o.isCod,r:o.r,when:o.when,pay:o.pay,_claim:!!o._claim}));rememberCode(o.code);showMyOrderBtn()}catch(e){}}
 function loadMyOrder(){try{const j=JSON.parse(localStorage.getItem('mms_last'));return j&&j.code?j:null}catch(e){return null}}
 let _lastSt='';
 function notifySupported(){return typeof window.Notification!=='undefined'}
@@ -2049,7 +2081,7 @@ function orderMore(){
   try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}
   toast('Pilih minuman untuk pesanan baru');
 }
-function showMyOrderBtn(){const b=document.getElementById('my-order');if(!b)return;const o=loadMyOrder();const fin=!!(o&&o._st==='done');b.style.display=(o&&!fin)?'inline-flex':'none';if(o&&!fin)b.textContent='📦 Pesanan saya · #'+fmtNo(o.no);paintMyBar()}
+function showMyOrderBtn(){const b=document.getElementById('my-order');if(!b)return;const o=loadMyOrder();const fin=!!(o&&o._st==='done');b.style.display=(o&&!fin)?'inline-flex':'none';if(o&&!fin)b.textContent='📦 Pesanan saya · #'+fmtNo(o.no);paintMyBar(_lastSt||undefined)}
 function openMyOrder(){const o=loadMyOrder();if(!o)return;_lastSt='';showDone({...o,warn:false})}
 function showDone(o){
   const el=document.getElementById('done');if(!el)return;
@@ -2159,6 +2191,23 @@ function paintSteps(st){
   }
 }
 let _trackUnsub=null;
+// A status is only news if it is not the one this customer last saw. That fact
+// has to outlive the page: the whole point is the tabs that were closed while
+// the drink was being made.
+function seenStatus(code){
+  try{const m=JSON.parse(localStorage.getItem('mms_seen')||'{}');return (m&&typeof m==='object'&&m[code])||''}catch(e){return''}
+}
+function rememberStatus(code,st){try{const m=JSON.parse(localStorage.getItem('mms_seen')||'{}');m[code]=st;localStorage.setItem('mms_seen',JSON.stringify(m))}catch(e){}}
+// Sound, buzz and the highlight are the reliable part; the notification is the
+// bonus on top and is silent while the tab is in front anyway.
+function catchUp(ns){
+  const dn=document.getElementById('done');
+  const o=(dn&&dn._msg)||loadMyOrder()||{};
+  const txt=admStatusText(ns,!!o.isCod);
+  fireNotify('Pesanan '+orderRef(o),txt+' · semasa anda tiada');
+  alertDone(ns);
+  toast('🔔 '+txt+' (semasa anda tiada)');
+}
 function trackOrder(code){
   if(_trackUnsub){_trackUnsub();_trackUnsub=null}
   // A new subscription has no history. Without this the first snapshot was
@@ -2167,11 +2216,17 @@ function trackOrder(code){
   // stepper, beeped and pushed a notification about an order nothing had
   // happened to yet.
   _lastSt='';
+  const away=seenStatus(code);
+  let firstSnap=true;
   const db=getDb();if(!db||!code)return;
   _trackUnsub=db.collection('tracking').doc(code).onSnapshot(function(s){
     if(!s.exists)return;
     const d=s.data()||{};
     const ns=d.status||'baru';
+    // The first snapshot is not a change; it is the state of things. Unless it
+    // differs from what this order said last time, which is a change nobody saw.
+    if(firstSnap){firstSnap=false;if(away&&away!==ns)catchUp(ns)}
+    rememberStatus(code,ns);
     if(_lastSt&&_lastSt!==ns){
       const dn=document.getElementById('done');
       const o=(dn&&dn._msg)||{};
@@ -2180,7 +2235,9 @@ function trackOrder(code){
     }
     _lastSt=ns;
     if(ns==='done'){const _o=loadMyOrder();if(_o){_o._st='done';try{localStorage.setItem('mms_last',JSON.stringify(_o))}catch(e){}}loadMyCoupons();}
-    paintSteps(ns);paintMyBar(ns);showMyOrderBtn();
+    if(d.coupon&&addCpn(d.coupon,d.couponExp&&d.couponExp.toMillis?d.couponExp.toMillis():0))couponArrived();
+    // The stored status is written before anything paints, because the bar and
+    // the pill both fall back to it when they are redrawn without an argument.
     const el=document.getElementById('done');
     if(el&&el._msg)el._msg._st=d.status||'baru';
     const o=loadMyOrder();
@@ -2190,6 +2247,7 @@ function trackOrder(code){
       if(pm)pm.style.display=d.paid?'block':'none';
       try{localStorage.setItem('mms_last',JSON.stringify(o))}catch(e){}
     }
+    paintSteps(ns);paintMyBar(ns);showMyOrderBtn();
   },function(){});
 }
 // WhatsApp is the only route left when the order write failed, so it has to
@@ -2593,7 +2651,7 @@ async function maybeMintCoupon(orderId,silent){
     });
     if(!code){if(!silent)toast('\u2B50 Kad setia: '+(n%5)+'/5');return}
     try{await db.collection('tracking').doc(orderId).update({coupon:code,couponExp:new Date(Date.now()+30*86400000)})}catch(e){console.warn('kupon tracking:',e)}
-    admNote('<div style="font-family:var(--fd);font-weight:800;font-size:21px;color:#00D4AA;margin-bottom:10px">Kupon · kad setia '+(due*5)+'/5 &#127903;</div>'+'<div style="font-size:14px;color:#9A9385;line-height:1.6;margin-bottom:14px">'+(awarded>1?('Pelanggan ini layak '+awarded+' kupon. Satu kod di bawah, beri kod seterusnya selepas ini digunakan.'):'Pelanggan ini sudah lengkap '+(due*5)+' pesanan. Beri kod ini kepadanya: satu minuman percuma, sah 30 hari.')+'</div>'+'<div style="font-family:var(--fd);font-weight:800;font-size:30px;letter-spacing:3px;color:#F0F0F0;text-align:center;background:rgba(0,212,170,0.1);border:1px dashed rgba(0,212,170,0.5);border-radius:12px;padding:14px;margin-bottom:14px">'+code+'</div>'+'<div style="font-size:13px;color:#9A9385;line-height:1.5">Hantar melalui WhatsApp pesanan ini, atau salin kod di atas.</div>');
+    admNote('<div style="font-family:var(--fd);font-weight:800;font-size:21px;color:#00D4AA;margin-bottom:10px">Kupon · kad setia '+(due*5)+'/5 &#127903;</div>'+'<div style="font-size:14px;color:#9A9385;line-height:1.6;margin-bottom:14px">'+(awarded>1?('Pelanggan ini layak '+awarded+' kupon. Satu kod di bawah, beri kod seterusnya selepas ini digunakan.'):'Pelanggan ini sudah lengkap '+(due*5)+' pesanan. Beri kod ini kepadanya: satu minuman percuma, sah 30 hari.')+'</div>'+'<div style="font-family:var(--fd);font-weight:800;font-size:30px;letter-spacing:3px;color:#F0F0F0;text-align:center;background:rgba(0,212,170,0.1);border:1px dashed rgba(0,212,170,0.5);border-radius:12px;padding:14px;margin-bottom:14px">'+code+'</div>'+'<div style="font-size:13px;color:#9A9385;line-height:1.5">Kod ini masuk sendiri ke butang &#127903; Kupon pada telefon pelanggan - tiada apa yang perlu dihantar. Salin di atas hanya jika dia bertanya.</div>');
   }catch(e){console.warn('kupon gagal:',e)}
 }
 function admUpdOrder(id,status){const db=getDb();if(!db)return;db.collection('orders').doc(id).update({status}).then(function(){if(status==='done')maybeMintCoupon(id)}).catch(e=>console.warn(e));db.collection('tracking').doc(id).update({status:status,at:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){})}
@@ -3026,8 +3084,12 @@ function admSignOutNow(){const a=getAuth();if(a)a.signOut().then(()=>{exitAdmin(
 
 
 
-(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await loadMenu();await initConfig();initDis();fillCustomer();drawCpnBtn();loadMyCoupons();verifyWallet();
+(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await loadMenu();await initConfig();initDis();fillCustomer();drawCpnBtn();loadMyCoupons();verifyWallet();(function(){const m=loadMyOrder();if(m&&m.code&&m._st!=='done')trackOrder(m.code)})();
   document.addEventListener('visibilitychange',function(){if(!document.hidden){loadMyCoupons();verifyWallet()}});
+// The seller can mark an order done long after the customer closed the page.
+// While a code is still owed this tab re-asks on a slow timer, and stops as
+// soon as every order has one, so a finished wallet costs no reads at all.
+setInterval(function(){if(document.hidden)return;if(!loadMyCoupons._pending)return;loadMyCoupons()},60000);
   window.addEventListener('focus',function(){loadMyCoupons();verifyWallet()});drawLoy();drawDel();const a=getAuth();
 if(a)a.onAuthStateChanged(function(u){
   // Deliberately does NOT call enterAdmin(). A remembered session must never
@@ -3073,6 +3135,6 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v52</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v55</div>
 </body>
 </html>
