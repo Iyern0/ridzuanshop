@@ -1,8 +1,9 @@
 // MINUM MALAM SISWA — service worker
 // Cache name is versioned. Bump V when the app changes so old shells get evicted.
 // Current: v50 (build marker in the page corner, so a stale cache is visible at a glance)
-const V = 'v50-20261023';
-const SHELL = ['./', './index.html', './drinks-order.html', './manifest.json'];
+const V = 'v51-20261024';
+// the DuitNow QR and the install icons must survive a cold, offline start
+const SHELL = ['./', './index.html', './drinks-order.html', './manifest.json', './qr-duitnow.jpg', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', (e) => {
   self.skipWaiting();

@@ -262,6 +262,8 @@ button:disabled:active{transform:none}
 
 @media(min-width:700px){.grid{grid-template-columns:repeat(3,1fr);max-width:720px}}
 #cart-bar{position:fixed;bottom:0;left:0;right:0;background:#221C15;border-top:1px solid var(--line2);padding:10px 16px calc(12px + env(safe-area-inset-bottom));display:none;align-items:center;gap:12px;z-index:200;box-shadow:0 -4px 20px rgba(0,0,0,0.6)}
+/* the bar floats over the page, so the last drink needs somewhere to be */
+#menu-root{padding-bottom:104px}
 #cart-bar.show{display:flex}
 #cart-bar .info{flex:1;min-width:0}
 #cart-bar .count{font-size:13px;color:#9A9385;font-weight:700}
@@ -1592,7 +1594,7 @@ function minsUntilClose(){const n=new Date(),m=n.getHours()*60+n.getMinutes();co
 function drawFounder(){const el=document.getElementById('founder');if(!el)return;const w=WHO||{};if(!w.n){el.style.display='none';return}el.style.display='flex';el.innerHTML=(w.img?'<img src="'+esc(w.img)+'" alt="" onerror="this.style.display=\'none\'">':'')+'<div class="fi"><div class="fn">'+esc(w.n)+'</div><div class="fs">'+esc(w.b||'')+(w.note?' · '+esc(w.note):'')+'</div></div>'+(WA?'<a class="fb" href="https://wa.me/'+WA.replace(/[^0-9]/g,'')+'" target="_blank" rel="noopener">WhatsApp</a>':'')}
 function syncTimeButton(){const b=document.getElementById('time-toggle');if(!b)return;b.textContent=(selTime==='ASAP'||!selTime?'ASAP':selTime)+' ▾'}
 function toggleTimePick(){const d=document.getElementById('time-pick');if(!d)return;const open=d.style.display==='block';d.style.display=open?'none':'block';if(open)selTime='ASAP';drawTimes();syncTimeButton()}
-function drawStatus(){const el=document.getElementById('status-bar');if(!el)return;const o=HOURS[0],c=HOURS[1];if(isOpenNow()){const left=minsUntilClose();const lft=left<60?left+' minit':Math.floor(left/60)+' jam '+(left%60)+' min';el.className='status-bar open';el.innerHTML='<span class="dot"></span> BUKA SEKARANG · tutup dalam '+lft+' ('+fmtMin(c)+')'}else{el.className='status-bar closed';el.innerHTML='<span class="dot"></span> TUTUP · buka '+fmtMin(o)+' — anda masih boleh lihat menu'}clearTimeout(window._statusTmr);window._statusTmr=setTimeout(drawStatus,30000)}
+function drawStatus(){const el=document.getElementById('status-bar');if(!el)return;const o=HOURS[0],c=HOURS[1];if(isOpenNow()){const left=minsUntilClose();const lft=left<60?left+' minit':Math.floor(left/60)+' jam '+(left%60)+' min';el.className='status-bar open';el.innerHTML='<span class="dot"></span> BUKA SEKARANG · tutup dalam '+lft+' ('+fmtMin(c)+')'}else{el.className='status-bar closed';el.innerHTML='<span class="dot"></span> TUTUP · buka '+fmtMin(o)+' · pesanan masih diterima, kami proses apabila buka'}clearTimeout(window._statusTmr);window._statusTmr=setTimeout(drawStatus,30000)}
 function drawTimes(){const _el=document.getElementById('times');
   if(!SLOTS.length){_el.innerHTML='<div style="font-size:13px;color:#9A9385;font-weight:700;padding:4px 2px;line-height:1.5">Tiada slot masa tersedia sekarang. Taip masa yang anda mahu di bawah, atau pesan bila siap.</div>';return}
   _el.innerHTML=SLOTS.map((t,i)=>{const u=unrTimes.includes(t),a=selTime===t?' active':'';return'<button class="t-btn'+a+(u?' unavail':'')+(admin?' admin-mode':'')+'" onclick="selT('+i+')"'+(u&&!admin?' disabled':'')+'>'+esc(t)+'</button>'}).join('')}
@@ -1731,7 +1733,7 @@ if(payM==='qr')setTimeout(function(){
   }catch(err){}
 },60)});
 function closeConfirm(){document.getElementById('confirm-modal').style.display='none'}
-document.getElementById('checkout').addEventListener('click',function(){if(pruneCart()){saveCart();upCart()}const e=Object.entries(cart);let totalItems=0;e.forEach(([_,v])=>totalItems+=v.length);if(totalItems===0){toast('⚠ Tiada pesanan');return}if(isCod===null){toast('⚠ Sila pilih cara penghantaran');return}const n=document.getElementById('inp-name2').value.trim(),blockR=isCod?(selBlock==='other'?((document.getElementById('inp-custom-block')||{}).value||'').trim():selBlock):'',roomR=isCod?(document.getElementById('inp-room').value||'').trim():'',r=isCod?(blockR+(roomR?' '+roomR:'')):'';if(!n){highlight('inp-name2','⚠ Sila masukkan nama');return}if(isCod&&!selBlock){toast('⚠ Sila pilih blok');return}if(isCod&&selBlock&&!document.getElementById('inp-room').value.trim()){toast('⚠ Sila masukkan nombor bilik');return}if(!isCod&&!selTime)selTime='Bila siap';if(!selTime){highlight('pickup-time','⚠ Sila pilih masa dahulu');return}if(!payM){highlight('pay-section','⚠ Sila pilih cara bayar');return}
+document.getElementById('checkout').addEventListener('click',function(){if(pruneCart()){saveCart();upCart()}const e=Object.entries(cart);let totalItems=0;e.forEach(([_,v])=>totalItems+=v.length);if(totalItems===0){toast('⚠ Tiada pesanan');return}if(isCod===null){toast('⚠ Sila pilih cara penghantaran');return}const n=document.getElementById('inp-name2').value.trim(),blockR=isCod?(selBlock==='other'?((document.getElementById('inp-custom-block')||{}).value||'').trim():selBlock):'',roomR=isCod?(document.getElementById('inp-room').value||'').trim():'',r=isCod?(blockR+(roomR?' '+roomR:'')):'';if(n.length<2){highlight('inp-name2','⚠ Sila masukkan nama (sekurang-kurangnya 2 huruf)');return}if(isCod&&!selBlock){toast('⚠ Sila pilih blok');return}if(isCod&&selBlock&&!document.getElementById('inp-room').value.trim()){toast('⚠ Sila masukkan nombor bilik');return}if(!isCod&&!selTime)selTime='Bila siap';if(!selTime){highlight('pickup-time','⚠ Sila pilih masa dahulu');return}if(!payM){highlight('pay-section','⚠ Sila pilih cara bayar');return}
 if(payM==='coupon'&&!cpnOk){toast('\u274C Sahkan kupon dahulu');return}if(couponOnly()&&isCod&&!codFreeUp){isCod=false;drawDel()}if(payM==='qr'&&!stagedProof){const cp=document.getElementById('qr-claim-panel');if(cp){cp.style.borderColor='#FF6B6B';setTimeout(function(){cp.style.borderColor=''},2000)}toast('⚠ Hantar resit dahulu');return}if(payM==='coupon'&&cpnOk){let _bi=-2,_bb=-1,_k=-1;Object.entries(cart).forEach(function(en){const mm=/^c(\d+)v(\d+)$/.exec(en[0]);if(!mm)return;const item=MENU[parseInt(mm[1],10)]&&MENU[parseInt(mm[1],10)].items[parseInt(mm[2],10)];if(!item)return;en[1].forEach(function(inst){_k++;const b=Number(item.price)||0;if(b>_bb){_bb=b;_bi=_k}})});cpnLine=_bi}
 let html='',total=0,idx=0;_revPrice=[];_revLabel=[];_revBase=[];_revAdd=[];e.forEach(([id,items])=>{const ci=parseInt(id.match(/c(\d+)/)[1]),vi=parseInt(id.match(/v(\d+)/)[1]);if(!MENU[ci]||!MENU[ci].items[vi])return;const item=MENU[ci].items[vi];items.forEach(inst=>{idx++;const ac=inst.adds.reduce((s,aid)=>{const a=findAdd(aid);return s+(a?a.price:0)},0);const base=Number(item.price)||0;total+=base+ac;const al=inst.adds.map(aid=>{const a=findAdd(aid);return a?a.name:''}).filter(Boolean).join(', ');const emoji=drinkEmoji(item.name);_revPrice.push(+(base+ac).toFixed(2));_revBase.push(+base.toFixed(2));_revAdd.push(+ac.toFixed(2));const li=idx-1,pickable=false,isFree=(payM==='coupon'&&cpnOk&&cpnLine===li);const rowStyle='display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06)'+(pickable?';cursor:pointer;border-radius:8px;padding-left:8px;padding-right:8px;'+(isFree?'background:rgba(0,212,170,0.12);outline:1px solid rgba(0,212,170,0.5)':''):'');const priceHtml=isFree?'<s style="color:#9A9385;font-size:15px">RM'+base.toFixed(2)+'</s><b style="color:#00D4AA;font-family:var(--fd);font-size:15px;margin-left:6px">PERCUMA</b>'+(ac>0?'<span style="color:#FFB347;font-family:var(--fd);font-weight:800;font-size:14px;margin-left:6px">+RM'+ac.toFixed(2)+'</span>':''):'<span style="font-family:var(--fd);font-weight:800;font-size:19px;color:#00D4AA">RM'+(base+ac).toFixed(2)+'</span>';html+='<div data-li="'+li+'" style="'+rowStyle+'"><span style="font-size:20px">'+emoji+'</span><div style="flex:1"><div style="font-weight:800;font-size:14px;color:#F0F0F0">'+esc(item.name)+'</div>'+(al?'<div style="font-size:12px;color:#9A9385;margin-top:2px">\u2795 '+esc(al)+'</div>':'')+'</div>'+priceHtml+'</div>';});});document.getElementById('confirm-items').innerHTML=html;const _fr=(payM==='coupon'&&cpnOk&&cpnLine>=0&&_revBase[cpnLine]!=null)?_revBase[cpnLine]:0;const _fEl=document.getElementById('confirm-free');if(_fEl){_fEl.style.display=_fr>0?'flex':'none';document.getElementById('confirm-free-val').textContent=_fr>0?'-RM'+_fr.toFixed(2):''}document.getElementById('confirm-delivery').innerHTML='🚗 '+(isCod?('COD (+RM'+delFee('cod').toFixed(2)+')'):'Ambil Sendiri')+' · ⏰ '+esc(selTime)+' · 👤 '+esc(n)+(isCod?' '+esc(r):'');document.getElementById('confirm-pay').innerHTML='\u{1F4B3} '+(payM==='coupon'?'\u{1F39F}\uFE0F Kupon':payM==='cash'?'\u{1F4B5} Tunai':'\u{1F4F1} QR Pay')+(payM==='qr'&&!stagedProof?' \u00B7 <span style="color:#FFB347">\u26A0 tiada resit - penjual tak dapat sahkan bayaran</span>':'');document.getElementById('confirm-sub').textContent='RM'+total.toFixed(2);document.getElementById('confirm-cod').style.display=isCod?'flex':'none';document.getElementById('confirm-total').textContent='RM'+Math.max(0,total+(isCod?delFee('cod'):0)-_fr).toFixed(2);if(document.getElementById('confirm-modal').style.display!=='flex')track('checkout_open');document.getElementById('confirm-modal').style.display='flex';});
 function clip(s,max){return String(s==null?'':s).trim().slice(0,max)}
@@ -1778,10 +1780,10 @@ if(payM==='qr'&&!stagedProof){toast('⚠ Hantar resit dahulu');closeConfirm();re
   const btn=document.getElementById('wa-send');
   const n=clip(document.getElementById('inp-name2').value,40);
   const roomIn=clip(document.getElementById('inp-room').value,20);
-  const r=isCod?(clip(selBlock,30)+(roomIn?' '+roomIn:'')):'';
-  if(!n){highlight('inp-name2','Sila masukkan nama');return}
+  const r=isCod?clip(clip(selBlock,20)+(roomIn?' '+roomIn:''),40):'';
+  if(n.length<2){highlight('inp-name2','Sila masukkan nama (sekurang-kurangnya 2 huruf)');return}
   if(isCod&&!selBlock){toast('Sila pilih blok');return}
-  if(isCod&&!roomIn){highlight('inp-room','Sila masukkan nombor bilik');return}
+  if(roomIn.length<3){highlight('inp-room','Sila masukkan nombor bilik (sekurang-kurangnya 3 aksara)');return}
   // No time, no order. The customer picks a slot or states their own; an
   // order that named neither used to be stored with the placeholder sentence
   // as its time, which then read like a real time in the admin panel. Never
@@ -1807,7 +1809,11 @@ if(payM==='qr'&&!stagedProof){toast('⚠ Hantar resit dahulu');closeConfirm();re
   if(payM==='coupon'&&cpnOk){let _bi=-1,_bb=-1;_bases.forEach(function(b,i){if(b>_bb){_bb=b;_bi=i}});cpnLine=_bi}
   if(!Object.keys(ordMap).length){toast('Bakul tidak sah - pilih minuman semula');cart={};saveCart();upCart();closeConfirm();return}
   const cod=isCod?delFee('cod'):0;total+=cod;if(payM==='coupon'&&_bases[cpnLine]==null){toast('Pilih semula minuman percuma di Review');closeConfirm();_sending=false;btn.disabled=false;btn.textContent='Hantar Pesanan';return}const freeAmt=(payM==='coupon'&&_bases[cpnLine]!=null)?_bases[cpnLine]:0;total-=freeAmt;if(total<0)total=0;
+  if(total>1100){closeConfirm();toast('⚠ Jumlah terlalu besar - hubungi penjual melalui WhatsApp');return}
   _sending=true;btn.disabled=true;btn.textContent='Menghantar...';
+  // A stalled connection must never leave the button dead: after 20s the
+  // customer gets the WhatsApp route back instead of a spinner forever.
+  const _wd=setTimeout(function(){if(!saved){_sending=false;btn.disabled=false;btn.textContent='Hantar Pesanan';toast('⚠ Rangkaian lambat - cuba lagi atau WhatsApp penjual')}},20000);
 
   // Off the device, not off the form: the stamp prompt is where a number comes
   // from now, and this is the order after the one that collected it.
@@ -1864,6 +1870,7 @@ if(payM==='qr'&&!stagedProof){toast('⚠ Hantar resit dahulu');closeConfirm();re
   // the seller is told once. _claim records it, so nothing asks again.
   const proof=(payM==='qr'&&stagedProof)?stagedProof:'';
   const disp={code:code,no:orderNo,items:OrdDisplay(ordMap),total:total,isCod:isCod,r:r,n:n,when:when,pay:payM,_claim:!!proof};
+  clearTimeout(_wd);
   if(!saved){showDone({...disp,warn:true});return}
   notifyOrderPush({code:code,no:orderNo,items:items,total:total,room:r,pay:payM});
   track('order_sent');chime();buzzOk();
@@ -2046,14 +2053,18 @@ function openMyOrder(){const o=loadMyOrder();if(!o)return;_lastSt='';showDone({.
 function showDone(o){
   const el=document.getElementById('done');if(!el)return;
   el._msg=o;
-  const rows=(o.items||[]).map(i=>'<div class="r"><span>'+i.qty+'x '+esc(i.name)+(i.adds&&i.adds.length?' <span style="color:#9A9385">· '+esc(i.adds.join(', '))+'</span>':'')+'</span><b>RM'+(i.price*i.qty).toFixed(2)+'</b></div>').join('');
+  const sub=(o.items||[]).reduce((a,i)=>a+Number(i.price||0)*Number(i.qty||0),0);
+  const disc=+(sub+((o.isCod?delFee('cod'):0))-Number(o.total||0)).toFixed(2);
+  const rows=(o.items||[]).map(i=>'<div class="r"><span>'+esc(i.qty)+'x '+esc(i.name)+(i.adds&&i.adds.length?' <span style="color:#9A9385">· '+esc(i.adds.join(', '))+'</span>':'')+'</span><b>RM'+(i.price*i.qty).toFixed(2)+'</b></div>').join('');
   el.innerHTML='<div class="tick">'+(o.warn?'⚠':'✓')+'</div>'
-    +'<h2>'+(o.warn?'Pesanan disimpan':'Pesanan Diterima')+'</h2>'
-    +'<div class="code">'+(o.no?'Pesanan #'+fmtNo(o.no):(o.code?'#'+esc(o.code):''))+(o.no&&o.code?'<span class="done-chip">'+esc(o.code)+'</span>':'')+'</div>'
-    +(o.warn?'<div class="warnbox">Rekod pesanan gagal disimpan. Hantar melalui WhatsApp supaya penjual tetap terima pesanan anda.</div>':'')
+    +'<h2>'+(o.warn?'Pesanan TIDAK dihantar':'Pesanan Diterima')+'</h2>'
+    +'<div class="code">'+(o.no?'Pesanan #'+fmtNo(o.no)+(o.code?'<span class="done-chip">'+esc(o.code)+'</span>':''):'')+'</div>'
+    +(o.warn?'<div class="warnbox">Pesanan ini TIDAK sampai kepada penjual. Tekan butang WhatsApp di bawah untuk menghantarnya terus. Jangan buat bayaran sehingga penjual mengesahkan pesanan ini.</div>':'')
     +'<div class="box2">'+rows
+      +'<div class="r"><span>Subtotal</span><b>RM'+sub.toFixed(2)+'</b></div>'
+      +(disc>0.005?'<div class="r"><span>Kupon</span><b>-RM'+disc.toFixed(2)+'</b></div>':'')
+      +'<div class="r"><span>Penghantaran</span><b>'+(o.isCod?('COD +RM'+delFee('cod').toFixed(2)):'Ambil sendiri · RM0.00')+'</b></div>'
       +'<div class="r tot"><span>Jumlah</span><b>RM'+Number(o.total).toFixed(2)+'</b></div>'
-      +'<div class="r"><span>Penghantaran</span><b>'+(o.isCod?('COD (+RM'+delFee('cod').toFixed(2)+')'):'Ambil sendiri')+'</b></div>'
       +(o.isCod?'<div class="r"><span>Lokasi</span><b>'+esc(o.r)+'</b></div>':'')
       +'<div class="r"><span>Masa</span><b>'+esc(fmtTimeLabel(o.when))+'</b></div>'
     +'</div>'
@@ -2180,7 +2191,10 @@ function trackOrder(code){
     }
   },function(){});
 }
-function reopenWa(){const o=document.getElementById('done')._msg;if(!o)return;let msg='Hi '+SHOP+'! Pesanan:\n';if(o.code)msg+='No. Pesanan: #'+o.code+'\n';(o.items||[]).forEach(i=>{msg+=i.qty+'x '+i.name+' = RM'+(i.price*i.qty).toFixed(2)+(i.adds&&i.adds.length?' ('+i.adds.join(', ')+')':'')+'\n'});msg+='\nJumlah: RM'+Number(o.total).toFixed(2);window.open(waUrl(msg),'_blank')}
+// WhatsApp is the only route left when the order write failed, so it has to
+// carry the whole order - the address is the one part the seller cannot work
+// out from a list of drinks.
+function reopenWa(){const o=document.getElementById('done')._msg;if(!o)return;let msg='Hi '+SHOP+'! Pesanan:\n';if(o.no)msg+='No. Pesanan: #'+fmtNo(o.no)+'\n';else if(o.code)msg+='Rujukan: #'+o.code+'\n';(o.items||[]).forEach(i=>{msg+=i.qty+'x '+i.name+' = RM'+(i.price*i.qty).toFixed(2)+(i.adds&&i.adds.length?' ('+i.adds.join(', ')+')':'')+'\n'});msg+='\n'+(o.isCod?'COD (+RM'+delFee('cod').toFixed(2)+')':'Ambil sendiri');if(o.when)msg+='\nMasa: '+fmtTimeLabel(o.when);if(o.pay)msg+='\nBayar: '+(o.pay==='coupon'?'Kupon':o.pay==='cash'?'Tunai':'QR Pay');if(o.n)msg+='\nNama: '+o.n+(o.isCod&&o.r?' ('+o.r+')':'');msg+='\nJumlah: RM'+Number(o.total).toFixed(2);window.open(waUrl(msg),'_blank')}
 // ---------------------------------------------------------------------------
 // The receipt block, at CHECKOUT, underneath the QR the customer is about to
 // pay from.
@@ -2255,7 +2269,7 @@ function submitClaim(code,img,no,room,onDone,info){
   const nfo=info||{};
   db.collection('payments').doc(code).set({img:img,at:firebase.firestore.FieldValue.serverTimestamp()})
     .then(function(){notifyOwnerClaim({no:no,room:room,code:code,items:nfo.items,total:nfo.total});if(onDone)onDone(true)})
-    .catch(function(err){console.warn('claim gagal:',err);if(onDone)onDone(false)});
+    .catch(function(err){console.warn('claim gagal:',err);toast('⚠ Resit gagal dihantar - periksa internet dan cuba lagi');if(onDone)onDone(false)});
 }
 async function sendClaim(p){
   p=p||'';
@@ -2407,7 +2421,7 @@ function admOpenDetail(id){
       :'';
     const line=Number(i.price||0)*Number(i.qty||1);
     return '<div class="d-it">'
-      +'<span class="d-q">'+i.qty+'&times;</span>'
+      +'<span class="d-q">'+esc(i.qty)+'&times;</span>'
       +'<div><div class="d-nm"><i>'+drinkEmoji(i.name)+'</i>'+esc(i.name)+'</div>'+addChips+'</div>'
       +'<span class="d-line">RM'+line.toFixed(2)+'</span>'
       +'</div>';
@@ -2761,7 +2775,7 @@ let _aei=null,_aec=0;
 function admMenu(pg){_aei=null;_aec=0;let h='<div style="max-width:700px">';(MENU||[]).forEach((cat,ci)=>{cat.items.forEach((v,i)=>{const id='c'+ci+'v'+i;const d=isDis(id);const last=i===cat.items.length-1;if(i===0&&cat.name)h+='<div class="a-sec">'+esc(cat.name)+'</div>';h+='<div class="a-row" style="'+(d?'opacity:0.4':'')+'"><span class="n" style="'+(d?'text-decoration:line-through':'')+'">'+(v.pop?'🔥 ':'')+esc(v.name)+'</span><span class="p">RM'+(Number(v.price)||0).toFixed(2)+'</span><div class="b"><button style="background:rgba(255,255,255,0.05);color:#9A9385'+(i===0?';opacity:0.3':'')+'" onclick="admMoveMI('+ci+','+i+',-1)"'+(i===0?' disabled':'')+'>▲</button><button style="background:rgba(255,255,255,0.05);color:#9A9385'+(last?';opacity:0.3':'')+'" onclick="admMoveMI('+ci+','+i+',1)"'+(last?' disabled':'')+'>▼</button><button style="background:'+(d?'rgba(255,107,107,0.15)':'rgba(0,212,170,0.1)')+';color:'+(d?'#FF6B6B':'#00D4AA')+'" onclick="togDis(\''+id+'\');admMenu(document.getElementById(\'adm-pg\'))">'+(d?'✕':'✓')+'</button><button style="background:rgba(0,212,170,0.1);color:#00D4AA" onclick="admEditMI('+ci+','+i+')">✎</button><button style="background:rgba(255,107,107,0.1);color:#FF6B6B" onclick="admDelMI('+ci+','+i+')">✕</button></div></div>'})});h+='</div><div class="a-form"><div class="row"><input class="inp" id="am-name" placeholder="Nama minuman" style="flex:1"><input class="inp" id="am-price" placeholder="Harga" type="number" step="0.10" style="max-width:90px"></div><div class="row"><input class="inp" id="am-img" placeholder="URL gambar (pilihan)" style="flex:1"></div><label style="display:flex;align-items:center;gap:6px;font-size:14px;color:#9A9385;font-weight:700;margin-bottom:14px"><input type="checkbox" id="am-pop"> Popular</label><div style="display:flex;gap:8px"><button onclick="admSaveMI()" id="am-save" style="flex:1;background:#00D4AA;color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:15px;padding:12px;border-radius:10px;cursor:pointer">➕ Tambah</button><button onclick="admCancelMI()" id="am-cancel" style="display:none;background:rgba(255,255,255,0.08);color:#9A9385;border:none;font-size:14px;padding:12px;border-radius:10px;cursor:pointer">Batal</button></div></div>';pg.innerHTML=h}
 function admEditMI(ci,i){const v=MENU[ci]&&MENU[ci].items[i];if(!v)return;_aei=i;_aec=ci;document.getElementById('am-name').value=v.name;document.getElementById('am-price').value=v.price;document.getElementById('am-pop').checked=v.pop||false;document.getElementById('am-img').value=v.img||'';document.getElementById('am-save').textContent='💾 Simpan';document.getElementById('am-cancel').style.display='block'}
 function admDelMI(ci,i){const cat=MENU[ci];if(!cat||!cat.items[i])return;if(!confirm('Padam "'+cat.items[i].name+'"?'))return;cat.items.splice(i,1);admMenu(document.getElementById('adm-pg'));saveMenu();toast('✓ Dipadam')}
-function admSaveMI(){const n=document.getElementById('am-name').value.trim(),p=parseFloat(document.getElementById('am-price').value);if(!n){toast('⚠ Nama');return}if(!p||p<=0){toast('⚠ Harga');return}const item={name:n,price:p,pop:document.getElementById('am-pop').checked};const _img=document.getElementById('am-img').value.trim();if(_img)item.img=_img;const cat=MENU[_aec]||MENU[0];if(!cat)return;if(_aei!==null&&cat.items[_aei])cat.items[_aei]=item;else cat.items.push(item);_aei=null;admMenu(document.getElementById('adm-pg'));saveMenu();toast('✓ Disimpan')}
+function admSaveMI(){const n=document.getElementById('am-name').value.trim(),p=parseFloat(String(document.getElementById('am-price').value||'').replace(',','.'));if(!n){toast('⚠ Nama');return}if(!p||p<=0){toast('⚠ Harga');return}const item={name:n,price:p,pop:document.getElementById('am-pop').checked};const _img=document.getElementById('am-img').value.trim();if(_img)item.img=_img;const cat=MENU[_aec]||MENU[0];if(!cat)return;if(_aei!==null&&cat.items[_aei])cat.items[_aei]=item;else cat.items.push(item);_aei=null;admMenu(document.getElementById('adm-pg'));saveMenu();toast('✓ Disimpan')}
 function admCancelMI(){_aei=null;admMenu(document.getElementById('adm-pg'))}
 function admMoveMI(ci,i,dir){const cat=MENU[ci];if(!cat)return;const items=cat.items;const j=i+dir;if(j<0||j>=items.length)return;[items[i],items[j]]=[items[j],items[i]];admMenu(document.getElementById('adm-pg'));saveMenu()}
 let _eai=null,_eag='s';
@@ -2770,7 +2784,7 @@ function admPickG(el,g){_eag=g;el.closest('.chips').querySelectorAll('.a-chip').
 function admTogDis(id){if(disAdds.includes(id))disAdds=disAdds.filter(x=>x!==id);else disAdds.push(id);saveConfig();admAddons(document.getElementById('adm-pg'))}
 function admEditAI(i){const a=ADDS[i];_eai=i;_eag=a.grp;document.getElementById('aa-name').value=a.name;document.getElementById('aa-price').value=a.price||'';document.getElementById('aa-save').textContent='💾 Simpan';document.getElementById('aa-cancel').style.display='block';document.querySelectorAll('.a-chip').forEach(c=>{c.classList.toggle('on',c.textContent.includes({s:'Pemanis',l:'Level',e:'Extra'}[a.grp]))})}
 function admDelAI(i){if(!confirm('Padam "'+ADDS[i].name+'"?'))return;ADDS.splice(i,1);saveConfig();admAddons(document.getElementById('adm-pg'));toast('✓ Dipadam')}
-function admSaveAI(){const n=document.getElementById('aa-name').value.trim(),p=parseFloat(document.getElementById('aa-price').value)||0;if(!n){toast('⚠ Nama');return}const id=n.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')||'addon_'+Date.now();if(_eai!==null){ADDS[_eai]={...ADDS[_eai],name:n,price:p,grp:_eag}}else{if(ADDS.some(x=>x.id===id)){toast('⚠ Nama ini sudah ada - guna nama lain');return}ADDS.push({id,name:n,price:p,grp:_eag})}_eai=null;saveConfig();admAddons(document.getElementById('adm-pg'));toast('✓ Disimpan')}
+function admSaveAI(){const n=document.getElementById('aa-name').value.trim(),p=parseFloat(String(document.getElementById('aa-price').value||'').replace(',','.'))||0;if(!n){toast('⚠ Nama');return}const id=n.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'')||'addon_'+Date.now();if(_eai!==null){ADDS[_eai]={...ADDS[_eai],name:n,price:p,grp:_eag}}else{if(ADDS.some(x=>x.id===id)){toast('⚠ Nama ini sudah ada - guna nama lain');return}ADDS.push({id,name:n,price:p,grp:_eag})}_eai=null;saveConfig();admAddons(document.getElementById('adm-pg'));toast('✓ Disimpan')}
 function admCancelAI(){_eai=null;admAddons(document.getElementById('adm-pg'))}
 function admSchedule(pg){let h='<div style="max-width:500px">';SLOTS.forEach((s,i)=>{h+='<div class="a-row"><span class="n">⏰ '+esc(s)+'</span><div class="b"><button style="background:rgba(255,107,107,0.1);color:#FF6B6B" onclick="admDelSI('+i+')">✕</button></div></div>'});h+='</div><div class="a-form" style="max-width:500px"><div class="row"><input class="inp" id="as-name" placeholder="cth: 2:30AM" style="flex:1"><button onclick="admAddSI()" style="background:#00D4AA;color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:15px;padding:10px 18px;border-radius:10px;cursor:pointer;flex-shrink:0">➕</button></div></div>';pg.innerHTML=h}
 function admAddSI(){const n=document.getElementById('as-name').value.trim().toUpperCase();if(!n){toast('⚠ Masa');return}if(SLOTS.includes(n)){toast('❌ Sudah ada');return}SLOTS.push(n);saveConfig();admSchedule(document.getElementById('adm-pg'));toast('✓ Ditambah')}
@@ -3055,6 +3069,6 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(8px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v50</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v51</div>
 </body>
 </html>
