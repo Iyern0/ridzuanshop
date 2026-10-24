@@ -705,7 +705,7 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
 /* The live order, on screen the whole time it is live.
    Sticky rather than fixed, so it needs no page padding and cannot end up
    covering the header. It used to be reachable only by tapping a small pill. */
-#mybar{display:none;position:sticky;top:0;z-index:400;background:#1E1913;border-bottom:1px solid rgba(0,212,170,0.22);padding:10px 14px;align-items:center;gap:11px;box-shadow:0 6px 18px rgba(0,0,0,0.35)}
+#mybar{display:none;position:sticky;top:0;z-index:400;background:#1E1913;border-bottom:1px solid rgba(0,212,170,0.22);padding:calc(10px + env(safe-area-inset-top)) 14px 10px;align-items:center;gap:11px;box-shadow:0 6px 18px rgba(0,0,0,0.35)}
 #mybar.on{display:flex}
 #mybar .mb-who{font-family:var(--fd);font-weight:800;font-size:14px;color:#F0F0F0;flex-shrink:0}
 #mybar .mb-st{font-size:13px;font-weight:800;color:#00D4AA;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -1520,6 +1520,9 @@ function notifyOrderPush(o){
   const title=asciiHeader('Pesanan baru '+no+' - '+kind+(o.total!=null?(' - RM'+Number(o.total).toFixed(2)):''));
   const body=(o.items?o.items+' minuman':'Pesanan baru')+'. Belum dibayar - tekan untuk buka pesanan.';
   const click=asciiHeader(SITE_URL+'?admin=1'+(o.code?('&order='+encodeURIComponent(o.code)):''));
+  // One alert per order per browser. A reload or a retry used to push the same
+  // "Pesanan baru" again, which is indistinguishable from spam without being it.
+  if(o.code){try{if(localStorage.getItem('mms_push_'+o.code))return;localStorage.setItem('mms_push_'+o.code,'1')}catch(e){}}
   const send=function(){
     var ctrl=null,timer=null;
     try{if(typeof AbortController!=='undefined')ctrl=new AbortController()}catch(e){}
@@ -2078,7 +2081,7 @@ function orderMore(){
   try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}
   toast('Pilih minuman untuk pesanan baru');
 }
-function showMyOrderBtn(){const b=document.getElementById('my-order');if(!b)return;const o=loadMyOrder();const fin=!!(o&&o._st==='done');b.style.display=(o&&!fin)?'inline-flex':'none';if(o&&!fin)b.textContent='📦 Pesanan saya · #'+fmtNo(o.no);paintMyBar()}
+function showMyOrderBtn(){const b=document.getElementById('my-order');if(!b)return;const o=loadMyOrder();const fin=!!(o&&o._st==='done');b.style.display=(o&&!fin)?'inline-flex':'none';if(o&&!fin)b.textContent='📦 Pesanan saya · #'+fmtNo(o.no);paintMyBar(_lastSt||undefined)}
 function openMyOrder(){const o=loadMyOrder();if(!o)return;_lastSt='';showDone({...o,warn:false})}
 function showDone(o){
   const el=document.getElementById('done');if(!el)return;
@@ -2188,6 +2191,23 @@ function paintSteps(st){
   }
 }
 let _trackUnsub=null;
+// A status is only news if it is not the one this customer last saw. That fact
+// has to outlive the page: the whole point is the tabs that were closed while
+// the drink was being made.
+function seenStatus(code){
+  try{const m=JSON.parse(localStorage.getItem('mms_seen')||'{}');return (m&&typeof m==='object'&&m[code])||''}catch(e){return''}
+}
+function rememberStatus(code,st){try{const m=JSON.parse(localStorage.getItem('mms_seen')||'{}');m[code]=st;localStorage.setItem('mms_seen',JSON.stringify(m))}catch(e){}}
+// Sound, buzz and the highlight are the reliable part; the notification is the
+// bonus on top and is silent while the tab is in front anyway.
+function catchUp(ns){
+  const dn=document.getElementById('done');
+  const o=(dn&&dn._msg)||loadMyOrder()||{};
+  const txt=admStatusText(ns,!!o.isCod);
+  fireNotify('Pesanan '+orderRef(o),txt+' · semasa anda tiada');
+  alertDone(ns);
+  toast('🔔 '+txt+' (semasa anda tiada)');
+}
 function trackOrder(code){
   if(_trackUnsub){_trackUnsub();_trackUnsub=null}
   // A new subscription has no history. Without this the first snapshot was
@@ -2196,11 +2216,17 @@ function trackOrder(code){
   // stepper, beeped and pushed a notification about an order nothing had
   // happened to yet.
   _lastSt='';
+  const away=seenStatus(code);
+  let firstSnap=true;
   const db=getDb();if(!db||!code)return;
   _trackUnsub=db.collection('tracking').doc(code).onSnapshot(function(s){
     if(!s.exists)return;
     const d=s.data()||{};
     const ns=d.status||'baru';
+    // The first snapshot is not a change; it is the state of things. Unless it
+    // differs from what this order said last time, which is a change nobody saw.
+    if(firstSnap){firstSnap=false;if(away&&away!==ns)catchUp(ns)}
+    rememberStatus(code,ns);
     if(_lastSt&&_lastSt!==ns){
       const dn=document.getElementById('done');
       const o=(dn&&dn._msg)||{};
@@ -2210,7 +2236,8 @@ function trackOrder(code){
     _lastSt=ns;
     if(ns==='done'){const _o=loadMyOrder();if(_o){_o._st='done';try{localStorage.setItem('mms_last',JSON.stringify(_o))}catch(e){}}loadMyCoupons();}
     if(d.coupon&&addCpn(d.coupon,d.couponExp&&d.couponExp.toMillis?d.couponExp.toMillis():0))couponArrived();
-    paintSteps(ns);paintMyBar(ns);showMyOrderBtn();
+    // The stored status is written before anything paints, because the bar and
+    // the pill both fall back to it when they are redrawn without an argument.
     const el=document.getElementById('done');
     if(el&&el._msg)el._msg._st=d.status||'baru';
     const o=loadMyOrder();
@@ -2220,6 +2247,7 @@ function trackOrder(code){
       if(pm)pm.style.display=d.paid?'block':'none';
       try{localStorage.setItem('mms_last',JSON.stringify(o))}catch(e){}
     }
+    paintSteps(ns);paintMyBar(ns);showMyOrderBtn();
   },function(){});
 }
 // WhatsApp is the only route left when the order write failed, so it has to
@@ -3056,7 +3084,7 @@ function admSignOutNow(){const a=getAuth();if(a)a.signOut().then(()=>{exitAdmin(
 
 
 
-(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await loadMenu();await initConfig();initDis();fillCustomer();drawCpnBtn();loadMyCoupons();verifyWallet();
+(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await loadMenu();await initConfig();initDis();fillCustomer();drawCpnBtn();loadMyCoupons();verifyWallet();(function(){const m=loadMyOrder();if(m&&m.code&&m._st!=='done')trackOrder(m.code)})();
   document.addEventListener('visibilitychange',function(){if(!document.hidden){loadMyCoupons();verifyWallet()}});
 // The seller can mark an order done long after the customer closed the page.
 // While a code is still owed this tab re-asks on a slow timer, and stops as
@@ -3107,6 +3135,6 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v53</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v54</div>
 </body>
 </html>

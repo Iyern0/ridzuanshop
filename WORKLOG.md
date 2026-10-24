@@ -1694,3 +1694,47 @@ junk codes rejected; cap 12; empty wallet ran without error; 0 console exception
 **Artefacts:** `drinks-order.html` (coupon wallet, snapshot hook, admNote), `sw.js` (`v53-20261024`),
 `DRINKS-ORDER.md` (state), `.scratch/patch-coupon{,2}.cjs`, `.scratch/cdp-coupon-{test,migrate}.mjs`.
 **Status:** ✅ confirmed locally — ships as `v53`.
+
+### 2026-10-24 — v54: a status that changed while the phone was away is now announced
+**What happened:** the owner reported that when a customer has the app closed and the
+seller moves the order from *Sedang dibuat* to *Siap*, the customer's phone says nothing
+at all. The push only fired on the *first* comprehension of a status while the page was
+open, so a customer who closed the tab never learned their drink was ready. Fixed, plus
+four defects found while testing the fix.
+**Found / changed:**
+- `trackOrder()` now subscribes at boot whenever `mms_last` exists, not only after the
+  customer opens the order panel - otherwise "while you were away" could never be
+  detected.
+- New `mms_seen` map (order code → last status this device *showed*). The first snapshot
+  of a fresh subscription compares against it; a difference runs `catchUp()`: sound,
+  vibration, the done-panel highlight and a `🔔 … (semasa anda tiada)` toast. Later
+  snapshots keep the old rule (alert only if a panel is open, so nobody is rung twice).
+- The done case writes `mms_seen` **before** it clears `mms_last`, so marking an order
+  delivered does not make the app re-announce `done` on the next boot.
+- Push de-duplication: ntfy at-least-once + boot subscription meant a reload could
+  re-announce; `mms_push_<code>` now allows at most one push per order per browser
+  (tested: a second notify for the same code posts nothing).
+- The status bar painted the stale stored status: `paintMyBar(ns)` ran and then
+  `showMyOrderBtn()` repainted it with no argument, falling back to `mms_last._st`
+  (written *after* the paints). The stored status is now saved before painting and the
+  pill passes `_lastSt`.
+- `#mybar` is the first child of `<body>` and sticks to the top, so on a notched iPhone
+  it sat under the status bar; it now carries `env(safe-area-inset-top)` like the hero.
+**Artefacts:** `drinks-order.html` (boot tracking, `mms_seen`, `catchUp`, push guard,
+bar repaint order, bar inset), `sw.js` (`v54-20261024`), `DRINKS-ORDER.md` (alerts,
+coupons), `tools/rotate-ntfy.mjs` (new), `.scratch/catchup-test.mjs`, `.scratch/shot-catchup.mjs`.
+**Status:** ✅ confirmed locally (catch-up 1 alert + 1 push away, 0 same, 0 fresh, 1 live;
+push once = 1 post) - ships as `v54`.
+
+### 2026-10-24 — coupon wallet: found by asking what "the app never shows it" means
+**What happened:** the owner said the coupon never appears in the customer's app, and
+would rather not message codes by hand. Root cause: the mint wrote the code into
+`tracking` only, and the wallet learned codes solely from `mms_last` - the *current*
+order. A customer whose fifth order was on another phone, or who had cleared storage,
+could own a code and never see it.
+**Found / changed:** `mms_mycodes` (every order code this device ever placed) + 
+`loadMyCoupons()` that reads each one's `tracking` (get-only) on load, focus, tab return,
+live snapshot, and a 60s timer that stops when nothing is owed. Minting now also writes
+`coupons/{CODE}`; the wallet, banner, badge, toast and checkout all lead to the same code.
+**Artefacts:** `drinks-order.html`, `DRINKS-ORDER.md`, `.scratch/cdp-coupon-test.mjs`.
+**Status:** ✅ confirmed locally - shipped as `v53` (commit `268363e`).
