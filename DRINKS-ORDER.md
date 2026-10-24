@@ -275,3 +275,22 @@ GitHub Pages auto-deploys ~1 min after push.
   customer flow is Malay. A full MS/EN toggle was attempted once and reverted; if it
   comes back it needs to be a real toggle, not a rewrite.
 - Old order archival — `orders` grows forever; consider deleting settled orders monthly
+## Known limits after the 2026-10-24 pre-ship audit (live v52)
+
+Fixed that night (see `WORKLOG.md`, commits `a931ab1` + `4f85d60`): the false success receipt
+on a failed write, the incomplete WhatsApp fallback, receipt arithmetic, the three
+client-vs-rules gaps that silently dropped orders, the admin-panel XSS vector, a write
+watchdog, sold-out items in the cart, string prices, decimal commas in admin prices.
+
+Still open, by decision rather than oversight — full reasoning in
+`.council/ship-audit-1024/REPORT.md`:
+
+1. **iOS < 11.3 gets a blank page.** The order path is ES2018 with no polyfill. The old
+   "ES5 checkout for a 2014 iPad" claim is not true of the shipped file. Fix needs a build
+   step (Babel or Firebase v8), not a patch.
+2. **Coupon race across devices.** `tx.update` never checks `used`; a retry mints a second
+   code. Needs a rules-level transaction and a real two-device test.
+3. **Admin can re-open without the password** after the first unlock in a session, and
+   `settings/config` is written whole-document, so a stale second tab can revert settings.
+4. `parseClock('10:30')` reads as **10:30 AM** — when editing opening hours, type the am/pm
+   label, never a bare `10:30`.

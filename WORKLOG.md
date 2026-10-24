@@ -1643,3 +1643,33 @@ by appending a cache-busting query; (2) the service-worker shell cache, checked 
 Only the third one is a code problem.
 **Artefacts:** none; no code changed.
 **Status:** ✅ confirmed — same URL, cache-busted, reproduced the new build at 390 and 1440.
+
+### 2026-10-24 21:20 — Pre-ship bug pass (v50 → v52), three-seat blind audit + live verification
+**What happened:** The owner asked for a full bug check before handing the site to customers
+(`/llm-council`, 21:06). Three seats audited `drinks-order.html` blind (25 / 24 / 11 findings),
+the lead audited the deployed artifact live, then 16 distinct defects were fixed in two
+commits and verified on the published page.
+**Found / changed:**
+- the blocker three readers agreed on: a **failed** order rendered the *success* receipt
+  ("Pesanan disimpan", dead 6-char code, cart not cleared). Now "Pesanan TIDAK dihantar",
+  no code, and an explicit don't-pay-yet line.
+- the WhatsApp fallback (only recovery when the write fails) omitted the **address**; it now
+  carries reference, slot, payment method, name + address, total.
+- receipt did not reconcile (COD inside `Jumlah` *and* printed again, coupon line missing):
+  now Subtotal / Kupon / Penghantaran / Jumlah, checked 11.00 − 1.00 + 1.00 = 11.00.
+- silent unsaved orders: name < 2 chars, block+room > 40 chars, total > RM1100 all passed the
+  form and failed `validOrder()` three times behind a generic banner.
+- `esc(i.qty)` (stored XSS into the owner's session), 20 s write watchdog, sold-out items
+  pruned from the cart, `Number()` on every money site, decimal comma in admin prices,
+  claim-failure toast, SW shell assets, closed-hours copy, cart-bar padding, iOS keyboard scroll.
+**Refuted (don't re-report):** the 20:58 `TUTUP` (hours = 22:30→02:00, predicate re-run),
+contrast (6.23:1 AA), the order transaction vs `firestore.rules` (legal), and "coupon type
+handout" (no type/value field exists in the schema — one coupon concept only).
+**Accepted tonight:** ES2018 order path on iOS < 11.3 (blank page; needs a Babel build step,
+not a patch), coupon cross-device race, admin re-lock without a password. Full list and the
+three owner decisions: `.council/ship-audit-1024/REPORT.md`.
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`; commits `a931ab1` (v51), `4f85d60` (v52);
+`.council/ship-audit-1024/{REPORT.md,stage1/seat-{1,2,3}.md,*.png}`.
+**Status:** ✅ confirmed live — badge `v52`, fetched cache-busted and loaded in real Edge over
+CDP: 9 menu cards from Firestore, 0 JS exceptions, 0 failed requests, checkout path walked to
+`Hantar Pesanan`.
