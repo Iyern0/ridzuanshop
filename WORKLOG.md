@@ -1764,3 +1764,25 @@ The pairwise counts below are the version-history fact: `drinks-order.html` reac
 while `index.html` stayed at v52, because the release ritual was manual. That is exactly
 the failure the new `tools/release.mjs` exists to prevent; `DRINKS-ORDER.md` and
 `README.md` now point at the command instead of describing the ritual in prose.
+
+### 2026-10-24 23:25 — Notifications are not one-phone; the topic was simply not shared
+**What happened:** the owner asked whether only one device can receive order alerts,
+because his brother subscribed but heard nothing. Reading the code settles the question:
+the app posts to **one ntfy topic** (`NTFY_TOPIC`, 43 chars) and ntfy fans it out to every
+subscriber — there is no device binding, no per-device token, nothing that could stop a
+second phone. What was missing was a way to hand the topic over and to prove delivery.
+**Found / changed:**
+- Settings → **📣 Notifikasi**: the topic in a read-only field, *📋 Salin topik*,
+  *↗ Kongsi* (share sheet → WhatsApp) and *🔔 Hantar ujian*, which posts a test message
+  with an ISO-8859-1 `Title` (`Ujian notifikasi` — an emoji in that header once killed
+  every alert, see the comment above `notifyOrderPush`), `Priority: high`, `Tags: bell`.
+- Tested with fetch stubbed so the seller's phone was not rung at midnight: one POST to
+  `https://ntfy.sh/<topic>`, header ASCII-clean, toast `✅ Ujian dihantar — semak telefon`.
+- Docs: `DRINKS-ORDER.md` alerts section now says any number of phones can receive, and
+  names the three buttons.
+**Artefacts:** `drinks-order.html` (card + `admCopyTopic`/`admSelectTopic`/`admShareTopic`/
+`admTestPush`), `index.html`, `sw.js` (`v57-20261024`), `DRINKS-ORDER.md`,
+`.scratch/patch-notify-devices.cjs`, `.scratch/test-notify-card.mjs`.
+**Status:** ⚠️ provisional — the card and the request shape are verified; whether the
+brother's phone actually rings depends on his ntfy subscription and battery settings,
+which only he can change.
