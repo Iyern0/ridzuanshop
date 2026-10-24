@@ -1673,3 +1673,24 @@ three owner decisions: `.council/ship-audit-1024/REPORT.md`.
 **Status:** ✅ confirmed live — badge `v52`, fetched cache-busted and loaded in real Edge over
 CDP: 9 menu cards from Firestore, 0 JS exceptions, 0 failed requests, checkout path walked to
 `Hantar Pesanan`.
+
+### 2026-10-24 21:44 — v53: the ticket finds its own coupon
+**What happened:** the owner asked that a minted coupon appear by itself on the
+customer's ticket button instead of being messaged to them. It did not, because the wallet
+only ever read the *newest* order's tracking document (`mms_last`); a second order
+overwrote that pointer and an older order's code became undiscoverable.
+**Found / changed:** `mms_mycodes` now remembers every order code this device placed (max 12,
+6-char codes only, backfilled from `mms_last` on first run, so existing customers migrate with
+no action). `loadMyCoupons()` reads each remembered code's `tracking/{code}` and adds any
+`coupon` it finds; it also sets `_pending` while a code is still owed, and a 60s timer polls
+only while `_pending` and the tab is visible (zero reads once every order has a code). The live
+`tracking` snapshot adds the code the moment the seller's mint writes it. Arrival = badge,
+`.pulse` (two beats, new `@keyframes cpnPulse`), and an 8s `Lihat` toast opening the wallet.
+The seller's mint note no longer tells them to send the code over WhatsApp.
+**Verified:** stubbed Firestore in real headless Edge over CDP against the page — coupon on the
+*older* of two codes reached the wallet, badge `1`, `pulse` on, toast shown, popup listed
+`ZZZ999` with Salin/Guna; migration path (`mms_last` → coupon, no `mms_mycodes`) added `MIG777`;
+junk codes rejected; cap 12; empty wallet ran without error; 0 console exceptions.
+**Artefacts:** `drinks-order.html` (coupon wallet, snapshot hook, admNote), `sw.js` (`v53-20261024`),
+`DRINKS-ORDER.md` (state), `.scratch/patch-coupon{,2}.cjs`, `.scratch/cdp-coupon-{test,migrate}.mjs`.
+**Status:** ✅ confirmed locally — ships as `v53`.
