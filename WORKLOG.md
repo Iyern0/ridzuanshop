@@ -1871,3 +1871,22 @@ commit `f20e7d0`.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js` (V=v61-20261028), `DRINKS-ORDER.md` (security table, admin table, known limits).
 
 **Status:** ✅ shipped (4354ebd) · ⚠️ registry write untested against the live project until the owner opens Settings once.
+
+### 2026-10-28 22:50 — v62: the notification topic leaves the page
+
+**What happened:** moving the seller's alert address needed an edit to the page and a redeploy, because the topic was a constant compiled into the source. It now lives in Firestore and rotates from Settings in one tap.
+
+**Found / changed:**
+- `NTFY_TOPIC` became `NTFY_BOOT` — a bootstrap only — plus `ntfyTopic()`, `loadNotify()`, `admSaveTopic()`, `admSeedTopic()` and `admRotateTopic()`. Every sender (order push, payment push, test push, copy, share) reads the live value.
+- `loadNotify()` runs at startup against `settings/notify` and caches the result in `mms_ntfy`, so an offline load keeps the last address this browser saw instead of falling back to one that may have been retired.
+- `settings/notify` uses the admin-only write rule already in place for `settings/devices`, and is world-readable — which is honest: the address was always public in the page source. Rotation is what the rule buys.
+- The first admin visit seeds the doc (`admSeedTopic`), so it exists before the first rotation and no phone loses its feed in the gap.
+- Settings → 📣 Notifikasi gained **🔄 Tukar topik**, with a confirm that says the cost plainly: every seller phone that was subscribed to the old name must re-subscribe.
+- Retired the v57 topic `kcDy…OBn`: a notice was posted on it (carrying no new address, since that topic is public) and the deployment moved to `c758…98cb`.
+- `tools/rotate-ntfy.mjs` now only re-points the bootstrap and its header says so; rotating the live feed from a terminal is no longer the path.
+
+**Verified:** headless Edge against a local server — `ntfyTopic()` returns 32 chars and the retired name is absent from the page; `loadNotify()` adopts a stored topic and caches it; `admRotateTopic` changes the value and rewrites the field; a real POST to the new topic round-tripped (published `Ujian v62` / `hello`, read back through the poll API). Live verification of the deploy follows in the next entry.
+
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js` (V=v62-20261028), `DRINKS-ORDER.md` (alerts bullet, known limits), `tools/rotate-ntfy.mjs`.
+
+**Status:** ⚠️ pushed, live check pending;

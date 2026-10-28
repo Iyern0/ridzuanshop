@@ -281,6 +281,8 @@ GitHub Pages auto-deploys ~1 min after push.
 - Old order archival — `orders` grows forever; consider deleting settled orders monthly
 ## Known limits after the 2026-10-24 pre-ship audit (live v52)
 
+- **The notification topic is readable by anyone** who opens the page or the Firestore doc. A static site cannot keep a secret: the address is in the code either way, so the design goal is a rotatable address and a payload that carries only an order number and COD/Ambil sendiri. Rotation itself is in Settings (v62).
+
 - **Trusted devices are a session, not a certificate.** The list makes access visible and revocable, but the real gate stays Firebase Auth plus the `isAdmin()` email check in the rules. A removed device is signed out; anyone holding the password can add a new one. Device identity lives in the browser's own storage, so clearing site data makes a device look new.
 
 Fixed that night (see `WORKLOG.md`, commits `a931ab1` + `4f85d60`): the false success receipt

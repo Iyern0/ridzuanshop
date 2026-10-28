@@ -1318,7 +1318,53 @@ function orderRef(o){if(!o)return'#';if(o.no)return'#'+fmtNo(o.no);if(o.code)ret
 // Tell the seller an order landed, on their phone, with every browser closed.
 // Deliberately omits the customer's name and number - this text passes through
 // a third-party server, and a block plus an order number is enough to act on.
-const NTFY_TOPIC='kcDyPbfadiKFnhRhRHGKivWDvoLvdFgrxy6YjjJkOBn';
+// Where the seller's phone listens.
+//
+// The constant is a bootstrap only. The live topic lives in settings/notify
+// (admin-only write, world-readable), so it can be rotated from Settings with a
+// tap instead of a release. The address is public either way - a static page
+// carries its secrets in its own source, which is why rotating is the lever
+// that exists at all.
+const NTFY_BOOT='c758e2fa4997ccdd81a6844e3b0c98cb';
+const NOTIFY_DOC='settings/notify';
+let _ntfyTopic='';
+function ntfyLocalGet(){try{return localStorage.getItem('mms_ntfy')||''}catch(e){return''}}
+function ntfyTopic(){return _ntfyTopic||ntfyLocalGet()||NTFY_BOOT}
+function ntfyNewTopic(){
+  const a=new Uint8Array(16);
+  try{crypto.getRandomValues(a)}catch(e){for(let i=0;i<16;i++)a[i]=Math.floor(Math.random()*256)}
+  let out='';for(let i=0;i<a.length;i++)out+=('0'+a[i].toString(16)).slice(-2);
+  return out;
+}
+// Startup read. Offline, the last topic this browser saw keeps the alert path
+// working instead of falling back to an address that may have been retired.
+function loadNotify(){
+  const db=getDb();
+  if(!db)return Promise.resolve(ntfyTopic());
+  return db.doc(NOTIFY_DOC).get().then(function(d){
+    const t=d.exists?String((d.data()||{}).topic||'').trim():'';
+    if(t){_ntfyTopic=t;try{localStorage.setItem('mms_ntfy',t)}catch(e){}}
+    return ntfyTopic();
+  }).catch(function(){return ntfyTopic()});
+}
+function admSaveTopic(t){
+  const db=getDb();
+  if(!db||!isAdmin())return Promise.resolve(false);
+  return db.doc(NOTIFY_DOC).set({topic:t,at:Date.now()},{merge:true}).then(function(){
+    _ntfyTopic=t;try{localStorage.setItem('mms_ntfy',t)}catch(e){}
+    return true;
+  }).catch(function(e){console.warn('simpan topik gagal',e);return false});
+}
+// First admin visit seeds the doc with whatever the page is using, so the
+// registry exists before the first rotation and no phone loses its feed.
+function admSeedTopic(){
+  const db=getDb();
+  if(!db||!isAdmin())return;
+  db.doc(NOTIFY_DOC).get().then(function(d){
+    const t=d.exists?String((d.data()||{}).topic||'').trim():'';
+    if(!t)admSaveTopic(ntfyTopic());
+  }).catch(function(){});
+}
 const SITE_URL='https://iyern0.github.io/ridzuanshop/';
 // Read any file as a data URL, unchanged. Used for PDFs, which we cannot
 // rasterise in the browser without shipping a PDF library.
@@ -1412,7 +1458,7 @@ function notifyOwnerClaim(o){
     try{if(typeof AbortController!=='undefined')ctrl=new AbortController()}catch(e){}
     var timer=null;
     if(ctrl){timer=setTimeout(function(){try{ctrl.abort()}catch(e){}},6000)}
-    fetch('https://ntfy.sh/'+NTFY_TOPIC,{
+    fetch('https://ntfy.sh/'+ntfyTopic(),{
       method:'POST',
       headers:{
         'Content-Type':'text/plain; charset=utf-8',
@@ -1458,7 +1504,7 @@ function notifyOrderPush(o){
     var ctrl=null,timer=null;
     try{if(typeof AbortController!=='undefined')ctrl=new AbortController()}catch(e){}
     if(ctrl)timer=setTimeout(function(){try{ctrl.abort()}catch(e){}},7000);
-    return fetch('https://ntfy.sh/'+NTFY_TOPIC,{
+    return fetch('https://ntfy.sh/'+ntfyTopic(),{
       method:'POST',
       headers:{'Content-Type':'text/plain; charset=utf-8','Title':title,'Priority':'high','Tags':'shopping_cart',
                'Click':click,'Icon':asciiHeader(SITE_URL+'icons/icon-192.png')},
@@ -2877,9 +2923,10 @@ function admDelBlock(i){const name=BLOCKS[i];if(!confirm('Padam "'+name+'"?'))re
 function admSettings(pg){const u=(getAuth()&&getAuth().currentUser)?getAuth().currentUser:null;pg.innerHTML='<div style="max-width:500px">'
 +'<div class="a-form"><div class="a-sec" style="border:none;padding-top:0">📣 Notifikasi</div>'
 +'<div style="font-size:13px;color:#9A9385;line-height:1.55;margin-bottom:10px">Setiap telefon yang <b>subscribe topik ini</b> akan terima notifikasi. Bukan satu telefon sahaja — telefon kedua, abang atau kawan boleh masuk sekali.</div>'
-+'<input class="inp" id="ntfy-topic" readonly value="'+NTFY_TOPIC+'" style="margin-bottom:8px;font-size:12px;letter-spacing:0.5px">'
++'<input class="inp" id="ntfy-topic" readonly value="'+ntfyTopic()+'" style="margin-bottom:8px;font-size:12px;letter-spacing:0.5px">'
 +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
 +'<button onclick="admCopyTopic()" style="background:rgba(0,212,170,0.14);border:1px solid rgba(0,212,170,0.4);color:#00D4AA;font-family:var(--fd);font-weight:800;font-size:13px;padding:10px 14px;border-radius:10px;cursor:pointer">📋 Salin topik</button>'
++'<button onclick="admRotateTopic(this)" style="background:rgba(255,180,71,0.12);border:1px solid rgba(255,180,71,0.4);color:#FFB347;font-family:var(--fd);font-weight:800;font-size:13px;padding:10px 14px;border-radius:10px;cursor:pointer">🔄 Tukar topik</button>'
 +'<button onclick="admTestPush(this)" style="background:#00D4AA;color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:13px;padding:10px 14px;border-radius:10px;cursor:pointer">🔔 Hantar ujian</button>'
 +'<button onclick="admShareTopic()" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);color:#F0F0F0;font-family:var(--fd);font-weight:800;font-size:13px;padding:10px 14px;border-radius:10px;cursor:pointer">↗ Kongsi</button>'
 +'</div>'
@@ -3106,7 +3153,7 @@ function admSaveHours(){const o=parseClock(document.getElementById('st-open').va
 function admSaveWho(){WHO={n:document.getElementById('st-wn').value.trim(),b:document.getElementById('st-wb').value.trim(),note:document.getElementById('st-wnote').value.trim(),img:document.getElementById('st-wimg').value.trim()};saveConfig();drawFounder();toast('Disimpan')}
 function admCopyTopic(){
   const go=function(){toast('✅ Topik disalin — tampal dalam app ntfy')};
-  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(NTFY_TOPIC).then(go).catch(function(){admSelectTopic()})}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(ntfyTopic()).then(go).catch(function(){admSelectTopic()})}
   else{admSelectTopic()}
 }
 function admSelectTopic(){
@@ -3116,16 +3163,28 @@ function admSelectTopic(){
   i.setAttribute('readonly','readonly');toast('✅ Topik disalin')
 }
 function admShareTopic(){
-  const u='https://ntfy.sh/'+NTFY_TOPIC;
+  const u='https://ntfy.sh/'+ntfyTopic();
   // The share sheet reaches WhatsApp, which is how a second phone actually
   // gets the topic today.
   if(navigator.share){navigator.share({title:'Notifikasi MINUM MALAM SISWA',text:'Subscribe topik ini dalam app ntfy:',url:u}).catch(function(){})}
-  else{toast('Topik: '+NTFY_TOPIC)}
+  else{toast('Topik: '+ntfyTopic())}
+}
+function admRotateTopic(btn){
+  admConfirm('Tukar topik notifikasi? Telefon yang melanggan topik LAMA akan berhenti menerima makluman, dan anda perlu langgan topik baru pada setiap telefon seller.','Tukar topik',function(){
+    const next=ntfyNewTopic();
+    if(btn){btn.disabled=true;btn.dataset.label=btn.textContent;btn.textContent='Menyimpan…'}
+    admSaveTopic(next).then(function(ok){
+      if(btn){btn.disabled=false;btn.textContent=btn.dataset.label||'🔄 Tukar topik'}
+      if(!ok){toast('❌ Gagal simpan topik - perlu log masuk admin');return}
+      const i=document.getElementById('ntfy-topic');if(i)i.value=next;
+      toast('✅ Topik baru: '+next+' - langgan pada setiap telefon seller');
+    });
+  });
 }
 function admTestPush(btn){
   if(btn){btn.disabled=true;btn.dataset.label=btn.textContent;btn.textContent='Menghantar...'}
   const tm=new Date().toTimeString().slice(0,5);
-  fetch('https://ntfy.sh/'+NTFY_TOPIC,{method:'POST',
+  fetch('https://ntfy.sh/'+ntfyTopic(),{method:'POST',
     headers:{'Content-Type':'text/plain; charset=utf-8','Title':'Ujian notifikasi','Priority':'high','Tags':'bell'},
     body:'Ujian pada '+tm+'. Kalau telefon ini berbunyi, notifikasi sudah tersambung.'
   }).then(function(r){if(!r.ok)throw new Error('ntfy '+r.status);toast('✅ Ujian dihantar — semak telefon')})
@@ -3277,7 +3336,7 @@ function admDevicesPaint() {
   el.innerHTML = '<div style="font-size:12.5px;color:#9A9385;line-height:1.5;margin-bottom:10px">' + _devList.length + ' peranti boleh masuk ke panel ini. Peranti yang dibuang akan log keluar serta-merta; untuk masuk semula ia perlu password sekali lagi.</div>' + rows;
 }
 
-function admFillSettings(){const so=document.getElementById('st-open');if(!so)return;so.value=fmtMin(HOURS[0]);document.getElementById('st-close').value=fmtMin(HOURS[1]);const w=WHO||{};document.getElementById('st-wn').value=w.n||'';document.getElementById('st-wb').value=w.b||'';document.getElementById('st-wnote').value=w.note||'';document.getElementById('st-wimg').value=w.img||'';admDevicesPaint();admRegisterDevice()}
+function admFillSettings(){const so=document.getElementById('st-open');if(!so)return;so.value=fmtMin(HOURS[0]);document.getElementById('st-close').value=fmtMin(HOURS[1]);const w=WHO||{};document.getElementById('st-wn').value=w.n||'';document.getElementById('st-wb').value=w.b||'';document.getElementById('st-wnote').value=w.note||'';document.getElementById('st-wimg').value=w.img||'';admDevicesPaint();admRegisterDevice();admSeedTopic()}
 function parseClock(s){const m=String(s||'').trim().toUpperCase().match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)?$/);if(!m)return null;let h=parseInt(m[1],10),mi=m[2]?parseInt(m[2],10):0;const ap=m[3];if(ap==='PM'&&h<12)h+=12;if(ap==='AM'&&h===12)h=0;if(h>23||mi>59)return null;return h*60+mi}
 function admExport(){const db=getDb();if(!db){toast('Firebase tidak tersedia');return}toast('Menyediakan fail...');db.collection('orders').get().then(function(snap){const rows=[];snap.forEach(function(d){const o=d.data();o._id=d.id;if(o.createdAt&&o.createdAt.toDate)o._createdAt=o.createdAt.toDate().toISOString();delete o.createdAt;rows.push(o)});const blob=new Blob([JSON.stringify(rows,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='mms-orders-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(a.href)},3000);toast('Fail dimuat turun ('+rows.length+' pesanan)')}).catch(function(e){toast('Gagal export')})}
 function admSignOutNow(){admDevStop();const a=getAuth();if(a)a.signOut().then(()=>{exitAdmin();toast('🔒 Log keluar')})}
@@ -3286,7 +3345,7 @@ function admSignOutNow(){admDevStop();const a=getAuth();if(a)a.signOut().then(()
 
 
 
-(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await loadMenu();await initConfig();initDis();fillCustomer();drawCpnBtn();loadMyCoupons();verifyWallet();(function(){const m=loadMyOrder();if(m&&m.code&&m._st!=='done')trackOrder(m.code)})();
+(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await loadMenu();await initConfig();initDis();fillCustomer();drawCpnBtn();loadMyCoupons();verifyWallet();loadNotify();(function(){const m=loadMyOrder();if(m&&m.code&&m._st!=='done')trackOrder(m.code)})();
   document.addEventListener('visibilitychange',function(){if(!document.hidden){loadMyCoupons();verifyWallet()}});
 // The seller can mark an order done long after the customer closed the page.
 // While a code is still owed this tab re-asks on a slow timer, and stops as
@@ -3337,6 +3396,6 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v61</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v62</div>
 </body>
 </html>
