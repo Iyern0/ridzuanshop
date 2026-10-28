@@ -1950,3 +1950,14 @@ commit `f20e7d0`.
 - Desktop verified at 1280 (3-column grid, no tab bar); phone verified at 390 with add-to-cart → sheet → cart.
 **Artefacts:** `experiments/CHAGEE-ORDER.html`, `tools/build-chagee-order.cjs`.
 **Status:** ✅ confirmed (screenshots, smoke test, hash-reproducible build)
+
+### 2026-10-29 01:35 — The order flow rebuilt: five tabs, and a "Saya" profile
+**What happened:** The working storefront's logic was ported into the CHAGEE-skin page and the checkout was rewritten as the design the owner approved on the proposal board: tab bar Utama · Menu · Pesanan · Kupon · Saya, a two-step checkout sheet (Bakul → Butiran → Bayar) and a profile that must be filled once before the first order.
+**Found / changed:**
+- `tools/chagee-order-ui.cjs` (new) injects the tab bar, the session bar, the search/chips/menu, the three checkout steps, the coupon cabinet and the Saya form; the engine underneath is still the same order pipeline (WhatsApp send, Firestore tracking, loyalty, coupons, admin).
+- Nav is now one level: tapping Pesanan opens the basket sheet, not a panel stack.
+- Butiran collects name · WhatsApp · block · room · time from the Saya profile; the profile is written to `localStorage['mms_cust']` and reused, and checkout refuses to move on until it exists.
+- Bugs found while wiring, all fixed: the engine ships a full-screen `.done` style, so rail steps named `done`/`on` inherited `display:none` and vanished; the engine's cart bar floated above the sheet printing a second total; the post-order notification card covered the receipt; the room field accepted 2 characters while Firestore refuses under 3.
+- Verified at 390 (all eight screens) and 1440 (column stays phone-width and centred).
+**Artefacts:** `experiments/CHAGEE-ORDER.html`, `tools/chagee-order-ui.cjs`, `tools/build-chagee-order.cjs`.
+**Status:** ✅ confirmed (screenshots of every screen, profile → checkout → receipt walked end to end)

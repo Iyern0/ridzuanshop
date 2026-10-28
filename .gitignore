@@ -68,3 +68,6 @@ ADMIN-CREDENTIALS.txt
 #   drinks-order-experiment.html drinks-order.bak.html
 #   drinks-corpus/ drinks-out/      (52 KB July snapshot of the app)
 # ---------------------------------------------------------------------------
+
+# local probe output, never committed
+.scratch/

@@ -118,18 +118,29 @@ body{
 #mm-tab a.on:after{content:"";width:16px;height:2.5px;border-radius:2px;background:#D2372B;margin-top:-1px}
 </style>`;
 
-const NAV = `
+const UI = require('./chagee-order-ui.cjs');
+
+const TAB = `
 <nav id="mm-tab">
-<a class="on" onclick="window.scrollTo({top:0,behavior:'smooth'})"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V20h13V9.5"/></svg>Utama</a>
-<a onclick="document.getElementById('menu-root').scrollIntoView({behavior:'smooth',block:'start'})"><svg viewBox="0 0 24 24"><rect x="4" y="3.5" width="16" height="17" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Menu</a>
-<a onclick="openMyOrder()"><svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M9 7.5h6M9 12h6M9 16.5h3"/></svg>Pesanan</a>
-<a onclick="event.stopPropagation();toggleCpnPop()"><svg viewBox="0 0 24 24"><path d="M4 7h16a1 1 0 0 1 1 1v2.2a2 2 0 0 0 0 3.6V16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2.2a2 2 0 0 0 0-3.6V8a1 1 0 0 1 1-1Z"/></svg>Kupon</a>
+<a data-t="utama" class="on" onclick="mmTab('utama')"><svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V20h13V9.5"/></svg>Utama</a>
+<a data-t="menu" onclick="mmTab('menu')"><svg viewBox="0 0 24 24"><rect x="4" y="3.5" width="16" height="17" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>Menu</a>
+<a data-t="pesanan" onclick="mmTab('pesanan')"><svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M9 7.5h6M9 12h6M9 16.5h3"/></svg>Pesanan<span class="badge" style="display:none"></span></a>
+<a data-t="kupon" onclick="mmTab('kupon')"><svg viewBox="0 0 24 24"><path d="M4 7h16a1 1 0 0 1 1 1v2.2a2 2 0 0 0 0 3.6V16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2.2a2 2 0 0 0 0-3.6V8a1 1 0 0 1 1-1Z"/></svg>Kupon<span class="badge gold" style="display:none"></span></a>
+<a data-t="saya" onclick="mmTab('saya')"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20.5c1.4-3.6 4-5.4 7.5-5.4s6.1 1.8 7.5 5.4"/></svg>Saya</a>
 </nav>`;
 
 if (!s.includes('</head>')) throw new Error('no head close');
-s = s.replace('</head>', SKIN + '\n</head>');
+s = s.replace('</head>', SKIN + UI.CSS + '\n</head>');
+
+// The search field and category chips sit directly above the product grid.
+const split = UI.HTML.indexOf('<div class="mm-sheet"');
+if (split < 0) throw new Error('no sheet markup');
+const TOOLS = UI.HTML.slice(0, split), SHEETS = UI.HTML.slice(split);
+s = s.replace('<div id="menu-root"></div>', TOOLS + '\n<div id="menu-root"></div>');
 if (!s.includes('<div class="page-foot">')) throw new Error('no page-foot');
-s = s.replace('<div class="page-foot">', NAV + '\n<div class="page-foot">');
+s = s.replace('<div class="page-foot">', SHEETS + TAB + '\n<div class="page-foot">');
+if (!s.includes('</body>')) throw new Error('no body close');
+s = s.replace('</body>', UI.JS + '\n</body>');
 
 fs.writeFileSync(OUT, s);
 console.log(log.join(' · '));
