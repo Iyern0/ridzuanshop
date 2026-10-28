@@ -1786,3 +1786,52 @@ second phone. What was missing was a way to hand the topic over and to prove del
 **Status:** ⚠️ provisional — the card and the request shape are verified; whether the
 brother's phone actually rings depends on his ntfy subscription and battery settings,
 which only he can change.
+
+### 2026-10-28 22:05 — Researched automatic "order ready" notifications (no code yet)
+**What happened:** the owner asked whether tapping "Siap" could auto-message the customer
+on WhatsApp (pickup ready / on the way), what similar options exist, the cost and the
+risk. Answered with a comparison; nothing built yet.
+**Found:** the app already ships a one-tap version — `admWaNotif(id)` (drinks-order.html:2818)
+opens WhatsApp with a prefilled status sentence and saves the customer's number for reuse.
+Official Cloud API rate for Malaysia is **RM0.0564 per message** (US$0.014); since
+1 Oct 2026 business-initiated utility templates have no free tier, while service replies
+get 1,000 free per number per month. Unofficial gateways (Wablas/Fonnte/Baileys) violate
+WhatsApp's terms and risk a permanent ban of the business number.
+**Artefacts:** none — research only.
+**Status:** ⚠️ provisional — waiting on the owner's choice between one-tap (free),
+Cloud API (RM0.056/msg) and web push.
+
+### 2026-10-28 22:45 — v58: Siap taps WhatsApp the customer, the number moves onto the form
+**What happened:** the owner chose the free route (option 1), and added two
+requirements in the same breath: the phone number must be required when customer
+details are filled, and the old post-order "give your number to get a coupon"
+prompt should be deleted because the form already has it.
+**Found / changed:** three edits, one cause — the only place a number could be
+given was after the order, which is why the seller had to ask for it and why a
+coupon could not be announced on the first order.
+1. `admUpdOrder(id,status)` now opens the customer's chat itself: **Siap** always,
+   **Proses** only on a COD order (the rider has left). `admWaNotif(id,stOverride)`
+   takes the status as an argument because the document still holds the old one
+   until the update lands — without it the message said "Baru". The open happens
+   inside the tap handler, before the Firestore write, or the browser blocks it as
+   an unsolicited popup. Fires only when the status actually changes and only for
+   an order that carries a number, so re-tapping is silent and *Tandakan Semua
+   Siap* never opens ten tabs. The doc copy is updated optimistically for the same
+   reason (a double tap before the snapshot would otherwise send twice).
+2. `#inp-phone` is a required field next to the name in customer details, checked
+   for nine digits at *Review Order* and again at *Hantar Pesanan*. The payload now
+   always carries `phone`; `saveCustomer()` stores the digits, `fillCustomer()`
+   hides the section once a number is remembered, `clearCustomer()` brings it back.
+3. The post-order stamp prompt is deleted: the modal, `maybeAskStamp`,
+   `openStampAsk`, `closeStampAsk`, `dismissStampAsk`, `saveStampNumber`, and the
+   `mms_stamp_ask` / `mms_stamp_skip` keys. It was already unhooked (nothing called
+   `maybeAskStamp`), so this removed dead weight rather than a flow.
+**Verified:** Edge over CDP against `http://127.0.0.1:9001`: empty number → toast
+"Sila masukkan no. WhatsApp", filled → passes that gate; `done` opens exactly one
+chat (`wa.me/60123456789?text=…Siap! Boleh ambil ya`), a second `done` opens none,
+pickup `Proses` opens none, COD `Proses` opens one (`…Sedang dalam perjalanan!`).
+Live after push: root and `drinks-order.html` byte-identical at **256,782**, both
+markers `v58`, SW `v58-20261028`, `#inp-phone` present, `stamp-ask` gone.
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `DRINKS-ORDER.md`;
+commit `f20e7d0`.
+**Status:** ✅ confirmed — live and verified at the root URL.
