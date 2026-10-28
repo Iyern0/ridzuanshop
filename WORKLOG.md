@@ -1890,3 +1890,13 @@ commit `f20e7d0`.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js` (V=v62-20261028), `DRINKS-ORDER.md` (alerts bullet, known limits), `tools/rotate-ntfy.mjs`.
 
 **Status:** ⚠️ pushed, live check pending;
+
+### 2026-10-28 22:56 — v62 live check
+
+**What happened:** the deploy was verified against GitHub Pages, not just the local server.
+
+**Found / changed:** live root serves the v62 bytes; the new topic `c758…98cb` is in the page, the retired `kcDy…OBn` is nowhere in it; `ntfyTopic`, `loadNotify`, `admSaveTopic`, `admSeedTopic`, `admRotateTopic` all present; the 🔄 *Tukar topik* button renders. A live headless browser reports `ntfyTopic()` = 32 chars equal to the bootstrap, and zero console errors. `sw.js` on the live origin says `const V = 'v62-20261028'` with `./index.html` in the shell list. The Firestore rule for `settings/{docId}` already allows world read except `admin` and admin-only write, so `settings/notify` needed no rules change.
+
+**Artefacts:** none changed here.
+
+**Status:** ✅ shipped (`9fc5d2a`); owner action outstanding — open Settings once so `settings/notify` is seeded, and re-subscribe the seller phones to the new topic.
