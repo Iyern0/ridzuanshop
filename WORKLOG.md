@@ -1915,3 +1915,18 @@ commit `f20e7d0`.
 **Artefacts:** `.scratch/chagee/01-home.png … 06-web-product.png`, `.scratch/chagee/06-tokens.json`, `.scratch/shot-chagee.mjs`, `.scratch/tokens-chagee.mjs`.
 
 **Status:** ⚠️ design awaiting owner approval; no code written yet.
+
+### 2026-10-28 23:45 — CHAGEEWANNABE built and tested
+
+**What happened:** the experiment was built as one self-contained page, then walked end to end in a headless phone-sized browser.
+
+**Found / changed:**
+- `experiments/CHAGEEWANNABE.html` — 38,126 bytes, one file, no build step, no network calls. Flow: home (mode choice) → store → menu with category rail → product sheet (size, sugar, ice, toppings, qty) → cart (coupon, stepper) → placed (code + timeline) → orders, all persisted in `localStorage`.
+- Two bugs were caught by the walk, not by reading: (1) `var code=...` inside the coupon branch hoisted and shadowed the outer `code()` function, so checkout threw *code is not a function*; renamed to `genCode()`/cpn. (2) The header and tab bar were being rebuilt by string surgery on `outerHTML`; replaced with inner containers rendered directly.
+- Verified numbers: Brown Sugar Boba R = 7.50; +L 1.50, +boba 1.50, +cheese 2.00 → RM 12.50; ×2 = RM 25.00; coupon WANNABE −2.00 → RM 23.00. Order code 6 chars, orders survive reload, cart badge clears, empty-cart and coupon guards toast correctly, sheet closes on ✕ and on scrim, no console errors, no horizontal overflow at 1024px.
+- Palette follows the owner's answer: their layout and pace, our warm charcoal + mint + amber. Copy is Malay with RM prices, drinks mapped onto the shop's own menu.
+- Deliberately absent: Firebase, admin panel, WhatsApp link, notifications, coupons from Firestore. This is a look, not a second app.
+
+**Artefacts:** `experiments/CHAGEEWANNABE.html`; test harness `.scratch/walk-cw.mjs`, `.scratch/edges-cw.mjs`; screenshots `.scratch/chagee/1x-*.png`, `.scratch/chagee/2x-*.png`.
+
+**Status:** ⚠️ experiment shipped to Pages for review; the live page is unchanged.

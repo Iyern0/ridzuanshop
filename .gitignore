@@ -26,6 +26,9 @@
 !/gen_icons.py
 !/tools/
 !/tools/**
+# Design experiments that are meant to be looked at, not shipped.
+!/experiments/
+!/experiments/**
 !/icons/
 !/icons/**
 
