@@ -314,7 +314,7 @@ const JS = `
       for(var gi=0;gi<go.length;gi++)(function(b){b.onclick=function(){mmTab(b.getAttribute('data-mm-tab'))}})(go[gi]);
       var rp=box.querySelectorAll('[data-mm-repeat]');
       for(var ri=0;ri<rp.length;ri++)(function(b){b.onclick=function(){try{repeatLastOrder()}catch(e){}}})(rp[ri]);
-      $('mm-ft').innerHTML='';
+      var ft=$('mm-ft'); ft.innerHTML=''; ft.style.display='none';
       return;
     }
     var list=items();
@@ -369,6 +369,7 @@ const JS = `
     if(s>1&&count()===0){s=1;toast('⚠ Bakul kosong')}
     if(s===2&&needPro()){mmOpen('mm-me');toast('Isi maklumat dulu');return}
     step=s;
+    if($('mm-ft'))$('mm-ft').style.display='';
     var titles={1:'Bakul',2:'Butiran',3:'Bayar'};
     if($('mm-ck-title'))$('mm-ck-title').textContent=titles[s];
     $('mm-step1').style.display=s===1?'':'none';

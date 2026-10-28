@@ -1986,3 +1986,9 @@ commit `f20e7d0`.
 - Live re-verified after v65: root == drinks-order, marker v65, 5 tabs, menu cards render, zero console exceptions.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/build-chagee-order.cjs`, `tools/chagee-order-ui.cjs`.
 **Status:** ✅ confirmed (live console captured clean)
+
+### 2026-10-29 02:00 — v66: no bare footer under an empty basket
+**What happened:** The Bakul sheet cleared the footer's contents but not its orange bar, so an empty cart still showed a blank orange strip. Footer now hides when the basket is empty and comes back on any step change.
+**Found / changed:** release v66 verified (`identical · marker · sw · swListsIndex`), sw `v66-20261028`.
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/chagee-order-ui.cjs`.
+**Status:** ✅ confirmed
