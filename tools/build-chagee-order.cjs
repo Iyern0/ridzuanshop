@@ -4,8 +4,11 @@
 const fs = require('fs');
 const path = require('path');
 const ROOT = path.resolve(__dirname, '..');
-const SRC = path.join(ROOT, 'drinks-order.html');
-const OUT = path.join(ROOT, 'experiments', 'CHAGEE-ORDER.html');
+// The engine lives in tools/engine-source.html once the skinned build *is* the
+// storefront; building from drinks-order.html would re-skin its own output.
+const SRC = path.join(ROOT, 'tools', 'engine-source.html');
+const OUT = path.join(ROOT, 'drinks-order.html');
+const PREVIEW = path.join(ROOT, 'experiments', 'CHAGEE-ORDER.html');
 
 let s = fs.readFileSync(SRC, 'utf8');
 const before = s.length;
@@ -143,6 +146,7 @@ if (!s.includes('</body>')) throw new Error('no body close');
 s = s.replace('</body>', UI.JS + '\n</body>');
 
 fs.writeFileSync(OUT, s);
+fs.writeFileSync(PREVIEW, s);
 console.log(log.join(' · '));
 console.log('bytes ' + before + ' -> ' + s.length);
 console.log('written ' + OUT);

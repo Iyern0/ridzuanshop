@@ -1961,3 +1961,13 @@ commit `f20e7d0`.
 - Verified at 390 (all eight screens) and 1440 (column stays phone-width and centred).
 **Artefacts:** `experiments/CHAGEE-ORDER.html`, `tools/chagee-order-ui.cjs`, `tools/build-chagee-order.cjs`.
 **Status:** ✅ confirmed (screenshots of every screen, profile → checkout → receipt walked end to end)
+
+### 2026-10-29 01:40 — Shipped v63: the five-tab storefront is live
+**What happened:** The rebuilt order flow replaced the storefront. `drinks-order.html` and `index.html` are now the skinned build; the untouched engine is preserved at `tools/engine-source.html` and `tools/build-chagee-order.cjs` regenerates the live file from it.
+**Found / changed:**
+- Overlay order fixed before release: the drink sheet (z600), cart panel and receipt all sat *under* the new tab bar (z700) — modal 1300, receipt 1320, notification card 1340.
+- The engine's cart panel is retired (hidden); every route into it now opens the Bakul sheet, so there is no second checkout surface.
+- Release verify: `identical:true · marker:true · sw:true · swListsIndex:true`, marker v63, sw `v63-20261028`.
+- Backup branch `backup/pre-chagee-ship` sits at the last v62 tree, in case the new flow has to be rolled back mid-shift.
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/engine-source.html`, `tools/build-chagee-order.cjs`.
+**Status:** ✅ confirmed (release verification + full order walk + live smoke)

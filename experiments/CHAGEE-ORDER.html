@@ -897,6 +897,15 @@ body{
  border-radius:999px;border:1px solid var(--line);background:transparent;color:#C9D3E4;cursor:pointer}
 #mm-chips button.on{background:var(--mint);border-color:var(--mint);color:#0A1B33}
 #mm-chips button:last-child{margin-right:18px}
+/* Engine overlays sit at 600, under the tab bar (700): the drink sheet, the
+   cart panel and the receipt would slide *behind* the tabs. Lift them. */
+.modal{z-index:1300}
+/* the engine cart panel is replaced by the Bakul sheet */
+.overlay,.panel{display:none !important}
+.overlay{z-index:1290}
+.done{z-index:1320}
+#notif-ask{z-index:1340}
+
 /* Desktop: this is a phone app. Rather than stretch it, stand it on a plinth. */
 @media(min-width:760px){
   html{background:#071324}
@@ -4036,6 +4045,14 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
   // ---- boot --------------------------------------------------------------
   function boot(){
     drawChips();mmFilter();mmBadges();
+    // every route into the old cart panel now lands in the Bakul sheet
+    try{
+      window.openCart=function(){mmCheckout(1)};
+      var cb=document.getElementById('cartb');
+      if(cb)cb.setAttribute('onclick','event.stopPropagation();mmCheckout(1)');
+      var bar=document.getElementById('cart-bar');
+      if(bar)bar.onclick=function(){mmCheckout(1)};
+    }catch(e){}
     if(needPro()){
       // first-time buyer: the tab bar nudges them to Saya rather than failing
       // at checkout with no explanation
