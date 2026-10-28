@@ -3635,7 +3635,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v64</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v65</div>
 
 <script>
 /* ===== CHAGEE-order UI =====================================================
@@ -3783,9 +3783,15 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
       box.innerHTML='<div class="mm-empty"><div class="ico">🧺</div>'
         +'<div class="t">Bakul kosong</div>'
         +'<div class="h">Pilih minuman dari menu untuk mula pesan.</div>'
-        +'<button class="mm-go" onclick="mmTab('menu')">Lihat menu</button>'
-        +(loadMyOrder()?'<button class="mm-ghost" style="margin-top:10px" onclick="mmTab('menu');setTimeout(function(){try{repeatLastOrder&&repeatLastOrder()}catch(e){}},200)">↻ Ulang pesanan lepas</button>':'')
+        +'<button class="mm-go" data-mm-tab="menu">Lihat menu</button>'
+        +(loadMyOrder()?'<button class="mm-ghost" style="margin-top:10px" data-mm-repeat="1">↻ Ulang pesanan lepas</button>':'')
         +'</div>';
+      // bind through data attributes: inline onclick with quotes inside a
+      // single-quoted JS string is how the page shipped broken once
+      var go=box.querySelectorAll('[data-mm-tab]');
+      for(var gi=0;gi<go.length;gi++)(function(b){b.onclick=function(){mmTab(b.getAttribute('data-mm-tab'))}})(go[gi]);
+      var rp=box.querySelectorAll('[data-mm-repeat]');
+      for(var ri=0;ri<rp.length;ri++)(function(b){b.onclick=function(){try{repeatLastOrder()}catch(e){}}})(rp[ri]);
       $('mm-ft').innerHTML='';
       return;
     }

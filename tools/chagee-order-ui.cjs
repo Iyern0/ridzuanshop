@@ -305,9 +305,15 @@ const JS = `
       box.innerHTML='<div class="mm-empty"><div class="ico">🧺</div>'
         +'<div class="t">Bakul kosong</div>'
         +'<div class="h">Pilih minuman dari menu untuk mula pesan.</div>'
-        +'<button class="mm-go" onclick="mmTab('menu')">Lihat menu</button>'
-        +(loadMyOrder()?'<button class="mm-ghost" style="margin-top:10px" onclick="mmTab('menu');setTimeout(function(){try{repeatLastOrder&&repeatLastOrder()}catch(e){}},200)">↻ Ulang pesanan lepas</button>':'')
+        +'<button class="mm-go" data-mm-tab="menu">Lihat menu</button>'
+        +(loadMyOrder()?'<button class="mm-ghost" style="margin-top:10px" data-mm-repeat="1">↻ Ulang pesanan lepas</button>':'')
         +'</div>';
+      // bind through data attributes: inline onclick with quotes inside a
+      // single-quoted JS string is how the page shipped broken once
+      var go=box.querySelectorAll('[data-mm-tab]');
+      for(var gi=0;gi<go.length;gi++)(function(b){b.onclick=function(){mmTab(b.getAttribute('data-mm-tab'))}})(go[gi]);
+      var rp=box.querySelectorAll('[data-mm-repeat]');
+      for(var ri=0;ri<rp.length;ri++)(function(b){b.onclick=function(){try{repeatLastOrder()}catch(e){}}})(rp[ri]);
       $('mm-ft').innerHTML='';
       return;
     }

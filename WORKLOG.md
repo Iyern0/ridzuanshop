@@ -1977,3 +1977,12 @@ commit `f20e7d0`.
 **Found / changed:** release v64 verified (`identical · marker · sw · swListsIndex` all true), marker v64, sw `v64-20261028`.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/chagee-order-ui.cjs`, `DRINKS-ORDER.md`.
 **Status:** ✅ confirmed
+
+### 2026-10-29 01:52 — v63 shipped a dead tab UI; v65 repairs it
+**What happened:** v63's empty-basket markup embedded `onclick="mmTab('menu')"` inside a single-quoted JS string. The escaping collapsed in the build, the whole inline UI script failed to parse (`SyntaxError: Unexpected identifier 'menu'`), and the page still loaded — because the tab bar is static HTML and the menu is the engine's. The release check only compares bytes, so it passed.
+**Found / changed:**
+- Handlers rebound through data attributes (`data-mm-tab`, `data-mm-repeat`) instead of inline quotes.
+- `tools/build-chagee-order.cjs` now parses every inline `<script>` with `node:vm` and refuses to emit the page if one fails — the gate that would have caught v63 before the push.
+- Live re-verified after v65: root == drinks-order, marker v65, 5 tabs, menu cards render, zero console exceptions.
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/build-chagee-order.cjs`, `tools/chagee-order-ui.cjs`.
+**Status:** ✅ confirmed (live console captured clean)

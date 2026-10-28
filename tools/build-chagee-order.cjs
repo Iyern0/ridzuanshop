@@ -145,6 +145,16 @@ s = s.replace('<div class="page-foot">', SHEETS + TAB + '\n<div class="page-foot
 if (!s.includes('</body>')) throw new Error('no body close');
 s = s.replace('</body>', UI.JS + '\n</body>');
 
+
+// A release that mirrors bytes but ships a broken page is worse than a failed
+// build: v63 shipped with an inline-onclick quoting error that disabled the
+// whole tab UI and still passed "identical:true". Parse every inline script.
+const vm = require('node:vm');
+const scripts = [...s.matchAll(/<script(?![^>]*src)[^>]*>([\s\S]*?)<\/script>/g)];
+scripts.forEach((x, i) => {
+  try { new vm.Script(x[1]); }
+  catch (e) { throw new Error('inline script ' + i + ' does not parse: ' + e.message); }
+});
 fs.writeFileSync(OUT, s);
 fs.writeFileSync(PREVIEW, s);
 console.log(log.join(' · '));
