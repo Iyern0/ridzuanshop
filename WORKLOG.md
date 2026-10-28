@@ -1900,3 +1900,18 @@ commit `f20e7d0`.
 **Artefacts:** none changed here.
 
 **Status:** ✅ shipped (`9fc5d2a`); owner action outstanding — open Settings once so `settings/notify` is seeded, and re-subscribe the seller phones to the new topic.
+
+### 2026-10-28 23:30 — CHAGEE experiment: recon before any code
+
+**What happened:** the owner wants a CHAGEE-inspired redesign as an experiment (`CHAGEEWANNABE`). Before writing anything, their ordering surface was inspected through REA.
+
+**Found / changed:**
+- `h5.chagee.com.my` is a **Flutter web build** — `FLUTTER-VIEW`/`flt-scene` on canvas, one 7.4 MB `main.dart.js`, no CSS and no DOM to copy. So "clone" here can only mean *re-implementing the flow*, not porting markup.
+- Screens captured: home (photo hero + promo sheet + PICKUP/DELIVERY illustration cards + 4-tab nav), store list ("Preparing 0 cups, estimated time 0 minutes", Nearby/Favorites tabs, ORDER NOW per store), store detail (centred logo, closed banner, hours, map).
+- The stores were closed at 23:2x MYT, so the menu/product sheet could not be reached live — the flow past store selection is inferred from the marketing site plus convention.
+- Design tokens from `chagee.com.my`: ink **#011E41**, white/near-white ground, cream cards, bold grotesque headings (h2 22px/700, line-height 1.0), thin nav, red floral mark, full-bleed tea photography.
+- **Brand caution:** their name, mark and cup photography are theirs. The file stays unlinked, unindexed, `experiments/` only, and uses our own drinks — that is what keeps a "wannabe" from being a counterfeit.
+
+**Artefacts:** `.scratch/chagee/01-home.png … 06-web-product.png`, `.scratch/chagee/06-tokens.json`, `.scratch/shot-chagee.mjs`, `.scratch/tokens-chagee.mjs`.
+
+**Status:** ⚠️ design awaiting owner approval; no code written yet.
