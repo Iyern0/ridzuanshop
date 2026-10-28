@@ -1835,3 +1835,21 @@ markers `v58`, SW `v58-20261028`, `#inp-phone` present, `stamp-ask` gone.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `DRINKS-ORDER.md`;
 commit `f20e7d0`.
 **Status:** ✅ confirmed — live and verified at the root URL.
+### 2026-10-28 — v59: ask for notifications with a card, not a browser prompt
+
+**What happened:** v58 (shipped earlier today) added a one-time browser permission request, but it fired on page load, before the customer had seen a single drink, so a reflex tap on *Block* silently disabled notifications for good.
+
+**Found:** the browser asks at most once and then refuses to ask again; once blocked, the switch lives three levels deep in the browser's own settings, so a customer who declined by accident cannot get the feature back from the page. The prompt also never said what the notification was for.
+
+**Changed:**
+- The load-time request is gone. The only `Notification.requestPermission()` left in the file is inside the card's *Benarkan notifikasi* button (`drinks-order.html:2006`).
+- New card, shown once the order is placed — long after the customer has reason to care — with three lines of plain Malay, one allow button, and *Bukan sekarang*: `maybeAskNotif()` / `drawNotifAsk(perm)` / `notifDismiss()` / `notifAllow()`.
+- Three states: unasked (allow + later), blocked (the browser's own path back in four numbered steps, *Dah benarkan — semak semula* re-checks without reloading), granted (it just says it will work and buzzes once).
+- Dismissal is remembered per order code (`mms_notif_ask_<code>`), so a new order is a new, single chance — never a repeated nag.
+- Card sits at `z-index:1280` so it clears the done screen at 1200; the first build had it drawn *behind* the receipt.
+
+**Verified:** headless Edge against a local server — card opens on the done screen, *Bukan sekarang* closes it and it stays closed for that order, the blocked state renders the four steps, the granted state renders its confirmation; card on top of the done screen in the screenshot. Live probe after deploy: `>v59<` in the HTML, card in the DOM, `notifPerm()` still `default` twelve seconds after load (nothing asked without consent), zero console errors.
+
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js` (V=v59-20261028), `DRINKS-ORDER.md` customer-flow step 9.
+
+**Status:** ✅ shipped (941812e) and verified live.
