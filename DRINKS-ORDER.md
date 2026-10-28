@@ -119,6 +119,23 @@ node deploy-rules.js
 
 ---
 
+## The storefront build (v63+)
+`drinks-order.html` and `index.html` are no longer hand-edited: they are the
+skinned build of `tools/engine-source.html` (the untouched order engine).
+
+```
+node tools/build-chagee-order.cjs   # engine -> drinks-order.html (+ experiments preview)
+node tools/release.mjs --tag vNN    # mirror to index.html, bump marker + sw, verify
+```
+
+The customer-facing structure is five tabs — Utama · Menu · Pesanan · Kupon ·
+Saya — with a two-step checkout sheet (Bakul → Butiran → Bayar) and a profile
+stored on the device (`localStorage['mms_cust']`) that is required before the
+first order. The engine's own cart panel is retired; every route into it opens
+the Bakul sheet.
+
+Rollback point for this change: branch `backup/pre-chagee-ship` (last v62 tree).
+
 ## Files
 | File | Purpose |
 |---|---|

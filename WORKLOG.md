@@ -1971,3 +1971,9 @@ commit `f20e7d0`.
 - Backup branch `backup/pre-chagee-ship` sits at the last v62 tree, in case the new flow has to be rolled back mid-shift.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/engine-source.html`, `tools/build-chagee-order.cjs`.
 **Status:** ✅ confirmed (release verification + full order walk + live smoke)
+
+### 2026-10-29 01:44 — v64: empty basket gets the same table manners
+**What happened:** The Bakul sheet fell back to the engine's bare "Bakul kosong" list when the cart was empty; it now renders the same cream-on-navy empty state as the rest, with "Lihat menu" and a repeat-last-order shortcut.
+**Found / changed:** release v64 verified (`identical · marker · sw · swListsIndex` all true), marker v64, sw `v64-20261028`.
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/chagee-order-ui.cjs`, `DRINKS-ORDER.md`.
+**Status:** ✅ confirmed

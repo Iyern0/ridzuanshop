@@ -951,6 +951,12 @@ body.mm-lock #cart-bar,body.mm-lock #notif-ask{display:none !important}
 .mm-note{font-size:11.5px;color:#7C90AD;font-weight:800;line-height:1.6;margin-top:10px}
 /* ---------- reward cabinet / profile cards ---------- */
 .mm-card{background:var(--cream);border-radius:20px;padding:16px;color:#13294B;box-shadow:0 12px 26px rgba(3,10,22,.42);margin-bottom:12px}
+.mm-empty{text-align:center;padding:40px 10px}
+.mm-empty .ico{font-size:40px;line-height:1}
+.mm-empty .t{font-family:var(--fs);font-size:22px;color:var(--mint);margin-top:8px}
+.mm-empty .h{font-size:12.5px;font-weight:700;color:#9FB0C9;margin-top:6px}
+.mm-go{margin-top:18px;width:100%;padding:13px;border:0;border-radius:14px;background:var(--gold);color:#20160A;font-family:var(--fb);font-weight:900;font-size:13px;cursor:pointer}
+.mm-ghost{width:100%;padding:12px;border:1px solid var(--line2);border-radius:14px;background:rgba(255,255,255,.04);color:var(--ink);font-family:var(--fb);font-weight:800;font-size:12.5px;cursor:pointer}
 .mm-card .cap{font-size:10px;font-weight:900;letter-spacing:1.6px;color:#A9772F}
 .mm-card .code{font-family:var(--fs);font-size:27px;letter-spacing:2px;margin-top:6px}
 .mm-card .mm-lbl{color:#5A6B85}
@@ -3629,7 +3635,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v63</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v64</div>
 
 <script>
 /* ===== CHAGEE-order UI =====================================================
@@ -3773,6 +3779,16 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
   }
   function mmRenderBasket(){
     var box=$('mm-step1');if(!box)return;
+    if(count()===0){
+      box.innerHTML='<div class="mm-empty"><div class="ico">🧺</div>'
+        +'<div class="t">Bakul kosong</div>'
+        +'<div class="h">Pilih minuman dari menu untuk mula pesan.</div>'
+        +'<button class="mm-go" onclick="mmTab('menu')">Lihat menu</button>'
+        +(loadMyOrder()?'<button class="mm-ghost" style="margin-top:10px" onclick="mmTab('menu');setTimeout(function(){try{repeatLastOrder&&repeatLastOrder()}catch(e){}},200)">↻ Ulang pesanan lepas</button>':'')
+        +'</div>';
+      $('mm-ft').innerHTML='';
+      return;
+    }
     var list=items();
     if(!list.length){
       box.innerHTML='<div class="mm-empty"><span class="big">🧺</span>Bakul kosong.<br>Pilih minuman dari menu.'
