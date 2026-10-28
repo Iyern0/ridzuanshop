@@ -1853,3 +1853,21 @@ commit `f20e7d0`.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js` (V=v59-20261028), `DRINKS-ORDER.md` customer-flow step 9.
 
 **Status:** ✅ shipped (941812e) and verified live.
+### 2026-10-28 — v61: admin logins are remembered per trusted device, and the owner can see and prune them
+**What happened:** the panel kept asking for the admin password because the session lived only as long as the browser kept its storage, and there was no way to see which devices were signed in, let alone remove one.
+
+**Found:** Firebase Auth already persists a session (`firebase.auth()` defaults to local persistence), but the app never asked for `setPersistence(LOCAL)` explicitly, and nothing tied a session to a device the owner could identify. There was no registry at all, so "who has access" had no answer inside the panel.
+
+**Changed:**
+- `verifyAdminLogin()` sets `firebase.auth.Auth.Persistence.LOCAL` before signing in, then registers the device; the email field is prefilled from the remembered session.
+- New registry `settings/devices` (the only settings doc whose write rule is already admin-only): `{devices:[{id,label,at,last}], revoked:[ids]}`. An id grants nothing by itself — the Firebase session is still the gate.
+- Each browser gets `mms_dev` (random, localStorage) and a label like "Android · Chrome" from the UA.
+- `enterAdmin()` starts a live snapshot on the registry (`admDevWatch`). A tombstoned device, or one missing from the list, calls `admDeviceRevoked()`: sign out, drop the dashboard, tell the owner to log in again.
+- Settings → **📱 Peranti Dipercayai** lists every device with last-seen, marks *peranti ini*, and each has **Buang**. Removing a device appends its id to `revoked` (last 40), so a device that was closed at the time cannot quietly re-register on its next open.
+- A **password login** is the only thing that lifts a tombstone (`admRegisterDevice(true)`), which is exactly the "trusted device" semantics asked for: removal sticks until the owner re-vouches for that device.
+
+**Verified:** headless Edge on a local server, with the network layer stubbed — a tombstoned snapshot signs out and toasts; a snapshot containing the device leaves it alone; `admRemoveDevice` writes `devices` minus the id and `revoked` plus it; `admRegisterDevice(true)` lifts only its own tombstone; `admRegisterDevice(false)` keeps it. Settings card renders three devices with the current one highlighted. Live: marker `v61`, all five functions present, `devId()` stable across a reload, label "Windows · Edge", zero console errors. The registry write itself needs the owner's login, which this session does not have.
+
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js` (V=v61-20261028), `DRINKS-ORDER.md` (security table, admin table, known limits).
+
+**Status:** ✅ shipped (4354ebd) · ⚠️ registry write untested against the live project until the owner opens Settings once.
