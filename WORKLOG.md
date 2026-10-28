@@ -1930,3 +1930,10 @@ commit `f20e7d0`.
 **Artefacts:** `experiments/CHAGEEWANNABE.html`; test harness `.scratch/walk-cw.mjs`, `.scratch/edges-cw.mjs`; screenshots `.scratch/chagee/1x-*.png`, `.scratch/chagee/2x-*.png`.
 
 **Status:** ⚠️ experiment shipped to Pages for review; the live page is unchanged.
+
+### 2026-10-29 00:15 — CHAGEE-style study page built from live evidence
+**What happened:** Rebuilt the experiment as `experiments/CHAGEE-UI.html` from captures of `h5.chagee.com.my`, instead of guessing at the look.
+**Found / changed:** Palette and structure measured at 390x844: photo hero → white sheet with 20px top corners → two 138px illustrated service discs (sage `#7C9463` labels) → navy `#1E4477` awards card with gold outline CTA → copper `#C08A5E` four-icon row → 4-tab bar with red tick on the active tab. Vocabulary pulled from their own i18n payload (`POST api-sea.chagee.com/api/multi-lang/server/getDataAndVersion`, body `{"serviceCode":"chagee-global-app"}`, 850 English keys) — "PICKUP", "DELIVERY", "Order Now", "Best Seller". Built: Home, Menu with Best Seller rail + category chips, product sheet with sugar/temperature chips and quantity, cart, and the same WhatsApp handoff (`wa.me/60…`). 17 items, 4 categories.
+**Deliberately not copied:** their login wall — Menu and Orders are gated behind an account, which would kill walk-up orders here.
+**Artefacts:** `experiments/CHAGEE-UI.html`; reference shots `.scratch/chagee-ref/*.png`, `.scratch/study/*.png`; walker `.scratch/chagee-src/walk-study.cjs`, `shot-study.cjs`.
+**Status:** ⚠️ provisional — design study, not linked from the live site; live stays v62.
