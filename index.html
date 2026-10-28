@@ -557,6 +557,8 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
 
 .filelbl{display:block;text-align:center;background:rgba(255,255,255,0.06);border:1px dashed rgba(255,255,255,0.22);color:#D8D2C8;font-weight:800;font-size:14px;padding:13px;border-radius:10px;cursor:pointer;margin-bottom:10px}
 .filelbl:hover{background:rgba(255,255,255,0.1);border-color:rgba(0,212,170,0.45)}
+/* Above the done screen (1200): the card is shown while it is still on screen. */
+#notif-ask{z-index:1280}
 #claim-view{position:fixed;inset:0;z-index:1300;display:none;align-items:center;justify-content:center;padding:20px}
 #claim-view .cv-bg{position:absolute;inset:0;background:rgba(0,0,0,0.85)}
 #claim-view .cv-box{position:relative;max-width:520px;width:100%;max-height:90vh;overflow-y:auto;background:#171412;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:16px}
@@ -819,6 +821,7 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
 <div id="adm-detail"></div>
 <div id="adm-confirm"></div>
 <div class="toast" id="toast"></div>
+<div class="modal" id="notif-ask"><div class="bg" onclick="notifDismiss()"></div><div class="box" id="notif-box" style="max-width:400px"></div></div>
 <div class="done" id="done"></div>
 <div class="modal" id="admin-login" style="z-index:1100"><div class="bg" onclick="closeAdminLogin()"></div><div class="box" style="max-width:340px;text-align:center"><div style="font-family:var(--fd);font-weight:800;font-size:24px;color:#00D4AA;margin-bottom:4px">🔒 Admin Login</div><div style="font-size:13px;color:#9A9385;font-weight:700;margin-bottom:16px">Akaun admin sah sahaja</div><input class="inp" id="admin-email" type="email" autocomplete="username" inputmode="email" placeholder="admin@email.com" style="margin-bottom:10px;text-align:center"><input class="inp" id="admin-pw" type="password" autocomplete="current-password" placeholder="Password" style="margin-bottom:14px;text-align:center" onkeydown="if(event.key==='Enter')verifyAdminLogin()"><div style="display:flex;gap:8px"><button onclick="verifyAdminLogin()" id="admin-login-btn" style="flex:1;background:#00D4AA;color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:15px;padding:12px;border-radius:10px;cursor:pointer">Masuk</button><button onclick="closeAdminLogin()" style="background:rgba(255,255,255,0.08);color:#9A9385;border:none;font-size:14px;padding:12px;border-radius:10px;cursor:pointer">Batal</button></div></div></div>
 <div id="admin-panel"><div class="adm-side"><div class="brand"><span>🌙 MMS ADMIN</span><button class="x" onclick="admCloseSide()" title="Tutup menu">✕</button></div><nav id="adm-nav"><div class="grp">Operasi Harian</div><a data-tab="orders" class="active"><span class="ic">📥</span>Pesanan</a><a data-tab="customers"><span class="ic">👥</span>Pelanggan</a><a data-tab="receipts"><span class="ic">📎</span>Resit</a><a data-tab="coupons"><span class="ic">&#127915;</span>Kupon</a><a data-tab="stats"><span class="ic">📊</span>Analitis</a><div class="grp">Tetanapan</div><button class="toggle" onclick="admSetupToggle()"><span>⚙️ Menu &amp; Tetapan</span><span class="car">›</span></button><div class="subnav" id="adm-setup"><a data-tab="menu"><span class="ic">🧋</span>Minuman</a><a data-tab="addons"><span class="ic">🍬</span>Pemanis</a><a data-tab="schedule"><span class="ic">⏰</span>Masa</a><a data-tab="delivery"><span class="ic">🚗</span>Penghantaran</a><a data-tab="settings"><span class="ic">⚙️</span>Settings</a></div></nav><div class="exit"><button onclick="lockAdmin('🔒 Admin dikunci')">🔒 Kunci</button><button onclick="exitAdmin()">✕ Customer View</button></div></div><div class="adm-main"><div class="hd"><button class="adm-burger" onclick="admToggleSide()" title="Menu">☰</button><h2 id="adm-hd" onclick="admToggleBar()" title="Tunjuk atau sembunyi tapisan">📥 Pesanan</h2></div><div class="pg" id="adm-pg"></div></div><div class="adm-backdrop" id="adm-backdrop" onclick="admToggleSide(0)"></div></div>
@@ -1938,14 +1941,83 @@ function loadMyOrder(){try{const j=JSON.parse(localStorage.getItem('mms_last'));
 let _lastSt='';
 function notifySupported(){return typeof window.Notification!=='undefined'}
 
-// Asked once per device. If the browser ignores or refuses, nothing breaks.
-function autoAskNotify(){
-  if(!notifySupported())return;
-  let asked=false;
-  try{asked=localStorage.getItem('mms_notif_asked')==='1'}catch(e){}
-  if(asked||Notification.permission!=='default')return;
-  try{localStorage.setItem('mms_notif_asked','1')}catch(e){}
-  try{Notification.requestPermission().then(function(){}).catch(function(){})}catch(e){}
+// ---------------------------------------------------------------------------
+// The notification card.
+//
+// It used to be a bare browser prompt at page load: nothing explained it, and a
+// customer who tapped "Block" could never get it back, because a browser asks
+// once and then buries the switch in its own settings. So the ask moved to the
+// done screen - the moment the reason for it is on the screen - and it explains
+// itself, including the browser's path when the answer was already "no".
+// ---------------------------------------------------------------------------
+const NOTIF_SKIP='mms_notif_skip';       // the order code whose card was closed
+function notifPerm(){
+  if(!notifySupported())return 'unsupported';
+  try{return Notification.permission||'default'}catch(e){return 'unsupported'}
+}
+function maybeAskNotif(){
+  const el=document.getElementById('done');
+  const o=el&&el._msg;
+  if(!o||o.warn||!o.code)return;
+  if(notifPerm()!=='default'&&notifPerm()!=='denied')return;
+  try{if(localStorage.getItem(NOTIF_SKIP)===String(o.code))return}catch(e){}
+  openNotifAsk();
+}
+function openNotifAsk(){
+  drawNotifAsk();
+  const m=document.getElementById('notif-ask');
+  if(m)m.style.display='flex';
+}
+function closeNotifAsk(){const m=document.getElementById('notif-ask');if(m)m.style.display='none'}
+function drawNotifAsk(state){
+  const box=document.getElementById('notif-box');if(!box)return;
+  const st=state||notifPerm();
+  const btn='border:none;font-family:var(--fb);font-weight:800;font-size:14px;padding:12px;border-radius:11px;cursor:pointer;width:100%';
+  if(st==='granted'){
+    box.innerHTML='<div style="text-align:center;padding:6px 0 2px">'
+      +'<div style="font-size:34px;line-height:1">🔔</div>'
+      +'<div style="font-family:var(--fd);font-weight:800;font-size:20px;color:#00D4AA;margin:8px 0 6px">Notifikasi dibenarkan</div>'
+      +'<div style="font-size:13.5px;color:#9A9385;font-weight:600;line-height:1.6">Kami akan berbunyi dan bergetar di telefon anda bila pesanan sudah siap.</div>'
+      +'</div><button onclick="closeNotifAsk()" style="'+btn+';background:#00D4AA;color:#000;margin-top:16px">Selesai</button>';
+    return;
+  }
+  if(st==='denied'){
+    box.innerHTML='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">'
+      +'<div style="font-family:var(--fd);font-weight:800;font-size:20px;color:#FFB347;line-height:1.3">🔕 Notifikasi disekat</div>'
+      +'<button onclick="closeNotifAsk()" style="background:rgba(255,255,255,0.06);border:none;color:#F0F0F0;font-size:15px;width:32px;height:32px;border-radius:50%;cursor:pointer;flex-shrink:0">✕</button></div>'
+      +'<div style="font-size:13.5px;color:#9A9385;font-weight:600;line-height:1.65;margin-top:8px">Pelayar anda sudah menghalang notifikasi untuk laman ini. Ia bertanya sekali sahaja, jadi kami tidak boleh membukanya semula untuk anda — hanya anda boleh, dalam tetapan pelayar.</div>'
+      +'<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:11px;padding:12px 14px;margin-top:12px;font-size:13px;color:#F0F0F0;font-weight:700;line-height:1.7">'
+      +'1. Tekan ikon <b>🔒</b> atau <b>⚙</b> di bar alamat<br>2. Pilih <b>Notifikasi</b> (atau <i>Permissions</i>)<br>3. Tukar kepada <b>Benarkan</b><br>4. Muat semula halaman ini</div>'
+      +'<button onclick="notifRecheck()" style="'+btn+';background:#00D4AA;color:#000;margin-top:14px">Dah benarkan — semak semula</button>'
+      +'<button onclick="notifDismiss()" style="'+btn+';background:transparent;border:1px solid rgba(255,255,255,0.12);color:#9A9385;margin-top:8px">Tutup</button>';
+    return;
+  }
+  box.innerHTML='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">'
+    +'<div style="font-family:var(--fd);font-weight:800;font-size:20px;color:#00D4AA;line-height:1.3">🔔 Bila pesanan siap</div>'
+    +'<button onclick="notifDismiss()" style="background:rgba(255,255,255,0.06);border:none;color:#F0F0F0;font-size:15px;width:32px;height:32px;border-radius:50%;cursor:pointer;flex-shrink:0">✕</button></div>'
+    +'<div style="font-size:13.5px;color:#9A9385;font-weight:600;line-height:1.65;margin-top:8px">Kami boleh beritahu telefon anda bila pesanan sudah siap — walaupun tab ini di latar belakang, dan walaupun skrin sedang gelap.</div>'
+    +'<div style="background:rgba(0,212,170,0.07);border:1px solid rgba(0,212,170,0.18);border-radius:11px;padding:12px 14px;margin-top:12px;font-size:13px;color:#F0F0F0;font-weight:700;line-height:1.6">Tiada promosi. Hanya pesanan anda: masa siap, dan bila penghantar dalam perjalanan.</div>'
+    +'<button onclick="notifAllow()" style="'+btn+';background:#00D4AA;color:#000;margin-top:14px">Benarkan notifikasi</button>'
+    +'<button onclick="notifDismiss()" style="'+btn+';background:transparent;border:1px solid rgba(255,255,255,0.12);color:#9A9385;margin-top:8px">Bukan sekarang</button>';
+}
+function notifAllow(){
+  if(!notifySupported()){closeNotifAsk();return}
+  try{
+    Notification.requestPermission().then(function(p){drawNotifAsk(p)}).catch(function(){drawNotifAsk()});
+  }catch(e){drawNotifAsk()}
+}
+function notifRecheck(){
+  const st=notifPerm();
+  if(st==='granted'){drawNotifAsk('granted');toast('✅ Notifikasi dibenarkan')}
+  else if(st==='denied'){toast('Masih disekat - ikut langkah di atas');drawNotifAsk('denied')}
+  else{drawNotifAsk();toast('Tekan "Benarkan notifikasi"')}
+}
+function notifDismiss(){
+  const el=document.getElementById('done');
+  const o=el&&el._msg;
+  // Per order, not forever: a second order is a second chance at the answer.
+  try{if(o&&o.code)localStorage.setItem(NOTIF_SKIP,String(o.code))}catch(e){}
+  closeNotifAsk();
 }
 function fireNotify(title,body){
   try{
@@ -2030,7 +2102,7 @@ function showDone(o){
     +(o.warn?'<button class="alt" onclick="reopenWa()">Hantar melalui WhatsApp</button>':'');
   el.classList.add('show');
   if(!o.warn&&o.code)trackOrder(o.code);
-  autoAskNotify();
+  maybeAskNotif();
   paintClaim();
   paintSteps(o.warn?'':(o._st||'baru'));
 }
@@ -3113,6 +3185,6 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v58</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v59</div>
 </body>
 </html>
