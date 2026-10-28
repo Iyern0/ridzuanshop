@@ -1937,3 +1937,16 @@ commit `f20e7d0`.
 **Deliberately not copied:** their login wall — Menu and Orders are gated behind an account, which would kill walk-up orders here.
 **Artefacts:** `experiments/CHAGEE-UI.html`; reference shots `.scratch/chagee-ref/*.png`, `.scratch/study/*.png`; walker `.scratch/chagee-src/walk-study.cjs`, `shot-study.cjs`.
 **Status:** ⚠️ provisional — design study, not linked from the live site; live stays v62.
+
+### 2026-10-29 00:55 — CHAGEE skin ported onto the working storefront
+**What happened:** Owner asked for the live storefront's behaviour inside the CHAGEE-style page, 1:1. Built `experiments/CHAGEE-ORDER.html` as a generated copy of `drinks-order.html` (v62) with a skin layer, not a rewrite.
+**Found / changed:**
+- The port is provable, not asserted: both inline script blocks are byte-identical to the working file once the colour literals are mapped back (`prove-port` check) — zero logic changed. 124 ids, 0 missing.
+- `tools/build-chagee-order.cjs` regenerates the file from `drinks-order.html`; rerun reproduces the same sha256 (`5b5802df…`).
+- Palette measured off the live app: navy `#0A1B33` ground, gold `#C9A96A` ink, cream `#FDF7EA` cards, orange `#F2A03D` CTA, oxblood `#E14B3D`, Playfair Display for the brand voice.
+- 460 colour literals remapped (128 mint, 93 muted, 51 ink, plus 12 warm neutrals from the charcoal theme that would have shown as brown patches on navy).
+- Added the bottom tab bar (Utama / Menu / Pesanan / Kupon) wired to existing functions; hidden ≥900px.
+- Fixed during the pass: dialogs and the cart sheet sit above the tab bar; toasts moved to the top; Review Order and Add-to-Cart are orange; only the WhatsApp send stays green.
+- Desktop verified at 1280 (3-column grid, no tab bar); phone verified at 390 with add-to-cart → sheet → cart.
+**Artefacts:** `experiments/CHAGEE-ORDER.html`, `tools/build-chagee-order.cjs`.
+**Status:** ✅ confirmed (screenshots, smoke test, hash-reproducible build)
