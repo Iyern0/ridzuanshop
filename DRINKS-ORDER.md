@@ -45,7 +45,8 @@ in the Settings tab, and the gate itself was "tap the title 5× in one second".
 
 | Control | How |
 |---|---|
-| Admin access | Firebase Auth email/password. Session persists via `onAuthStateChanged`. |
+| Admin access | Firebase Auth email/password, asked **once per device**: the session is stored locally (`setPersistence(LOCAL)`) and survives reload, closing the tab and a phone restart. |
+| Trusted devices | Each browser gets a random id (`mms_dev`), registered in `settings/devices` the first time it logs in. Settings → 📱 Peranti Dipercayai lists them, and removing one signs that device out live, over the registry snapshot, without waiting for its next reload. The registry holds labels and times only — an id grants nothing by itself; the Firebase session does. |
 | Order privacy | Only signed-in admin can read `orders`. |
 | Order integrity | `validOrder()` in `firestore.rules` — fixed field set, length caps, `status` must be `baru`, `createdAt` must equal server time (no backdating). |
 | Menu integrity | Public read, admin-only write. Nobody can silently alter prices. |
@@ -184,8 +185,10 @@ After selecting block → room number input appears → "Intan 3-2-1" format
 | Entry point | Tap 🌙 MINUM MALAM SISWA title 5× within 1 second → email + password prompt. |
 |---|---|
 | Admin account | `zjasneh5@gmail.com` |
-| Session | Remembered — the panel reopens on reload without re-entering the password |
-| Sign out | Tap the title 5× again while inside the panel |
+| Session | Remembered per **device**, not per visit — the password is asked once, then the panel opens on a tap. A device is trusted once it appears in Settings → 📱 Peranti Dipercayai. |
+| Sign out | Tap the title 5× again while inside the panel (locks the dashboard; the device stays trusted) |
+| Removing access | Settings → 📱 Peranti Dipercayai → **Buang** on that device. It is signed out immediately and needs the password again to come back. |
+| New device | Logs in with email + password once, then registers itself. Private windows and in-app browsers (the WhatsApp preview) start with empty storage, so they ask every time — that is the browser's isolation, not the panel's rule. |
 | Password change | Firebase Console → Authentication → Users (there is no in-app change) |
 
 ### Sidebar Tabs
@@ -196,7 +199,7 @@ After selecting block → room number input appears → "Intan 3-2-1" format
 | **Pemanis** | Add-ons grouped (Pemanis/Level/Extra) |
 | **Masa** | Time slots |
 | **Penghantaran** | Delivery methods + blocks |
-| **Settings** | Signed-in account, sign out, reset all |
+| **Settings** | Signed-in account, trusted devices (see / remove), post-order receipt prompt, notification topic, hours, "Siapa Kami", export, reset |
 
 ### Pesanan Tab
 - **History view:** Hari Ini / Minggu Ini / Bulan Ini — order count + RM revenue
@@ -277,6 +280,8 @@ GitHub Pages auto-deploys ~1 min after push.
   comes back it needs to be a real toggle, not a rewrite.
 - Old order archival — `orders` grows forever; consider deleting settled orders monthly
 ## Known limits after the 2026-10-24 pre-ship audit (live v52)
+
+- **Trusted devices are a session, not a certificate.** The list makes access visible and revocable, but the real gate stays Firebase Auth plus the `isAdmin()` email check in the rules. A removed device is signed out; anyone holding the password can add a new one. Device identity lives in the browser's own storage, so clearing site data makes a device look new.
 
 Fixed that night (see `WORKLOG.md`, commits `a931ab1` + `4f85d60`): the false success receipt
 on a failed write, the incomplete WhatsApp fallback, receipt arithmetic, the three

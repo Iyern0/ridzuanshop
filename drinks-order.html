@@ -1086,6 +1086,7 @@ function enterAdmin(){
   document.getElementById('admin-panel').classList.add('show');
   switchAdmin('orders');paintAdminBtn();bumpIdle();
   admFulfilPending();
+  admDevWatch();admRegisterDevice();
   toast('🔧 Admin ON');
 }
 // Mobile layout. The sidebar becomes a drawer and the filter bar folds away, so
@@ -1111,7 +1112,13 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')admCloseSide
 function closeAdminLogin(){document.getElementById('admin-login').style.display='none'}
 function showAdminLogin(){closeCart();closeCust();closeConfirm();document.getElementById('admin-login').style.display='flex';const e=document.getElementById('admin-email');if(e){e.value='';setTimeout(()=>e.focus(),60)}}
 const AUTH_ERR={'auth/invalid-email':'Email tidak sah','auth/missing-password':'Masukkan password','auth/wrong-password':'Email atau password salah','auth/invalid-credential':'Email atau password salah','auth/invalid-login-credentials':'Email atau password salah','auth/user-not-found':'Email atau password salah','auth/user-disabled':'Akaun dinyahaktifkan','auth/too-many-requests':'Terlalu banyak cubaan. Tunggu sebentar.','auth/operation-not-allowed':'Email/Password belum diaktifkan dalam Firebase Console','auth/network-request-failed':'Tiada internet. Periksa sambungan.','auth/user-token-expired':'Sesi tamat. Cuba lagi.','auth/internal-error':'Ralat pelayan. Cuba lagi.'};
-async function verifyAdminLogin(){const em=document.getElementById('admin-email').value.trim(),pw=document.getElementById('admin-pw').value;const btn=document.getElementById('admin-login-btn');if(!em||!pw){toast('⚠ Email dan password diperlukan');return}btn.disabled=true;btn.textContent='Memeriksa…';const a=getAuth();if(!a){btn.disabled=false;btn.textContent='Masuk';toast('❌ Auth tidak tersedia');return}try{await a.signInWithEmailAndPassword(em,pw);await a.currentUser.getIdToken(true);enterAdmin()}catch(err){toast('❌ '+(AUTH_ERR[err.code]||'Gagal masuk'));document.getElementById('admin-pw').value='';document.getElementById('admin-pw').focus()}finally{btn.disabled=false;btn.textContent='Masuk'}}
+async function verifyAdminLogin(){const em=document.getElementById('admin-email').value.trim(),pw=document.getElementById('admin-pw').value;const btn=document.getElementById('admin-login-btn');if(!em||!pw){toast('⚠ Email dan password diperlukan');return}btn.disabled=true;btn.textContent='Memeriksa…';const a=getAuth();if(!a){btn.disabled=false;btn.textContent='Masuk';toast('❌ Auth tidak tersedia');return}try{
+  // LOCAL persistence: the password is asked once per device, not once per visit.
+  try{if(a.setPersistence)await a.setPersistence(firebase.auth.Auth.Persistence.LOCAL)}catch(_pe){}
+  await a.signInWithEmailAndPassword(em,pw);await a.currentUser.getIdToken(true);
+  await admRegisterDevice(true);
+  enterAdmin()
+}catch(err){toast('❌ '+(AUTH_ERR[err.code]||'Gagal masuk'));document.getElementById('admin-pw').value='';document.getElementById('admin-pw').focus()}finally{btn.disabled=false;btn.textContent='Masuk'}}
 function findAdd(id){return ADDS.find(a=>a.id===id)}
 // A QR order that has not attached a receipt yet is the one job on the done
 // screen. Used by the receipt panel and by the stamp prompt, so they cannot
@@ -2877,7 +2884,7 @@ function admSettings(pg){const u=(getAuth()&&getAuth().currentUser)?getAuth().cu
 +'<button onclick="admShareTopic()" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);color:#F0F0F0;font-family:var(--fd);font-weight:800;font-size:13px;padding:10px 14px;border-radius:10px;cursor:pointer">↗ Kongsi</button>'
 +'</div>'
 +'<div style="font-size:12px;color:#9A9385;margin-top:10px;line-height:1.6">Telefon kedua: pasang app <b>ntfy</b> → <b>+</b> → <i>Subscribe to topic</i> → tampal topik di atas. Benarkan notifikasi dan buang sekatan bateri, kemudian tekan <b>Hantar ujian</b>.</div></div>'
-+'<div class="a-form"><div class="a-sec" style="border:none;padding-top:0">🔐 Akaun Admin</div><div style="font-size:14px;margin-bottom:8px;color:#9A9385">Log masuk sebagai</div><div style="font-size:14px;font-weight:800;color:#00D4AA;margin-bottom:4px">'+esc(u?u.email:'—')+'</div><div style="font-size:12px;color:#9A9385;margin-bottom:12px">Tukar password melalui Firebase Console.</div><button onclick="admSignOutNow()" style="width:100%;background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.25);color:#FF6B6B;font-weight:800;font-size:14px;padding:11px;border-radius:10px;cursor:pointer">🔒 Log Keluar</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">☁️ Storage</div><div style="font-size:14px;margin-bottom:12px;color:#00D4AA;font-weight:700">Firestore — real-time sync, rules locked</div></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">🕐 Waktu Buka</div><div class="row"><input class="inp" id="st-open" placeholder="10:30PM" style="flex:1"><input class="inp" id="st-close" placeholder="2:00AM" style="flex:1"></div><div style="font-size:12px;color:#9A9385;margin-bottom:12px">Format: 10:30PM / 2:00AM</div><button onclick="admSaveHours()" style="background:#00D4AA;color:#000;border:none;font-weight:800;font-size:14px;padding:10px 18px;border-radius:10px;cursor:pointer">Simpan Waktu</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">🙋 Siapa Kami</div><div class="row"><input class="inp" id="st-wn" placeholder="Nama (cth: Zul)" style="flex:1"></div><div class="row"><input class="inp" id="st-wb" placeholder="Blok (cth: Blok Zamrud, Sem 5)" style="flex:1"></div><div class="row"><input class="inp" id="st-wnote" placeholder="Balasan biasa (cth: reply ~2 min)" style="flex:1"></div><div class="row"><input class="inp" id="st-wimg" placeholder="URL gambar (pilihan)" style="flex:1"></div><button onclick="admSaveWho()" style="background:#00D4AA;color:#000;border:none;font-weight:800;font-size:14px;padding:10px 18px;border-radius:10px;cursor:pointer">Simpan</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">💾 Data</div><div style="font-size:14px;color:#9A9385;margin-bottom:12px">Muat turun semua pesanan sebagai fail (backup).</div><button onclick="admExport()" style="background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.3);color:#00D4AA;font-weight:800;font-size:14px;padding:10px 18px;border-radius:10px;cursor:pointer">⬇ Export Pesanan (JSON)</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">🔄 Reset</div><div style="font-size:14px;color:#9A9385;margin-bottom:12px">Enable all items + time slots + blocks</div><button onclick="exitAdmin();enAll()" style="background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.2);color:#FF6B6B;font-weight:800;font-size:14px;padding:10px 18px;border-radius:10px;cursor:pointer">🔄 Reset Semua</button></div></div>';admFillSettings()}
++'<div class="a-form"><div class="a-sec" style="border:none;padding-top:0">🔐 Akaun Admin</div><div style="font-size:14px;margin-bottom:8px;color:#9A9385">Log masuk sebagai</div><div style="font-size:14px;font-weight:800;color:#00D4AA;margin-bottom:4px">'+esc(u?u.email:'—')+'</div><div style="font-size:12px;color:#9A9385;margin-bottom:12px">Tukar password melalui Firebase Console.</div><button onclick="admSignOutNow()" style="width:100%;background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.25);color:#FF6B6B;font-weight:800;font-size:14px;padding:11px;border-radius:10px;cursor:pointer">🔒 Log Keluar</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">📱 Peranti Dipercayai</div><div id="adm-devices" style="font-size:13px;color:#9A9385;line-height:1.5">Memuatkan…</div></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">☁️ Storage</div><div style="font-size:14px;margin-bottom:12px;color:#00D4AA;font-weight:700">Firestore — real-time sync, rules locked</div></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">🕐 Waktu Buka</div><div class="row"><input class="inp" id="st-open" placeholder="10:30PM" style="flex:1"><input class="inp" id="st-close" placeholder="2:00AM" style="flex:1"></div><div style="font-size:12px;color:#9A9385;margin-bottom:12px">Format: 10:30PM / 2:00AM</div><button onclick="admSaveHours()" style="background:#00D4AA;color:#000;border:none;font-weight:800;font-size:14px;padding:10px 18px;border-radius:10px;cursor:pointer">Simpan Waktu</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">🙋 Siapa Kami</div><div class="row"><input class="inp" id="st-wn" placeholder="Nama (cth: Zul)" style="flex:1"></div><div class="row"><input class="inp" id="st-wb" placeholder="Blok (cth: Blok Zamrud, Sem 5)" style="flex:1"></div><div class="row"><input class="inp" id="st-wnote" placeholder="Balasan biasa (cth: reply ~2 min)" style="flex:1"></div><div class="row"><input class="inp" id="st-wimg" placeholder="URL gambar (pilihan)" style="flex:1"></div><button onclick="admSaveWho()" style="background:#00D4AA;color:#000;border:none;font-weight:800;font-size:14px;padding:10px 18px;border-radius:10px;cursor:pointer">Simpan</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">💾 Data</div><div style="font-size:14px;color:#9A9385;margin-bottom:12px">Muat turun semua pesanan sebagai fail (backup).</div><button onclick="admExport()" style="background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.3);color:#00D4AA;font-weight:800;font-size:14px;padding:10px 18px;border-radius:10px;cursor:pointer">⬇ Export Pesanan (JSON)</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">🔄 Reset</div><div style="font-size:14px;color:#9A9385;margin-bottom:12px">Enable all items + time slots + blocks</div><button onclick="exitAdmin();enAll()" style="background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.2);color:#FF6B6B;font-weight:800;font-size:14px;padding:10px 18px;border-radius:10px;cursor:pointer">🔄 Reset Semua</button></div></div>';admFillSettings()}
 function admCustomers(pg){
   const db=getDb();
   if(!db){pg.innerHTML='<div style="padding:20px;color:#FFB347;font-weight:700">Firebase tidak tersedia.</div>';return}
@@ -3125,10 +3132,155 @@ function admTestPush(btn){
     .catch(function(e){toast('❌ Gagal hantar ujian: '+e.message)})
     .then(function(){if(btn){btn.disabled=false;btn.textContent=btn.dataset.label||'🔔 Hantar ujian'}})
 }
-function admFillSettings(){const so=document.getElementById('st-open');if(!so)return;so.value=fmtMin(HOURS[0]);document.getElementById('st-close').value=fmtMin(HOURS[1]);const w=WHO||{};document.getElementById('st-wn').value=w.n||'';document.getElementById('st-wb').value=w.b||'';document.getElementById('st-wnote').value=w.note||'';document.getElementById('st-wimg').value=w.img||''}
+// ---- Trusted devices -------------------------------------------------------
+// The registry lives in settings/devices because that is the one settings doc
+// whose write rule is already admin-only (firestore.rules: allow write if
+// isAdmin). It is also publicly readable, so it holds labels and times, never
+// a password or a token: an id here grants nothing on its own - the Firebase
+// session does, and that is what removing an id takes away.
+const DEV_DOC = 'settings/devices';
+let _devId = '', _devUnsub = null, _devList = [], _devRegistered = false, _devLastUpd = 0, _devBusy = false;
+
+function devId() {
+  if (_devId) return _devId;
+  try { _devId = localStorage.getItem('mms_dev') || ''; } catch (e) {}
+  if (!_devId) {
+    _devId = 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    try { localStorage.setItem('mms_dev', _devId); } catch (e) {}
+  }
+  return _devId;
+}
+function devLabel() {
+  const ua = navigator.userAgent || '';
+  const b = /Edg\//.test(ua) ? 'Edge' : /OPR\//.test(ua) ? 'Opera' : /Chrome\//.test(ua) ? 'Chrome' : /Firefox\//.test(ua) ? 'Firefox' : /Safari\//.test(ua) ? 'Safari' : 'Browser';
+  const os = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'Windows' : /Mac OS X/.test(ua) ? 'Mac' : 'Peranti';
+  return os + ' · ' + b;
+}
+function devAgo(ms) {
+  if (!ms) return 'belum';
+  const d = Math.max(0, Date.now() - ms);
+  if (d < 90 * 1000) return 'baru sahaja';
+  if (d < 60 * 60 * 1000) return Math.round(d / 60000) + ' min lalu';
+  if (d < 24 * 60 * 60 * 1000) return Math.round(d / 3600000) + ' jam lalu';
+  return Math.round(d / 86400000) + ' hari lalu';
+}
+function devRead() {
+  const db = getDb();
+  if (!db || !isAdmin()) return Promise.resolve(null);
+  return db.doc(DEV_DOC).get().then(function (d) {
+    const o = d.exists ? (d.data() || {}) : {};
+    const dev = Array.isArray(o.devices) ? o.devices.filter(function (x) { return x && x.id; }) : [];
+    const rev = Array.isArray(o.revoked) ? o.revoked.filter(Boolean) : [];
+    return { devices: dev, revoked: rev };
+  }).catch(function (e) { console.warn('device read', e); return null; });
+}
+function devWrite(devices, revoked) {
+  const db = getDb();
+  if (!db || !isAdmin()) return Promise.resolve(false);
+  return db.doc(DEV_DOC).set({ devices: devices, revoked: revoked, updatedAt: Date.now() }, { merge: true })
+    .then(function () { return true; })
+    .catch(function (e) { console.warn('device write', e); return false; });
+}
+// Registering is what turns "this browser has a session" into "this browser is
+// a device the owner can see". Force skips the once-every-five-minutes guard
+// that keeps ordinary dashboard visits free.
+function admRegisterDevice(force) {
+  const id = devId(), now = Date.now();
+  if (!force && now - _devLastUpd < 5 * 60 * 1000) return Promise.resolve(_devRegistered);
+  _devLastUpd = now;
+  return devRead().then(function (cur) {
+    if (cur === null) return false;
+    const list = cur.devices;
+    const i = list.findIndex(function (x) { return x.id === id; });
+    const rec = { id: id, label: devLabel(), at: i >= 0 ? (list[i].at || now) : now, last: now };
+    if (i >= 0) list[i] = Object.assign({}, list[i], rec); else list.push(rec);
+    // A password login is the owner vouching for this device again, so a
+    // tombstone against it is lifted. Auto-registration never lifts one.
+    const rev = force ? cur.revoked.filter(function (x) { return x !== id; }) : cur.revoked;
+    return devWrite(list.slice(-20), rev).then(function (ok) {
+      if (ok) _devRegistered = true;
+      return ok;
+    });
+  });
+}
+function admDeviceRevoked() {
+  if (_devBusy) return;
+  _devBusy = true;
+  admDevStop();
+  const a = getAuth();
+  if (a) a.signOut();
+  exitAdmin();
+  toast('⛔ Peranti ini telah dibuang dari panel. Masuk semula dengan password untuk tambah semula.');
+  setTimeout(function () { _devBusy = false; }, 4000);
+}
+// A live look at the registry, so removing a device takes effect while that
+// device still has the dashboard open - not on its next reload.
+function admDevWatch() {
+  const db = getDb();
+  if (!db || !isAdmin() || _devUnsub) return;
+  _devUnsub = db.doc(DEV_DOC).onSnapshot(function (snap) {
+    const o = snap.exists ? (snap.data() || {}) : {};
+    const v = Array.isArray(o.devices) ? o.devices : [];
+    _devList = v.filter(function (x) { return x && x.id; });
+    const busted = (Array.isArray(o.revoked) ? o.revoked : []).indexOf(devId()) >= 0;
+    // The tombstone is the authority: a device removed while it was closed
+    // finds itself here on the next open and cannot quietly re-register,
+    // because only a password login lifts the mark.
+    if (busted || (_devRegistered && _devList.length && !_devList.some(function (x) { return x.id === devId(); }))) {
+      admDeviceRevoked();
+      return;
+    }
+    admDevicesPaint();
+  }, function (e) { console.warn('device watch', e); });
+}
+function admDevStop() {
+  if (_devUnsub) { _devUnsub(); _devUnsub = null; }
+}
+function admRemoveDevice(id) {
+  const me = id === devId();
+  admConfirm(me
+    ? 'Buang peranti INI? Panel akan log keluar serta-merta, dan anda perlu masukkan password semula untuk menambahnya kembali.'
+    : 'Buang peranti ini dari panel? Ia akan log keluar serta-merta.',
+    me ? 'Ya, buang peranti ini' : 'Ya, buang', function () {
+      devRead().then(function (cur) {
+        if (cur === null) { toast('❌ Gagal baca senarai peranti'); return; }
+        const out = cur.devices.filter(function (x) { return x.id !== id; });
+        const rev = cur.revoked.concat([id]).slice(-40);
+        return devWrite(out, rev).then(function (ok) {
+          if (!ok) { toast('❌ Gagal simpan'); return; }
+          _devList = out;
+          admDevicesPaint();
+          toast(me ? '🔒 Peranti ini dibuang' : '✅ Peranti dibuang');
+          if (me) { admDevStop(); const a = getAuth(); if (a) a.signOut(); exitAdmin(); }
+        });
+      });
+    });
+}
+function admDevicesPaint() {
+  const el = document.getElementById('adm-devices');
+  if (!el) return;
+  const me = devId();
+  if (!_devList.length) {
+    el.innerHTML = '<div style="font-size:12.5px;color:#9A9385;line-height:1.5">Belum ada peranti berdaftar. Peranti pertama mendaftar sebaik sahaja log masuk.</div>';
+    return;
+  }
+  const rows = _devList.slice().sort(function (a, b) { return (b.last || 0) - (a.last || 0); }).map(function (d) {
+    const mine = d.id === me;
+    return '<div style="display:flex;align-items:center;gap:10px;padding:10px 10px;border:1px solid ' + (mine ? 'rgba(0,212,170,0.35)' : 'rgba(255,255,255,0.08)') + ';border-radius:10px;margin-bottom:8px">' +
+      '<div style="flex:1;min-width:0">' +
+      '<div style="font-size:13.5px;font-weight:800;color:#F0F0F0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(d.label || 'Peranti') + (mine ? ' <span style="color:#00D4AA;font-weight:700">· peranti ini</span>' : '') + '</div>' +
+      '<div style="font-size:12px;color:#9A9385;margin-top:2px">Aktif ' + devAgo(d.last) + ' · ditambah ' + devAgo(d.at) + '</div>' +
+      '</div>' +
+      '<button onclick="admRemoveDevice(\'' + esc(d.id) + '\')" style="background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.25);color:#FF6B6B;font-weight:800;font-size:12.5px;padding:7px 12px;border-radius:8px;cursor:pointer;flex-shrink:0">Buang</button>' +
+      '</div>';
+  }).join('');
+  el.innerHTML = '<div style="font-size:12.5px;color:#9A9385;line-height:1.5;margin-bottom:10px">' + _devList.length + ' peranti boleh masuk ke panel ini. Peranti yang dibuang akan log keluar serta-merta; untuk masuk semula ia perlu password sekali lagi.</div>' + rows;
+}
+
+function admFillSettings(){const so=document.getElementById('st-open');if(!so)return;so.value=fmtMin(HOURS[0]);document.getElementById('st-close').value=fmtMin(HOURS[1]);const w=WHO||{};document.getElementById('st-wn').value=w.n||'';document.getElementById('st-wb').value=w.b||'';document.getElementById('st-wnote').value=w.note||'';document.getElementById('st-wimg').value=w.img||'';admDevicesPaint();admRegisterDevice()}
 function parseClock(s){const m=String(s||'').trim().toUpperCase().match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)?$/);if(!m)return null;let h=parseInt(m[1],10),mi=m[2]?parseInt(m[2],10):0;const ap=m[3];if(ap==='PM'&&h<12)h+=12;if(ap==='AM'&&h===12)h=0;if(h>23||mi>59)return null;return h*60+mi}
 function admExport(){const db=getDb();if(!db){toast('Firebase tidak tersedia');return}toast('Menyediakan fail...');db.collection('orders').get().then(function(snap){const rows=[];snap.forEach(function(d){const o=d.data();o._id=d.id;if(o.createdAt&&o.createdAt.toDate)o._createdAt=o.createdAt.toDate().toISOString();delete o.createdAt;rows.push(o)});const blob=new Blob([JSON.stringify(rows,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='mms-orders-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(a.href)},3000);toast('Fail dimuat turun ('+rows.length+' pesanan)')}).catch(function(e){toast('Gagal export')})}
-function admSignOutNow(){const a=getAuth();if(a)a.signOut().then(()=>{exitAdmin();toast('🔒 Log keluar')})}
+function admSignOutNow(){admDevStop();const a=getAuth();if(a)a.signOut().then(()=>{exitAdmin();toast('🔒 Log keluar')})}
 
 
 
@@ -3185,6 +3337,6 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v59</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v61</div>
 </body>
 </html>
