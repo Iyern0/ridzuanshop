@@ -2038,3 +2038,9 @@ commit `f20e7d0`.
 **Artefacts:** `drinks-order.html`/`index.html`/`sw.js` (v76), `tools/chagee-order-ui.cjs`, commit `09c535a`.
 **Status:** ✅ confirmed (local test + release verify identical)
 
+### 2026-10-29 15:25 — v77: the shop banner returns
+**What happened:** Owner asked "where is the minum malam siswa banner at the homepage? please return it back." v74 had hidden the engine hero (`.hero{display:none}`), so the page opened straight into a search box.
+**Found / changed:** New `#mm-hero` card injected above `#mm-menu-tools` in `tools/chagee-order-ui.cjs`: navy radial gradient, gold `MM` disc, serif `MINUM MALAM SISWA` and one tagline. Measured 87 px tall, top 207, no layout shift to the grid.
+**Artefacts:** `tools/chagee-order-ui.cjs`, `drinks-order.html`/`index.html`/`sw.js` (v77), commit `cfa824c`.
+**Status:** ✅ confirmed (live marker `v77` + `id="mm-hero"` on both URLs)
+
