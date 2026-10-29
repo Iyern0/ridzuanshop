@@ -2065,3 +2065,9 @@ commit `f20e7d0`.
 **Artefacts:** `tools/chagee-order-ui.cjs`, `tools/build-chagee-order.cjs`, `drinks-order.html`/`index.html`/`sw.js` (v80), commit `9f07ae7`.
 **Status:** ✅ confirmed — live both URLs: `v80`, `mm-hero` occurrences 0, `class="hero"` 1.
 
+### 2026-10-29 16:04 — v81: the MINUM LATE-NIGHT capsule is gone
+**What happened:** Owner: "the yellow boxed minum late night. i dont need it. just remove."
+**Found / changed:** The capsule was not markup — it was `.hero:before{content:"MINUM LATE-NIGHT"}` inside the SKIN block of `tools/build-chagee-order.cjs`, which is why it reappeared through every hero change (it is generated CSS, so searching the UI module for the string found nothing; the file that matched was the build script). Rule deleted; page now opens straight into `🌙 MINUM MALAM SISWA` + the hours line.
+**Artefacts:** `tools/build-chagee-order.cjs`, `drinks-order.html`/`index.html`/`sw.js` (v81), commit `98be06d`.
+**Status:** ✅ confirmed — live both URLs: `v81`, `LATE-NIGHT` count 0.
+
