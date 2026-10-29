@@ -128,12 +128,29 @@ body.mm-lock #cart-bar,body.mm-lock #notif-ask{display:none !important}
 .mm-stamps span.f{background:var(--mint);border-color:var(--mint);color:#20160A}
 .mm-kv{display:flex;justify-content:space-between;font-size:12.5px;font-weight:800;color:#9FB0C9;padding:7px 0}
 .mm-kv b{color:#FBF4E6;font-family:var(--fs);font-size:16px}
+/* ---------- owner notes, 2026-10-29 ---------- */
+/* 2. the MINUM MALAM SISWA 10:30PM - 2:00AM / COD line is gone */
+.hero{display:none}
+/* 1. status bar: one centred pill instead of a full-bleed coloured band */
+.status-bar{margin:10px auto 0;max-width:calc(100% - 28px);justify-content:center;align-items:flex-start;
+ gap:8px;padding:9px 14px;border-radius:14px;font-size:11px;font-weight:700;letter-spacing:0;
+ line-height:1.4;text-align:left;border:1px solid rgba(255,255,255,.09)}
+.status-bar .st{font-weight:900;letter-spacing:1.2px;flex-shrink:0}
+.status-bar .dt{opacity:.86;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.status-bar.open{background:rgba(0,212,170,.10);color:#5BE3C8;border-color:rgba(0,212,170,.22)}
+.status-bar.closed{background:rgba(255,107,107,.10);color:#FF9C9C;border-color:rgba(255,107,107,.22)}
+.status-bar .dot{margin-top:0}
+/* 4. sold out reads as a dead card, not a small corner tag */
+.card.disabled{opacity:.5;filter:grayscale(1) contrast(.92);animation:none}
+.card.disabled .n,.card.disabled .p{opacity:.55}
+.card .sold{position:absolute;inset:-1px;display:grid;place-items:center;border-radius:var(--r-card);
+ background:rgba(8,14,26,.6);color:#fff;font-size:12px;font-weight:900;letter-spacing:1.8px;
+ text-transform:uppercase;padding:0}
 </style>`;
 
 const HTML = `
 <div id="mm-menu-tools">
   <input id="mm-q" placeholder="Cari minuman…" oninput="mmFilter()" autocomplete="off">
-  <div id="mm-chips"></div>
 </div>
 
 <div class="mm-sheet" id="mm-checkout" role="dialog" aria-label="Pesanan">
@@ -232,24 +249,38 @@ const JS = `
   var _up=upCart;
   upCart=function(){_up.apply(null,arguments);mmBadges();mmRenderBasket()};
 
-  // ---- menu: search + chips ---------------------------------------------
-  var CHIPS=[
-    ['Semua',''],
-    ['Kopi','kopi latte mocha indocafe nescafe'],
-    ['Coklat','chocolate horlicks milo malt'],
-    ['Buah','extrajoss mangga anggur buah joss lemon lychee'],
-    ['Teh','teh tea tarik'],
-    ['Susu','susu milk']
-  ];
+  // ---- menu: search only --------------------------------------------------
+  // 3. Category chips were removed on the owner's note; the search box is the
+  //    only filter now, so every drink stays in one grid. Both hooks stay
+  //    defined because the engine still calls them on every menu redraw.
   var mmChip='';
-  function drawChips(){
-    var box=$('mm-chips');if(!box)return;
-    box.innerHTML=CHIPS.map(function(c){
-      return '<button class="'+(mmChip===c[1]?'on':'')+'" onclick="mmChipSet('+JSON.stringify(c[1]).replace(/"/g,'&quot;')+')">'+c[0]+'</button>'
-    }).join('');
-    if(!box.children.length){box.innerHTML='<button class="on" data-all="1">Semua</button>';box.firstChild.onclick=function(){mmChipSet('')}}
-  }
-  window.mmChipSet=function(v){mmChip=v||'';drawChips();mmFilter()};
+  function drawChips(){}
+  window.mmChipSet=function(v){mmChip=v||'';mmFilter()};
+
+  /* Owner note 1: the status line read as one long wrapped sentence. Split it
+     into a bold status word plus a quiet detail, and keep it to two lines. The
+     engine rewrites #status-bar.innerHTML each poll, so re-apply on mutation. */
+  (function(){
+    var bar=document.getElementById('status-bar');if(!bar||!window.MutationObserver)return;
+    var busy=false;
+    function tidy(){
+      if(busy)return; busy=true;
+      try{
+        var txt=(bar.textContent||'').replace(/\s+/g,' ').trim();
+        var m=txt.match(/^(BUKA|TUTUP|OPEN|CLOSED)[\s·:,-]*(.*)$/i);
+        if(m){
+          var st=m[1].toUpperCase(), dt=m[2];
+          if(bar.dataset.shape!==st+dt){
+            bar.dataset.shape=st+dt;
+            bar.innerHTML='<span class="dot"></span><b class="st">'+st+'</b><span class="dt">'+dt.replace(/[<>&]/g,'')+'</span>';
+          }
+        }
+      }finally{ busy=false; }
+    }
+    tidy();
+    new MutationObserver(tidy).observe(bar,{childList:true,subtree:true,characterData:true});
+    setInterval(tidy,4000);
+  })();
   window.mmFilter=function(){
     var q=String(($('mm-q')||{}).value||'').toLowerCase().trim();
     var words=mmChip?mmChip.split(' '):[];
