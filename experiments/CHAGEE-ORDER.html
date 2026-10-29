@@ -1015,6 +1015,13 @@ body.mm-lock #cart-bar,body.mm-lock #notif-ask{display:none !important}
 <div class="bar" style="position:relative"><span>Pesanan</span><div class="stamps" id="stamps"></div><span class="count" id="loy-count">0</span><span class="cpn-wrap"><button id="cpn-btn" class="cpn-btn" onclick="event.stopPropagation();toggleCpnPop()" aria-label="Kupon"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16a1 1 0 0 1 1 1v2.2a2 2 0 0 0 0 3.6V16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2.2a2 2 0 0 0 0-3.6V8a1 1 0 0 1 1-1Z"/><path d="M9.5 7v10" stroke-dasharray="2 2.4"/></svg><span class="dot" id="cpn-dot">0</span></button><div id="cpn-pop" class="cpn-pop" onclick="event.stopPropagation()"></div></span></div>
 <div class="sec"><h2><span>Minuman</span></h2><div class="l"></div></div>
 
+<div id="mm-hero">
+  <div class="mm-logo">MM</div>
+  <div>
+    <h1>Minum Malam Siswa</h1>
+    <p>Kopi, Milo &amp; susu — hantar terus ke blok anda</p>
+  </div>
+</div>
 <div id="mm-menu-tools">
   <input id="mm-q" placeholder="Cari minuman…" oninput="mmFilter()" autocomplete="off">
 </div>
@@ -3659,7 +3666,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v76</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v77</div>
 
 <script>
 /* ===== CHAGEE-order UI =====================================================

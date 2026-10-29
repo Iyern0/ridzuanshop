@@ -156,6 +156,13 @@ body.mm-lock #cart-bar,body.mm-lock #notif-ask{display:none !important}
 </style>`;
 
 const HTML = `
+<div id="mm-hero">
+  <div class="mm-logo">MM</div>
+  <div>
+    <h1>Minum Malam Siswa</h1>
+    <p>Kopi, Milo &amp; susu — hantar terus ke blok anda</p>
+  </div>
+</div>
 <div id="mm-menu-tools">
   <input id="mm-q" placeholder="Cari minuman…" oninput="mmFilter()" autocomplete="off">
 </div>
