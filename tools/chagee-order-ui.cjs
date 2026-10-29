@@ -137,7 +137,15 @@ body.mm-lock #cart-bar,body.mm-lock #notif-ask{display:none !important}
 .mm-saved[hidden]{display:none}
 /* ---------- owner notes, 2026-10-29 ---------- */
 /* 2. the MINUM MALAM SISWA 10:30PM - 2:00AM / COD line is gone */
-.hero{display:none}
+/* The shop's own full-bleed hero, back to the engine's layout: no card, no
+   box, just the band with the name and the opening hours. */
+.hero{background:radial-gradient(130% 150% at 12% -10%,#1E3D6B 0%,#0F2546 52%,#0A1B33 100%);
+ border-bottom:1px solid rgba(255,255,255,.08);padding:calc(22px + env(safe-area-inset-top)) 18px 18px;
+ text-align:center}
+.hero h1{font-family:'Playfair Display',Georgia,serif;font-weight:700;font-size:22px;line-height:1.2;
+ letter-spacing:.6px;margin:0;color:#FDF7EA;text-transform:uppercase}
+.hero h1 span{color:#C9A96A}
+.hero .sub{margin-top:7px;font-size:11.5px;line-height:1.4;letter-spacing:.3px;color:rgba(253,247,234,.66)}
 /* 1. status bar: one centred pill instead of a full-bleed coloured band */
 .status-bar{margin:10px auto 0;max-width:calc(100% - 28px);justify-content:center;align-items:flex-start;
  gap:8px;padding:9px 14px;border-radius:14px;font-size:11px;font-weight:700;letter-spacing:0;
@@ -167,20 +175,6 @@ body.mm-lock #cart-bar,body.mm-lock #notif-ask{display:none !important}
 .opt:last-child{border-bottom:0}
 .opt .l{font-size:10.5px;font-weight:900;letter-spacing:1.3px;margin-bottom:7px;color:rgba(253,247,234,.55)}
 
-/* 3b. the brand banner above everything - small enough that the first drink
-   still peeks above the fold on a 390 x 844 phone. */
-#mm-hero{position:relative;margin:calc(10px + env(safe-area-inset-top)) 18px 12px;padding:16px 18px;
- border-radius:20px;overflow:hidden;display:flex;align-items:center;gap:13px;color:#FDF7EA;
- background:radial-gradient(130% 150% at 12% -10%,#1E3D6B 0%,#0F2546 52%,#0A1B33 100%);
- border:1px solid rgba(255,255,255,.09);box-shadow:0 10px 26px rgba(0,0,0,.3)}
-#mm-hero:after{content:'';position:absolute;right:-40px;top:-56px;width:150px;height:150px;
- border-radius:50%;border:1px solid rgba(201,169,106,.28);pointer-events:none}
-#mm-hero .mm-logo{width:44px;height:44px;flex:0 0 44px;border-radius:50%;display:grid;place-items:center;
- font-family:'Playfair Display',Georgia,serif;font-weight:700;font-size:17px;letter-spacing:-.5px;color:#0A1B33;
- background:linear-gradient(160deg,#E7CE9A,#C9A96A);box-shadow:0 0 0 3px rgba(201,169,106,.16)}
-#mm-hero h1{font-family:'Playfair Display',Georgia,serif;font-weight:700;font-size:17.5px;line-height:1.15;
- letter-spacing:.4px;margin:0;text-transform:uppercase}
-#mm-hero p{margin:3px 0 0;font-size:11px;line-height:1.35;letter-spacing:.2px;color:rgba(253,247,234,.72)}
 /* 4. sold out reads as a dead card, not a small corner tag */, not a small corner tag */
 .card.disabled{opacity:.5;filter:grayscale(1) contrast(.92);animation:none}
 .card.disabled .n,.card.disabled .p{opacity:.55}
@@ -190,13 +184,6 @@ body.mm-lock #cart-bar,body.mm-lock #notif-ask{display:none !important}
 </style>`;
 
 const HTML = `
-<div id="mm-hero">
-  <div class="mm-logo">MM</div>
-  <div>
-    <h1>Minum Malam Siswa</h1>
-    <p>Kopi, Milo &amp; susu — hantar terus ke blok anda</p>
-  </div>
-</div>
 <div id="mm-menu-tools">
   <input id="mm-q" placeholder="Cari minuman…" oninput="mmFilter()" autocomplete="off">
 </div>
@@ -759,9 +746,6 @@ const JS = `
       if(cb)cb.setAttribute('onclick','event.stopPropagation();mmCheckout(1)');
       var bar=document.getElementById('cart-bar');
       if(bar)bar.onclick=function(){mmCheckout(1)};
-      // The shop banner belongs at the very top, above the open/closed line.
-      var hb=document.getElementById('mm-hero'), sb=document.getElementById('status-bar');
-      if(hb&&sb&&sb.parentNode) sb.parentNode.insertBefore(hb, sb);
     }catch(e){}
     if(needPro()){
       // first-time buyer: the tab bar nudges them to Saya rather than failing
