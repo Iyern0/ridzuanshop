@@ -979,6 +979,13 @@ body.mm-lock #cart-bar,body.mm-lock #notif-ask{display:none !important}
 .mm-stamps span.f{background:var(--mint);border-color:var(--mint);color:#20160A}
 .mm-kv{display:flex;justify-content:space-between;font-size:12.5px;font-weight:800;color:#9FB0C9;padding:7px 0}
 .mm-kv b{color:#FBF4E6;font-family:var(--fs);font-size:16px}
+/* the engine toast is z-index 600, under the sheets at 1400, so a save made
+   from inside the Saya sheet looked like it did nothing */
+#toast{z-index:1900}
+.mm-saved{display:flex;align-items:center;gap:8px;margin-top:10px;padding:10px 12px;border-radius:12px;
+ background:rgba(0,212,170,.12);border:1px solid rgba(0,212,170,.34);color:#7BE0B0;
+ font-family:var(--fb);font-weight:800;font-size:12.5px}
+.mm-saved[hidden]{display:none}
 /* ---------- owner notes, 2026-10-29 ---------- */
 /* 2. the MINUM MALAM SISWA 10:30PM - 2:00AM / COD line is gone */
 .hero{display:none}
@@ -3652,7 +3659,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v74</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v75</div>
 
 <script>
 /* ===== CHAGEE-order UI =====================================================
@@ -4138,7 +4145,8 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
         return '<button class="'+(c.block===b?'on':'')+'" onclick="mePickBlock('+i+',this)">'+esc2(b)+'</button>'}).join('')
       +'</div>'
       +'<input class="mm-inp" id="me-room" style="margin-top:9px" placeholder="Nombor bilik · cth 7B-12" maxlength="20" value="'+esc2(c.room||'')+'">'
-      +'<div class="btns"><button class="solid" onclick="meSave()">Simpan</button></div></div>'
+      +'<div class="btns"><button class="solid" onclick="meSave()">Simpan</button></div>'
+      +'<div class="mm-saved" id="me-saved" hidden><span>✅</span>Maklumat anda disimpan</div></div>'
       +'<div class="mm-card"><div class="cap">RINGKASAN</div>'
       +'<div class="mm-kv"><span>Setem</span><b>'+((Number(loy.c)||0)%5)+' / 5</b></div>'
       +'<div class="mm-kv"><span>Kupon tersedia</span><b>'+(liveCpns?liveCpns().length:0)+'</b></div>'
@@ -4151,6 +4159,12 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
     if(el)el.classList.add('on');
     try{pickBlock(i)}catch(e){}
   };
+  function showSaved(){
+    var el=$('me-saved');if(!el)return;
+    el.hidden=false;
+    clearTimeout(el._t);
+    el._t=setTimeout(function(){var e2=$('me-saved');if(e2)e2.hidden=true},4500);
+  }
   window.meSave=function(){
     var n=String(($('me-name')||{}).value||'').trim();
     var ph=String(($('me-phone')||{}).value||'').replace(/[^0-9]/g,'');
@@ -4160,8 +4174,10 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
     if($('inp-phone'))$('inp-phone').value=ph;
     if($('inp-room'))$('inp-room').value=String(($('me-room')||{}).value||'');
     try{saveCustomer()}catch(e){}
-    toast('✅ Maklumat disimpan');
+    toast('✅ Maklumat anda disimpan');
     drawMe();mmBadges();
+    // drawMe rebuilds the card, so the tick is shown on the fresh element
+    showSaved();
     if(pendingSaya){pendingSaya=false;mmClose2('mm-me');mmCheckout(2);return}
   };
   window.mmOrder=function(){mmClose();try{if(typeof openMyOrder==='function')openMyOrder()}catch(e){}};

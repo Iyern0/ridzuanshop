@@ -128,6 +128,13 @@ body.mm-lock #cart-bar,body.mm-lock #notif-ask{display:none !important}
 .mm-stamps span.f{background:var(--mint);border-color:var(--mint);color:#20160A}
 .mm-kv{display:flex;justify-content:space-between;font-size:12.5px;font-weight:800;color:#9FB0C9;padding:7px 0}
 .mm-kv b{color:#FBF4E6;font-family:var(--fs);font-size:16px}
+/* the engine toast is z-index 600, under the sheets at 1400, so a save made
+   from inside the Saya sheet looked like it did nothing */
+#toast{z-index:1900}
+.mm-saved{display:flex;align-items:center;gap:8px;margin-top:10px;padding:10px 12px;border-radius:12px;
+ background:rgba(0,212,170,.12);border:1px solid rgba(0,212,170,.34);color:#7BE0B0;
+ font-family:var(--fb);font-weight:800;font-size:12.5px}
+.mm-saved[hidden]{display:none}
 /* ---------- owner notes, 2026-10-29 ---------- */
 /* 2. the MINUM MALAM SISWA 10:30PM - 2:00AM / COD line is gone */
 .hero{display:none}
@@ -660,7 +667,8 @@ const JS = `
         return '<button class="'+(c.block===b?'on':'')+'" onclick="mePickBlock('+i+',this)">'+esc2(b)+'</button>'}).join('')
       +'</div>'
       +'<input class="mm-inp" id="me-room" style="margin-top:9px" placeholder="Nombor bilik · cth 7B-12" maxlength="20" value="'+esc2(c.room||'')+'">'
-      +'<div class="btns"><button class="solid" onclick="meSave()">Simpan</button></div></div>'
+      +'<div class="btns"><button class="solid" onclick="meSave()">Simpan</button></div>'
+      +'<div class="mm-saved" id="me-saved" hidden><span>\u2705<\/span>Maklumat anda disimpan</div></div>'
       +'<div class="mm-card"><div class="cap">RINGKASAN</div>'
       +'<div class="mm-kv"><span>Setem</span><b>'+((Number(loy.c)||0)%5)+' / 5</b></div>'
       +'<div class="mm-kv"><span>Kupon tersedia</span><b>'+(liveCpns?liveCpns().length:0)+'</b></div>'
@@ -673,6 +681,12 @@ const JS = `
     if(el)el.classList.add('on');
     try{pickBlock(i)}catch(e){}
   };
+  function showSaved(){
+    var el=$('me-saved');if(!el)return;
+    el.hidden=false;
+    clearTimeout(el._t);
+    el._t=setTimeout(function(){var e2=$('me-saved');if(e2)e2.hidden=true},4500);
+  }
   window.meSave=function(){
     var n=String(($('me-name')||{}).value||'').trim();
     var ph=String(($('me-phone')||{}).value||'').replace(/[^0-9]/g,'');
@@ -682,8 +696,10 @@ const JS = `
     if($('inp-phone'))$('inp-phone').value=ph;
     if($('inp-room'))$('inp-room').value=String(($('me-room')||{}).value||'');
     try{saveCustomer()}catch(e){}
-    toast('✅ Maklumat disimpan');
+    toast('✅ Maklumat anda disimpan');
     drawMe();mmBadges();
+    // drawMe rebuilds the card, so the tick is shown on the fresh element
+    showSaved();
     if(pendingSaya){pendingSaya=false;mmClose2('mm-me');mmCheckout(2);return}
   };
   window.mmOrder=function(){mmClose();try{if(typeof openMyOrder==='function')openMyOrder()}catch(e){}};
