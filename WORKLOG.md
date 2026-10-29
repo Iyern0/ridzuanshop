@@ -2010,3 +2010,14 @@ commit `f20e7d0`.
 - Verified: first order (Saya opens, save → Bayar, receipt), repeat COD (straight to Bayar, room prefilled, receipt), repeat pickup (hall field disappears, no delivery fee, receipt).
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/chagee-order-ui.cjs`.
 **Status:** ✅ confirmed (all three paths pass local; live re-check after push)
+
+### 2026-10-29 14:20 — v69 → v74: QR actually renders, release stamps the experiment copy, four owner notes
+**What happened:** A run of small, fast releases on the live tabbed storefront, each one driven by an owner annotation or a defect the browser caught.
+**Found / changed:**
+- v69 —  now calls : a repeat buyer jumping basket → payment reached the engine with no time slot and the order was refused ("Sila pilih masa"). Full 28-check browser audit passed afterwards.
+- v70/v71 — the experiment page sits in , so the engine assets (, , , ) all 404'd and the DuitNow QR rendered broken. The build now re-points them **for the experiments copy only**; v70 wrongly rewrote both outputs and would have sent the live root QR to , caught before it mattered.
+- v73 — release.mjs stamps the build marker on  too, otherwise the skin shipped but the page still reported an old tag.
+- v74 — owner notes: status bar became a compact notice (bold / + two-line detail) re-applied by a 1.2 s poll because the engine overwrites that node every poll; hero line deleted; category chips deleted (search is the only filter); a sold-out card is now grayscale at 0.5 opacity with a full-cover  overlay instead of an 11px corner tag.
+- Two build traps worth remembering: heredocs turned  into a backspace byte, and a template literal silently strips , so a regex reached the page as  and matched nothing. Both were only visible by evaluating the built page, not the source.
+**Artefacts:** , , , , , .
+**Status:** ✅ confirmed (live root v74: hero hidden, no chips, / present, sold overlay covers the card 173×162)
