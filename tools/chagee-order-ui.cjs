@@ -147,7 +147,27 @@ body.mm-lock #cart-bar,body.mm-lock #notif-ask{display:none !important}
 .status-bar.open{background:rgba(0,212,170,.10);color:#5BE3C8;border-color:rgba(0,212,170,.22)}
 .status-bar.closed{background:rgba(255,107,107,.10);color:#FF9C9C;border-color:rgba(255,107,107,.22)}
 .status-bar .dot{margin-top:0}
-/* 4. sold out reads as a dead card, not a small corner tag */
+/* 5. the sugar / ice / extra groups read as one tidy grid instead of a
+   column of full-width pills that runs off the bottom of the sheet. */
+/* 5. Sugar and ice labels are long ("Change to Condensed Milk"), so those two
+   groups stay one per row; only the short add-ons sit side by side. */
+#c-sweet,#c-level{display:grid;grid-template-columns:1fr;gap:7px;margin-top:2px}
+#c-extra{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px;margin-top:2px}
+#c-sweet .opt-btn,#c-level .opt-btn,#c-extra .opt-btn{width:100%;min-width:0;align-items:center;
+ justify-content:flex-start;gap:10px;padding:11px 13px;border-radius:13px;font-size:13px;line-height:1.25;
+ background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.09);color:#FDF7EA}
+#c-sweet .opt-btn>span:not(.ob-dot):not(.ob-price),
+#c-level .opt-btn>span:not(.ob-dot):not(.ob-price),
+#c-extra .opt-btn>span:not(.ob-dot):not(.ob-price){flex:1;min-width:0;text-align:left}
+#c-sweet .opt-btn.sel,#c-level .opt-btn.sel,#c-extra .opt-btn.sel{background:rgba(0,212,170,.13);
+ border-color:rgba(0,212,170,.6);color:#FDF7EA;font-weight:900}
+#c-sweet .opt-btn .ob-dot,#c-level .opt-btn .ob-dot,#c-extra .opt-btn .ob-dot{width:16px;height:16px;border-width:1.5px;flex:0 0 16px}
+#c-sweet .opt-btn.sel .ob-dot,#c-level .opt-btn.sel .ob-dot,#c-extra .opt-btn.sel .ob-dot{background:#00D4AA;border-color:#00D4AA}
+.opt{padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.opt:last-child{border-bottom:0}
+.opt .l{font-size:10.5px;font-weight:900;letter-spacing:1.3px;margin-bottom:7px;color:rgba(253,247,234,.55)}
+
+/* 4. sold out reads as a dead card, not a small corner tag */, not a small corner tag */
 .card.disabled{opacity:.5;filter:grayscale(1) contrast(.92);animation:none}
 .card.disabled .n,.card.disabled .p{opacity:.55}
 .card .sold{position:absolute;inset:-1px;display:grid;place-items:center;border-radius:var(--r-card);
