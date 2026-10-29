@@ -2000,3 +2000,13 @@ commit `f20e7d0`.
 - New `tools/test-ui.mjs`: opens each sheet, clicks its ✕, asserts the sheet closed, and audits every `onclick` identifier against `window`. Run it against local or the live URL.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/chagee-order-ui.cjs`, `tools/test-ui.mjs`.
 **Status:** ✅ confirmed (test passes local; re-run against live after push)
+
+### 2026-10-29 13:50 — v68: checkout rail is Bakul → Saya → Bayar, and Saya is skipped for repeat buyers
+**What happened:** The owner asked for the original flow back: review the basket, then a page with the buyer's details, then payment, then the waiting screen — except a returning buyer must not see the details page again.
+**Found / changed:**
+- Rail labels are now `BAKUL · SAYA · BAYAR`; step 2 is the Saya page (`#mm-me`), and `meSave()` returns straight to Bayar instead of closing.
+- A complete profile (name, phone, block, room) skips step 2 on the next tap — `mmCanSkipSaya()`; delivery, block room and time moved to the Bayar page because a skipped page cannot be the only place they are chosen.
+- Real bug found while testing the skip: the engine's own `#inp-name2 / #inp-phone / #inp-room` are filled only by the Saya page, so a repeat buyer on a fresh load hit an empty form. `mmSeedEngine()` now seeds them from the stored profile before the payment step renders and again before sending.
+- Verified: first order (Saya opens, save → Bayar, receipt), repeat COD (straight to Bayar, room prefilled, receipt), repeat pickup (hall field disappears, no delivery fee, receipt).
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/chagee-order-ui.cjs`.
+**Status:** ✅ confirmed (all three paths pass local; live re-check after push)

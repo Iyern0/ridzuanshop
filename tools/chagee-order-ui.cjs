@@ -183,6 +183,7 @@ const JS = `
 
   // ---- routing -----------------------------------------------------------
   var TABS=['utama','menu','pesanan','kupon','saya'];
+  function mmClose2(id){var el=$(id);if(el)el.classList.remove('open')}
   function mmTab(t){
     var links=document.querySelectorAll('#mm-tab a');
     for(var i=0;i<links.length;i++){
@@ -343,7 +344,7 @@ const JS = `
     var t=total();
     var ft=$('mm-ft');
     if(ft)ft.innerHTML='<div><div class="l">'+unitCount()+' ITEM · SUBTOTAL</div><div class="v">RM'+t.toFixed(2)+'</div></div>'
-      +'<button '+(list.length?'':'disabled')+'>Butiran →</button>';
+      +'<button '+(list.length?'':'disabled')+'>Saya →</button>';
     if(ft&&list.length)ft.querySelector('button').onclick=function(){mmCheckout(2)};
   }
   window.mmAddItem=function(n){
@@ -359,19 +360,45 @@ const JS = `
   var step=1;
   function mmRail(){
     var r=$('mm-rail');if(!r)return;
-    var names=['BAKUL','BUTIRAN','BAYAR'];
+    var names=['BAKUL','SAYA','BAYAR'];
     r.innerHTML=names.map(function(n,i){
       var c=i+1<step?'mm-done':(i+1===step?'mm-on':'');
       return '<div class="'+c+'">'+n+'<i></i></div>';
     }).join('');
   }
+  var pendingSaya=false;   // true while the Saya page is standing in for step 2
+  function mmApplyProfile(){
+    var c=pro()||{};
+    if(!selBlock&&c.block&&typeof BLOCKS!=='undefined'&&BLOCKS.indexOf(c.block)>-1)selBlock=c.block;
+    if(!selTime&&typeof SLOTS!=='undefined'&&SLOTS.length){selTime=SLOTS[0];var pt=$('pickup-time');if(pt)pt.value=selTime}
+    // A profile with an address means the usual answer is COD; anything else
+    // still has to be chosen once on the Saya page.
+    if(isCod===null&&c.block&&c.room)isCod=true;
+  }
+  // A repeat buyer never opens the Saya page, so the engine's own inputs are
+  // still empty after a fresh page load. Seed them from the stored profile.
+  function mmSeedEngine(){
+    var c=pro()||{};
+    if(c.n&&$('inp-name2')&&!$('inp-name2').value)$('inp-name2').value=c.n;
+    if(c.ph&&$('inp-phone')&&!$('inp-phone').value)$('inp-phone').value=c.ph;
+    if(c.room&&$('inp-room')&&!$('inp-room').value)$('inp-room').value=c.room;
+  }
+  function mmCanSkipSaya(){
+    var c=pro();
+    return !!(c&&c.n&&c.ph&&c.block&&c.room&&isCod!==null);
+  }
   function mmCheckout(s){
     if(s===undefined)s=1;
     if(s>1&&count()===0){s=1;toast('⚠ Bakul kosong')}
-    if(s===2&&needPro()){mmOpen('mm-me');toast('Isi maklumat dulu');return}
+    if(s===2){
+      mmApplyProfile();
+      if(needPro()){pendingSaya=true;mmOpen('mm-me');toast('Isi maklumat dulu');return}
+      if(mmCanSkipSaya()){s=3}          // repeat buyer: straight to payment
+      else pendingSaya=true;            // profile exists but is incomplete
+    }
     step=s;
     if($('mm-ft'))$('mm-ft').style.display='';
-    var titles={1:'Bakul',2:'Butiran',3:'Bayar'};
+    var titles={1:'Bakul',2:'Saya',3:'Bayar'};
     if($('mm-ck-title'))$('mm-ck-title').textContent=titles[s];
     $('mm-step1').style.display=s===1?'':'none';
     $('mm-step2').style.display=s===2?'':'none';
@@ -380,7 +407,7 @@ const JS = `
     mmOpen('mm-checkout');
     if(s===1)mmRenderBasket();
     if(s===2)mmRenderDetails();
-    if(s===3)mmRenderPay();
+    if(s===3){mmSeedEngine();mmRenderPay();}
   }
   window.mmCheckout=mmCheckout;
   window.mmStepBack=function(){mmCheckout(Math.max(1,step-1))};
@@ -391,14 +418,14 @@ const JS = `
     var dels=(typeof DELS!=='undefined'?DELS:[]).map(function(d){
       var dis=(typeof disDel!=='undefined'?disDel:[]).indexOf(d.t)>-1;
       var on=(isCod===true&&d.t==='cod')||(isCod===false&&d.t==='pickup');
-      return '<button class="'+(on?'on':'')+'" '+(dis?'disabled':'')+' onclick="mmPickDel(\\''+d.t+'\\')">'+esc2(d.l)+'</button>';
+      return '<button class="'+(on?'on':'')+'" '+(dis?'disabled':'')+' data-t="'+esc2(d.t)+'" onclick="mmPickDel(this.dataset.t)">'+esc2(d.l)+'</button>';
     }).join('');
     var blocks=(typeof BLOCKS!=='undefined'?BLOCKS:[]).map(function(b,i){
       var dis=(typeof disBlocks!=='undefined'?disBlocks:[]).indexOf(b)>-1;
       return '<button class="'+(selBlock===b?'on':'')+'" '+(dis?'disabled':'')+' onclick="mmPickBlock('+i+')">'+esc2(b)+'</button>';
     }).join('');
     var slots=(typeof SLOTS!=='undefined'?SLOTS:[]).map(function(t,i){
-      return '<button class="'+(selTime===t?'on':'')+'" onclick="mmPickTime('+i+')">'+esc2(t)+'</button>';
+      return '<button class="'+(selTime===t?'on':'')+'" data-i="'+i+'" onclick="mmPickTime(+this.dataset.i)">'+esc2(t)+'</button>';
     }).join('');
     box.innerHTML=
       '<div class="mm-lbl">PENGHANTARAN</div><div class="mm-pick">'+dels+'</div>'
@@ -416,13 +443,15 @@ const JS = `
     $('mm-ft').innerHTML='<div><div class="l">JUMLAH SETAKAT INI</div><div class="v">RM'+t.toFixed(2)+'</div></div>'
       +'<button onclick="mmToPay()">Bayar →</button>';
   }
+  var payRoom='';   // survives the re-render that a delivery/block tap triggers
   window.mmPickDel=function(t){
+    var r=$('mm-room'); if(r)payRoom=r.value;
     var b=document.querySelector('#del .dt-btn[data-type='+t+']');
     if(b)b.click();
-    mmRenderDetails();
+    if(step===3)mmRenderPay(); else mmRenderDetails();
   };
-  window.mmPickBlock=function(i){pickBlock(i);mmRenderDetails()};
-  window.mmPickTime=function(i){selT(i);mmRenderDetails()};
+  window.mmPickBlock=function(i){pickBlock(i);if(step===3)mmRenderPay();else mmRenderDetails()};
+  window.mmPickTime=function(i){selT(i);if(step===3)mmRenderPay();else mmRenderDetails()};
 
   // copy the step-2 form into the real inputs, then let the engine validate
   function mmSyncDetails(){
@@ -453,7 +482,20 @@ const JS = `
   function mmRenderPay(){
     var box=$('mm-step3');if(!box)return;
     var methods=[['cash','💵 Tunai'],['qr','📱 QR Pay'],['coupon','🎟 Kupon']];
-    box.innerHTML='<div class="mm-lbl">KAEDAH BAYAR</div><div class="mm-pick">'
+    var dels=(typeof DELS!=='undefined'?DELS:[]).map(function(d){
+      var dis=(typeof disDel!=='undefined'?disDel:[]).indexOf(d.t)>-1;
+      var on=(isCod===true&&d.t==='cod')||(isCod===false&&d.t==='pickup');
+      return '<button class="'+(on?'on':'')+'" '+(dis?'disabled':'')+' data-t="'+esc2(d.t)+'" onclick="mmPickDel(this.dataset.t)">'+esc2(d.l)+'</button>';
+    }).join('');
+    var slots=(typeof SLOTS!=='undefined'?SLOTS:[]).map(function(t,i){
+      return '<button class="'+(selTime===t?'on':'')+'" data-i="'+i+'" onclick="mmPickTime(+this.dataset.i)">'+esc2(t)+'</button>';
+    }).join('');
+    var roomVal=payRoom||((pro()||{}).room||'');
+    box.innerHTML='<div class="mm-lbl">PENGHANTARAN</div><div class="mm-pick">'+dels+'</div>'
+      +'<div class="mm-note">'+(isCod===false?'Ambil sendiri di kaunter — tiada caj penghantaran.':'Penghantaran ke bilik'+(isCod===true?' · caj RM'+codFee().toFixed(2):''))+'</div>'
+      +(isCod===true?'<div class="mm-lbl">NO. BILIK</div><input class="mm-inp" id="mm-room" style="margin-top:6px" placeholder="cth 7B-12" maxlength="20" value="'+esc2(roomVal)+'">':'')
+      +'<div class="mm-lbl">BILA</div><div class="mm-pick">'+(slots||'<button class="on">Bila siap</button>')+'</div>'
+      +'<div class="mm-lbl">KAEDAH BAYAR</div><div class="mm-pick">'
       +methods.map(function(m){return '<button class="'+(payM===m[0]?'on':'')+'" onclick="mmPickPay(\\''+m[0]+'\\')">'+m[1]+'</button>'}).join('')
       +'</div>'
       +'<div class="mm-lbl">KOD KUPON</div>'
@@ -464,7 +506,7 @@ const JS = `
       +'<div class="mm-kv"><span>Subtotal ('+count()+' item)</span><span>RM'+total().toFixed(2)+'</span></div>'
       +(isCod===true?'<div class="mm-kv"><span>COD</span><span>+RM'+codFee().toFixed(2)+'</span></div>':'')
       +'<div class="mm-kv" style="border-top:1px solid var(--line);margin-top:6px;padding-top:10px"><span style="font-weight:900">Jumlah</span><b>RM'+(total()+codFee()).toFixed(2)+'</b></div>'
-      +'<div style="margin-top:14px"><button class="mm-x" style="width:100%;padding:12px;font-size:12.5px;font-weight:900" onclick="mmStepBack()">← Kembali ke butiran</button></div>';
+      +'<div style="margin-top:14px"><button class="mm-x" style="width:100%;padding:12px;font-size:12.5px;font-weight:900" onclick="mmCheckout(1)">← Kembali ke bakul</button></div>';
     var ft=$('mm-ft');
     ft.className='mm-ft wa';
     ft.innerHTML='<div><div class="l">JUMLAH</div><div class="v">RM'+(total()+codFee()).toFixed(2)+'</div></div>'
@@ -486,6 +528,13 @@ const JS = `
   // The last mile is the engine's: it validates, builds the receipt, and the
   // WhatsApp button is still the only thing that sends.
   window.mmSend=function(){
+    mmSeedEngine();
+    var r=$('mm-room'); if(r)payRoom=r.value;
+    if(isCod===null){toast('⚠ Sila pilih cara penghantaran');return}
+    if(!selTime){toast('⚠ Sila pilih masa');return}
+    if(isCod===true&&String(payRoom).trim().length<3){toast('⚠ Nombor bilik terlalu pendek · cth 7B-12');return}
+    if(isCod===true&&!selBlock){toast('⚠ Sila pilih blok');return}
+    if($('inp-room'))$('inp-room').value=payRoom;
     mmSyncDetails();
     // The engine refuses to build a receipt without a payment method; a first
     // order with none chosen would otherwise bounce back with no explanation.
@@ -585,6 +634,7 @@ const JS = `
     try{saveCustomer()}catch(e){}
     toast('✅ Maklumat disimpan');
     drawMe();mmBadges();
+    if(pendingSaya){pendingSaya=false;mmClose2('mm-me');mmCheckout(2);return}
   };
   window.mmOrder=function(){mmClose();try{if(typeof openMyOrder==='function')openMyOrder()}catch(e){}};
 
