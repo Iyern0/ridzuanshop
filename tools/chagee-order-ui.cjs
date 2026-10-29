@@ -214,6 +214,7 @@ const JS = `
     document.body.classList.remove('mm-lock');
   }
   // back gesture / hardware back closes the sheet first
+  window.mmClose=mmClose;
   window.addEventListener('popstate',function(){var o=document.querySelector('.mm-sheet.open');if(o){mmClose();history.pushState(null,'',location.href)}});
 
   // ---- badges ------------------------------------------------------------

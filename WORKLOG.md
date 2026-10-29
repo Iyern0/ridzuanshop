@@ -1992,3 +1992,11 @@ commit `f20e7d0`.
 **Found / changed:** release v66 verified (`identical · marker · sw · swListsIndex`), sw `v66-20261028`.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/chagee-order-ui.cjs`.
 **Status:** ✅ confirmed
+
+### 2026-10-29 13:30 — v67: the sheet ✕ actually closes
+**What happened:** The owner reported the ✕ doing nothing. `mmClose` lived inside the UI module's IIFE and was never put on `window`, so every `onclick="mmClose()"` threw a ReferenceError at tap time. The sheets themselves were fine; only the close handler was missing from the global scope.
+**Found / changed:**
+- `window.mmClose=mmClose` — the three sheets (Pesanan, Kupon, Saya) now close on ✕; drink modal, receipt and admin use engine handlers and were unaffected.
+- New `tools/test-ui.mjs`: opens each sheet, clicks its ✕, asserts the sheet closed, and audits every `onclick` identifier against `window`. Run it against local or the live URL.
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `tools/chagee-order-ui.cjs`, `tools/test-ui.mjs`.
+**Status:** ✅ confirmed (test passes local; re-run against live after push)
