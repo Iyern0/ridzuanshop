@@ -2044,3 +2044,9 @@ commit `f20e7d0`.
 **Artefacts:** `tools/chagee-order-ui.cjs`, `drinks-order.html`/`index.html`/`sw.js` (v77), commit `cfa824c`.
 **Status:** ✅ confirmed (live marker `v77` + `id="mm-hero"` on both URLs)
 
+### 2026-10-29 15:32 — v78: options sheet tidied
+**What happened:** Owner had annotated the drink sheet's sugar/ice area as "make this section more neat"; the last pass left it as a column of full-width pills whose long labels ("Change to Condensed Milk") broke mid-word across a two-column grid.
+**Found / changed:** `tools/chagee-order-ui.cjs` — measured the 2-col attempt: tracks came out `148px / 148px` inside a 304 px body and labels wrapped as "Norm al", so the grid was abandoned for sugar/ice and kept only for the short add-ons. Sugar and ice now: one card per row (dot + full label + price right); extras: two-up grid. Re-measured `gridTemplateColumns: 304px` single column, 4 buttons, no broken words.
+**Artefacts:** `tools/chagee-order-ui.cjs`, `drinks-order.html`/`index.html`/`sw.js` (v78), commit `91c6468`.
+**Status:** ✅ confirmed (screenshot at 390 + live marker `v78`)
+
