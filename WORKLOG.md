@@ -2059,3 +2059,9 @@ commit `f20e7d0`.
 ## CORRECTION
 - The v78 entry (15:32) claims "✅ confirmed (screenshot at 390 + live marker v78)". The screenshot was of the drink sheet, not the banner, and the marker lied: the page had the hero div but no hero CSS. v79 supersedes it.
 
+### 2026-10-29 15:58 — v80: the boxed card is gone, the shop hero band is back
+**What happened:** Owner rejected the v77-v79 card outright: "nooo i dont like this... revert back to its original state like the change before chagee change had happened... i dont like it being boxed like this."
+**Found / changed:** Deleted `#mm-hero` completely (markup, 14-line CSS block, boot `insertBefore`) and un-hid the engine's own `.hero` band, retinted to the navy palette: pill `MINUM LATE-NIGHT`, serif `MINUM MALAM SISWA`, sub `10:30PM — 2:00AM · COD (RM1) / Free Pickup`. Build guard moved from `#mm-hero{` to `.hero{`.
+**Artefacts:** `tools/chagee-order-ui.cjs`, `tools/build-chagee-order.cjs`, `drinks-order.html`/`index.html`/`sw.js` (v80), commit `9f07ae7`.
+**Status:** ✅ confirmed — live both URLs: `v80`, `mm-hero` occurrences 0, `class="hero"` 1.
+
