@@ -2031,3 +2031,10 @@ commit `f20e7d0`.
 - Verified on the live root page: tick appears (`display:flex`, colour `rgb(123,224,176)`), toast z 1900 vs sheet 1400, tick hides after 4.5 s, and the profile survives a reload (`me-name` = "Test Pelanggan", tick hidden on a fresh load).
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `experiments/CHAGEE-ORDER.html`, `tools/chagee-order-ui.cjs`.
 **Status:** ✅ confirmed (live v75)
+
+### 2026-10-29 14:35 — v76: a repeat buyer never walks through "Saya"
+**What happened:** The owner annotated the checkout rail again: "remove saya if the section already filled." The footer button was hard-coded to `Saya →` and always opened step 2, even when the profile existed.
+**Found / changed:** `tools/chagee-order-ui.cjs` — `mmCanSkipSaya()` no longer requires `isCod!==null` (COD is inferred from having block+room); `mmRail()` builds `['BAKUL','BAYAR']` when the profile is complete; the basket footer label/handler follow the same predicate (`Bayar →` → `mmCheckout(3)`); saving the profile while the basket is open re-renders it so SAYA disappears immediately. Test `.scratch/test-skip-saya.mjs`: fresh buyer → rail `BAKUL SAYA BAYAR`, button `Saya →`; returning buyer → rail `BAKUL BAYAR`, button `Bayar →`, click lands on title `Bayar`, step 3 visible, 0 console errors.
+**Artefacts:** `drinks-order.html`/`index.html`/`sw.js` (v76), `tools/chagee-order-ui.cjs`, commit `09c535a`.
+**Status:** ✅ confirmed (local test + release verify identical)
+
