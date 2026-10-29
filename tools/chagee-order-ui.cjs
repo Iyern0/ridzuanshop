@@ -258,28 +258,27 @@ const JS = `
   window.mmChipSet=function(v){mmChip=v||'';mmFilter()};
 
   /* Owner note 1: the status line read as one long wrapped sentence. Split it
-     into a bold status word plus a quiet detail, and keep it to two lines. The
-     engine rewrites #status-bar.innerHTML each poll, so re-apply on mutation. */
+     into a bold status word plus a quiet detail, and keep it to two lines.
+     The engine re-renders that node, so the element is looked up on every tick
+     instead of being captured once. */
   (function(){
-    var bar=document.getElementById('status-bar');if(!bar||!window.MutationObserver)return;
-    var busy=false;
     function tidy(){
-      if(busy)return; busy=true;
-      try{
-        var txt=(bar.textContent||'').replace(/\s+/g,' ').trim();
-        var m=txt.match(/^(BUKA|TUTUP|OPEN|CLOSED)[\s·:,-]*(.*)$/i);
-        if(m){
-          var st=m[1].toUpperCase(), dt=m[2];
-          if(bar.dataset.shape!==st+dt){
-            bar.dataset.shape=st+dt;
-            bar.innerHTML='<span class="dot"></span><b class="st">'+st+'</b><span class="dt">'+dt.replace(/[<>&]/g,'')+'</span>';
-          }
-        }
-      }finally{ busy=false; }
+      var bar=document.getElementById('status-bar');
+      if(!bar)return;
+      var txt=(bar.textContent||'').replace(/\\s+/g,' ').trim();
+      var m=txt.match(/^(BUKA|TUTUP|OPEN|CLOSED)\\b[\\s\\u00b7:,-]*(.*)$/i);
+      if(!m)return;
+      var st=m[1].toUpperCase(), dt=m[2];
+      // The engine overwrites this node's content on every poll, so a cached
+      // shape is not proof the markup is still ours - check the children.
+      var stEl=bar.querySelector('.st'), dtEl=bar.querySelector('.dt');
+      if(stEl&&dtEl&&stEl.textContent===st&&dtEl.textContent===dt)return;
+      bar.dataset.shape=st+dt;
+      bar.innerHTML='<span class="dot"></span><b class="st">'+st+'</b>'
+        +'<span class="dt">'+dt+'</span>';
     }
     tidy();
-    new MutationObserver(tidy).observe(bar,{childList:true,subtree:true,characterData:true});
-    setInterval(tidy,4000);
+    setInterval(tidy,1200);
   })();
   window.mmFilter=function(){
     var q=String(($('mm-q')||{}).value||'').toLowerCase().trim();
