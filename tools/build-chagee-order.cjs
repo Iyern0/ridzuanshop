@@ -175,3 +175,8 @@ fs.writeFileSync(PREVIEW, preview);
 console.log(log.join(' · '));
 console.log('bytes ' + before + ' -> ' + s.length);
 console.log('written ' + OUT);
+
+// Guard: the skin's furniture must survive a CSS edit. v78 shipped a page whose
+// banner had lost its rules because a block replacement ate them.
+const MUST = ['#mm-hero{', '#c-sweet', '.card.disabled{'];
+MUST.forEach(function (sel) { if (s.indexOf(sel) < 0) throw new Error('skin lost ' + sel); });
