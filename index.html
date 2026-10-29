@@ -772,9 +772,9 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
      item was open. Menu cards are unpositioned, so 250 still beats them. */
   .bar{position:relative;z-index:250}
 </style>
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="../manifest.json">
+<link rel="icon" href="../icons/icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
 <meta name="theme-color" content="#C9A96A">
 
 <style id="chagee-skin">
@@ -1014,7 +1014,7 @@ body.mm-lock #cart-bar,body.mm-lock #notif-ask{display:none !important}
 <div class="opt" id="phone-section"><div class="l">📱 No. WhatsApp</div><input class="inp" id="inp-phone" placeholder="cth 0123456789" inputmode="tel" maxlength="20"><div style="font-size:12px;color:#9FB0C9;font-weight:700;margin-top:6px;line-height:1.5">Wajib — supaya kami boleh maklumkan bila pesanan anda siap.</div></div>
 <div class="opt" id="block-section"><div class="l">🏠 Blok</div><div class="block-grid" id="block-grid"></div><div id="room-row" style="display:none;margin-top:8px"><input class="inp" id="inp-room" placeholder="Nombor bilik / unit" maxlength="20"></div></div>
 <div class="opt" id="time-sec"><div class="l" id="time-label">⏰ When to deliver?</div><div id="time-pick" style="margin-top:10px"><div class="ts" id="times"></div><div id="pickup-note" style="display:none;font-size:14px;color:#9FB0C9;font-weight:600;margin-bottom:8px">We will notify you when it's done</div><div id="time-more" style="display:none;font-size:13px;color:#E0A44E;font-weight:800;margin-bottom:6px">Order for later? 👇</div><div id="time-pickup"><input class="inp" id="pickup-time" placeholder="e.g. 11:00 PM" maxlength="30"></div></div></div>
-<div class="opt" id="pay-section"><div class="l">💳 Bayar</div><div class="dt" id="pay"><button data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button><button data-method="coupon">&#127903; Kupon</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(201,169,106,0.1)"><img src="qr-duitnow.jpg" alt="DuitNow QR" style="width:210px;height:210px;display:block;border-radius:8px"></div><div style="font-size:13px;color:#9FB0C9;margin-top:8px;font-weight:600">Scan untuk bayar</div><a href="qr-duitnow.jpg" download="duitnow-qr.jpg" style="display:inline-block;margin-top:8px;font-size:12px;font-weight:800;color:#E0A44E;background:rgba(224,164,78,0.12);border:1px solid rgba(224,164,78,0.38);padding:6px 12px;border-radius:999px;text-decoration:none">⬇ Muat turun QR</a><div id="qr-claim-slot" style="margin-top:14px"></div></div></div>
+<div class="opt" id="pay-section"><div class="l">💳 Bayar</div><div class="dt" id="pay"><button data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button><button data-method="coupon">&#127903; Kupon</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(201,169,106,0.1)"><img src="../qr-duitnow.jpg" alt="DuitNow QR" style="width:210px;height:210px;display:block;border-radius:8px"></div><div style="font-size:13px;color:#9FB0C9;margin-top:8px;font-weight:600">Scan untuk bayar</div><a href="../qr-duitnow.jpg" download="duitnow-qr.jpg" style="display:inline-block;margin-top:8px;font-size:12px;font-weight:800;color:#E0A44E;background:rgba(224,164,78,0.12);border:1px solid rgba(224,164,78,0.38);padding:6px 12px;border-radius:999px;text-decoration:none">⬇ Muat turun QR</a><div id="qr-claim-slot" style="margin-top:14px"></div></div></div>
 <div class="opt" id="coupon-section" style="display:none"><div class="l">&#127903; Kupon Percuma</div><div style="display:flex;gap:8px;margin-top:10px"><input class="inp" id="inp-coupon" placeholder="Kod kupon" maxlength="12" autocomplete="off" autocapitalize="characters" style="flex:1;text-transform:uppercase;letter-spacing:1.5px"><button id="coupon-check" style="background:rgba(201,169,106,0.14);border:1px solid rgba(201,169,106,0.4);color:#C9A96A;font-family:var(--fd);font-weight:800;font-size:13px;padding:0 16px;border-radius:10px;cursor:pointer">Guna</button></div><div id="coupon-msg" style="font-size:13px;font-weight:700;margin-top:8px;line-height:1.5;color:#9FB0C9">Masukkan kod yang penjual beri. Satu kod untuk satu minuman percuma (add-on tetap dikenakan).</div></div>
 </div>
 <div class="ft"><div class="tr" style="border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:8px;margin-bottom:8px"><span>Subtotal</span><span style="font-family:var(--fd);font-weight:800;font-size:22px" id="sub">RM0.00</span></div>
@@ -3627,7 +3627,7 @@ document.addEventListener('visibilitychange',function(){if(document.visibilitySt
 document.addEventListener('focusin',function(e){const t=e.target;if(!t||!t.matches||!t.matches('input,textarea,select'))return;setTimeout(function(){try{t.scrollIntoView({block:'center',behavior:'smooth'})}catch(_){t.scrollIntoView()}},320)},true);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
 </script>
-<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js')</script>
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('../sw.js')</script>
 <!-- Build marker. Its only job is to answer "which shell is this browser
      actually running?" — the question a stale service-worker cache makes
      impossible to answer by looking. Because it is baked into the HTML, a
@@ -3635,7 +3635,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v68</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v70</div>
 
 <script>
 /* ===== CHAGEE-order UI =====================================================
@@ -3867,6 +3867,10 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
   }
   function mmCheckout(s){
     if(s===undefined)s=1;
+    // Payment can be reached straight from the basket on a repeat order, so the
+    // stored defaults (time slot, delivery, block/room) are applied here too -
+    // otherwise the engine refuses the order with "Sila pilih masa".
+    if(s===3) mmApplyProfile();
     if(s>1&&count()===0){s=1;toast('⚠ Bakul kosong')}
     if(s===2){
       mmApplyProfile();
@@ -3957,8 +3961,22 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
     mmCheckout(3);
   };
 
+  // The QR section is the engine's live DOM, not a copy: moving it keeps the
+  // image, the download link and the receipt upload all wired to the same code.
+  function mmQrMount(on){
+    var sec=$('qr-section'); if(!sec)return;
+    if(!sec._home){sec._home=sec.parentNode;sec._next=sec.nextSibling;}
+    if(on){
+      var host=$('mm-qr-host');
+      if(host){host.appendChild(sec);sec.style.display='block';}
+    }else if(sec.parentNode!==sec._home){
+      sec._home.insertBefore(sec,sec._next||null);
+      sec.style.display='none';
+    }
+  }
   function mmRenderPay(){
     var box=$('mm-step3');if(!box)return;
+    mmQrMount(false);
     var methods=[['cash','💵 Tunai'],['qr','📱 QR Pay'],['coupon','🎟 Kupon']];
     var dels=(typeof DELS!=='undefined'?DELS:[]).map(function(d){
       var dis=(typeof disDel!=='undefined'?disDel:[]).indexOf(d.t)>-1;
@@ -3974,8 +3992,9 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
       +(isCod===true?'<div class="mm-lbl">NO. BILIK</div><input class="mm-inp" id="mm-room" style="margin-top:6px" placeholder="cth 7B-12" maxlength="20" value="'+esc2(roomVal)+'">':'')
       +'<div class="mm-lbl">BILA</div><div class="mm-pick">'+(slots||'<button class="on">Bila siap</button>')+'</div>'
       +'<div class="mm-lbl">KAEDAH BAYAR</div><div class="mm-pick">'
-      +methods.map(function(m){return '<button class="'+(payM===m[0]?'on':'')+'" onclick="mmPickPay(\''+m[0]+'\')">'+m[1]+'</button>'}).join('')
+      +methods.map(function(m){return '<button data-method="'+m[0]+'" class="'+(payM===m[0]?'on':'')+'" onclick="mmPickPay(\''+m[0]+'\')">'+m[1]+'</button>'}).join('')
       +'</div>'
+      +'<div id="mm-qr-host" style="margin-top:12px"></div>'
       +'<div class="mm-lbl">KOD KUPON</div>'
       +'<div style="display:flex;gap:8px"><input class="mm-inp" id="mm-cpn" style="margin:0;letter-spacing:2px;text-transform:uppercase" placeholder="Kod kupon" maxlength="12">'
       +'<button class="mm-x" style="width:auto;padding:0 18px;font-size:12.5px;font-weight:900;flex-shrink:0" onclick="mmUseCode()">Guna</button></div>'
@@ -3989,6 +4008,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
     ft.className='mm-ft wa';
     ft.innerHTML='<div><div class="l">JUMLAH</div><div class="v">RM'+(total()+codFee()).toFixed(2)+'</div></div>'
       +'<button onclick="mmSend()">Hantar Pesanan</button>';
+    if(payM==='qr')mmQrMount(true);
     var cp=liveCpns?liveCpns():[];
     if(cp.length&&$('mm-cpn-msg'))$('mm-cpn-msg').textContent='Anda ada '+cp.length+' kupon — tekan Kupon di bar bawah untuk guna.';
   }

@@ -140,6 +140,18 @@ const split = UI.HTML.indexOf('<div class="mm-sheet"');
 if (split < 0) throw new Error('no sheet markup');
 const TOOLS = UI.HTML.slice(0, split), SHEETS = UI.HTML.slice(split);
 s = s.replace('<div id="menu-root"></div>', TOOLS + '\n<div id="menu-root"></div>');
+// Assets are relative to the repo root, but this page is written into
+// experiments/, so every root-relative asset is re-pointed one level up.
+// Without this the DuitNow QR and the PWA icons 404 and render as broken boxes.
+function fixAssetPaths(html) {
+  return html
+    .replace(/href="icons\//g, 'href="../icons/')
+    .replace(/src="icons\//g, 'src="../icons/')
+    .replace(/(href|src)="qr-duitnow\.jpg"/g, '$1="../qr-duitnow.jpg"')
+    .replace(/rel="manifest" href="manifest\.json"/g, 'rel="manifest" href="../manifest.json"')
+    .replace(/navigator\.serviceWorker\.register\('sw\.js'\)/g, "navigator.serviceWorker.register('../sw.js')");
+}
+
 if (!s.includes('<div class="page-foot">')) throw new Error('no page-foot');
 s = s.replace('<div class="page-foot">', SHEETS + TAB + '\n<div class="page-foot">');
 if (!s.includes('</body>')) throw new Error('no body close');
@@ -155,6 +167,7 @@ scripts.forEach((x, i) => {
   try { new vm.Script(x[1]); }
   catch (e) { throw new Error('inline script ' + i + ' does not parse: ' + e.message); }
 });
+s = fixAssetPaths(s);
 fs.writeFileSync(OUT, s);
 fs.writeFileSync(PREVIEW, s);
 console.log(log.join(' · '));

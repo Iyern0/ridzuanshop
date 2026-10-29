@@ -389,6 +389,10 @@ const JS = `
   }
   function mmCheckout(s){
     if(s===undefined)s=1;
+    // Payment can be reached straight from the basket on a repeat order, so the
+    // stored defaults (time slot, delivery, block/room) are applied here too -
+    // otherwise the engine refuses the order with "Sila pilih masa".
+    if(s===3) mmApplyProfile();
     if(s>1&&count()===0){s=1;toast('⚠ Bakul kosong')}
     if(s===2){
       mmApplyProfile();
@@ -479,8 +483,22 @@ const JS = `
     mmCheckout(3);
   };
 
+  // The QR section is the engine's live DOM, not a copy: moving it keeps the
+  // image, the download link and the receipt upload all wired to the same code.
+  function mmQrMount(on){
+    var sec=$('qr-section'); if(!sec)return;
+    if(!sec._home){sec._home=sec.parentNode;sec._next=sec.nextSibling;}
+    if(on){
+      var host=$('mm-qr-host');
+      if(host){host.appendChild(sec);sec.style.display='block';}
+    }else if(sec.parentNode!==sec._home){
+      sec._home.insertBefore(sec,sec._next||null);
+      sec.style.display='none';
+    }
+  }
   function mmRenderPay(){
     var box=$('mm-step3');if(!box)return;
+    mmQrMount(false);
     var methods=[['cash','💵 Tunai'],['qr','📱 QR Pay'],['coupon','🎟 Kupon']];
     var dels=(typeof DELS!=='undefined'?DELS:[]).map(function(d){
       var dis=(typeof disDel!=='undefined'?disDel:[]).indexOf(d.t)>-1;
@@ -496,8 +514,9 @@ const JS = `
       +(isCod===true?'<div class="mm-lbl">NO. BILIK</div><input class="mm-inp" id="mm-room" style="margin-top:6px" placeholder="cth 7B-12" maxlength="20" value="'+esc2(roomVal)+'">':'')
       +'<div class="mm-lbl">BILA</div><div class="mm-pick">'+(slots||'<button class="on">Bila siap</button>')+'</div>'
       +'<div class="mm-lbl">KAEDAH BAYAR</div><div class="mm-pick">'
-      +methods.map(function(m){return '<button class="'+(payM===m[0]?'on':'')+'" onclick="mmPickPay(\\''+m[0]+'\\')">'+m[1]+'</button>'}).join('')
+      +methods.map(function(m){return '<button data-method="'+m[0]+'" class="'+(payM===m[0]?'on':'')+'" onclick="mmPickPay(\\''+m[0]+'\\')">'+m[1]+'</button>'}).join('')
       +'</div>'
+      +'<div id="mm-qr-host" style="margin-top:12px"></div>'
       +'<div class="mm-lbl">KOD KUPON</div>'
       +'<div style="display:flex;gap:8px"><input class="mm-inp" id="mm-cpn" style="margin:0;letter-spacing:2px;text-transform:uppercase" placeholder="Kod kupon" maxlength="12">'
       +'<button class="mm-x" style="width:auto;padding:0 18px;font-size:12.5px;font-weight:900;flex-shrink:0" onclick="mmUseCode()">Guna</button></div>'
@@ -511,6 +530,7 @@ const JS = `
     ft.className='mm-ft wa';
     ft.innerHTML='<div><div class="l">JUMLAH</div><div class="v">RM'+(total()+codFee()).toFixed(2)+'</div></div>'
       +'<button onclick="mmSend()">Hantar Pesanan</button>';
+    if(payM==='qr')mmQrMount(true);
     var cp=liveCpns?liveCpns():[];
     if(cp.length&&$('mm-cpn-msg'))$('mm-cpn-msg').textContent='Anda ada '+cp.length+' kupon — tekan Kupon di bar bawah untuk guna.';
   }
