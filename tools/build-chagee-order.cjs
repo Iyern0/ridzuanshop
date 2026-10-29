@@ -167,9 +167,11 @@ scripts.forEach((x, i) => {
   try { new vm.Script(x[1]); }
   catch (e) { throw new Error('inline script ' + i + ' does not parse: ' + e.message); }
 });
-s = fixAssetPaths(s);
+// Only the experiments/ copy sits one level down; the root copy must keep the
+// plain relative paths or ../qr-duitnow.jpg resolves outside the site.
+const preview = fixAssetPaths(s);
 fs.writeFileSync(OUT, s);
-fs.writeFileSync(PREVIEW, s);
+fs.writeFileSync(PREVIEW, preview);
 console.log(log.join(' · '));
 console.log('bytes ' + before + ' -> ' + s.length);
 console.log('written ' + OUT);
