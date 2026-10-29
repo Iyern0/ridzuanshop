@@ -17,6 +17,7 @@ import path from 'node:path';
 
 const DIR = path.resolve(process.argv[1], '..', '..');
 const PAGE = path.join(DIR, 'drinks-order.html');
+const PREVIEW = path.join(DIR, 'experiments', 'CHAGEE-ORDER.html');
 const INDEX = path.join(DIR, 'index.html');
 const SW = path.join(DIR, 'sw.js');
 
@@ -52,6 +53,18 @@ page = page.replace(marker, '$1' + tag + '$2');
 fs.writeFileSync(PAGE, page);
 fs.writeFileSync(INDEX, page);
 console.log('marker  ' + tag);
+
+// The experiments/ copy is a separate file on Pages; if it keeps an older
+// marker the page looks stale even though the root is current.
+if (fs.existsSync(PREVIEW)) {
+  const prev = fs.readFileSync(PREVIEW, 'utf8');
+  if (!marker.test(prev)) {
+    console.error('build marker not found in ' + PREVIEW);
+    process.exit(1);
+  }
+  fs.writeFileSync(PREVIEW, prev.replace(marker, '$1' + tag + '$2'));
+  console.log('preview ' + tag);
+}
 
 // 3. service worker
 const vline = /const V = 'v\d+-\d+';/;
