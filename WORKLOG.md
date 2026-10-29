@@ -2050,3 +2050,12 @@ commit `f20e7d0`.
 **Artefacts:** `tools/chagee-order-ui.cjs`, `drinks-order.html`/`index.html`/`sw.js` (v78), commit `91c6468`.
 **Status:** ✅ confirmed (screenshot at 390 + live marker `v78`)
 
+### 2026-10-29 15:52 — v79: banner to the top; v78 had deleted its CSS
+**What happened:** The owner marked four elements: the status bar ("here") and the banner's disc/title/tagline ("."). A one-question check answered "move the banner above the status bar". While doing it I found v78 had shipped a broken banner: the option-picker rewrite replaced the CSS slice from `#c-sweet…` to the sold-out comment, and the `#mm-hero` rules lived in exactly that slice. Live v78 therefore had the div with no styling.
+**Found / changed:** Hero CSS restored; boot moves `#mm-hero` above `#status-bar` (`insertBefore` unconditionally — the equality guard skipped it because both were siblings). Measured after: hero `top 10`, status bar `top 100`, `display:flex`, gradient present. `tools/build-chagee-order.cjs` now throws if the output is missing `#mm-hero{`, `#c-sweet` or `.card.disabled{` — the exact class of edit that caused this.
+**Artefacts:** `tools/chagee-order-ui.cjs`, `tools/build-chagee-order.cjs`, `drinks-order.html`/`index.html`/`sw.js` (v79), commit `ea32855`.
+**Status:** ✅ confirmed — live `/` and `/drinks-order.html` report `v79` and one `#mm-hero{` rule each.
+
+## CORRECTION
+- The v78 entry (15:32) claims "✅ confirmed (screenshot at 390 + live marker v78)". The screenshot was of the drink sheet, not the banner, and the marker lied: the page had the hero div but no hero CSS. v79 supersedes it.
+
