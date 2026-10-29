@@ -2021,3 +2021,13 @@ commit `f20e7d0`.
 - Two build traps, both only visible by inspecting the built page: a heredoc turned `\b` into a real backspace byte, and a template literal silently strips `\s`, so a regex reached the page as `/s+/g` and matched nothing.
 **Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `experiments/CHAGEE-ORDER.html`, `tools/chagee-order-ui.cjs`, `tools/release.mjs`.
 **Status:** ✅ confirmed (live root v74: hero hidden, no chips, `.st`/`.dt` present, sold overlay covers the card 173x162)
+
+### 2026-10-29 14:40 — v75: saving the profile now says so
+**What happened:** The owner noted that tapping Simpan gave no feedback ("maklumat anda disimpan"). There was already a toast, but it was invisible: the engine toast is z-index 600 while the Saya sheet sits at 1400, and on the checkout path the sheet closed the instant the save ran.
+**Found / changed:**
+- `#toast` raised to `z-index:1900` in the skin so any toast is visible above the sheets.
+- Card shows an inline green line `✅ Maklumat anda disimpan` under the button for 4.5 s, re-shown after `drawMe()` rebuilds the card.
+- Toast copy changed to the owner's wording.
+- Verified on the live root page: tick appears (`display:flex`, colour `rgb(123,224,176)`), toast z 1900 vs sheet 1400, tick hides after 4.5 s, and the profile survives a reload (`me-name` = "Test Pelanggan", tick hidden on a fresh load).
+**Artefacts:** `drinks-order.html`, `index.html`, `sw.js`, `experiments/CHAGEE-ORDER.html`, `tools/chagee-order-ui.cjs`.
+**Status:** ✅ confirmed (live v75)
