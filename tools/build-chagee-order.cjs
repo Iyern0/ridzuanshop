@@ -59,11 +59,7 @@ body{
   background:linear-gradient(180deg, rgba(14,35,64,0.0) 0%, rgba(10,27,51,0.55) 100%);
   border-bottom:1px solid var(--line);padding:calc(34px + env(safe-area-inset-top)) 18px 26px;
 }
-.hero:before{
-  content:"MINUM LATE-NIGHT";display:block;width:max-content;margin:0 auto 14px;
-  font-size:10.5px;font-weight:900;letter-spacing:2.4px;color:#0A1B33;background:var(--mint);
-  padding:5px 13px;border-radius:999px;
-}
+
 .hero h1{font-family:var(--fs);font-weight:700;font-size:clamp(30px,9vw,44px);letter-spacing:0.4px;line-height:1.02;text-transform:uppercase}
 .hero h1 span{color:var(--mint);font-family:var(--fs);font-style:italic;font-weight:500}
 .hero .sub{color:#C9D3E4;margin-top:12px;letter-spacing:0.3px;font-size:12px;text-transform:none}
