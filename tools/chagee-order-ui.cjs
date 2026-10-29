@@ -380,9 +380,10 @@ const JS = `
     }
     var t=total();
     var ft=$('mm-ft');
+    var skip=mmCanSkipSaya();
     if(ft)ft.innerHTML='<div><div class="l">'+unitCount()+' ITEM · SUBTOTAL</div><div class="v">RM'+t.toFixed(2)+'</div></div>'
-      +'<button '+(list.length?'':'disabled')+'>Saya →</button>';
-    if(ft&&list.length)ft.querySelector('button').onclick=function(){mmCheckout(2)};
+      +'<button '+(list.length?'':'disabled')+'>'+(skip?'Bayar →':'Saya →')+'</button>';
+    if(ft&&list.length)ft.querySelector('button').onclick=function(){mmCheckout(skip?3:2)};
   }
   window.mmAddItem=function(n){
     var card=document.querySelectorAll('#menu-root .card')[n];if(!card)return;
@@ -397,9 +398,10 @@ const JS = `
   var step=1;
   function mmRail(){
     var r=$('mm-rail');if(!r)return;
-    var names=['BAKUL','SAYA','BAYAR'];
+    var names=mmCanSkipSaya()?['BAKUL','BAYAR']:['BAKUL','SAYA','BAYAR'];
+    var pos=names.length===2?(step>=3?1:0):step-1;
     r.innerHTML=names.map(function(n,i){
-      var c=i+1<step?'mm-done':(i+1===step?'mm-on':'');
+      var c=i<pos?'mm-done':(i===pos?'mm-on':'');
       return '<div class="'+c+'">'+n+'<i></i></div>';
     }).join('');
   }
@@ -422,7 +424,7 @@ const JS = `
   }
   function mmCanSkipSaya(){
     var c=pro();
-    return !!(c&&c.n&&c.ph&&c.block&&c.room&&isCod!==null);
+    return !!(c&&c.n&&c.ph&&c.block&&c.room);
   }
   function mmCheckout(s){
     if(s===undefined)s=1;
@@ -700,6 +702,8 @@ const JS = `
     drawMe();mmBadges();
     // drawMe rebuilds the card, so the tick is shown on the fresh element
     showSaved();
+    var ck=$('mm-checkout');
+    if(ck&&ck.style.display!=='none'&&step===1)mmRenderBasket();
     if(pendingSaya){pendingSaya=false;mmClose2('mm-me');mmCheckout(2);return}
   };
   window.mmOrder=function(){mmClose();try{if(typeof openMyOrder==='function')openMyOrder()}catch(e){}};
