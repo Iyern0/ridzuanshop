@@ -2071,3 +2071,9 @@ commit `f20e7d0`.
 **Artefacts:** `tools/build-chagee-order.cjs`, `drinks-order.html`/`index.html`/`sw.js` (v81), commit `98be06d`.
 **Status:** ✅ confirmed — live both URLs: `v81`, `LATE-NIGHT` count 0.
 
+### 2026-10-30 21:50 — v82: the owner's Touch 'n Go DuitNow QR replaces the old one
+**What happened:** Owner sent a WhatsApp image (`WhatsApp Image 2026-10-30 at 21.24.27.jpeg`, 827x1280) and said "replace the qr into this qr".
+**Found / changed:** New card is portrait (Touch 'n Go eWallet, MALAYSIA NATIONAL QR, name MUHAMMAD RIDZUAN BIN JASNEH), so the engine's fixed `width:210px;height:210px` would have squashed it. `qr-duitnow.jpg` replaced byte-for-byte; the `<img>` in `tools/engine-source.html` is now `height:auto`, and `#mm-qr-host` reserves 104 px bottom padding so the sticky "Hantar Pesanan" footer cannot sit on top of the code. Measured in-browser: rendered 210x325 from an 827x1280 source, no distortion.
+**Artefacts:** `app/qr-duitnow.jpg`, `tools/engine-source.html`, `tools/chagee-order-ui.cjs`, build outputs (`v82`), commit `3b9cf1b`.
+**Status:** ✅ confirmed — live `qr-duitnow.jpg` SHA-256 `481ed8fe…` == local, 84,227 bytes; page reports `v82` + `height:auto`.
+
