@@ -1329,7 +1329,7 @@ const NTFY_BOOT='c758e2fa4997ccdd81a6844e3b0c98cb';
 const NOTIFY_DOC='settings/notify';
 let _ntfyTopic='';
 // The owner's own Telegram channel. Empty means "keep using ntfy".
-let _tgToken='',_tgChat='';
+let _tgToken='',_tgChat='',_tgRelay='';
 function ntfyLocalGet(){try{return localStorage.getItem('mms_ntfy')||''}catch(e){return''}}
 function ntfyTopic(){return _ntfyTopic||ntfyLocalGet()||NTFY_BOOT}
 function ntfyNewTopic(){
@@ -1345,7 +1345,7 @@ function loadNotify(){
   if(!db)return Promise.resolve(ntfyTopic());
   return db.doc(NOTIFY_DOC).get().then(function(d){
     const dd=d.exists?(d.data()||{}):{};
-    _tgToken=String(dd.tgToken||'').trim();_tgChat=String(dd.tgChat||'').trim();
+    _tgToken=String(dd.tgToken||'').trim();_tgChat=String(dd.tgChat||'').trim();_tgRelay=String(dd.tgRelay||'').trim();
     const t=String(dd.topic||'').trim();
     if(t){_ntfyTopic=t;try{localStorage.setItem('mms_ntfy',t)}catch(e){}}
     return ntfyTopic();
@@ -1497,9 +1497,9 @@ function tgSend(title,body,click){
   // Some networks block api.telegram.org from the browser while allowing other
   // hosts, so the same call is retried through a public CORS relay. The bot is
   // dedicated and revocable; a relay is the price of having no server.
-  var routes=[direct,
+  var routes=(_tgRelay?[_tgRelay]:[]).concat([direct,
     'https://api.allorigins.win/raw?url='+encodeURIComponent(direct),
-    'https://corsproxy.io/?'+encodeURIComponent(direct)];
+    'https://corsproxy.io/?'+encodeURIComponent(direct)]);
   var tryAt=function(i){
     if(i>=routes.length)return Promise.reject(new Error('semua laluan gagal'));
     var ctrl=null,timer=null;
@@ -1507,7 +1507,7 @@ function tgSend(title,body,click){
     if(ctrl)timer=setTimeout(function(){try{ctrl.abort()}catch(e){}},9000);
     return fetch(routes[i],{method:'POST',headers:{'Content-Type':'application/json'},body:msg,signal:ctrl?ctrl.signal:undefined})
       .then(function(r){if(timer)clearTimeout(timer);return r.text()})
-      .then(function(t){var j=null;try{j=JSON.parse(t)}catch(e){}
+      .then(function(t){var j=null;try{j=JSON.parse(t||'')}catch(e){}
         if(j&&j.ok)return true;
         if(j&&j.error_code)throw new Error('telegram '+((j&&j.description)||j.error_code));
         throw new Error('respons tak dikenali');
@@ -2970,6 +2970,7 @@ function admSettings(pg){const u=(getAuth()&&getAuth().currentUser)?getAuth().cu
 +'<div class="a-form"><div class="a-sec" style="border:none;padding-top:0">✈️ Telegram (pilihan)</div>'
 +'<div style="font-size:13px;color:#9A9385;line-height:1.55;margin-bottom:10px">Isi dua ruang ini dan notifikasi pesanan masuk ke <b>Telegram</b> anda. Kosongkan kedua-duanya untuk kembali ke ntfy.</div>'
 +'<input class="inp" id="tg-token" placeholder="Bot token - 123456:ABC-DEF..." value="'+esc(_tgToken)+'" style="margin-bottom:8px;font-size:12px">'
++'<input class="inp" id="tg-relay" placeholder="Relay URL (pilihan) - https://.../api/tg" value="'+esc(_tgRelay)+'" style="margin-bottom:8px;font-size:12px">'
 +'<input class="inp" id="tg-chat" placeholder="Chat ID - cth 123456789" value="'+esc(_tgChat)+'" style="margin-bottom:8px;font-size:12px">'
 +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
 +'<button onclick="admSaveTg(this)" style="background:#00D4AA;color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:13px;padding:10px 14px;border-radius:10px;cursor:pointer">💾 Simpan</button>'
@@ -3242,9 +3243,10 @@ function admTgStatus(msg){var el=document.getElementById('tg-status');if(el&&msg
 function admSaveTg(btn){
   var t=String((document.getElementById('tg-token')||{}).value||'').trim();
   var c=String((document.getElementById('tg-chat')||{}).value||'').trim();
+  var rl=String((document.getElementById('tg-relay')||{}).value||'').trim();
   var db=getDb();if(!db||!isAdmin()){toast('❌ Hanya admin');return}
-  db.doc(NOTIFY_DOC).set({tgToken:t,tgChat:c,at:Date.now()},{merge:true}).then(function(){
-    _tgToken=t;_tgChat=c;
+  db.doc(NOTIFY_DOC).set({tgToken:t,tgChat:c,tgRelay:rl,at:Date.now()},{merge:true}).then(function(){
+    _tgToken=t;_tgChat=c;_tgRelay=rl;
     toast(t&&c?'✅ Notifikasi kini ke Telegram':'✅ Telegram dimatikan - guna ntfy');
     admTgStatus(t&&c?'Notifikasi pesanan dihantar ke Telegram.':'Kosong - notifikasi guna ntfy.');
   }).catch(function(e){toast('❌ Gagal simpan: '+e.message)});
