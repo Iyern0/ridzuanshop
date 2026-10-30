@@ -1832,11 +1832,12 @@ function ntfySend(title,body,click,priority,tags){
 // One door for every owner alert. Telegram first; if it is unset or the call
 // fails, ntfy still fires so an order is never silently missed.
 function alertOwner(title,body,click,priority,tags){
-  if(tgReady())return tgSend(title,body,click).catch(function(e){
-    console.warn('telegram gagal, guna ntfy:',e);
-    return ntfySend(title,body,click,priority,tags);
-  });
-  return ntfySend(title,body,click,priority,tags);
+  // ntfy goes first: the phone subscribed to the topic gets a real push with no
+  // relay, no bot token and no chat id to get wrong. Telegram follows as a
+  // best-effort copy for whoever keeps that chat open.
+  var first=ntfySend(title,body,click,priority,tags);
+  try{tgSend(title,body,click).catch(function(){})}catch(e){}
+  return first;
 }
 // Visible result of the owner alert, on the customer's own screen. Without it a
 // silent failure looks identical to a success and only the console knows.
@@ -3821,7 +3822,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v98</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v99</div>
 
 <script>
 /* ===== CHAGEE-order UI =====================================================

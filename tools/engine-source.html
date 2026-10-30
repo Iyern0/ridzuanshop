@@ -1545,11 +1545,12 @@ function ntfySend(title,body,click,priority,tags){
 // One door for every owner alert. Telegram first; if it is unset or the call
 // fails, ntfy still fires so an order is never silently missed.
 function alertOwner(title,body,click,priority,tags){
-  if(tgReady())return tgSend(title,body,click).catch(function(e){
-    console.warn('telegram gagal, guna ntfy:',e);
-    return ntfySend(title,body,click,priority,tags);
-  });
-  return ntfySend(title,body,click,priority,tags);
+  // ntfy goes first: the phone subscribed to the topic gets a real push with no
+  // relay, no bot token and no chat id to get wrong. Telegram follows as a
+  // best-effort copy for whoever keeps that chat open.
+  var first=ntfySend(title,body,click,priority,tags);
+  try{tgSend(title,body,click).catch(function(){})}catch(e){}
+  return first;
 }
 // Visible result of the owner alert, on the customer's own screen. Without it a
 // silent failure looks identical to a success and only the console knows.
