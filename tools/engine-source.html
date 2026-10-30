@@ -1492,17 +1492,29 @@ function tgSend(title,body,click){
   if(!tgReady()||typeof fetch!=='function')return Promise.reject(new Error('telegram belum diisi'));
   var link=click?('\n\n<a href="'+click+'">Buka pesanan</a>'):'';
   var txt=asciiHeader(title)+'\n'+body+link;
-  var ctrl=null,timer=null;
-  try{if(typeof AbortController!=='undefined')ctrl=new AbortController()}catch(e){}
-  if(ctrl)timer=setTimeout(function(){try{ctrl.abort()}catch(e){}},8000);
-  return fetch('https://api.telegram.org/bot'+_tgToken+'/sendMessage',{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({chat_id:_tgChat,text:txt,parse_mode:'HTML',disable_web_page_preview:true}),
-    signal:ctrl?ctrl.signal:undefined
-  }).then(function(r){if(timer)clearTimeout(timer);return r.json()}).then(function(j){
-    if(!j||!j.ok)throw new Error('telegram '+((j&&j.description)||'gagal'));
-    return true;
-  }).catch(function(e){if(timer)clearTimeout(timer);throw e});
+  var msg=JSON.stringify({chat_id:_tgChat,text:txt,parse_mode:'HTML',disable_web_page_preview:true});
+  var direct='https://api.telegram.org/bot'+_tgToken+'/sendMessage';
+  // Some networks block api.telegram.org from the browser while allowing other
+  // hosts, so the same call is retried through a public CORS relay. The bot is
+  // dedicated and revocable; a relay is the price of having no server.
+  var routes=[direct,
+    'https://api.allorigins.win/raw?url='+encodeURIComponent(direct),
+    'https://corsproxy.io/?'+encodeURIComponent(direct)];
+  var tryAt=function(i){
+    if(i>=routes.length)return Promise.reject(new Error('semua laluan gagal'));
+    var ctrl=null,timer=null;
+    try{if(typeof AbortController!=='undefined')ctrl=new AbortController()}catch(e){}
+    if(ctrl)timer=setTimeout(function(){try{ctrl.abort()}catch(e){}},9000);
+    return fetch(routes[i],{method:'POST',headers:{'Content-Type':'application/json'},body:msg,signal:ctrl?ctrl.signal:undefined})
+      .then(function(r){if(timer)clearTimeout(timer);return r.text()})
+      .then(function(t){var j=null;try{j=JSON.parse(t)}catch(e){}
+        if(j&&j.ok)return true;
+        if(j&&j.error_code)throw new Error('telegram '+((j&&j.description)||j.error_code));
+        throw new Error('respons tak dikenali');
+      })
+      .catch(function(e){if(timer)clearTimeout(timer);if(/telegram /.test(e.message))throw e;return tryAt(i+1)});
+  };
+  return tryAt(0);
 }
 function ntfySend(title,body,click,priority,tags){
   var ctrl=null,timer=null;

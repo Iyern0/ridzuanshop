@@ -1,7 +1,7 @@
 // MINUM MALAM SISWA — service worker
 // Cache name is versioned. Bump V when the app changes so old shells get evicted.
-// Current: v88 (build marker in the page corner, so a stale cache is visible at a glance)
-const V = 'v88-20261030';
+// Current: v89 (build marker in the page corner, so a stale cache is visible at a glance)
+const V = 'v89-20261030';
 // the DuitNow QR and the install icons must survive a cold, offline start
 // The payment QR is deliberately NOT in the shell: its URL is versioned ( ?v=N )
 // so a replaced card always comes from the network instead of a stale cache.

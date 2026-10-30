@@ -1062,7 +1062,7 @@ body.mm-lock #cart-bar,body.mm-lock #notif-ask{display:none !important}
 <div class="opt" id="phone-section"><div class="l">📱 No. WhatsApp</div><input class="inp" id="inp-phone" placeholder="cth 0123456789" inputmode="tel" maxlength="20"><div style="font-size:12px;color:#9FB0C9;font-weight:700;margin-top:6px;line-height:1.5">Wajib — supaya kami boleh maklumkan bila pesanan anda siap.</div></div>
 <div class="opt" id="block-section"><div class="l">🏠 Blok</div><div class="block-grid" id="block-grid"></div><div id="room-row" style="display:none;margin-top:8px"><input class="inp" id="inp-room" placeholder="Nombor bilik / unit" maxlength="20"></div></div>
 <div class="opt" id="time-sec"><div class="l" id="time-label">⏰ When to deliver?</div><div id="time-pick" style="margin-top:10px"><div class="ts" id="times"></div><div id="pickup-note" style="display:none;font-size:14px;color:#9FB0C9;font-weight:600;margin-bottom:8px">We will notify you when it's done</div><div id="time-more" style="display:none;font-size:13px;color:#E0A44E;font-weight:800;margin-bottom:6px">Order for later? 👇</div><div id="time-pickup"><input class="inp" id="pickup-time" placeholder="e.g. 11:00 PM" maxlength="30"></div></div></div>
-<div class="opt" id="pay-section"><div class="l">💳 Bayar</div><div class="dt" id="pay"><button data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button><button data-method="coupon">&#127903; Kupon</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(201,169,106,0.1)"><img src="qr-duitnow.jpg?v=88" alt="DuitNow QR" style="width:210px;height:auto;display:block;border-radius:8px"></div><div style="font-size:13px;color:#9FB0C9;margin-top:8px;font-weight:600">Scan untuk bayar</div><a href="qr-duitnow.jpg?v=88" download="duitnow-qr.jpg" style="display:inline-block;margin-top:8px;font-size:12px;font-weight:800;color:#E0A44E;background:rgba(224,164,78,0.12);border:1px solid rgba(224,164,78,0.38);padding:6px 12px;border-radius:999px;text-decoration:none">⬇ Muat turun QR</a><div id="qr-claim-slot" style="margin-top:14px"></div></div></div>
+<div class="opt" id="pay-section"><div class="l">💳 Bayar</div><div class="dt" id="pay"><button data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button><button data-method="coupon">&#127903; Kupon</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(201,169,106,0.1)"><img src="qr-duitnow.jpg?v=89" alt="DuitNow QR" style="width:210px;height:auto;display:block;border-radius:8px"></div><div style="font-size:13px;color:#9FB0C9;margin-top:8px;font-weight:600">Scan untuk bayar</div><a href="qr-duitnow.jpg?v=89" download="duitnow-qr.jpg" style="display:inline-block;margin-top:8px;font-size:12px;font-weight:800;color:#E0A44E;background:rgba(224,164,78,0.12);border:1px solid rgba(224,164,78,0.38);padding:6px 12px;border-radius:999px;text-decoration:none">⬇ Muat turun QR</a><div id="qr-claim-slot" style="margin-top:14px"></div></div></div>
 <div class="opt" id="coupon-section" style="display:none"><div class="l">&#127903; Kupon Percuma</div><div style="display:flex;gap:8px;margin-top:10px"><input class="inp" id="inp-coupon" placeholder="Kod kupon" maxlength="12" autocomplete="off" autocapitalize="characters" style="flex:1;text-transform:uppercase;letter-spacing:1.5px"><button id="coupon-check" style="background:rgba(201,169,106,0.14);border:1px solid rgba(201,169,106,0.4);color:#C9A96A;font-family:var(--fd);font-weight:800;font-size:13px;padding:0 16px;border-radius:10px;cursor:pointer">Guna</button></div><div id="coupon-msg" style="font-size:13px;font-weight:700;margin-top:8px;line-height:1.5;color:#9FB0C9">Masukkan kod yang penjual beri. Satu kod untuk satu minuman percuma (add-on tetap dikenakan).</div></div>
 </div>
 <div class="ft"><div class="tr" style="border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:8px;margin-bottom:8px"><span>Subtotal</span><span style="font-family:var(--fd);font-weight:800;font-size:22px" id="sub">RM0.00</span></div>
@@ -1779,17 +1779,29 @@ function tgSend(title,body,click){
   if(!tgReady()||typeof fetch!=='function')return Promise.reject(new Error('telegram belum diisi'));
   var link=click?('\n\n<a href="'+click+'">Buka pesanan</a>'):'';
   var txt=asciiHeader(title)+'\n'+body+link;
-  var ctrl=null,timer=null;
-  try{if(typeof AbortController!=='undefined')ctrl=new AbortController()}catch(e){}
-  if(ctrl)timer=setTimeout(function(){try{ctrl.abort()}catch(e){}},8000);
-  return fetch('https://api.telegram.org/bot'+_tgToken+'/sendMessage',{
-    method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({chat_id:_tgChat,text:txt,parse_mode:'HTML',disable_web_page_preview:true}),
-    signal:ctrl?ctrl.signal:undefined
-  }).then(function(r){if(timer)clearTimeout(timer);return r.json()}).then(function(j){
-    if(!j||!j.ok)throw new Error('telegram '+((j&&j.description)||'gagal'));
-    return true;
-  }).catch(function(e){if(timer)clearTimeout(timer);throw e});
+  var msg=JSON.stringify({chat_id:_tgChat,text:txt,parse_mode:'HTML',disable_web_page_preview:true});
+  var direct='https://api.telegram.org/bot'+_tgToken+'/sendMessage';
+  // Some networks block api.telegram.org from the browser while allowing other
+  // hosts, so the same call is retried through a public CORS relay. The bot is
+  // dedicated and revocable; a relay is the price of having no server.
+  var routes=[direct,
+    'https://api.allorigins.win/raw?url='+encodeURIComponent(direct),
+    'https://corsproxy.io/?'+encodeURIComponent(direct)];
+  var tryAt=function(i){
+    if(i>=routes.length)return Promise.reject(new Error('semua laluan gagal'));
+    var ctrl=null,timer=null;
+    try{if(typeof AbortController!=='undefined')ctrl=new AbortController()}catch(e){}
+    if(ctrl)timer=setTimeout(function(){try{ctrl.abort()}catch(e){}},9000);
+    return fetch(routes[i],{method:'POST',headers:{'Content-Type':'application/json'},body:msg,signal:ctrl?ctrl.signal:undefined})
+      .then(function(r){if(timer)clearTimeout(timer);return r.text()})
+      .then(function(t){var j=null;try{j=JSON.parse(t)}catch(e){}
+        if(j&&j.ok)return true;
+        if(j&&j.error_code)throw new Error('telegram '+((j&&j.description)||j.error_code));
+        throw new Error('respons tak dikenali');
+      })
+      .catch(function(e){if(timer)clearTimeout(timer);if(/telegram /.test(e.message))throw e;return tryAt(i+1)});
+  };
+  return tryAt(0);
 }
 function ntfySend(title,body,click,priority,tags){
   var ctrl=null,timer=null;
@@ -3783,7 +3795,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v88</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v89</div>
 
 <script>
 /* ===== CHAGEE-order UI =====================================================
