@@ -1497,9 +1497,15 @@ function tgSend(title,body,click){
   // Some networks block api.telegram.org from the browser while allowing other
   // hosts, so the same call is retried through a public CORS relay. The bot is
   // dedicated and revocable; a relay is the price of having no server.
-  var routes=(_tgRelay?[_tgRelay]:[]).concat([direct,
-    'https://api.allorigins.win/raw?url='+encodeURIComponent(direct),
-    'https://corsproxy.io/?'+encodeURIComponent(direct)]);
+  // The owner's own relay first (canonical alias, then whatever was typed), then
+  // Telegram itself, then public relays. A 404 from an old deployment URL falls
+  // through instead of failing the whole call.
+  var routes=[];
+  var canon='https://mms-relay-kiifu.vercel.app/api/tg';
+  if(_tgRelay)routes.push(_tgRelay);
+  if(routes.indexOf(canon)<0)routes.push(canon);
+  routes.push(direct,
+    'https://api.allorigins.win/raw?url='+encodeURIComponent(direct));
   var tryAt=function(i){
     if(i>=routes.length)return Promise.reject(new Error('semua laluan gagal'));
     var ctrl=null,timer=null;
