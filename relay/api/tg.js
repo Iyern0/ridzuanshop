@@ -12,7 +12,17 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'content-type');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   if (req.method === 'OPTIONS') return res.status(204).end();
-  if (req.method !== 'POST') return res.status(405).json({ ok: false, description: 'POST sahaja' });
+  // GET with ?t=... is the image-pixel fallback. An <img> request is a simple
+  // request: no preflight, no CORS verdict, and it cannot be blocked by a page
+  // that refuses fetch. That makes it the most reliable hop on a bad network.
+  if (req.method === 'GET') {
+    const t = String((req.query && req.query.t) || '');
+    if (!t) return res.status(200).json({ ok: true, pong: true });
+    req.body = { text: t };
+  } else if (req.method !== 'POST') {
+    return res.status(405).json({ ok: false, description: 'POST sahaja' });
+  }
+  console.log('relay hit', req.method, String((req.body && req.body.text) || '').slice(0, 40));
 
   let body = req.body;
   if (typeof body === 'string') { try { body = JSON.parse(body); } catch { body = {}; } }
