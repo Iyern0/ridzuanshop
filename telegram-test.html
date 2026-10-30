@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ms"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ujian Telegram</title>
+<style>
+body{margin:0;padding:18px;background:#12100E;color:#F2EFE9;font:15px/1.55 system-ui,sans-serif}
+h1{font-size:18px;margin:0 0 14px}
+button{display:block;width:100%;margin:10px 0;padding:14px;border-radius:12px;border:1px solid rgba(255,255,255,.18);background:#1B1713;color:#F2EFE9;font:800 15px system-ui;cursor:pointer}
+pre{white-space:pre-wrap;word-break:break-word;background:#1B1713;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:12px;font:12.5px/1.5 ui-monospace,monospace;min-height:120px}
+.ok{color:#00D4AA}.bad{color:#FF8A8A}
+</style></head>
+<body>
+<h1>Ujian sambungan Telegram</h1>
+<p style="color:#9A9385;margin:0 0 12px">Tekan butang, kemudian tunjuk hasil ini kepada saya.</p>
+<button id="b1">1 · Hantar melalui fetch (POST)</button>
+<button id="b2">2 · Hantar melalui imej (GET)</button>
+<pre id="out">belum diuji</pre>
+<script>
+var RELAY='https://mms-relay-kiifu.vercel.app/api/tg';
+var out=document.getElementById('out'), log=[];
+function show(s,ok){log.push(s);out.textContent=log.join('\n');out.className=ok?'ok':'bad'}
+document.getElementById('b1').onclick=function(){
+  log=[];show('POST '+RELAY+' …',true);
+  var t0=Date.now();
+  fetch(RELAY,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({text:'Ujian dari telefon: '+new Date().toLocaleString()})})
+    .then(function(r){show('status '+r.status+' ('+(Date.now()-t0)+' ms)',r.ok);return r.text()})
+    .then(function(t){show('badan: '+t.slice(0,300),true)})
+    .catch(function(e){show('GAGAL: '+e.message+' — fetch tidak sampai ke pelayan (CORS/rangkaian)',false)});
+};
+document.getElementById('b2').onclick=function(){
+  log=[];show('GET imej '+RELAY+'?t=…',true);
+  var t0=Date.now(),im=new Image();
+  im.onload=function(){show('imej dimuatkan ('+(Date.now()-t0)+' ms) — permintaan keluar',true)};
+  im.onerror=function(){show('imej GAGAL ('+(Date.now()-t0)+' ms) — permintaan tidak keluar atau bukan imej',false)};
+  im.src=RELAY+'?t='+encodeURIComponent('Ujian imej: '+new Date().toLocaleString())+'&r='+Date.now();
+};
+</script>
+</body></html>
