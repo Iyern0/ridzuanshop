@@ -2083,3 +2083,10 @@ commit `f20e7d0`.
 **Artefacts:** `tools/engine-source.html`, `tools/release.mjs`, `sw.js`, build outputs `v83`, `v84`.
 **Status:** ✅ confirmed — live page `v84` + `?v=84`; `sw.js` `V=v84` with `qr-duitnow` count 0; `qr-duitnow.jpg?v=84` SHA-256 `481ed8fe…` == local.
 
+### 2026-10-30 22:25 — v85: alerts can go to Telegram instead of ntfy
+**What happened:** Owner asked to send order alerts to Telegram rather than ntfy.sh.
+**Found / changed:** `tools/engine-source.html` — `_tgToken`/`_tgChat` read from `settings/notify` alongside the topic; new `tgSend`/`ntfySend`/`alertOwner`; `notifyOrderPush` and `notifyOwnerClaim` now call `alertOwner`, which prefers Telegram and falls back to ntfy on failure. Settings has a Telegram card (save / detect chat id via getUpdates / test). Build guard caught a broken string literal (`
+` written as a real newline) before it shipped; fixed by building the escape with `chr(92)+'n'`.
+**Artefacts:** `tools/engine-source.html`, build outputs `v85`, commit `2ae1478`.
+**Status:** ✅ code live (`v85`, `api.telegram.org/bot` x2 on both URLs) · ⚠️ end-to-end send untested until the owner supplies a bot token + chat id.
+
