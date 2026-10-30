@@ -50,6 +50,15 @@ if (!marker.test(page)) {
   process.exit(1);
 }
 page = page.replace(marker, '$1' + tag + '$2');
+
+// 2b. the payment QR is fetched by URL, so a phone that cached the old card keeps
+//     showing it. Stamp the query string with the release number to bust that.
+const qnum = tag.replace(/^v/, '');
+const qrq = /qr-duitnow\.jpg\?v=\d+/g;
+if (qrq.test(page)) {
+  page = page.replace(/qr-duitnow\.jpg\?v=\d+/g, 'qr-duitnow.jpg?v=' + qnum);
+  console.log('qr      ?v=' + qnum);
+}
 fs.writeFileSync(PAGE, page);
 fs.writeFileSync(INDEX, page);
 console.log('marker  ' + tag);
