@@ -2077,3 +2077,9 @@ commit `f20e7d0`.
 **Artefacts:** `app/qr-duitnow.jpg`, `tools/engine-source.html`, `tools/chagee-order-ui.cjs`, build outputs (`v82`), commit `3b9cf1b`.
 **Status:** ✅ confirmed — live `qr-duitnow.jpg` SHA-256 `481ed8fe…` == local, 84,227 bytes; page reports `v82` + `height:auto`.
 
+### 2026-10-30 22:05 — v83/v84: the QR was replaced but the phone kept showing the old one
+**What happened:** Owner: "why did you didnt change the qr to the one i just sent." The file on disk and the *cache-busted* URL carried the new card, but the plain URL `qr-duitnow.jpg` still returned the OLD bytes (`b6205073…` vs new `481ed8fe…`) from the GitHub Pages CDN, and `sw.js` SHELL cached that same bare URL. My v82 "live hash matches" check had used `?cb=` so it measured a different URL state than the page requested — the check proved the wrong thing.
+**Found / changed:** (a) `tools/engine-source.html` src + download href now `qr-duitnow.jpg?v=0`; (b) `tools/release.mjs` stamps that query with the release number (`qr  ?v=83`); (c) `sw.js` SHELL no longer contains the QR, so it always comes from the network.
+**Artefacts:** `tools/engine-source.html`, `tools/release.mjs`, `sw.js`, build outputs `v83`, `v84`.
+**Status:** ✅ confirmed — live page `v84` + `?v=84`; `sw.js` `V=v84` with `qr-duitnow` count 0; `qr-duitnow.jpg?v=84` SHA-256 `481ed8fe…` == local.
+
