@@ -1547,7 +1547,7 @@ function notifyOrderPush(o){
   if(o.code){try{if(localStorage.getItem('mms_push_'+o.code))return;localStorage.setItem('mms_push_'+o.code,'1')}catch(e){}}
   const send=function(){return alertOwner(title,body,click,'high','shopping_cart')};
   send().catch(function(){return new Promise(function(res){setTimeout(res,1200)}).then(send)})
-        .catch(function(err){console.warn('notifikasi pesanan gagal:',err)});
+        .catch(function(err){console.warn('notifikasi pesanan gagal:',err);try{toast('⚠ Notifikasi Telegram gagal: '+((err&&err.message)||err))}catch(e){}});
 }
 
 let _actx=null;

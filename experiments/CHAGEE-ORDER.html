@@ -1834,7 +1834,7 @@ function notifyOrderPush(o){
   if(o.code){try{if(localStorage.getItem('mms_push_'+o.code))return;localStorage.setItem('mms_push_'+o.code,'1')}catch(e){}}
   const send=function(){return alertOwner(title,body,click,'high','shopping_cart')};
   send().catch(function(){return new Promise(function(res){setTimeout(res,1200)}).then(send)})
-        .catch(function(err){console.warn('notifikasi pesanan gagal:',err)});
+        .catch(function(err){console.warn('notifikasi pesanan gagal:',err);try{toast('⚠ Notifikasi Telegram gagal: '+((err&&err.message)||err))}catch(e){}});
 }
 
 let _actx=null;
@@ -3783,7 +3783,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v93</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v94</div>
 
 <script>
 /* ===== CHAGEE-order UI =====================================================
