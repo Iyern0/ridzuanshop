@@ -1827,7 +1827,7 @@ function notifyOrderPush(o){
   const no=(o.no?'#'+fmtNo(o.no):'#?');
   const kind=o.pay==='coupon'?'Kupon':(o.room?'COD':'Ambil sendiri');
   const title=asciiHeader('Pesanan baru '+no+' - '+kind+(o.total!=null?(' - RM'+Number(o.total).toFixed(2)):''));
-  const body=(o.items?o.items+' minuman':'Pesanan baru')+'. Belum dibayar - tekan untuk buka pesanan.';
+  const body=(o.saved===false?'⚠ TIDAK TERSIMPAN di Firestore. ':'')+(o.items?o.items+' minuman':'Pesanan baru')+'. Belum dibayar - tekan untuk buka pesanan.';
   const click=asciiHeader(SITE_URL+'?admin=1'+(o.code?('&order='+encodeURIComponent(o.code)):''));
   // One alert per order per browser. A reload or a retry used to push the same
   // "Pesanan baru" again, which is indistinguishable from spam without being it.
@@ -2203,8 +2203,10 @@ if(payM==='qr'&&!stagedProof){toast('⚠ Hantar resit dahulu');closeConfirm();re
   const proof=(payM==='qr'&&stagedProof)?stagedProof:'';
   const disp={code:code,no:orderNo,items:OrdDisplay(ordMap),total:total,isCod:isCod,r:r,n:n,when:when,pay:payM,_claim:!!proof};
   clearTimeout(_wd);
+  // The alert goes out before the save verdict: a failed write used to take an
+  // early return, which meant the owner was never told an order was attempted.
+  notifyOrderPush({code:code,no:orderNo,items:items,total:total,room:r,pay:payM,saved:saved});
   if(!saved){showDone({...disp,warn:true});return}
-  notifyOrderPush({code:code,no:orderNo,items:items,total:total,room:r,pay:payM});
   track('order_sent');chime();buzzOk();
   // Two pushes by design: this one says a drink needs making, the claim alert
   // (notifyOwnerClaim) says money needs checking. They carry different titles
@@ -3783,7 +3785,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v94</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v95</div>
 
 <script>
 /* ===== CHAGEE-order UI =====================================================

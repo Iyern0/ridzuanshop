@@ -1540,7 +1540,7 @@ function notifyOrderPush(o){
   const no=(o.no?'#'+fmtNo(o.no):'#?');
   const kind=o.pay==='coupon'?'Kupon':(o.room?'COD':'Ambil sendiri');
   const title=asciiHeader('Pesanan baru '+no+' - '+kind+(o.total!=null?(' - RM'+Number(o.total).toFixed(2)):''));
-  const body=(o.items?o.items+' minuman':'Pesanan baru')+'. Belum dibayar - tekan untuk buka pesanan.';
+  const body=(o.saved===false?'⚠ TIDAK TERSIMPAN di Firestore. ':'')+(o.items?o.items+' minuman':'Pesanan baru')+'. Belum dibayar - tekan untuk buka pesanan.';
   const click=asciiHeader(SITE_URL+'?admin=1'+(o.code?('&order='+encodeURIComponent(o.code)):''));
   // One alert per order per browser. A reload or a retry used to push the same
   // "Pesanan baru" again, which is indistinguishable from spam without being it.
@@ -1916,8 +1916,10 @@ if(payM==='qr'&&!stagedProof){toast('⚠ Hantar resit dahulu');closeConfirm();re
   const proof=(payM==='qr'&&stagedProof)?stagedProof:'';
   const disp={code:code,no:orderNo,items:OrdDisplay(ordMap),total:total,isCod:isCod,r:r,n:n,when:when,pay:payM,_claim:!!proof};
   clearTimeout(_wd);
+  // The alert goes out before the save verdict: a failed write used to take an
+  // early return, which meant the owner was never told an order was attempted.
+  notifyOrderPush({code:code,no:orderNo,items:items,total:total,room:r,pay:payM,saved:saved});
   if(!saved){showDone({...disp,warn:true});return}
-  notifyOrderPush({code:code,no:orderNo,items:items,total:total,room:r,pay:payM});
   track('order_sent');chime();buzzOk();
   // Two pushes by design: this one says a drink needs making, the claim alert
   // (notifyOwnerClaim) says money needs checking. They carry different titles
