@@ -1345,7 +1345,7 @@ function loadNotify(){
   if(!db)return Promise.resolve(ntfyTopic());
   return db.doc(NOTIFY_DOC).get().then(function(d){
     const dd=d.exists?(d.data()||{}):{};
-    _tgToken=String(dd.tgToken||'').trim();_tgChat=String(dd.tgChat||'').trim();_tgRelay=String(dd.tgRelay||'').trim();
+    _tgToken=String(dd.tgToken||'').trim();_tgChat=String(dd.tgChat||'').trim();_tgRelay=String(dd.tgRelay||'').trim().replace(/\/+$/,'');if(_tgRelay&&!/\/api\/tg$/.test(_tgRelay))_tgRelay+='/api/tg';
     const t=String(dd.topic||'').trim();
     if(t){_ntfyTopic=t;try{localStorage.setItem('mms_ntfy',t)}catch(e){}}
     return ntfyTopic();

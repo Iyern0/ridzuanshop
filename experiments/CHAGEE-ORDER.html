@@ -1632,7 +1632,7 @@ function loadNotify(){
   if(!db)return Promise.resolve(ntfyTopic());
   return db.doc(NOTIFY_DOC).get().then(function(d){
     const dd=d.exists?(d.data()||{}):{};
-    _tgToken=String(dd.tgToken||'').trim();_tgChat=String(dd.tgChat||'').trim();_tgRelay=String(dd.tgRelay||'').trim();
+    _tgToken=String(dd.tgToken||'').trim();_tgChat=String(dd.tgChat||'').trim();_tgRelay=String(dd.tgRelay||'').trim().replace(/\/+$/,'');if(_tgRelay&&!/\/api\/tg$/.test(_tgRelay))_tgRelay+='/api/tg';
     const t=String(dd.topic||'').trim();
     if(t){_ntfyTopic=t;try{localStorage.setItem('mms_ntfy',t)}catch(e){}}
     return ntfyTopic();
@@ -3797,7 +3797,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v90</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v91</div>
 
 <script>
 /* ===== CHAGEE-order UI =====================================================
