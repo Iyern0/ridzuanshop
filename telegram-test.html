@@ -13,6 +13,7 @@ pre{white-space:pre-wrap;word-break:break-word;background:#1B1713;border:1px sol
 <p style="color:#9A9385;margin:0 0 12px">Tekan butang, kemudian tunjuk hasil ini kepada saya.</p>
 <button id="b1">1 · Hantar melalui fetch (POST)</button>
 <button id="b2">2 · Hantar melalui imej (GET)</button>
+<button id="b3">3 · Hantar push ntfy ke topik</button>
 <pre id="out">belum diuji</pre>
 <script>
 var RELAY='https://mms-relay-kiifu.vercel.app/api/tg';
@@ -25,6 +26,15 @@ document.getElementById('b1').onclick=function(){
     .then(function(r){show('status '+r.status+' ('+(Date.now()-t0)+' ms)',r.ok);return r.text()})
     .then(function(t){show('badan: '+t.slice(0,300),true)})
     .catch(function(e){show('GAGAL: '+e.message+' — fetch tidak sampai ke pelayan (CORS/rangkaian)',false)});
+};
+document.getElementById('b3').onclick=function(){
+  var TOPIC='81901a76c7689b9386c70023e15a1add';
+  log=[];show('POST https://ntfy.sh/'+TOPIC+' …',true);
+  var t0=Date.now();
+  fetch('https://ntfy.sh/'+TOPIC,{method:'POST',headers:{'Title':'Ujian ntfy dari telefon','Priority':'high','Tags':'bell'},body:'Kalau ini masuk dalam app ntfy, push berfungsi. '+new Date().toLocaleString()})
+    .then(function(r){show('status '+r.status+' ('+(Date.now()-t0)+' ms)',r.ok);return r.text()})
+    .then(function(t){show('badan: '+t.slice(0,200),true)})
+    .catch(function(e){show('GAGAL: '+e.message+' — ntfy.sh tidak dapat dihubungi dari rangkaian ini',false)});
 };
 document.getElementById('b2').onclick=function(){
   log=[];show('GET imej '+RELAY+'?t=…',true);
