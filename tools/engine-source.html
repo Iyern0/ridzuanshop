@@ -3249,23 +3249,41 @@ function admTestTg(btn){
     .then(function(){_tgToken=old[0];_tgChat=old[1];if(btn){btn.disabled=false;btn.textContent=btn.dataset.label||'✈️ Hantar ujian'}});
 }
 // Telegram only reveals a chat id after the owner has messaged the bot, so the
-// last update is read and the chat taken from it.
+// bot identity is fetched first (to print a tappable link) and then the last
+// update is read. Every failure says what to do, because "getUpdates failed" is
+// not actionable from a phone.
 function admDetectTg(btn){
   var t=String((document.getElementById('tg-token')||{}).value||'').trim();
   if(!t){toast('⚠ Isi bot token dulu');return}
   if(btn){btn.disabled=true;btn.dataset.label=btn.textContent;btn.textContent='Mencari...'}
-  fetch('https://api.telegram.org/bot'+t+'/getUpdates?limit=10').then(function(r){return r.json()}).then(function(j){
-    if(!j||!j.ok)throw new Error((j&&j.description)||'getUpdates gagal');
-    var ups=j.result||[],id='';
-    for(var i=ups.length-1;i>=0;i--){
-      var m=ups[i].message||ups[i].edited_message||ups[i].channel_post;
-      if(m&&m.chat&&m.chat.id!=null){id=String(m.chat.id);break}
-    }
-    if(!id)throw new Error('tiada mesej - buka bot, tekan Start, hantar satu mesej, cuba lagi');
-    var el=document.getElementById('tg-chat');if(el)el.value=id;
-    toast('✅ Chat ID dijumpai: '+id);
-    admTgStatus('Chat ID dijumpai. Tekan Simpan.');
-  }).catch(function(e){toast('❌ '+e.message)})
+  var say=function(msg,link){
+    var el=document.getElementById('tg-status');
+    if(el){el.innerHTML=msg+(link?(' <a href="'+link+'" target="_blank" rel="noopener" style="color:#00D4AA;font-weight:800">buka bot</a>'):'')}
+    toast(msg.replace(/<[^>]+>/g,''));
+  };
+  var api='https://api.telegram.org/bot'+t;
+  fetch(api+'/getMe').then(function(r){return r.json()}).then(function(j){
+    if(!j||!j.ok)throw new Error((j&&j.description)||'token tidak sah');
+    var uname=(j.result&&j.result.username)||'';
+    var link=uname?('https://t.me/'+uname):'';
+    return fetch(api+'/getUpdates?limit=10&offset=-1').then(function(r){return r.json()}).then(function(u){
+      if(!u||!u.ok){
+        if(u&&u.error_code===409)throw new Error('Bot ini guna webhook. Buang webhook dulu: buka api.telegram.org/bot<TOKEN>/deleteWebhook');
+        throw new Error((u&&u.description)||'getUpdates gagal');
+      }
+      var ups=u.result||[],id='';
+      for(var i=ups.length-1;i>=0;i--){
+        var m=ups[i].message||ups[i].edited_message||ups[i].channel_post;
+        if(m&&m.chat&&m.chat.id!=null){id=String(m.chat.id);break}
+      }
+      if(!id){
+        say('Token betul'+(uname?(' (@'+uname+')'):'')+', tapi bot belum terima mesej. Tekan link di sebelah, tekan START, hantar satu mesej (cth: hi), kemudian tekan Cari chat ID lagi.', link);
+        return;
+      }
+      var el=document.getElementById('tg-chat');if(el)el.value=id;
+      say('✅ Chat ID dijumpai: <b>'+id+'</b>. Tekan Simpan.', link);
+    });
+  }).catch(function(e){say('❌ '+esc(e.message||String(e)))})
    .then(function(){if(btn){btn.disabled=false;btn.textContent=btn.dataset.label||'🔍 Cari chat ID'}});
 }
 // ---- Trusted devices -------------------------------------------------------
