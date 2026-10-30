@@ -583,7 +583,7 @@ const JS = `
       +'<div class="mm-lbl">KAEDAH BAYAR</div><div class="mm-pick">'
       +methods.map(function(m){return '<button data-method="'+m[0]+'" class="'+(payM===m[0]?'on':'')+'" onclick="mmPickPay(\\''+m[0]+'\\')">'+m[1]+'</button>'}).join('')
       +'</div>'
-      +'<div id="mm-qr-host" style="margin-top:12px"></div>'
+      +'<div id="mm-qr-host" style="margin-top:12px;padding-bottom:104px"></div>'
       +'<div class="mm-lbl">KOD KUPON</div>'
       +'<div style="display:flex;gap:8px"><input class="mm-inp" id="mm-cpn" style="margin:0;letter-spacing:2px;text-transform:uppercase" placeholder="Kod kupon" maxlength="12">'
       +'<button class="mm-x" style="width:auto;padding:0 18px;font-size:12.5px;font-weight:900;flex-shrink:0" onclick="mmUseCode()">Guna</button></div>'
