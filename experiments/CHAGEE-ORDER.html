@@ -1615,6 +1615,8 @@ function orderRef(o){if(!o)return'#';if(o.no)return'#'+fmtNo(o.no);if(o.code)ret
 const NTFY_BOOT='c758e2fa4997ccdd81a6844e3b0c98cb';
 const NOTIFY_DOC='settings/notify';
 let _ntfyTopic='';
+// The owner's own Telegram channel. Empty means "keep using ntfy".
+let _tgToken='',_tgChat='';
 function ntfyLocalGet(){try{return localStorage.getItem('mms_ntfy')||''}catch(e){return''}}
 function ntfyTopic(){return _ntfyTopic||ntfyLocalGet()||NTFY_BOOT}
 function ntfyNewTopic(){
@@ -1629,7 +1631,9 @@ function loadNotify(){
   const db=getDb();
   if(!db)return Promise.resolve(ntfyTopic());
   return db.doc(NOTIFY_DOC).get().then(function(d){
-    const t=d.exists?String((d.data()||{}).topic||'').trim():'';
+    const dd=d.exists?(d.data()||{}):{};
+    _tgToken=String(dd.tgToken||'').trim();_tgChat=String(dd.tgChat||'').trim();
+    const t=String(dd.topic||'').trim();
     if(t){_ntfyTopic=t;try{localStorage.setItem('mms_ntfy',t)}catch(e){}}
     return ntfyTopic();
   }).catch(function(){return ntfyTopic()});
@@ -1745,19 +1749,7 @@ function notifyOwnerClaim(o){
     try{if(typeof AbortController!=='undefined')ctrl=new AbortController()}catch(e){}
     var timer=null;
     if(ctrl){timer=setTimeout(function(){try{ctrl.abort()}catch(e){}},6000)}
-    fetch('https://ntfy.sh/'+ntfyTopic(),{
-      method:'POST',
-      headers:{
-        'Content-Type':'text/plain; charset=utf-8',
-        'Title':title,
-        'Priority':'urgent',
-        'Tags':'money_with_wings',
-        'Click':click,
-        'Icon':asciiHeader(SITE_URL+'icons/icon-192.png')
-      },
-      body:body,
-      signal:ctrl?ctrl.signal:undefined
-    }).catch(function(err){
+    alertOwner(title,body,click,'urgent','money_with_wings').catch(function(err){
       // Never silent again. This exact silence is why the alert disappeared for
       // an afternoon and nobody could tell from the app.
       console.warn('notifikasi penjual gagal:',err);
@@ -1777,6 +1769,49 @@ function notifyOwnerClaim(o){
 //
 // "Reliable" here means one retry and a bounded wait, so a flaky connection does
 // not lose the alert with nothing in the console.
+// --- owner alerts: Telegram when it is configured, ntfy otherwise ----------
+// The Telegram call is made by the customer's browser, so the bot token lives
+// in settings/notify beside the topic and is readable by anyone who opens the
+// page or the doc. A dedicated bot you can revoke in one tap is the trade for
+// having no server of our own.
+function tgReady(){return !!(_tgToken&&_tgChat)}
+function tgSend(title,body,click){
+  if(!tgReady()||typeof fetch!=='function')return Promise.reject(new Error('telegram belum diisi'));
+  var link=click?('\n\n<a href="'+click+'">Buka pesanan</a>'):'';
+  var txt=asciiHeader(title)+'\n'+body+link;
+  var ctrl=null,timer=null;
+  try{if(typeof AbortController!=='undefined')ctrl=new AbortController()}catch(e){}
+  if(ctrl)timer=setTimeout(function(){try{ctrl.abort()}catch(e){}},8000);
+  return fetch('https://api.telegram.org/bot'+_tgToken+'/sendMessage',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({chat_id:_tgChat,text:txt,parse_mode:'HTML',disable_web_page_preview:true}),
+    signal:ctrl?ctrl.signal:undefined
+  }).then(function(r){if(timer)clearTimeout(timer);return r.json()}).then(function(j){
+    if(!j||!j.ok)throw new Error('telegram '+((j&&j.description)||'gagal'));
+    return true;
+  }).catch(function(e){if(timer)clearTimeout(timer);throw e});
+}
+function ntfySend(title,body,click,priority,tags){
+  var ctrl=null,timer=null;
+  try{if(typeof AbortController!=='undefined')ctrl=new AbortController()}catch(e){}
+  if(ctrl)timer=setTimeout(function(){try{ctrl.abort()}catch(e){}},7000);
+  return fetch('https://ntfy.sh/'+ntfyTopic(),{
+    method:'POST',
+    headers:{'Content-Type':'text/plain; charset=utf-8','Title':title,'Priority':priority||'high','Tags':tags||'shopping_cart',
+             'Click':click||'','Icon':asciiHeader(SITE_URL+'icons/icon-192.png')},
+    body:body,signal:ctrl?ctrl.signal:undefined
+  }).then(function(r){if(timer)clearTimeout(timer);if(!r.ok)throw new Error('ntfy '+r.status);return true})
+   .catch(function(e){if(timer)clearTimeout(timer);throw e});
+}
+// One door for every owner alert. Telegram first; if it is unset or the call
+// fails, ntfy still fires so an order is never silently missed.
+function alertOwner(title,body,click,priority,tags){
+  if(tgReady())return tgSend(title,body,click).catch(function(e){
+    console.warn('telegram gagal, guna ntfy:',e);
+    return ntfySend(title,body,click,priority,tags);
+  });
+  return ntfySend(title,body,click,priority,tags);
+}
 function notifyOrderPush(o){
   if(typeof fetch!=='function')return;
   const no=(o.no?'#'+fmtNo(o.no):'#?');
@@ -1787,18 +1822,7 @@ function notifyOrderPush(o){
   // One alert per order per browser. A reload or a retry used to push the same
   // "Pesanan baru" again, which is indistinguishable from spam without being it.
   if(o.code){try{if(localStorage.getItem('mms_push_'+o.code))return;localStorage.setItem('mms_push_'+o.code,'1')}catch(e){}}
-  const send=function(){
-    var ctrl=null,timer=null;
-    try{if(typeof AbortController!=='undefined')ctrl=new AbortController()}catch(e){}
-    if(ctrl)timer=setTimeout(function(){try{ctrl.abort()}catch(e){}},7000);
-    return fetch('https://ntfy.sh/'+ntfyTopic(),{
-      method:'POST',
-      headers:{'Content-Type':'text/plain; charset=utf-8','Title':title,'Priority':'high','Tags':'shopping_cart',
-               'Click':click,'Icon':asciiHeader(SITE_URL+'icons/icon-192.png')},
-      body:body,signal:ctrl?ctrl.signal:undefined
-    }).then(function(r){if(timer)clearTimeout(timer);if(!r.ok)throw new Error('ntfy '+r.status);return true})
-      .catch(function(e){if(timer)clearTimeout(timer);throw e});
-  };
+  const send=function(){return alertOwner(title,body,click,'high','shopping_cart')};
   send().catch(function(){return new Promise(function(res){setTimeout(res,1200)}).then(send)})
         .catch(function(err){console.warn('notifikasi pesanan gagal:',err)});
 }
@@ -3218,6 +3242,17 @@ function admSettings(pg){const u=(getAuth()&&getAuth().currentUser)?getAuth().cu
 +'<button onclick="admShareTopic()" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);color:#FBF4E6;font-family:var(--fd);font-weight:800;font-size:13px;padding:10px 14px;border-radius:10px;cursor:pointer">↗ Kongsi</button>'
 +'</div>'
 +'<div style="font-size:12px;color:#9FB0C9;margin-top:10px;line-height:1.6">Telefon kedua: pasang app <b>ntfy</b> → <b>+</b> → <i>Subscribe to topic</i> → tampal topik di atas. Benarkan notifikasi dan buang sekatan bateri, kemudian tekan <b>Hantar ujian</b>.</div></div>'
++'<div class="a-form"><div class="a-sec" style="border:none;padding-top:0">✈️ Telegram (pilihan)</div>'
++'<div style="font-size:13px;color:#9FB0C9;line-height:1.55;margin-bottom:10px">Isi dua ruang ini dan notifikasi pesanan masuk ke <b>Telegram</b> anda. Kosongkan kedua-duanya untuk kembali ke ntfy.</div>'
++'<input class="inp" id="tg-token" placeholder="Bot token - 123456:ABC-DEF..." value="'+esc(_tgToken)+'" style="margin-bottom:8px;font-size:12px">'
++'<input class="inp" id="tg-chat" placeholder="Chat ID - cth 123456789" value="'+esc(_tgChat)+'" style="margin-bottom:8px;font-size:12px">'
++'<div style="display:flex;gap:8px;flex-wrap:wrap">'
++'<button onclick="admSaveTg(this)" style="background:#C9A96A;color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:13px;padding:10px 14px;border-radius:10px;cursor:pointer">💾 Simpan</button>'
++'<button onclick="admDetectTg(this)" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);color:#FBF4E6;font-family:var(--fd);font-weight:800;font-size:13px;padding:10px 14px;border-radius:10px;cursor:pointer">🔍 Cari chat ID</button>'
++'<button onclick="admTestTg(this)" style="background:rgba(201,169,106,0.14);border:1px solid rgba(201,169,106,0.4);color:#C9A96A;font-family:var(--fd);font-weight:800;font-size:13px;padding:10px 14px;border-radius:10px;cursor:pointer">✈️ Hantar ujian</button>'
++'</div>'
++'<div id="tg-status" style="font-size:12px;color:#9FB0C9;margin-top:8px;line-height:1.6">'+((_tgToken&&_tgChat)?'Notifikasi pesanan dihantar ke Telegram.':'Kosong - notifikasi guna ntfy.')+'</div>'
++'<div style="font-size:12px;color:#9FB0C9;margin-top:8px;line-height:1.6">Cara: @BotFather &rarr; /newbot &rarr; salin token. Buka bot anda, tekan <b>Start</b>, hantar satu mesej, kemudian tekan <b>Cari chat ID</b>. Token ini boleh dibaca sesiapa yang buka page - guna bot khas, dan buat semula bila perlu.</div></div>'
 +'<div class="a-form"><div class="a-sec" style="border:none;padding-top:0">🔐 Akaun Admin</div><div style="font-size:14px;margin-bottom:8px;color:#9FB0C9">Log masuk sebagai</div><div style="font-size:14px;font-weight:800;color:#C9A96A;margin-bottom:4px">'+esc(u?u.email:'—')+'</div><div style="font-size:12px;color:#9FB0C9;margin-bottom:12px">Tukar password melalui Firebase Console.</div><button onclick="admSignOutNow()" style="width:100%;background:rgba(225,75,61,0.1);border:1px solid rgba(225,75,61,0.25);color:#E14B3D;font-weight:800;font-size:14px;padding:11px;border-radius:10px;cursor:pointer">🔒 Log Keluar</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">📱 Peranti Dipercayai</div><div id="adm-devices" style="font-size:13px;color:#9FB0C9;line-height:1.5">Memuatkan…</div></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">☁️ Storage</div><div style="font-size:14px;margin-bottom:12px;color:#C9A96A;font-weight:700">Firestore — real-time sync, rules locked</div></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">🕐 Waktu Buka</div><div class="row"><input class="inp" id="st-open" placeholder="10:30PM" style="flex:1"><input class="inp" id="st-close" placeholder="2:00AM" style="flex:1"></div><div style="font-size:12px;color:#9FB0C9;margin-bottom:12px">Format: 10:30PM / 2:00AM</div><button onclick="admSaveHours()" style="background:#C9A96A;color:#000;border:none;font-weight:800;font-size:14px;padding:10px 18px;border-radius:10px;cursor:pointer">Simpan Waktu</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">🙋 Siapa Kami</div><div class="row"><input class="inp" id="st-wn" placeholder="Nama (cth: Zul)" style="flex:1"></div><div class="row"><input class="inp" id="st-wb" placeholder="Blok (cth: Blok Zamrud, Sem 5)" style="flex:1"></div><div class="row"><input class="inp" id="st-wnote" placeholder="Balasan biasa (cth: reply ~2 min)" style="flex:1"></div><div class="row"><input class="inp" id="st-wimg" placeholder="URL gambar (pilihan)" style="flex:1"></div><button onclick="admSaveWho()" style="background:#C9A96A;color:#000;border:none;font-weight:800;font-size:14px;padding:10px 18px;border-radius:10px;cursor:pointer">Simpan</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">💾 Data</div><div style="font-size:14px;color:#9FB0C9;margin-bottom:12px">Muat turun semua pesanan sebagai fail (backup).</div><button onclick="admExport()" style="background:rgba(201,169,106,0.1);border:1px solid rgba(201,169,106,0.3);color:#C9A96A;font-weight:800;font-size:14px;padding:10px 18px;border-radius:10px;cursor:pointer">⬇ Export Pesanan (JSON)</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">🔄 Reset</div><div style="font-size:14px;color:#9FB0C9;margin-bottom:12px">Enable all items + time slots + blocks</div><button onclick="exitAdmin();enAll()" style="background:rgba(225,75,61,0.1);border:1px solid rgba(225,75,61,0.2);color:#E14B3D;font-weight:800;font-size:14px;padding:10px 18px;border-radius:10px;cursor:pointer">🔄 Reset Semua</button></div></div>';admFillSettings()}
 function admCustomers(pg){
   const db=getDb();
@@ -3478,6 +3513,48 @@ function admTestPush(btn){
     .catch(function(e){toast('❌ Gagal hantar ujian: '+e.message)})
     .then(function(){if(btn){btn.disabled=false;btn.textContent=btn.dataset.label||'🔔 Hantar ujian'}})
 }
+function admTgStatus(msg){var el=document.getElementById('tg-status');if(el&&msg)el.textContent=msg}
+function admSaveTg(btn){
+  var t=String((document.getElementById('tg-token')||{}).value||'').trim();
+  var c=String((document.getElementById('tg-chat')||{}).value||'').trim();
+  var db=getDb();if(!db||!isAdmin()){toast('❌ Hanya admin');return}
+  db.doc(NOTIFY_DOC).set({tgToken:t,tgChat:c,at:Date.now()},{merge:true}).then(function(){
+    _tgToken=t;_tgChat=c;
+    toast(t&&c?'✅ Notifikasi kini ke Telegram':'✅ Telegram dimatikan - guna ntfy');
+    admTgStatus(t&&c?'Notifikasi pesanan dihantar ke Telegram.':'Kosong - notifikasi guna ntfy.');
+  }).catch(function(e){toast('❌ Gagal simpan: '+e.message)});
+}
+function admTestTg(btn){
+  var t=String((document.getElementById('tg-token')||{}).value||'').trim();
+  var c=String((document.getElementById('tg-chat')||{}).value||'').trim();
+  if(!t||!c){toast('⚠ Isi bot token dan chat ID dulu');return}
+  var old=[_tgToken,_tgChat];_tgToken=t;_tgChat=c;
+  if(btn){btn.disabled=true;btn.dataset.label=btn.textContent;btn.textContent='Menghantar...'}
+  tgSend('Ujian notifikasi Telegram','Kalau mesej ini masuk, sambungan dah betul. Pesanan baru akan dihantar ke chat ini.')
+    .then(function(){toast('✅ Ujian dihantar - semak Telegram')})
+    .catch(function(e){toast('❌ '+e.message)})
+    .then(function(){_tgToken=old[0];_tgChat=old[1];if(btn){btn.disabled=false;btn.textContent=btn.dataset.label||'✈️ Hantar ujian'}});
+}
+// Telegram only reveals a chat id after the owner has messaged the bot, so the
+// last update is read and the chat taken from it.
+function admDetectTg(btn){
+  var t=String((document.getElementById('tg-token')||{}).value||'').trim();
+  if(!t){toast('⚠ Isi bot token dulu');return}
+  if(btn){btn.disabled=true;btn.dataset.label=btn.textContent;btn.textContent='Mencari...'}
+  fetch('https://api.telegram.org/bot'+t+'/getUpdates?limit=10').then(function(r){return r.json()}).then(function(j){
+    if(!j||!j.ok)throw new Error((j&&j.description)||'getUpdates gagal');
+    var ups=j.result||[],id='';
+    for(var i=ups.length-1;i>=0;i--){
+      var m=ups[i].message||ups[i].edited_message||ups[i].channel_post;
+      if(m&&m.chat&&m.chat.id!=null){id=String(m.chat.id);break}
+    }
+    if(!id)throw new Error('tiada mesej - buka bot, tekan Start, hantar satu mesej, cuba lagi');
+    var el=document.getElementById('tg-chat');if(el)el.value=id;
+    toast('✅ Chat ID dijumpai: '+id);
+    admTgStatus('Chat ID dijumpai. Tekan Simpan.');
+  }).catch(function(e){toast('❌ '+e.message)})
+   .then(function(){if(btn){btn.disabled=false;btn.textContent=btn.dataset.label||'🔍 Cari chat ID'}});
+}
 // ---- Trusted devices -------------------------------------------------------
 // The registry lives in settings/devices because that is the one settings doc
 // whose write rule is already admin-only (firestore.rules: allow write if
@@ -3683,7 +3760,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v84</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v85</div>
 
 <script>
 /* ===== CHAGEE-order UI =====================================================
