@@ -1783,7 +1783,10 @@ function tgSend(title,body,click){
   var link=click?('\n\n<a href="'+click+'">Buka pesanan</a>'):'';
   var txt=asciiHeader(title)+'\n'+body+link;
   var msg=JSON.stringify({text:txt,parse_mode:'HTML'});
-  var relay=(_tgRelay||TG_RELAY_BOOT).replace(/\/+$/,'');
+  // The relay is pinned on purpose. A URL kept in settings/notify once pointed at
+  // a spent deployment and sent alerts to a chat nobody reads, while the page
+  // still reported success - so the page no longer trusts that field.
+  var relay=TG_RELAY_BOOT.replace(/\/+$/,'');
   if(!/\/api\/tg$/.test(relay))relay+='/api/tg';
   var routes=[relay,'https://api.allorigins.win/raw?url='+encodeURIComponent(relay)];
   var tryAt=function(i){
@@ -3818,7 +3821,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v97</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v98</div>
 
 <script>
 /* ===== CHAGEE-order UI =====================================================
