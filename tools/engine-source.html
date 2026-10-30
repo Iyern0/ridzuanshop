@@ -1535,6 +1535,24 @@ function alertOwner(title,body,click,priority,tags){
   });
   return ntfySend(title,body,click,priority,tags);
 }
+// Visible result of the owner alert, on the customer's own screen. Without it a
+// silent failure looks identical to a success and only the console knows.
+function alertReceipt(txt,ok){
+  try{
+    var el=document.getElementById('alert-note');
+    if(!el){
+      el=document.createElement('div');el.id='alert-note';
+      el.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom));z-index:3000;max-width:86vw;padding:8px 12px;border-radius:999px;font:800 11.5px/1.3 var(--fb,system-ui);text-align:center;box-shadow:0 8px 20px rgba(0,0,0,.35)';
+      document.body.appendChild(el);
+    }
+    el.textContent=txt;
+    el.style.background=ok?'rgba(0,212,170,.16)':'rgba(255,107,107,.18)';
+    el.style.color=ok?'#00D4AA':'#FF8A8A';
+    el.style.border='1px solid '+(ok?'rgba(0,212,170,.45)':'rgba(255,107,107,.5)');
+    el.style.display='block';
+    clearTimeout(el._t);el._t=setTimeout(function(){el.style.display='none'},9000);
+  }catch(e){}
+}
 function notifyOrderPush(o){
   if(typeof fetch!=='function')return;
   const no=(o.no?'#'+fmtNo(o.no):'#?');
@@ -1546,8 +1564,10 @@ function notifyOrderPush(o){
   // "Pesanan baru" again, which is indistinguishable from spam without being it.
   if(o.code){try{if(localStorage.getItem('mms_push_'+o.code))return;localStorage.setItem('mms_push_'+o.code,'1')}catch(e){}}
   const send=function(){return alertOwner(title,body,click,'high','shopping_cart')};
-  send().catch(function(){return new Promise(function(res){setTimeout(res,1200)}).then(send)})
-        .catch(function(err){console.warn('notifikasi pesanan gagal:',err);try{toast('⚠ Notifikasi Telegram gagal: '+((err&&err.message)||err))}catch(e){}});
+  send().then(function(){alertReceipt('✈️ notifikasi dihantar ke Telegram',1)})
+        .catch(function(){return new Promise(function(res){setTimeout(res,1200)}).then(send)})
+        .then(function(){alertReceipt('✈️ notifikasi dihantar ke Telegram',1)})
+        .catch(function(err){console.warn('notifikasi pesanan gagal:',err);alertReceipt('✈️ notifikasi gagal: '+((err&&err.message)||err),0)});
 }
 
 let _actx=null;
