@@ -3283,7 +3283,12 @@ function admDetectTg(btn){
       var el=document.getElementById('tg-chat');if(el)el.value=id;
       say('✅ Chat ID dijumpai: <b>'+id+'</b>. Tekan Simpan.', link);
     });
-  }).catch(function(e){say('❌ '+esc(e.message||String(e)))})
+  }).catch(function(e){
+    var msg=String((e&&e.message)||e);
+    if(/fetch/i.test(msg)){
+      say('❌ Browser ini tak dapat hubungi Telegram. Ambil ID cara lain: mesej <b>@userinfobot</b>, ia balas nombor ID anda - tampal nombor itu dalam ruang Chat ID, kemudian Simpan.');
+    }else{say('❌ '+esc(msg))}
+  })
    .then(function(){if(btn){btn.disabled=false;btn.textContent=btn.dataset.label||'🔍 Cari chat ID'}});
 }
 // ---- Trusted devices -------------------------------------------------------
