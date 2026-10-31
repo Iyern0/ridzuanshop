@@ -1389,7 +1389,14 @@ function admSeedTopic(){
     if(!t)admSaveTopic(ntfyTopic());
   }).catch(function(){});
 }
-const SITE_URL='https://iyern0.github.io/ridzuanshop/';
+// Where this page lives, read from the document rather than frozen to one host.
+// The alert links (admin dashboard, the 192 px icon in the notification) must
+// open whatever address the customer is actually using, so a move between hosts
+// cannot leave them pointing at a retired one.
+const SITE_URL=(function(){
+  try{return location.origin+location.pathname.replace(/[^/]*$/,'')}
+  catch(e){return 'https://iyern0.github.io/ridzuanshop/'}
+})();
 // Read any file as a data URL, unchanged. Used for PDFs, which we cannot
 // rasterise in the browser without shipping a PDF library.
 function fileToDataUrl(file){
