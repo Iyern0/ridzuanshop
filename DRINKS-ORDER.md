@@ -271,7 +271,16 @@ Verified on the live host (not the local build): `v105`, `SITE_URL` resolved to 
 
 `SITE_URL` is no longer a hardcoded host: it is `location.origin + <current directory>`, so the alert links and the notification icon point at whichever host served the page. That is why the same build works on both hosts during the cutover.
 
-**Open:** the repo is still public and Pages is still on, as a deliberate 24-hour rollback window. Flip the repo private (Settings → Danger Zone → Change visibility) and disable Pages once the Vercel URL has been used on a real phone; free GitHub Pages cannot serve a private repo, which is the point.
+**Open:** the repo is still public and Pages is still on, as a deliberate 24-hour rollback window. The `gh` CLI is signed in as `Iyern0` with `repo` scope, so the flip is two commands when the owner says go:
+
+```
+gh repo edit Iyern0/ridzuanshop --visibility private --accept-visibility-change-consequences
+gh api -X DELETE repos/Iyern0/ridzuanshop/pages
+```
+
+Free GitHub Pages cannot serve a private repo, so making the repo private already takes the old site down; the second command just removes the leftover configuration.
+
+⚠ **Anyone who installed the app while it lived on GitHub Pages keeps an icon that points at `iyern0.github.io`.** `manifest.json` uses a relative `start_url` (`"."`) and relative icon paths, so a **new** install from `ridzuanshop.vercel.app` is self-contained — but an install made from the old host is not, and it will open to an error once Pages is gone. Nothing in the page can migrate it; those people have to open the new URL once and re-add it. The service worker registration is per-origin too, so the two hosts never share a cache. That is the only cost of turning Pages off, and it is why the flip waits a day instead of happening at deploy time.
 
 > **Never use `git add -A` in this folder.** It also holds ~120 unrelated files
 > (screenshots, course PDFs, other side projects, a stray `.env`). `.gitignore`

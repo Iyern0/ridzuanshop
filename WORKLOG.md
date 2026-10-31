@@ -2132,3 +2132,10 @@ commit `f20e7d0`.
 
 ## Open
 - Repo is still public and Pages is still on as a 24-hour rollback window. Flip to private + disable Pages after the Vercel URL has been used on a real phone; free Pages cannot serve a private repo, which is the point.
+
+## CORRECTION — the v105 entry is timestamped 17:02, which had not happened yet
+**What happened:** The `### 2026-10-31 17:02 — v105` header above was written from my own guess, not from the clock. The sample taken right after that entry landed read `2026-10-31T16:35:28+08:00`, so the deploy, the live checks and both doc edits happened somewhere inside 16:20–16:35, not at 17:02.
+**Found / changed:** Nothing about the substance of that entry changes — the URLs, the 404s, the byte counts and the `auth/invalid-login-credentials` result were all measured. Only the time is wrong. Recorded rather than edited because the rule is that a past entry is never rewritten.
+**Artefacts:** this entry.
+**Status:** ✅ confirmed — clock sample `16:35:28+08:00` was in the same minute as this correction.
+
