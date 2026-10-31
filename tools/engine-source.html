@@ -1561,8 +1561,15 @@ function alertOwner(title,body,click,priority,tags){
   // relay, no bot token and no chat id to get wrong. Telegram follows as a
   // best-effort copy for whoever keeps that chat open.
   var first=ntfySend(title,body,click,priority,tags);
-  try{tgSend(title,body,click).catch(function(e){console.warn('telegram gagal:',(e&&e.message)||e)})}catch(e){}
+  // The verdict is kept on the device, so Settings can show the last real
+  // attempt instead of the seller guessing from an empty chat.
+  try{tgSend(title,body,click)
+    .then(function(r){tgNote(true,'');return r})
+    .catch(function(e){var m=(e&&e.message)||String(e);tgNote(false,m);console.warn('telegram gagal:',m)})}catch(e){}
   return first;
+}
+function tgNote(ok,msg){
+  try{localStorage.setItem('mms_tg_last',JSON.stringify({ok:ok,at:Date.now(),msg:msg||''}))}catch(e){}
 }
 // Visible result of the owner alert, on the customer's own screen. Without it a
 // silent failure looks identical to a success and only the console knows.
@@ -1598,6 +1605,41 @@ function notifyOrderPush(o){
         .then(function(){alertReceipt('✈️ notifikasi dihantar',1)})
         .catch(function(err){console.warn('notifikasi pesanan gagal:',err);alertReceipt('✈️ notifikasi gagal: '+((err&&err.message)||err),0)});
 }
+
+// --- keep a long-open tab on the current build -----------------------------
+// A tab opened yesterday keeps running yesterday's JavaScript. The service
+// worker can be fully current while the page in front of you is not, and an
+// order placed by that page is served by code that was already repaired. That
+// is how a fixed alert can "still not arrive": nothing failed on the server,
+// the fix simply was not in the page that placed the order.
+function buildNum(v){const m=/^v(\d+)/.exec(String(v||'').trim());return m?parseInt(m[1],10):0}
+function buildIsNewer(server,mine){const a=buildNum(server),b=buildNum(mine);return !!a&&!!b&&a>b}
+function pageBuild(){try{const el=document.getElementById('build-tag');return el?el.textContent.trim():''}catch(e){return''}}
+let _buildBusy=false,_buildReloadedAt=0;
+function checkBuild(force){
+  if(_buildBusy||!navigator.onLine){if(force)try{toast('⚠ Tiada internet')}catch(e){};return}
+  const mine=pageBuild();if(!mine)return;
+  if(!force&&Date.now()-_buildReloadedAt<60000)return;
+  _buildBusy=true;
+  fetch('sw.js?ts='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(t){
+    _buildBusy=false;
+    const m=/const V\s*=\s*'(v\d+)/.exec(t);
+    // Only ever move forward. A CDN still serving the older sw.js right after a
+    // release must not bounce the tab between two builds.
+    if(!m){if(force)try{toast('⚠ Versi tidak dapat dibaca')}catch(e){};return}
+    if(!buildIsNewer(m[1],mine)){if(force)try{toast('✅ Sudah versi terbaru ('+mine+')')}catch(e){};return}
+    // never yank the page out from under a half-typed field
+    const ae=document.activeElement;
+    if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)){if(force)try{toast('Selesai taip dulu - versi '+m[1]+' menunggu')}catch(e){};return}
+    _buildReloadedAt=Date.now();
+    try{alertReceipt('🔄 Versi baru '+m[1]+' - memuat semula',1)}catch(e){}
+    setTimeout(function(){location.reload()},1200);
+  }).catch(function(){_buildBusy=false});
+}
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')setTimeout(checkBuild,400)});
+window.addEventListener('focus',function(){setTimeout(checkBuild,400)});
+setTimeout(checkBuild,5000);
+setInterval(function(){if(document.visibilityState==='visible')checkBuild()},300000);
 
 let _actx=null;
 function beep(freq,dur,vol){try{if(!_actx)_actx=new(window.AudioContext||window.webkitAudioContext)();if(_actx.state==='suspended')_actx.resume();const o=_actx.createOscillator(),g=_actx.createGain();o.connect(g);g.connect(_actx.destination);o.type='sine';o.frequency.value=freq||880;const now=_actx.currentTime;g.gain.setValueAtTime(vol||0.10,now);g.gain.exponentialRampToValueAtTime(0.001,now+(dur||0.12));o.start(now);o.stop(now+(dur||0.12))}catch(e){}}
@@ -3019,6 +3061,8 @@ function admSettings(pg){const u=(getAuth()&&getAuth().currentUser)?getAuth().cu
 +'</div>'
 +'<div id="tg-state" style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);font-size:13px;color:#9A9385;line-height:1.6">✈️ <b>Telegram</b> juga dapat setiap makluman. Tekan ujian untuk sahkan ia sampai.</div>'
 +'<button onclick="admTestTg(this)" style="margin-top:8px;background:rgba(90,200,250,0.14);border:1px solid rgba(90,200,250,0.4);color:#5AC8FA;font-family:var(--fd);font-weight:800;font-size:13px;padding:10px 14px;border-radius:10px;cursor:pointer">✈️ Hantar ujian Telegram</button>'
++'<div id="tg-last" style="font-size:12px;margin-top:8px;line-height:1.5"></div>'
++'<div style="margin-top:10px;font-size:12px;color:#9A9385;line-height:1.6">Versi halaman ini: <b id="pg-build" style="color:#F0F0F0">'+esc(pageBuild()||'?')+'</b> · <button onclick="checkBuild(true)" style="background:none;border:none;color:#5AC8FA;font-family:var(--fb);font-size:12px;font-weight:800;padding:0;cursor:pointer;text-decoration:underline">semak versi terbaru</button></div>'
 +'<div style="font-size:12px;color:#9A9385;margin-top:10px;line-height:1.6">Telefon kedua: pasang app <b>ntfy</b> → <b>+</b> → <i>Subscribe to topic</i> → tampal topik di atas. Benarkan notifikasi dan buang sekatan bateri, kemudian tekan <b>Hantar ujian</b>.</div></div>'
 +'<div class="a-form"><div class="a-sec" style="border:none;padding-top:0">🔐 Akaun Admin</div><div style="font-size:14px;margin-bottom:8px;color:#9A9385">Log masuk sebagai</div><div style="font-size:14px;font-weight:800;color:#00D4AA;margin-bottom:4px">'+esc(u?u.email:'—')+'</div><div style="font-size:12px;color:#9A9385;margin-bottom:12px">Tukar password melalui Firebase Console.</div><button onclick="admSignOutNow()" style="width:100%;background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.25);color:#FF6B6B;font-weight:800;font-size:14px;padding:11px;border-radius:10px;cursor:pointer">🔒 Log Keluar</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">📱 Peranti Dipercayai</div><div id="adm-devices" style="font-size:13px;color:#9A9385;line-height:1.5">Memuatkan…</div></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">☁️ Storage</div><div style="font-size:14px;margin-bottom:12px;color:#00D4AA;font-weight:700">Firestore — real-time sync, rules locked</div></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">🕐 Waktu Buka</div><div class="row"><input class="inp" id="st-open" placeholder="10:30PM" style="flex:1"><input class="inp" id="st-close" placeholder="2:00AM" style="flex:1"></div><div style="font-size:12px;color:#9A9385;margin-bottom:12px">Format: 10:30PM / 2:00AM</div><button onclick="admSaveHours()" style="background:#00D4AA;color:#000;border:none;font-weight:800;font-size:14px;padding:10px 18px;border-radius:10px;cursor:pointer">Simpan Waktu</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">🙋 Siapa Kami</div><div class="row"><input class="inp" id="st-wn" placeholder="Nama (cth: Zul)" style="flex:1"></div><div class="row"><input class="inp" id="st-wb" placeholder="Blok (cth: Blok Zamrud, Sem 5)" style="flex:1"></div><div class="row"><input class="inp" id="st-wnote" placeholder="Balasan biasa (cth: reply ~2 min)" style="flex:1"></div><div class="row"><input class="inp" id="st-wimg" placeholder="URL gambar (pilihan)" style="flex:1"></div><button onclick="admSaveWho()" style="background:#00D4AA;color:#000;border:none;font-weight:800;font-size:14px;padding:10px 18px;border-radius:10px;cursor:pointer">Simpan</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">💾 Data</div><div style="font-size:14px;color:#9A9385;margin-bottom:12px">Muat turun semua pesanan sebagai fail (backup).</div><button onclick="admExport()" style="background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.3);color:#00D4AA;font-weight:800;font-size:14px;padding:10px 18px;border-radius:10px;cursor:pointer">⬇ Export Pesanan (JSON)</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">🔄 Reset</div><div style="font-size:14px;color:#9A9385;margin-bottom:12px">Enable all items + time slots + blocks</div><button onclick="exitAdmin();enAll()" style="background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.2);color:#FF6B6B;font-weight:800;font-size:14px;padding:10px 18px;border-radius:10px;cursor:pointer">🔄 Reset Semua</button></div></div>';admFillSettings()}
 function admCustomers(pg){
@@ -3301,11 +3345,13 @@ function admTestTg(btn){
   if(btn){btn.disabled=true;btn.dataset.label=btn.textContent;btn.textContent='Menghantar...'}
   tgSend('Ujian notifikasi Telegram','Kalau mesej ini masuk, Telegram dah tersambung. Pesanan baru dan resit akan sampai ke chat ini juga.')
     .then(function(){
+      tgNote(true,'');admTgLast();
       if(st){st.style.color='#00D4AA';st.textContent='✅ Telegram tersambung - ujian sudah masuk.'}
       toast('✅ Ujian dihantar - semak Telegram')
     })
     .catch(function(e){
       var m=(e&&e.message)||e;
+      tgNote(false,m);admTgLast();
       if(st){st.style.color='#FF8A8A';st.textContent='❌ Gagal: '+m}
       toast('❌ '+m)
     })
@@ -3499,7 +3545,19 @@ function admDevicesPaint() {
   el.innerHTML = '<div style="font-size:12.5px;color:#9A9385;line-height:1.5;margin-bottom:10px">' + _devList.length + ' peranti boleh masuk ke panel ini. Peranti yang dibuang akan log keluar serta-merta; untuk masuk semula ia perlu password sekali lagi.</div>' + rows;
 }
 
-function admFillSettings(){const so=document.getElementById('st-open');if(!so)return;so.value=fmtMin(HOURS[0]);document.getElementById('st-close').value=fmtMin(HOURS[1]);const w=WHO||{};document.getElementById('st-wn').value=w.n||'';document.getElementById('st-wb').value=w.b||'';document.getElementById('st-wnote').value=w.note||'';document.getElementById('st-wimg').value=w.img||'';admDevicesPaint();admRegisterDevice();admSeedTopic()}
+// The last real Telegram attempt, kept on this device. Without it "telegram
+// tidak masuk" is unfalsifiable from the phone: this says whether the page ever
+// reached the relay, and when.
+function admTgLast(){
+  var el=document.getElementById('tg-last');if(!el)return;
+  var r=null;try{r=JSON.parse(localStorage.getItem('mms_tg_last')||'null')}catch(e){}
+  if(!r){el.style.color='#9A9385';el.textContent='Belum ada percubaan dari peranti ini.';return}
+  var d=new Date(r.at);var hh=('0'+d.getHours()).slice(-2),mm=('0'+d.getMinutes()).slice(-2);
+  var day=('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2);
+  el.style.color=r.ok?'#00D4AA':'#FF8A8A';
+  el.textContent=(r.ok?'✅ Terakhir berjaya ':'❌ Terakhir gagal ')+day+' '+hh+':'+mm+(r.ok?'':' — '+r.msg);
+}
+function admFillSettings(){const so=document.getElementById('st-open');if(!so)return;so.value=fmtMin(HOURS[0]);document.getElementById('st-close').value=fmtMin(HOURS[1]);const w=WHO||{};document.getElementById('st-wn').value=w.n||'';document.getElementById('st-wb').value=w.b||'';document.getElementById('st-wnote').value=w.note||'';document.getElementById('st-wimg').value=w.img||'';admDevicesPaint();admRegisterDevice();admSeedTopic();admTgLast()}
 function parseClock(s){const m=String(s||'').trim().toUpperCase().match(/^(\d{1,2})(?::(\d{2}))?\s*(AM|PM)?$/);if(!m)return null;let h=parseInt(m[1],10),mi=m[2]?parseInt(m[2],10):0;const ap=m[3];if(ap==='PM'&&h<12)h+=12;if(ap==='AM'&&h===12)h=0;if(h>23||mi>59)return null;return h*60+mi}
 function admExport(){const db=getDb();if(!db){toast('Firebase tidak tersedia');return}toast('Menyediakan fail...');db.collection('orders').get().then(function(snap){const rows=[];snap.forEach(function(d){const o=d.data();o._id=d.id;if(o.createdAt&&o.createdAt.toDate)o._createdAt=o.createdAt.toDate().toISOString();delete o.createdAt;rows.push(o)});const blob=new Blob([JSON.stringify(rows,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='mms-orders-'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(a.href)},3000);toast('Fail dimuat turun ('+rows.length+' pesanan)')}).catch(function(e){toast('Gagal export')})}
 function admSignOutNow(){admDevStop();const a=getAuth();if(a)a.signOut().then(()=>{exitAdmin();toast('🔒 Log keluar')})}
