@@ -1183,6 +1183,23 @@ function markClaimSeen(id){
   try{localStorage.setItem(SEEN_CLAIMS_KEY,JSON.stringify(_seenClaims))}catch(e){}
   const hits=document.querySelectorAll('[data-claim="'+id+'"]');
   for(let i=0;i<hits.length;i++)hits[i].classList.remove('unseen');
+  admRepaintUnseen();
+}
+// The "N resit perlu semak" line is written once, when the orders list is
+// painted, and painting only happens again when an order document changes.
+// Opening a receipt writes nothing to the server when the order is already
+// marked paid, so no snapshot arrives and the count would sit there stale for
+// the rest of the session even though the receipt has been looked at. Repaint
+// it from the ids the last paint counted, so opening one settles it at once.
+let _admUnseenIds=[];
+function admRepaintUnseen(){
+  const el=document.getElementById('adm-unseen-warn');
+  const n=(_admUnseenIds||[]).filter(function(id){return !_seenClaims[id]}).length;
+  if(el){
+    if(n){el.style.display='';el.textContent='📎 '+n+' resit perlu semak'}
+    else el.style.display='none';
+  }
+  return n;
 }
 // Looking at the receipt is the payment check, so it settles the flag rather
 // than leaving it for a manual tap that no longer exists. Both writes are the
@@ -2957,7 +2974,9 @@ function _admRenderOrders(pg,docs){
   if(_admDelFilter!=='all')filtered=filtered.filter(function(o){return (_admDelFilter==='cod')===hasCod(o)});
   const nReceipt=filtered.filter(function(o){return !!_admClaims[o.id]}).length;
   // "perlu semak" is allowed to mean what it says: receipts you have not opened.
-  const nUnseen=filtered.filter(function(o){return _admClaims[o.id]&&!_seenClaims[o.id]}).length;
+  const unseenDocs=filtered.filter(function(o){return _admClaims[o.id]&&!_seenClaims[o.id]});
+  const nUnseen=unseenDocs.length;
+  _admUnseenIds=unseenDocs.map(function(o){return o.id});
   if(_admClaimOnly)filtered=filtered.filter(function(o){return !!_admClaims[o.id]});
   // The chip counts are taken here, before the typed name narrows anything, so
   // the numbers do not collapse as a search is typed.
@@ -2993,7 +3012,7 @@ function _admRenderOrders(pg,docs){
    +'<span>'+(T.n?'Malam ini <b>'+T.n+'</b> · <b>RM'+T.v.toFixed(2)+'</b>':'Belum ada pesanan malam ini')+'</span>'
    +(W.n?'<span>Minggu ini <i>'+W.n+'</i> · <i>RM'+W.v.toFixed(2)+'</i></span>':'')
    +(unpaid?'<span class="warnText">'+unpaid+' belum bayar</span>':'')
-   +(nUnseen&&!_admClaimOnly?'<span class="warnText">📎 '+nUnseen+' resit perlu semak</span>':'')
+   +'<span class="warnText" id="adm-unseen-warn" style="display:'+(nUnseen&&!_admClaimOnly?'':'none')+'">📎 '+nUnseen+' resit perlu semak</span>'
    +'</div></div>';
 
   if(f==='done'||f==='all')h+='<input class="a-search" placeholder="🔍 Cari nama atau blok..." value="'+esc(_admSearch)+'" oninput="admDoSearch(this.value)" onfocus="admOpenBlocks()" onclick="admOpenBlocks()">'+blockBarHtml(blockPool);
@@ -3822,7 +3841,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v99</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v100</div>
 
 <script>
 /* ===== CHAGEE-order UI =====================================================

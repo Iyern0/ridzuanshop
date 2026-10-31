@@ -2090,3 +2090,9 @@ commit `f20e7d0`.
 **Artefacts:** `tools/engine-source.html`, build outputs `v85`, commit `2ae1478`.
 **Status:** ✅ code live (`v85`, `api.telegram.org/bot` x2 on both URLs) · ⚠️ end-to-end send untested until the owner supplies a bot token + chat id.
 
+
+### 2026-10-31 15:46 — v100: opening a receipt clears "resit perlu semak" at once
+**What happened:** Owner: "when i check the receipt its still saying 'Resit perlu disemak' — make it so that after i view the receipt once, its not glowing anymore."
+**Found / changed:** The pill glow was already clearing (`markClaimSeen` removes `.unseen`). The stale thing was the header line `📎 N resit perlu semak`: `nUnseen` was frozen into the painted HTML string, and repainting only happens on an order snapshot. Opening a receipt writes to the server only when `o.paid` is still false — `admSettlePaid` returns early otherwise — so on an already-paid order no snapshot fired and the count stayed wrong for the rest of the session. Fix: `_admUnseenIds` remembers which ids the last paint counted, the warning span is always rendered (hidden at 0) as `#adm-unseen-warn`, and `markClaimSeen` now calls `admRepaintUnseen()` to recompute and hide it. No server round trip needed.
+**Artefacts:** `tools/engine-source.html` (`markClaimSeen`, new `admRepaintUnseen`, `_admRenderOrders`), `drinks-order.html`/`index.html`/`sw.js` (v100), `DRINKS-ORDER.md` line 230.
+**Status:** ✅ confirmed — headless Edge on the built file, real functions: `before {"warn":"📎 2 resit perlu semak","glowing":2}` → after opening one `{"warn":"📎 1 …","glowing":1}` → after the second `{"shown":"none","glowing":0}`. Harness `.scratch/t-receipt-seen.mjs`.
