@@ -3,8 +3,9 @@
 ## What It Is
 PWA web app for a student stall (10:30PM–2:00AM). Customers browse menu, order via WhatsApp. Vendor manages everything from an admin dashboard.
 
-**Live:** https://iyern0.github.io/ridzuanshop/
-**Repo:** Iyern0/ridzuanshop (GitHub Pages, auto-deploys on push)
+**Live:** https://ridzuanshop.vercel.app/ (Vercel, curated upload — see Hosting)
+**Also live (backup):** https://iyern0.github.io/ridzuanshop/ until the repo is made private
+**Repo:** Iyern0/ridzuanshop (**public today**, GitHub Pages auto-deploys on push)
 **Working tree:** `c:\Users\kiifu\Desktop\MINUM MALAM SISWA\app\` (drinks-order.html + index.html, always identical)
 
 ---
@@ -252,6 +253,25 @@ cp drinks-order.html index.html
 git add drinks-order.html index.html sw.js && git commit -m "feat: ..." && git push origin main
 ```
 GitHub Pages auto-deploys ~1 min after push.
+
+### Hosting — Vercel (v105+, 2026-10-31)
+
+**Why:** GitHub Pages publishes the **repository root**, so `tools/engine-source.html`, `WORKLOG.md`, `DRINKS-ORDER.md` and `relay/api/tg.js` were all fetchable from the live URL (all four returned `200` when checked). Vercel is fed only the shop.
+
+```
+node tools/deploy-vercel.mjs                     # builds app/deploy/ and refuses if the mirror drifted
+npx vercel deploy --prod --yes --project ridzuanshop --cwd deploy
+```
+
+`tools/deploy-vercel.mjs` writes `deploy/` from scratch each time — `index.html`, `drinks-order.html`, `sw.js`, `manifest.json`, `qr-duitnow.jpg`, three icons, plus a generated `vercel.json` that keeps `sw.js` and the two HTML files `no-cache` and lets icons/QR cache for a week. It fails if the two HTML files differ, and it checks that `tools/`, `WORKLOG.md`, `DRINKS-ORDER.md`, `relay/api/tg.js` and `n.json` are **absent** from the output. `deploy/` is inside the whitelist's blind spot, so it never reaches git.
+
+**The project is not connected to GitHub.** Deploys are CLI uploads of `deploy/`, which is what makes a private repo possible with no Vercel permission setup: `vercel git connect` is deliberately *not* run. Project `ridzuanshop` on scope `kiifu`, aliased to `ridzuanshop.vercel.app`.
+
+Verified on the live host (not the local build): `v105`, `SITE_URL` resolved to `https://ridzuanshop.vercel.app/`, 8 cards, QR `?v=105` served at 827×1280, service worker active at scope `/`, and `tools/engine-source.html` / `WORKLOG.md` / `relay/api/tg.js` all `404`. Both `ntfySend` and `tgSend` resolved from the new origin with zero CSP violations in the console — the relay host is still named in `connect-src`.
+
+`SITE_URL` is no longer a hardcoded host: it is `location.origin + <current directory>`, so the alert links and the notification icon point at whichever host served the page. That is why the same build works on both hosts during the cutover.
+
+**Open:** the repo is still public and Pages is still on, as a deliberate 24-hour rollback window. Flip the repo private (Settings → Danger Zone → Change visibility) and disable Pages once the Vercel URL has been used on a real phone; free GitHub Pages cannot serve a private repo, which is the point.
 
 > **Never use `git add -A` in this folder.** It also holds ~120 unrelated files
 > (screenshots, course PDFs, other side projects, a stray `.env`). `.gitignore`
