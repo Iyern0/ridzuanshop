@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ms">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://drive.google.com https://lh3.googleusercontent.com https://*.googleusercontent.com; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://ntfy.sh; worker-src 'self' blob:; frame-src blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://drive.google.com https://lh3.googleusercontent.com https://*.googleusercontent.com; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://ntfy.sh https://mms-relay-kiifu.vercel.app; worker-src 'self' blob:; frame-src blob:; object-src 'none'; base-uri 'self'; form-action 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="robots" content="noindex, nofollow">
 <title>MINUM MALAM SISWA — Order</title>
@@ -1062,7 +1062,7 @@ body.mm-lock #cart-bar,body.mm-lock #notif-ask{display:none !important}
 <div class="opt" id="phone-section"><div class="l">📱 No. WhatsApp</div><input class="inp" id="inp-phone" placeholder="cth 0123456789" inputmode="tel" maxlength="20"><div style="font-size:12px;color:#9FB0C9;font-weight:700;margin-top:6px;line-height:1.5">Wajib — supaya kami boleh maklumkan bila pesanan anda siap.</div></div>
 <div class="opt" id="block-section"><div class="l">🏠 Blok</div><div class="block-grid" id="block-grid"></div><div id="room-row" style="display:none;margin-top:8px"><input class="inp" id="inp-room" placeholder="Nombor bilik / unit" maxlength="20"></div></div>
 <div class="opt" id="time-sec"><div class="l" id="time-label">⏰ When to deliver?</div><div id="time-pick" style="margin-top:10px"><div class="ts" id="times"></div><div id="pickup-note" style="display:none;font-size:14px;color:#9FB0C9;font-weight:600;margin-bottom:8px">We will notify you when it's done</div><div id="time-more" style="display:none;font-size:13px;color:#E0A44E;font-weight:800;margin-bottom:6px">Order for later? 👇</div><div id="time-pickup"><input class="inp" id="pickup-time" placeholder="e.g. 11:00 PM" maxlength="30"></div></div></div>
-<div class="opt" id="pay-section"><div class="l">💳 Bayar</div><div class="dt" id="pay"><button data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button><button data-method="coupon">&#127903; Kupon</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(201,169,106,0.1)"><img src="qr-duitnow.jpg?v=100" alt="DuitNow QR" style="width:210px;height:auto;display:block;border-radius:8px"></div><div style="font-size:13px;color:#9FB0C9;margin-top:8px;font-weight:600">Scan untuk bayar</div><a href="qr-duitnow.jpg?v=100" download="duitnow-qr.jpg" style="display:inline-block;margin-top:8px;font-size:12px;font-weight:800;color:#E0A44E;background:rgba(224,164,78,0.12);border:1px solid rgba(224,164,78,0.38);padding:6px 12px;border-radius:999px;text-decoration:none">⬇ Muat turun QR</a><div id="qr-claim-slot" style="margin-top:14px"></div></div></div>
+<div class="opt" id="pay-section"><div class="l">💳 Bayar</div><div class="dt" id="pay"><button data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button><button data-method="coupon">&#127903; Kupon</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(201,169,106,0.1)"><img src="qr-duitnow.jpg?v=101" alt="DuitNow QR" style="width:210px;height:auto;display:block;border-radius:8px"></div><div style="font-size:13px;color:#9FB0C9;margin-top:8px;font-weight:600">Scan untuk bayar</div><a href="qr-duitnow.jpg?v=101" download="duitnow-qr.jpg" style="display:inline-block;margin-top:8px;font-size:12px;font-weight:800;color:#E0A44E;background:rgba(224,164,78,0.12);border:1px solid rgba(224,164,78,0.38);padding:6px 12px;border-radius:999px;text-decoration:none">⬇ Muat turun QR</a><div id="qr-claim-slot" style="margin-top:14px"></div></div></div>
 <div class="opt" id="coupon-section" style="display:none"><div class="l">&#127903; Kupon Percuma</div><div style="display:flex;gap:8px;margin-top:10px"><input class="inp" id="inp-coupon" placeholder="Kod kupon" maxlength="12" autocomplete="off" autocapitalize="characters" style="flex:1;text-transform:uppercase;letter-spacing:1.5px"><button id="coupon-check" style="background:rgba(201,169,106,0.14);border:1px solid rgba(201,169,106,0.4);color:#C9A96A;font-family:var(--fd);font-weight:800;font-size:13px;padding:0 16px;border-radius:10px;cursor:pointer">Guna</button></div><div id="coupon-msg" style="font-size:13px;font-weight:700;margin-top:8px;line-height:1.5;color:#9FB0C9">Masukkan kod yang penjual beri. Satu kod untuk satu minuman percuma (add-on tetap dikenakan).</div></div>
 </div>
 <div class="ft"><div class="tr" style="border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:8px;margin-bottom:8px"><span>Subtotal</span><span style="font-family:var(--fd);font-weight:800;font-size:22px" id="sub">RM0.00</span></div>
@@ -1803,24 +1803,17 @@ function tgSend(title,body,click){
   // The relay is pinned on purpose. A URL kept in settings/notify once pointed at
   // a spent deployment and sent alerts to a chat nobody reads, while the page
   // still reported success - so the page no longer trusts that field.
+  // The relay is the only route. It used to carry a second URL (a public CORS
+  // proxy) and an <img> pixel as fallbacks, but this page's own Content-Security
+  // -Policy refused both of them, so the "fallbacks" only ever produced a
+  // failed-sounding error after the real request had already gone out - or, on
+  // the pixel, a second copy of the same message. One pinned host, listed in
+  // connect-src, is the whole story now.
   var relay=TG_RELAY_BOOT.replace(/\/+$/,'');
   if(!/\/api\/tg$/.test(relay))relay+='/api/tg';
-  var routes=[relay,'https://api.allorigins.win/raw?url='+encodeURIComponent(relay)];
+  var routes=[relay];
   var tryAt=function(i){
-    if(i>=routes.length){
-      // Last resort: an <img> GET. Simple requests are not subject to the CORS
-      // verdict that can swallow the fetch, so on a hostile network this is the
-      // hop that still lands.
-      return new Promise(function(res,rej){
-        try{
-          var im=new Image();
-          im.onload=function(){res(true)};
-          im.onerror=function(){rej(new Error('semua laluan gagal'))};
-          im.src=relay+'?t='+encodeURIComponent(txt).slice(0,1400)+'&r='+Date.now();
-          setTimeout(function(){rej(new Error('semua laluan gagal'))},8000);
-        }catch(e){rej(new Error('semua laluan gagal'))}
-      });
-    }
+    if(i>=routes.length)return Promise.reject(new Error('semua laluan gagal'));
     var ctrl=null,timer=null;
     try{if(typeof AbortController!=='undefined')ctrl=new AbortController()}catch(e){}
     if(ctrl)timer=setTimeout(function(){try{ctrl.abort()}catch(e){}},9000);
@@ -1830,7 +1823,9 @@ function tgSend(title,body,click){
         if(j&&j.ok)return true;
         if(j&&(j.error_code||j.description))throw new Error('telegram '+((j&&j.description)||j.error_code));
         throw new Error('respons tak dikenali');})
-      .catch(function(e){if(timer)clearTimeout(timer);if(/^telegram /.test(e.message))throw e;return tryAt(i+1)});
+      .catch(function(e){if(timer)clearTimeout(timer);if(/^telegram /.test(e.message))throw e;
+        if(i+1>=routes.length)throw new Error(e&&e.name==='AbortError'?'relay tamat masa':((e&&e.message)||'relay gagal'));
+        return tryAt(i+1)});
   };
   return tryAt(0);
 }
@@ -1853,7 +1848,7 @@ function alertOwner(title,body,click,priority,tags){
   // relay, no bot token and no chat id to get wrong. Telegram follows as a
   // best-effort copy for whoever keeps that chat open.
   var first=ntfySend(title,body,click,priority,tags);
-  try{tgSend(title,body,click).catch(function(){})}catch(e){}
+  try{tgSend(title,body,click).catch(function(e){console.warn('telegram gagal:',(e&&e.message)||e)})}catch(e){}
   return first;
 }
 // Visible result of the owner alert, on the customer's own screen. Without it a
@@ -1885,9 +1880,9 @@ function notifyOrderPush(o){
   // "Pesanan baru" again, which is indistinguishable from spam without being it.
   if(o.code){try{if(localStorage.getItem('mms_push_'+o.code))return;localStorage.setItem('mms_push_'+o.code,'1')}catch(e){}}
   const send=function(){return alertOwner(title,body,click,'high','shopping_cart')};
-  send().then(function(){alertReceipt('✈️ notifikasi dihantar ke Telegram',1)})
+  send().then(function(){alertReceipt('✈️ notifikasi dihantar',1)})
         .catch(function(){return new Promise(function(res){setTimeout(res,1200)}).then(send)})
-        .then(function(){alertReceipt('✈️ notifikasi dihantar ke Telegram',1)})
+        .then(function(){alertReceipt('✈️ notifikasi dihantar',1)})
         .catch(function(err){console.warn('notifikasi pesanan gagal:',err);alertReceipt('✈️ notifikasi gagal: '+((err&&err.message)||err),0)});
 }
 
@@ -3309,6 +3304,8 @@ function admSettings(pg){const u=(getAuth()&&getAuth().currentUser)?getAuth().cu
 +'<button onclick="admTestPush(this)" style="background:#C9A96A;color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:13px;padding:10px 14px;border-radius:10px;cursor:pointer">🔔 Hantar ujian</button>'
 +'<button onclick="admShareTopic()" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.14);color:#FBF4E6;font-family:var(--fd);font-weight:800;font-size:13px;padding:10px 14px;border-radius:10px;cursor:pointer">↗ Kongsi</button>'
 +'</div>'
++'<div id="tg-state" style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.08);font-size:13px;color:#9FB0C9;line-height:1.6">✈️ <b>Telegram</b> juga dapat setiap makluman. Tekan ujian untuk sahkan ia sampai.</div>'
++'<button onclick="admTestTg(this)" style="margin-top:8px;background:rgba(90,200,250,0.14);border:1px solid rgba(90,200,250,0.4);color:#5AC8FA;font-family:var(--fd);font-weight:800;font-size:13px;padding:10px 14px;border-radius:10px;cursor:pointer">✈️ Hantar ujian Telegram</button>'
 +'<div style="font-size:12px;color:#9FB0C9;margin-top:10px;line-height:1.6">Telefon kedua: pasang app <b>ntfy</b> → <b>+</b> → <i>Subscribe to topic</i> → tampal topik di atas. Benarkan notifikasi dan buang sekatan bateri, kemudian tekan <b>Hantar ujian</b>.</div></div>'
 +'<div class="a-form"><div class="a-sec" style="border:none;padding-top:0">🔐 Akaun Admin</div><div style="font-size:14px;margin-bottom:8px;color:#9FB0C9">Log masuk sebagai</div><div style="font-size:14px;font-weight:800;color:#C9A96A;margin-bottom:4px">'+esc(u?u.email:'—')+'</div><div style="font-size:12px;color:#9FB0C9;margin-bottom:12px">Tukar password melalui Firebase Console.</div><button onclick="admSignOutNow()" style="width:100%;background:rgba(225,75,61,0.1);border:1px solid rgba(225,75,61,0.25);color:#E14B3D;font-weight:800;font-size:14px;padding:11px;border-radius:10px;cursor:pointer">🔒 Log Keluar</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">📱 Peranti Dipercayai</div><div id="adm-devices" style="font-size:13px;color:#9FB0C9;line-height:1.5">Memuatkan…</div></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">☁️ Storage</div><div style="font-size:14px;margin-bottom:12px;color:#C9A96A;font-weight:700">Firestore — real-time sync, rules locked</div></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">🕐 Waktu Buka</div><div class="row"><input class="inp" id="st-open" placeholder="10:30PM" style="flex:1"><input class="inp" id="st-close" placeholder="2:00AM" style="flex:1"></div><div style="font-size:12px;color:#9FB0C9;margin-bottom:12px">Format: 10:30PM / 2:00AM</div><button onclick="admSaveHours()" style="background:#C9A96A;color:#000;border:none;font-weight:800;font-size:14px;padding:10px 18px;border-radius:10px;cursor:pointer">Simpan Waktu</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">🙋 Siapa Kami</div><div class="row"><input class="inp" id="st-wn" placeholder="Nama (cth: Zul)" style="flex:1"></div><div class="row"><input class="inp" id="st-wb" placeholder="Blok (cth: Blok Zamrud, Sem 5)" style="flex:1"></div><div class="row"><input class="inp" id="st-wnote" placeholder="Balasan biasa (cth: reply ~2 min)" style="flex:1"></div><div class="row"><input class="inp" id="st-wimg" placeholder="URL gambar (pilihan)" style="flex:1"></div><button onclick="admSaveWho()" style="background:#C9A96A;color:#000;border:none;font-weight:800;font-size:14px;padding:10px 18px;border-radius:10px;cursor:pointer">Simpan</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">💾 Data</div><div style="font-size:14px;color:#9FB0C9;margin-bottom:12px">Muat turun semua pesanan sebagai fail (backup).</div><button onclick="admExport()" style="background:rgba(201,169,106,0.1);border:1px solid rgba(201,169,106,0.3);color:#C9A96A;font-weight:800;font-size:14px;padding:10px 18px;border-radius:10px;cursor:pointer">⬇ Export Pesanan (JSON)</button></div><div class="a-form" style="margin-top:14px"><div class="a-sec" style="border:none;padding-top:0">🔄 Reset</div><div style="font-size:14px;color:#9FB0C9;margin-bottom:12px">Enable all items + time slots + blocks</div><button onclick="exitAdmin();enAll()" style="background:rgba(225,75,61,0.1);border:1px solid rgba(225,75,61,0.2);color:#E14B3D;font-weight:800;font-size:14px;padding:10px 18px;border-radius:10px;cursor:pointer">🔄 Reset Semua</button></div></div>';admFillSettings()}
 function admCustomers(pg){
@@ -3582,16 +3579,24 @@ function admSaveTg(btn){
     admTgStatus(t&&c?'Notifikasi pesanan dihantar ke Telegram.':'Kosong - notifikasi guna ntfy.');
   }).catch(function(e){toast('❌ Gagal simpan: '+e.message)});
 }
+// The relay holds the bot token server-side, so there is nothing to type here:
+// one tap sends a real message and says whether it landed. The old version
+// demanded a token and a chat id that the page no longer reads, which made the
+// test impossible to run at all.
 function admTestTg(btn){
-  var t=String((document.getElementById('tg-token')||{}).value||'').trim();
-  var c=String((document.getElementById('tg-chat')||{}).value||'').trim();
-  if(!t||!c){toast('⚠ Isi bot token dan chat ID dulu');return}
-  var old=[_tgToken,_tgChat];_tgToken=t;_tgChat=c;
+  var st=document.getElementById('tg-state');
   if(btn){btn.disabled=true;btn.dataset.label=btn.textContent;btn.textContent='Menghantar...'}
-  tgSend('Ujian notifikasi Telegram','Kalau mesej ini masuk, sambungan dah betul. Pesanan baru akan dihantar ke chat ini.')
-    .then(function(){toast('✅ Ujian dihantar - semak Telegram')})
-    .catch(function(e){toast('❌ '+e.message)})
-    .then(function(){_tgToken=old[0];_tgChat=old[1];if(btn){btn.disabled=false;btn.textContent=btn.dataset.label||'✈️ Hantar ujian'}});
+  tgSend('Ujian notifikasi Telegram','Kalau mesej ini masuk, Telegram dah tersambung. Pesanan baru dan resit akan sampai ke chat ini juga.')
+    .then(function(){
+      if(st){st.style.color='#C9A96A';st.textContent='✅ Telegram tersambung - ujian sudah masuk.'}
+      toast('✅ Ujian dihantar - semak Telegram')
+    })
+    .catch(function(e){
+      var m=(e&&e.message)||e;
+      if(st){st.style.color='#FF8A8A';st.textContent='❌ Gagal: '+m}
+      toast('❌ '+m)
+    })
+    .then(function(){if(btn){btn.disabled=false;btn.textContent=btn.dataset.label||'✈️ Hantar ujian Telegram'}});
 }
 // Telegram only reveals a chat id after the owner has messaged the bot, so the
 // bot identity is fetched first (to print a tappable link) and then the last
@@ -3841,7 +3846,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v100</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v101</div>
 
 <script>
 /* ===== CHAGEE-order UI =====================================================
