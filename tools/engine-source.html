@@ -1609,10 +1609,13 @@ function notifyOrderPush(o){
   // "Pesanan baru" again, which is indistinguishable from spam without being it.
   if(o.code){try{if(localStorage.getItem('mms_push_'+o.code))return;localStorage.setItem('mms_push_'+o.code,'1')}catch(e){}}
   const send=function(){return alertOwner(title,body,click,'high','shopping_cart')};
-  send().then(function(){alertReceipt('✈️ notifikasi dihantar',1)})
-        .catch(function(){return new Promise(function(res){setTimeout(res,1200)}).then(send)})
-        .then(function(){alertReceipt('✈️ notifikasi dihantar',1)})
-        .catch(function(err){console.warn('notifikasi pesanan gagal:',err);alertReceipt('✈️ notifikasi gagal: '+((err&&err.message)||err),0)});
+  // Silent on purpose. The recipient is the seller's phone, and the person
+  // looking at this screen is the customer: a "notifikasi dihantar" pill tells
+  // them a message left the building, and a failure pill tells them a reason
+  // they cannot act on. The verdict still lands in the console and in
+  // Settings -> Notifikasi (mms_tg_last) where only the seller reads it.
+  send().catch(function(){return new Promise(function(res){setTimeout(res,1200)}).then(send)})
+        .catch(function(err){console.warn('notifikasi pesanan gagal:',(err&&err.message)||err)});
 }
 
 // --- keep a long-open tab on the current build -----------------------------

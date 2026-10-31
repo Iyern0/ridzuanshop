@@ -1896,10 +1896,13 @@ function notifyOrderPush(o){
   // "Pesanan baru" again, which is indistinguishable from spam without being it.
   if(o.code){try{if(localStorage.getItem('mms_push_'+o.code))return;localStorage.setItem('mms_push_'+o.code,'1')}catch(e){}}
   const send=function(){return alertOwner(title,body,click,'high','shopping_cart')};
-  send().then(function(){alertReceipt('✈️ notifikasi dihantar',1)})
-        .catch(function(){return new Promise(function(res){setTimeout(res,1200)}).then(send)})
-        .then(function(){alertReceipt('✈️ notifikasi dihantar',1)})
-        .catch(function(err){console.warn('notifikasi pesanan gagal:',err);alertReceipt('✈️ notifikasi gagal: '+((err&&err.message)||err),0)});
+  // Silent on purpose. The recipient is the seller's phone, and the person
+  // looking at this screen is the customer: a "notifikasi dihantar" pill tells
+  // them a message left the building, and a failure pill tells them a reason
+  // they cannot act on. The verdict still lands in the console and in
+  // Settings -> Notifikasi (mms_tg_last) where only the seller reads it.
+  send().catch(function(){return new Promise(function(res){setTimeout(res,1200)}).then(send)})
+        .catch(function(err){console.warn('notifikasi pesanan gagal:',(err&&err.message)||err)});
 }
 
 // --- keep a long-open tab on the current build -----------------------------
@@ -3913,7 +3916,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v103</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v104</div>
 
 <script>
 /* ===== CHAGEE-order UI =====================================================
