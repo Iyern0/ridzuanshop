@@ -2174,3 +2174,14 @@ Proven to work, not assumed: `inspect.code` on the chalk panel returned `width: 
 - Two API corrections for later: `node.set` rejects `height: null` (`must be a number`) — use `sizingV: "hug"` alone; and `inspect_document` rejects `outline: true` combined with `fields`.
 **Artefacts:** `C:\Users\kiifu\Desktop\MMS Design\MMS Kit.figcraft` (13,939 bytes), `C:\Users\kiifu\Desktop\MMS Design\00-asas.png` (190,733 bytes, 3160×1276 at 2×). Nothing in `app/` touched.
 **Status:** ✅ confirmed — step 1 of 5 done; components (step 2) not started.
+
+### 2026-11-01 22:24 — design kit step 2: six components, and they survive a mode switch
+**What happened:** Built the component layer of `MMS Kit.figcraft` — the thing that made the earlier hand-placed pass expensive. Five masters plus instances, every fill bound to the `Warna` variables, every frame on auto layout.
+**Found / changed:**
+- Masters (all auto layout): `DrinkRow` 418×64 (name 15 SemiBold / meta 12 / gold price / 30px `+` disc), `Stepper` 108×36 (`− 2 +`), `PrimaryButton` 418×52 (label centred, radius 26), `Chip/Aktif` 96×36 (solid `ink`, `bg` label), `Chip/Biasa` 96×36 (`none` fill, `garis` stroke, `muted` label), `NavBar` 418×72 (five tabs, each a vertical frame of label + 3px rule; active tab = `ink` SemiBold + 22×3 rule, inactive = `muted` + invisible rule).
+- Instances of all five sit inside the same panel under "Contoh guna", so the masters and a real arrangement are visible in one crop.
+- **The proof that matters:** switching the panel's `Warna` mode to `Malam` flipped every component by itself — panel to `#11244A`, text to `#F2EFE9`, and `PrimaryButton` inverted from navy-on-cream to cream-on-navy because its fill is `ink` and its label is `bg`. No layer was touched by hand. Mode set back to `Cerah` afterwards.
+- Two layout faults found by looking at the render, both from guessing instead of thinking: `DrinkRow`'s inner text frame had a default 100px height inside a 64px row, which pushed the drink name out of view (`sizingV: "hug"` fixed it); and the "Contoh guna" label was created after the bind pass, so it kept a literal `#13294B` and vanished on the dark panel until it was bound to `ink`.
+- API notes for later: `$ref` only reaches steps inside the **same** batch (`$ref "box" names no step` when the frame was created in an earlier call — use the literal id); `instance.create {component, x?, y?, parent?}` takes the component id, not a name.
+**Artefacts:** `C:\Users\kiifu\Desktop\MMS Design\MMS Kit.figcraft` (23,921 bytes), `C:\Users\kiifu\Desktop\MMS Design\01-komponen.png` (141,742 bytes at 2×). Nothing in `app/` touched.
+**Status:** ✅ confirmed — step 2 of 5 done; screen assembly (step 3) not started.
