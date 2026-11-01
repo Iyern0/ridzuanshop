@@ -2196,3 +2196,14 @@ Proven to work, not assumed: `inspect.code` on the chalk panel returned `width: 
 - Deliberate layout calls: totals sit immediately above the sticky action (never under the items); the sheet's add-on chips sit on their own rows so no label ever breaks mid-word (the shipped app's `Extr/a Kaw` fault); the active tab is weight + a 2px rule, not a colour block.
 **Artefacts:** `C:\Users\kiifu\Desktop\MMS Design\MMS Kit.figcraft`, `skrin-6.png` (825,714 bytes, six screens at 2×), `03-pilihan.png`. Nothing in `app/` touched.
 **Status:** ✅ confirmed — steps 1–4 done; step 5 (the look pass) and the app port are not started.
+
+### 2026-11-01 22:39 — design kit step 5: the look pass, and the numbers behind it
+**What happened:** Finished the kit by fixing what the renders exposed, not what I assumed. Six screens now share one grammar: Playfair headings, Inter body, gold reserved for money, teal only for live status, navy for text and primary actions.
+**Found / changed:**
+- Contrast was the first casualty. The first pass used `#6F84A3` and `#7E92AD` for secondary text; both sit under 4.5:1 on this cream. Replaced with `#5E6A80` (muted) and `#13294B` at reduced weight, and the price colour moved from `#C8924A` to `#B07B2E` so RM values stay readable on `#FDF7EA`.
+- Spacing mistakes that made the screens feel cheap, all measured rather than eyeballed: totals were sitting directly under the item list (moved flush above the sticky action, 16px gap), the sheet's bottom row was outside its own background until the sheet got an explicit height, and the "Jumlah" line was colliding with the CTA until the action block got its own 14px top padding.
+- Two spacing rules now hold across all six screens: 22px side gutters everywhere, and one vertical rhythm of 8 / 14 / 22 — no 13s or 19s invented per screen.
+- Removed one thing I had added and did not like: a 45% scrim behind the drink sheet. Over a cream ground it rendered as a flat grey wall and made the sheet read as a modal dialog rather than a slide-up from the same surface.
+- Anti-slop checklist applied and re-checked on the final render: no gradients, no emoji, no icon-in-tinted-square, no tracked capitals, nothing under 11px, no shadow at rest, one panel radius (14), active tab by weight + 2px rule rather than a colour block.
+**Artefacts:** `C:\Users\kiifu\Desktop\MMS Design\MMS Kit.figcraft` (48,988 bytes), `skrin-6.png` (836,714 bytes at 2×, six screens in flow order), `semak-2.png` (the sheet and Bayar check).
+**Status:** ✅ confirmed — steps 1–5 of the kit plan are done. Nothing in `app/` has been changed; the port to `app/tools/engine-source.html` has not started.
