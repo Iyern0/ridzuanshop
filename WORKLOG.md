@@ -2185,3 +2185,14 @@ Proven to work, not assumed: `inspect.code` on the chalk panel returned `width: 
 - API notes for later: `$ref` only reaches steps inside the **same** batch (`$ref "box" names no step` when the frame was created in an earlier call — use the literal id); `instance.create {component, x?, y?, parent?}` takes the component id, not a name.
 **Artefacts:** `C:\Users\kiifu\Desktop\MMS Design\MMS Kit.figcraft` (23,921 bytes), `C:\Users\kiifu\Desktop\MMS Design\01-komponen.png` (141,742 bytes at 2×). Nothing in `app/` touched.
 **Status:** ✅ confirmed — step 2 of 5 done; screen assembly (step 3) not started.
+
+### 2026-11-01 22:38 — design kit steps 3 and 4: six screens assembled from instances
+**What happened:** Built Utama, Menu, Pilihan (the drink sheet), Bakul, Bayar and Pesanan out of the component instances instead of hand-placed layers, then exported the set at 2×.
+**Found / changed:**
+- Screens are 390×844 frames on page 1 at x=900 (Utama 125), 1320 (Menu 206), 1740 (Pilihan 286), 2160 (Bakul 334), 2580 (Bayar 397), 3000 (Pesanan 457). Every screen child is an auto-layout frame: `Atas` group, action block, `NavBar` instance, with `mainAlign: spaceBetween` doing the pinning so nothing is nudged by hand.
+- Rows, chips, steppers, buttons and the tab bar are all `instance.create` — changing `DrinkRow`'s meta text once changes it on all 13 rows across the set.
+- Per-screen copy is set on instance children (name/meta/price at instance+2/+3/+4), which keeps the masters generic while the screens stay specific.
+- **Faults the renders caught** (each one cost a screenshot): a `frame` created for a 1px rule defaults to 100px tall and paints a beige block until `height: 1` is set; child frames default to `sizingH: fixed 100` which clipped names and pushed prices out of view (`sizingH: "hug"` fixed both Bakul rows); `node.create` rejects layout keys at argument level — `gap`, `crossAlign`, `cornerRadius` only work inside `props`; and the Pilihan sheet needed an explicit height because an auto-height sheet ended above its own bottom row.
+- Deliberate layout calls: totals sit immediately above the sticky action (never under the items); the sheet's add-on chips sit on their own rows so no label ever breaks mid-word (the shipped app's `Extr/a Kaw` fault); the active tab is weight + a 2px rule, not a colour block.
+**Artefacts:** `C:\Users\kiifu\Desktop\MMS Design\MMS Kit.figcraft`, `skrin-6.png` (825,714 bytes, six screens at 2×), `03-pilihan.png`. Nothing in `app/` touched.
+**Status:** ✅ confirmed — steps 1–4 done; step 5 (the look pass) and the app port are not started.
