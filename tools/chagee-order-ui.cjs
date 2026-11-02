@@ -160,7 +160,7 @@ body.mm-lock #cart-bar,body.mm-lock #notif-ask{display:none !important}
 /* 5. Sugar and ice labels are long ("Change to Condensed Milk"), so those two
    groups stay one per row; only the short add-ons sit side by side. */
 #c-sweet,#c-level{display:grid;grid-template-columns:1fr;gap:7px;margin-top:2px}
-#c-extra{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px;margin-top:2px}
+#c-extra{display:grid;grid-template-columns:minmax(0,1fr);gap:7px;margin-top:2px}
 #c-sweet .opt-btn,#c-level .opt-btn,#c-extra .opt-btn{width:100%;min-width:0;align-items:center;
  justify-content:flex-start;gap:10px;padding:11px 13px;border-radius:13px;font-size:13px;line-height:1.25;
  background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.09);color:#FDF7EA}
