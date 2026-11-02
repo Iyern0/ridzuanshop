@@ -1111,7 +1111,7 @@ body.mm-lock #cart-bar,body.mm-lock #notif-ask{display:none !important}
 <div class="modal" id="notif-ask"><div class="bg" onclick="notifDismiss()"></div><div class="box" id="notif-box" style="max-width:400px"></div></div>
 <div class="done" id="done"></div>
 <div class="modal" id="admin-login" style="z-index:1100"><div class="bg" onclick="closeAdminLogin()"></div><div class="box" style="max-width:340px;text-align:center"><div style="font-family:var(--fd);font-weight:800;font-size:24px;color:#C9A96A;margin-bottom:4px">🔒 Admin Login</div><div style="font-size:13px;color:#9FB0C9;font-weight:700;margin-bottom:16px">Akaun admin sah sahaja</div><input class="inp" id="admin-email" type="email" autocomplete="username" inputmode="email" placeholder="admin@email.com" style="margin-bottom:10px;text-align:center"><input class="inp" id="admin-pw" type="password" autocomplete="current-password" placeholder="Password" style="margin-bottom:14px;text-align:center" onkeydown="if(event.key==='Enter')verifyAdminLogin()"><div style="display:flex;gap:8px"><button onclick="verifyAdminLogin()" id="admin-login-btn" style="flex:1;background:#C9A96A;color:#000;border:none;font-family:var(--fd);font-weight:800;font-size:15px;padding:12px;border-radius:10px;cursor:pointer">Masuk</button><button onclick="closeAdminLogin()" style="background:rgba(255,255,255,0.08);color:#9FB0C9;border:none;font-size:14px;padding:12px;border-radius:10px;cursor:pointer">Batal</button></div></div></div>
-<div id="admin-panel"><div class="adm-side"><div class="brand"><span>🌙 MMS ADMIN</span><button class="x" onclick="admCloseSide()" title="Tutup menu">✕</button></div><nav id="adm-nav"><div class="grp">Operasi Harian</div><a data-tab="orders" class="active"><span class="ic">📥</span>Pesanan</a><a data-tab="customers"><span class="ic">👥</span>Pelanggan</a><a data-tab="receipts"><span class="ic">📎</span>Resit</a><a data-tab="coupons"><span class="ic">&#127915;</span>Kupon</a><a data-tab="stats"><span class="ic">📊</span>Analitis</a><div class="grp">Tetanapan</div><button class="toggle" onclick="admSetupToggle()"><span>⚙️ Menu &amp; Tetapan</span><span class="car">›</span></button><div class="subnav" id="adm-setup"><a data-tab="menu"><span class="ic">🧋</span>Minuman</a><a data-tab="addons"><span class="ic">🍬</span>Pemanis</a><a data-tab="schedule"><span class="ic">⏰</span>Masa</a><a data-tab="delivery"><span class="ic">🚗</span>Penghantaran</a><a data-tab="settings"><span class="ic">⚙️</span>Settings</a></div></nav><div class="exit"><button onclick="lockAdmin('🔒 Admin dikunci')">🔒 Kunci</button><button onclick="exitAdmin()">✕ Customer View</button></div></div><div class="adm-main"><div class="hd"><button class="adm-burger" onclick="admToggleSide()" title="Menu">☰</button><h2 id="adm-hd" onclick="admToggleBar()" title="Tunjuk atau sembunyi tapisan">📥 Pesanan</h2></div><div class="pg" id="adm-pg"></div></div><div class="adm-backdrop" id="adm-backdrop" onclick="admToggleSide(0)"></div></div>
+<div id="admin-panel"><div class="adm-side"><div class="brand"><span>🌙 MMS ADMIN</span><button class="x" onclick="admCloseSide()" title="Tutup menu">✕</button></div><nav id="adm-nav"><div class="grp">Operasi Harian</div><a data-tab="orders" class="active"><span class="ic">📥</span>Pesanan</a><a data-tab="customers"><span class="ic">👥</span>Pelanggan</a><a data-tab="receipts"><span class="ic">📎</span>Resit</a><a data-tab="coupons"><span class="ic">&#127915;</span>Kupon</a><a data-tab="stats"><span class="ic">📊</span>Analitis</a><a data-tab="drinks"><span class="ic">🧾</span>Jualan</a><div class="grp">Tetanapan</div><button class="toggle" onclick="admSetupToggle()"><span>⚙️ Menu &amp; Tetapan</span><span class="car">›</span></button><div class="subnav" id="adm-setup"><a data-tab="menu"><span class="ic">🧋</span>Minuman</a><a data-tab="addons"><span class="ic">🍬</span>Pemanis</a><a data-tab="schedule"><span class="ic">⏰</span>Masa</a><a data-tab="delivery"><span class="ic">🚗</span>Penghantaran</a><a data-tab="settings"><span class="ic">⚙️</span>Settings</a></div></nav><div class="exit"><button onclick="lockAdmin('🔒 Admin dikunci')">🔒 Kunci</button><button onclick="exitAdmin()">✕ Customer View</button></div></div><div class="adm-main"><div class="hd"><button class="adm-burger" onclick="admToggleSide()" title="Menu">☰</button><h2 id="adm-hd" onclick="admToggleBar()" title="Tunjuk atau sembunyi tapisan">📥 Pesanan</h2></div><div class="pg" id="adm-pg"></div></div><div class="adm-backdrop" id="adm-backdrop" onclick="admToggleSide(0)"></div></div>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -2877,7 +2877,7 @@ let admTab='orders',admUnsub=null;
 // being written as an implicit global, which works only while the script is
 // sloppy-mode.
 let _admOrdersCache=[];
-const ADM_T={orders:'📥 Pesanan',customers:'👥 Pelanggan',receipts:'📎 Resit Bayaran',stats:'📊 Analitis',menu:'🧋 Minuman',addons:'🍬 Pemanis',schedule:'⏰ Masa',delivery:'🚗 Penghantaran',coupons:'\u{1F39F}\uFE0F Kupon',settings:'⚙️ Settings'};
+const ADM_T={orders:'📥 Pesanan',customers:'👥 Pelanggan',receipts:'📎 Resit Bayaran',stats:'📊 Analitis',drinks:'🧾 Jualan Minuman',menu:'🧋 Minuman',addons:'🍬 Pemanis',schedule:'⏰ Masa',delivery:'🚗 Penghantaran',coupons:'\u{1F39F}\uFE0F Kupon',settings:'⚙️ Settings'};
 const ADM_SETUP=['menu','addons','schedule','delivery','settings'];
 let _admSetupOpen=false;
 try{_admSetupOpen=localStorage.getItem('mms_adm_setup')==='1'}catch(e){}
@@ -2896,7 +2896,7 @@ function switchAdmin(t){admTab=t;
 // out; the callback below is the second half of the same guard.
 if(t!=='orders'&&t!=='receipts'&&admUnsub){admUnsub();admUnsub=null}
 document.getElementById('adm-hd').textContent=ADM_T[t]||t;document.querySelectorAll('#adm-nav a').forEach(a=>{a.classList.toggle('active',a.dataset.tab===t)});
-if(ADM_SETUP.indexOf(t)>-1)admSetupOpen(true);const pg=document.getElementById('adm-pg');if(t==='orders')admOrders(pg);else if(t==='menu')admMenu(pg);else if(t==='addons')admAddons(pg);else if(t==='schedule')admSchedule(pg);else if(t==='delivery')admDelivery(pg);else if(t==='customers')admCustomers(pg);else if(t==='receipts')admReceipts(pg);else if(t==='coupons')admCoupons(pg);else if(t==='stats')admAnalytics(pg);else if(t==='settings')admSettings(pg)}
+if(ADM_SETUP.indexOf(t)>-1)admSetupOpen(true);const pg=document.getElementById('adm-pg');if(t==='orders')admOrders(pg);else if(t==='menu')admMenu(pg);else if(t==='addons')admAddons(pg);else if(t==='schedule')admSchedule(pg);else if(t==='delivery')admDelivery(pg);else if(t==='customers')admCustomers(pg);else if(t==='receipts')admReceipts(pg);else if(t==='coupons')admCoupons(pg);else if(t==='stats')admAnalytics(pg);else if(t==='drinks')admDrinks(pg);else if(t==='settings')admSettings(pg)}
 let _admFilter='aktif',_admDelFilter='all',_admClaimOnly=false,_admSearch='',_admPrevCount=0,_admVisDocs=[];
 // Block filter for the order list. Set by the chips under the search box, so a
 // block can be picked without typing anything. _blkOpen is "the search box has
@@ -2926,6 +2926,7 @@ function _admOrderRow(o,idx){
    +'<div class="o-ctrls" onclick="event.stopPropagation()">'
    +(o.status==='deleted'
      ?'<button class="o-restore" onclick="admRestore(\''+o.id+'\')">↩ Pulihkan pesanan ini</button>'
+       +'<button class="o-del" onclick="event.stopPropagation();admPurgeOrder(\''+o.id+'\')" title="Padam kekal - tidak boleh dipulihkan"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>'
       +'<span class="o-note">dipadam'+(o.prevStatus?' · asalnya '+(o.prevStatus==='done'?'Siap':o.prevStatus==='processing'?'Proses':'Baru'):'')+'</span>'
      :'<div class="o-step">'+[['baru','Baru'],['processing','Proses'],['done','Siap']].map(function(x){return '<button class="'+(o.status===x[0]?'on':'')+'" onclick="admUpdOrder(\''+o.id+'\',\''+x[0]+'\')">'+x[1]+'</button>'}).join('')+'</div>'
       +'<button class="o-del" onclick="event.stopPropagation();admDelOrder(\''+o.id+'\')" title="Padam pesanan ini"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg></button>')
@@ -3072,7 +3073,8 @@ function _admRenderOrders(pg,docs){
    +'</div></div>';
 
   if(f==='done'||f==='all')h+='<input class="a-search" placeholder="🔍 Cari nama atau blok..." value="'+esc(_admSearch)+'" oninput="admDoSearch(this.value)" onfocus="admOpenBlocks()" onclick="admOpenBlocks()">'+blockBarHtml(blockPool);
-  if(f==='deleted'&&filtered.length)h+='<div class="a-bulk"><button onclick="admRestoreAll()">↩ Pulihkan semua ('+filtered.length+')</button></div>';
+  if(f==='deleted'&&filtered.length)h+='<div class="a-bulk"><button onclick="admRestoreAll()">↩ Pulihkan semua ('+filtered.length+')</button>'
+    +'<button class="danger" onclick="admPurgeAll()">🗑 Padam kekal ('+filtered.length+')</button></div>';
   if(f==='aktif'&&filtered.length)h+='<div class="a-bulk"><button onclick="admBulkDone()">✅ Tandakan semua siap ('+filtered.length+')</button></div>';
   if((f==='done'||f==='all')&&filtered.some(function(o){return o.status==='done'}))h+='<div class="a-bulk"><button class="danger" onclick="admBulkDelDone()">🗑 Padam yang sudah siap ('+filtered.filter(function(o){return o.status==='done'}).length+')</button></div>';
 
@@ -3588,6 +3590,115 @@ function admAnalytics(pg){
   });
 }
 function admAnWin(w){_anWin=w;admAnalytics(document.getElementById('adm-pg'))}
+
+// ---------------------------------------------------------------------------
+// Jualan minuman. Counted from the order documents, because that is the only
+// place that knows what actually left the shop: items[] carries name, price and
+// qty per drink. A drink removed from the menu keeps its history, and a drink
+// that never sold is listed at the bottom with a zero instead of vanishing.
+let _drWin=30;
+function admDrinksWin(w){_drWin=w;admDrinks(document.getElementById('adm-pg'))}
+function admDrinks(pg){
+  const db=getDb();
+  if(!isAdmin()){pg.innerHTML='<div style="padding:20px;color:#E0A44E;font-weight:700">🔒 Login admin diperlukan.</div>';return}
+  if(!db){pg.innerHTML='<div style="padding:20px;color:#E0A44E;font-weight:700">⚠ Firebase tidak tersedia.</div>';return}
+  const wins=[[1,'Malam ini'],[7,'7 hari'],[30,'30 hari'],[0,'Semua']];
+  pg.innerHTML='<div style="max-width:760px">'
+    +'<div class="a-filter">'+wins.map(function(w){return '<button class="'+(_drWin===w[0]?'on':'')+'" onclick="admDrinksWin('+w[0]+')">'+w[1]+'</button>'}).join('')+'</div>'
+    +'<div id="dr-body"><div style="color:#9FB0C9;text-align:center;padding:30px">Memuatkan...</div></div></div>';
+  admLoadDrinkSales(db);
+}
+function admLoadDrinkSales(db){
+  const body=document.getElementById('dr-body');if(!body)return;
+  const start=_drWin===0?new Date(0):new Date(Date.now()-_drWin*86400000);
+  db.collection('orders').limit(2000).get().then(function(snap){
+    const map={};let units=0,rev=0,orders=0;
+    snap.forEach(function(d){
+      const o=d.data()||{};
+      if(o.status==='deleted')return;
+      const t=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate():null;
+      if(start.getTime()>0&&(!t||t<start))return;
+      if(!Array.isArray(o.items))return;
+      let counted=false;
+      o.items.forEach(function(i){
+        const q=Number(i&&i.qty)||0;if(!q)return;
+        const k=String((i&&i.name)||'?');
+        if(!map[k])map[k]={name:k,units:0,rev:0,orders:0};
+        map[k].units+=q;
+        map[k].rev+=q*(Number(i.price)||0);
+        map[k].orders+=1;
+        units+=q;rev+=q*(Number(i.price)||0);counted=true;
+      });
+      if(counted)orders++;
+    });
+    const rows=Object.keys(map).map(function(k){return map[k]});
+    const seen={};rows.forEach(function(r){seen[r.name]=1});
+    (MENU||[]).forEach(function(c){(c&&c.items||[]).forEach(function(v){if(v&&v.name&&!seen[v.name]){rows.push({name:v.name,units:0,rev:0,orders:0})}})});
+    rows.sort(function(a,b){return (b.units-a.units)||(b.rev-a.rev)||String(a.name).localeCompare(String(b.name))});
+    if(!orders){
+      body.innerHTML='<div style="text-align:center;padding:40px;color:#9FB0C9;font-weight:700;font-size:15px">Belum ada jualan untuk tempoh ini.<br><br><span style="font-size:14px">Angka diambil dari pesanan sebenar, bukan dari menu.</span></div>';
+      return;
+    }
+    const top=rows[0]&&rows[0].units?rows[0].units:1;
+    const best=rows[0]||{name:'-',units:0};
+    let list='';
+    rows.forEach(function(r,i){
+      const w=Math.max(2,Math.round((r.units/top)*100));
+      list+='<div style="padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05)'+(r.units?'':';opacity:0.5')+'">'
+        +'<div style="display:flex;align-items:baseline;gap:9px;margin-bottom:7px">'
+        +'<span style="width:16px;font-size:11px;font-weight:800;color:#6B6459;text-align:right">'+(i+1)+'</span>'
+        +'<span style="font-size:15px;line-height:1">'+drinkEmoji(r.name)+'</span>'
+        +'<span style="flex:1;font-weight:800;font-size:14px;color:#FBF4E6;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(r.name)+'</span>'
+        +'<span style="font-family:var(--fd);font-weight:800;font-size:21px;color:'+(r.units?'#C9A96A':'#6B6459')+';line-height:1">'+r.units+'</span>'
+        +'</div>'
+        +'<div style="display:flex;align-items:center;gap:10px">'
+        +'<div style="flex:1;height:7px;background:rgba(255,255,255,0.05);border-radius:999px;overflow:hidden">'
+        +'<div style="height:100%;width:'+w+'%;background:'+(r.units?'linear-gradient(90deg,#C9A96A,#00A88A)':'rgba(255,255,255,0.07)')+';border-radius:999px"></div></div>'
+        +'<span style="font-size:12px;color:#9FB0C9;font-weight:700;min-width:78px;text-align:right">RM'+r.rev.toFixed(2)+'</span>'
+        +'</div></div>';
+    });
+    body.innerHTML='<div class="a-stats" style="grid-template-columns:repeat(3,1fr)">'
+      +'<div class="a-stat"><div class="label">Minuman terjual</div><div class="count">'+units+'</div><div class="rev">'+orders+' pesanan</div></div>'
+      +'<div class="a-stat"><div class="label">Jualan</div><div class="count">RM'+rev.toFixed(2)+'</div><div class="rev">purata RM'+(units?(rev/units).toFixed(2):'0.00')+' sekotak</div></div>'
+      +'<div class="a-stat"><div class="label">Paling laku</div><div class="count" style="font-size:17px;line-height:1.3">'+esc(best.name)+'</div><div class="rev">'+best.units+' unit</div></div>'
+      +'</div>'
+      +'<div class="a-sec">Setiap minuman</div>'+list
+      +'<div class="o-foot">'+rows.length+' minuman · pesanan yang dipadam tidak dikira</div>';
+  }).catch(function(e){
+    const b=document.getElementById('dr-body');
+    if(b)b.innerHTML='<div style="color:#E14B3D;padding:20px">Gagal baca: '+esc(e.message)+'</div>';
+  });
+}
+
+// The deleted pile is soft-deleted on purpose so undo works. This is the other
+// door: really remove the document, plus its tracking row and its payment
+// receipt, so nothing is left floating in the list for ever.
+function admPurgeOrder(id){
+  const db=getDb();if(!db){toast('Tiada sambungan');return}
+  const o=(_admOrdersCache||[]).find(function(x){return x.id===id})||{};
+  const who=(o.no!=null?'#'+fmtNo(o.no)+' ':'')+(o.name?'"'+o.name+'"':'pesanan ini');
+  admConfirm('Padam <b>kekal</b> '+who+'?<br><br><span style="color:#E14B3D;font-weight:800">Tidak boleh dipulihkan.</span> Angka jualan juga akan berkurang.','Ya, padam kekal',function(){
+    Promise.all([
+      db.collection('orders').doc(id).delete().catch(function(){}),
+      db.collection('tracking').doc(id).delete().catch(function(){}),
+      db.collection('payments').doc(id).delete().catch(function(){})
+    ]).then(function(){toast('🗑 Dipadam kekal')}).catch(function(){toast('Gagal padam')});
+  });
+}
+function admPurgeAll(){
+  const del=(_admVisDocs||[]).filter(function(o){return o.status==='deleted'});
+  if(!del.length){toast('Tiada pesanan dipadam');return}
+  const db=getDb();if(!db){toast('Tiada sambungan');return}
+  admConfirm('Padam <b>kekal</b> '+del.length+' pesanan yang sudah dipadam?<br><br><span style="color:#E14B3D;font-weight:800">Tidak boleh dipulihkan.</span> Angka jualan juga akan berkurang.','Ya, padam semua',function(){
+    const jobs=[];
+    del.forEach(function(o){
+      jobs.push(db.collection('orders').doc(o.id).delete().catch(function(){}));
+      jobs.push(db.collection('tracking').doc(o.id).delete().catch(function(){}));
+      jobs.push(db.collection('payments').doc(o.id).delete().catch(function(){}));
+    });
+    Promise.all(jobs).then(function(){toast('🗑 '+del.length+' pesanan dipadam kekal')}).catch(function(){toast('Sebahagian gagal')});
+  });
+}
 function admSaveHours(){const o=parseClock(document.getElementById('st-open').value),c=parseClock(document.getElementById('st-close').value);if(o===null||c===null){toast('Format: 10:30PM');return}HOURS=[o,c];saveConfig();drawStatus();toast('Waktu disimpan')}
 function admSaveWho(){WHO={n:document.getElementById('st-wn').value.trim(),b:document.getElementById('st-wb').value.trim(),note:document.getElementById('st-wnote').value.trim(),img:document.getElementById('st-wimg').value.trim()};saveConfig();drawFounder();toast('Disimpan')}
 function admCopyTopic(){
@@ -3923,7 +4034,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v105</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v106</div>
 
 <script>
 /* ===== CHAGEE-order UI =====================================================
