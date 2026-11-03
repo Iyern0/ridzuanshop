@@ -2330,3 +2330,11 @@ Dead ends worth remembering: (1) a full-width accent wash on each card read as a
 **Two audit-tool bugs fixed:** a11y-name counted hidden (`display:none`) buttons via `innerText` -> now skips unrendered nodes and falls back to `textContent` (the v107 "unnamed .mm-go" finding was a false positive); `leading` flagged lone emoji glyphs -> now skips <=2 glyph text.
 **Artefacts:** app/tools/{engine-source.html,build-chagee-order.cjs,chagee-order-ui.cjs}, app/{drinks-order.html,index.html}, tools/audit-design.mjs, .scratch/v107fix-0.png
 **Status:** provisional - not shipped; live still v107, sw untouched.
+
+### 2026-11-03 18:02 — v108 shipped (and two mistakes, corrected)
+**What happened:** Deployed the contrast/dvh fixes. Live now serves v108 and the audit on the live URL returns 0 findings.
+**Verified on the served bytes, not the working tree:** `sw.js` = `const V = 'v108-20261103'`; page marker `v108`; `color:#55617A` present once; `100dvh` present 4x; `100vh` present 0x; `node tools/audit-design.mjs https://ridzuanshop.vercel.app/` -> 0 findings (was 37).
+**Mistake 1 (caught, live never affected):** `npx vercel --prod --cwd deploy` attached to a **new** project named `deploy` (deploy-two-sand-20.vercel.app) because `deploy/.vercel/project.json` still said `projectName: deploy`. Live stayed v107 during that upload. Fixed with `npx vercel link --yes --project ridzuanshop` in `deploy/` then a fresh `--prod`; the stray project was deleted (`vercel project rm deploy --confirm-name deploy`). **Guard: read `deploy/.vercel/project.json` before any upload and confirm `projectName` is `ridzuanshop`.**
+**Mistake 2 (corrected):** `git add -A` swept up `experiments/promo.html` — a parallel session's untracked WIP — into commit `e81d349`. Untracked it again in `38e41fa` (`git rm --cached`, file kept on disk, now `??` again). **Guard: never `git add -A` in this repo; stage the release files by name.**
+**Artefacts:** commits `e81d349`, `38e41fa`; live https://ridzuanshop.vercel.app/
+**Status:** confirmed - shipping; rollout verified from the served files.
