@@ -94,7 +94,7 @@ body{
 #cust .copts button,#cust .copt{background:rgba(255,255,255,0.055)!important;border-color:rgba(201,169,106,0.22)!important}
 .modal .box{backdrop-filter:blur(9px)}
 .toast{top:calc(68px + env(safe-area-inset-top))!important;bottom:auto!important}
-.panel{bottom:calc(74px + env(safe-area-inset-bottom))!important;max-height:calc(100vh - 200px);border-radius:22px 22px 0 0}
+.panel{bottom:calc(74px + env(safe-area-inset-bottom))!important;max-height:calc(100dvh - 200px);border-radius:22px 22px 0 0}
 .panel .ft{padding-bottom:calc(30px + env(safe-area-inset-bottom))}
 /* the tab bar owns the bottom strip, so dialogs stop above it */
 .modal{padding:18px 18px calc(96px + env(safe-area-inset-bottom))}
@@ -110,7 +110,7 @@ body{
   border-top:1px solid rgba(19,41,75,0.10);box-shadow:0 -10px 26px rgba(3,10,22,0.35);
   padding:7px 4px calc(7px + env(safe-area-inset-bottom));}
 #mm-tab a{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;
-  font-family:var(--fb);font-size:11px;font-weight:800;color:#7C8CA6;padding:4px 0;border-radius:12px;
+  font-family:var(--fb);font-size:11px;font-weight:800;color:#55617A;padding:4px 0;border-radius:12px;
   -webkit-tap-highlight-color:transparent;user-select:none}
 #mm-tab a svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 #mm-tab a.on{color:#13294B}

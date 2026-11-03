@@ -28,7 +28,7 @@
      entrances/exits that carry meaning get --d-4. Nothing interactive should
      need more than --d-4. */
   --d-1:120ms;--d-2:180ms;--d-3:240ms;--d-4:320ms}
-body{font-family:var(--fb);background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden;-webkit-text-size-adjust:100%}
+body{font-family:var(--fb);background:var(--bg);color:var(--ink);min-height:100dvh;overflow-x:hidden;-webkit-text-size-adjust:100%}
 .hero{background:linear-gradient(180deg,#0E2340 0%,#0A1B33 100%);border-bottom:1px solid var(--line);padding:calc(26px + env(safe-area-inset-top)) 18px 20px;text-align:center}
 .hero h1{font-family:var(--fd);font-weight:800;font-size:var(--t-hero);color:var(--ink);letter-spacing:-0.6px;line-height:1.04;text-wrap:balance}
 .hero h1 span{color:var(--mint)}.hero .sub{font-size:var(--t-sub);color:var(--muted);margin-top:9px;font-weight:700;letter-spacing:0.1px;line-height:1.45}
@@ -51,7 +51,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--ink);min-height:100v
 /* Every drink gets the same 56px medallion behind its emoji, so the grid reads
    as a set of objects on a shelf instead of emoji floating in empty space. */
 .card .e{font-size:31px;line-height:1;width:56px;height:56px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:radial-gradient(circle at 50% 36%,rgba(224,164,78,0.11),rgba(255,255,255,0.035) 72%);border:1px solid var(--line)}
-.card .n{font-family:var(--fd);font-weight:800;font-size:var(--t-name);color:var(--ink);line-height:1.25;letter-spacing:-0.1px;min-height:2.5em;display:flex;align-items:center}
+.card .n{font-family:var(--fd);font-weight:800;font-size:var(--t-name);color:var(--ink);line-height:1.35;letter-spacing:-0.1px;min-height:2.5em;display:flex;align-items:center}
 .card .p{font-family:var(--fd);font-weight:800;font-size:var(--t-price);color:var(--gold);letter-spacing:-0.3px;line-height:1}
 .card .badge{position:absolute;top:0;right:0;background:rgba(225,75,61,0.14);color:#FFA3A3;border-left:1px solid rgba(225,75,61,0.28);border-bottom:1px solid rgba(225,75,61,0.28);font-size:10px;font-weight:900;letter-spacing:0.3px;padding:3px 9px;border-radius:0 var(--r-card) 0 11px}
 /* `@keyframes glow` lived here: a red box-shadow loop on the "Paling Laku"
@@ -274,7 +274,7 @@ button:disabled:active{transform:none}
 .overlay .bg{position:absolute;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(3px)}
 .panel{position:fixed;bottom:0;left:0;right:0;max-height:80vh;background:#102A4E;border-top:1px solid var(--line2);border-radius:20px 20px 0 0;z-index:400;display:flex;flex-direction:column;transform:translateY(100%);transition:transform var(--d-4) var(--eo)}
 .panel.open{transform:translateY(0)}
-@media(min-width:600px){.panel{left:auto;right:0;bottom:0;top:0;max-height:100vh;max-width:420px;border-radius:0;border-left:1px solid var(--line2);border-top:none;transform:translateX(100%)}.panel.open{transform:translateX(0)}}
+@media(min-width:600px){.panel{left:auto;right:0;bottom:0;top:0;max-height:100dvh;max-width:420px;border-radius:0;border-left:1px solid var(--line2);border-top:none;transform:translateX(100%)}.panel.open{transform:translateX(0)}}
 .panel .h{width:40px;height:4px;background:rgba(255,255,255,0.15);border-radius:4px;margin:12px auto 0;flex-shrink:0}
 .panel .hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 10px;border-bottom:1px solid rgba(255,255,255,0.08)}
 .panel .hd h2{font-family:var(--fd);font-weight:800;font-size:26px;color:#C9A96A}
@@ -315,7 +315,7 @@ button:disabled:active{transform:none}
 .chip.sel{background:rgba(201,169,106,0.1)!important;border-color:#C9A96A!important;color:#C9A96A!important}.chip.dis{opacity:0.35}
 .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#C9A96A;color:#000;font-family:var(--fd);font-weight:800;font-size:14px;padding:10px 22px;border-radius:999px;z-index:999;opacity:0;transition:opacity 0.25s,transform 0.25s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.page-foot{text-align:center;padding:20px;color:#9FB0C9;font-size:13px;font-weight:700}.page-foot b{color:#C9A96A}
+.page-foot{text-align:center;padding:20px;color:#9FB0C9;font-size:13px;font-weight:700;line-height:1.5}.page-foot b{color:#C9A96A}
 .modal{position:fixed;inset:0;z-index:600;display:none;align-items:center;justify-content:center;padding:20px}
 .modal .bg{position:absolute;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(3px);cursor:pointer}
 .modal .box{position:relative;background:#102A4E;border:1.5px solid #C9A96A;border-radius:20px;padding:24px;max-width:380px;width:100%}
@@ -831,7 +831,7 @@ body{
 #cust .copts button,#cust .copt{background:rgba(255,255,255,0.055)!important;border-color:rgba(201,169,106,0.22)!important}
 .modal .box{backdrop-filter:blur(9px)}
 .toast{top:calc(68px + env(safe-area-inset-top))!important;bottom:auto!important}
-.panel{bottom:calc(74px + env(safe-area-inset-bottom))!important;max-height:calc(100vh - 200px);border-radius:22px 22px 0 0}
+.panel{bottom:calc(74px + env(safe-area-inset-bottom))!important;max-height:calc(100dvh - 200px);border-radius:22px 22px 0 0}
 .panel .ft{padding-bottom:calc(30px + env(safe-area-inset-bottom))}
 /* the tab bar owns the bottom strip, so dialogs stop above it */
 .modal{padding:18px 18px calc(96px + env(safe-area-inset-bottom))}
@@ -847,7 +847,7 @@ body{
   border-top:1px solid rgba(19,41,75,0.10);box-shadow:0 -10px 26px rgba(3,10,22,0.35);
   padding:7px 4px calc(7px + env(safe-area-inset-bottom));}
 #mm-tab a{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;
-  font-family:var(--fb);font-size:11px;font-weight:800;color:#7C8CA6;padding:4px 0;border-radius:12px;
+  font-family:var(--fb);font-size:11px;font-weight:800;color:#55617A;padding:4px 0;border-radius:12px;
   -webkit-tap-highlight-color:transparent;user-select:none}
 #mm-tab a svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 #mm-tab a.on{color:#13294B}
@@ -905,7 +905,7 @@ body{
 /* Desktop: this is a phone app. Rather than stretch it, stand it on a plinth. */
 @media(min-width:760px){
   html{background:#071324}
-  body{max-width:600px;margin:0 auto;min-height:100vh;background:var(--bg);
+  body{max-width:600px;margin:0 auto;min-height:100dvh;background:var(--bg);
        box-shadow:0 0 0 1px rgba(255,255,255,.07),0 40px 90px rgba(0,0,0,.65)}
   #mm-tab,#cart-bar{left:50%;right:auto;width:600px;transform:translateX(-50%)}
   #mm-tab.show{transform:translateX(-50%)}
@@ -1062,7 +1062,7 @@ body.mm-lock #cart-bar,body.mm-lock #notif-ask{display:none !important}
 <div class="opt" id="phone-section"><div class="l">📱 No. WhatsApp</div><input class="inp" id="inp-phone" placeholder="cth 0123456789" inputmode="tel" maxlength="20"><div style="font-size:12px;color:#9FB0C9;font-weight:700;margin-top:6px;line-height:1.5">Wajib — supaya kami boleh maklumkan bila pesanan anda siap.</div></div>
 <div class="opt" id="block-section"><div class="l">🏠 Blok</div><div class="block-grid" id="block-grid"></div><div id="room-row" style="display:none;margin-top:8px"><input class="inp" id="inp-room" placeholder="Nombor bilik / unit" maxlength="20"></div></div>
 <div class="opt" id="time-sec"><div class="l" id="time-label">⏰ When to deliver?</div><div id="time-pick" style="margin-top:10px"><div class="ts" id="times"></div><div id="pickup-note" style="display:none;font-size:14px;color:#9FB0C9;font-weight:600;margin-bottom:8px">We will notify you when it's done</div><div id="time-more" style="display:none;font-size:13px;color:#E0A44E;font-weight:800;margin-bottom:6px">Order for later? 👇</div><div id="time-pickup"><input class="inp" id="pickup-time" placeholder="e.g. 11:00 PM" maxlength="30"></div></div></div>
-<div class="opt" id="pay-section"><div class="l">💳 Bayar</div><div class="dt" id="pay"><button data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button><button data-method="coupon">&#127903; Kupon</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(201,169,106,0.1)"><img src="qr-duitnow.jpg?v=107" alt="DuitNow QR" style="width:210px;height:auto;display:block;border-radius:8px"></div><div style="font-size:13px;color:#9FB0C9;margin-top:8px;font-weight:600">Scan untuk bayar</div><a href="qr-duitnow.jpg?v=107" download="duitnow-qr.jpg" style="display:inline-block;margin-top:8px;font-size:12px;font-weight:800;color:#E0A44E;background:rgba(224,164,78,0.12);border:1px solid rgba(224,164,78,0.38);padding:6px 12px;border-radius:999px;text-decoration:none">⬇ Muat turun QR</a><div id="qr-claim-slot" style="margin-top:14px"></div></div></div>
+<div class="opt" id="pay-section"><div class="l">💳 Bayar</div><div class="dt" id="pay"><button data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button><button data-method="coupon">&#127903; Kupon</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(201,169,106,0.1)"><img src="qr-duitnow.jpg?v=108" alt="DuitNow QR" style="width:210px;height:auto;display:block;border-radius:8px"></div><div style="font-size:13px;color:#9FB0C9;margin-top:8px;font-weight:600">Scan untuk bayar</div><a href="qr-duitnow.jpg?v=108" download="duitnow-qr.jpg" style="display:inline-block;margin-top:8px;font-size:12px;font-weight:800;color:#E0A44E;background:rgba(224,164,78,0.12);border:1px solid rgba(224,164,78,0.38);padding:6px 12px;border-radius:999px;text-decoration:none">⬇ Muat turun QR</a><div id="qr-claim-slot" style="margin-top:14px"></div></div></div>
 <div class="opt" id="coupon-section" style="display:none"><div class="l">&#127903; Kupon Percuma</div><div style="display:flex;gap:8px;margin-top:10px"><input class="inp" id="inp-coupon" placeholder="Kod kupon" maxlength="12" autocomplete="off" autocapitalize="characters" style="flex:1;text-transform:uppercase;letter-spacing:1.5px"><button id="coupon-check" style="background:rgba(201,169,106,0.14);border:1px solid rgba(201,169,106,0.4);color:#C9A96A;font-family:var(--fd);font-weight:800;font-size:13px;padding:0 16px;border-radius:10px;cursor:pointer">Guna</button></div><div id="coupon-msg" style="font-size:13px;font-weight:700;margin-top:8px;line-height:1.5;color:#9FB0C9">Masukkan kod yang penjual beri. Satu kod untuk satu minuman percuma (add-on tetap dikenakan).</div></div>
 </div>
 <div class="ft"><div class="tr" style="border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:8px;margin-bottom:8px"><span>Subtotal</span><span style="font-family:var(--fd);font-weight:800;font-size:22px" id="sub">RM0.00</span></div>
@@ -4034,7 +4034,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v107</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v108</div>
 
 <script>
 /* ===== CHAGEE-order UI =====================================================
@@ -4576,7 +4576,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
       // first-time buyer: the tab bar nudges them to Saya rather than failing
       // at checkout with no explanation
       var s=document.querySelector('#mm-tab a[data-t=saya]');
-      if(s)s.style.color='#C9A96A';
+      if(s)s.style.color='#7E5C1C';
     }
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);

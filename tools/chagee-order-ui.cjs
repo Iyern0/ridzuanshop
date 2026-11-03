@@ -58,7 +58,7 @@ const CSS = `
 /* Desktop: this is a phone app. Rather than stretch it, stand it on a plinth. */
 @media(min-width:760px){
   html{background:#071324}
-  body{max-width:600px;margin:0 auto;min-height:100vh;background:var(--bg);
+  body{max-width:600px;margin:0 auto;min-height:100dvh;background:var(--bg);
        box-shadow:0 0 0 1px rgba(255,255,255,.07),0 40px 90px rgba(0,0,0,.65)}
   #mm-tab,#cart-bar{left:50%;right:auto;width:600px;transform:translateX(-50%)}
   #mm-tab.show{transform:translateX(-50%)}
@@ -751,7 +751,7 @@ const JS = `
       // first-time buyer: the tab bar nudges them to Saya rather than failing
       // at checkout with no explanation
       var s=document.querySelector('#mm-tab a[data-t=saya]');
-      if(s)s.style.color='#C9A96A';
+      if(s)s.style.color='#7E5C1C';
     }
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);

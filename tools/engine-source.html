@@ -28,7 +28,7 @@
      entrances/exits that carry meaning get --d-4. Nothing interactive should
      need more than --d-4. */
   --d-1:120ms;--d-2:180ms;--d-3:240ms;--d-4:320ms}
-body{font-family:var(--fb);background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden;-webkit-text-size-adjust:100%}
+body{font-family:var(--fb);background:var(--bg);color:var(--ink);min-height:100dvh;overflow-x:hidden;-webkit-text-size-adjust:100%}
 .hero{background:linear-gradient(180deg,#1B1713 0%,#12100E 100%);border-bottom:1px solid var(--line);padding:calc(26px + env(safe-area-inset-top)) 18px 20px;text-align:center}
 .hero h1{font-family:var(--fd);font-weight:800;font-size:var(--t-hero);color:var(--ink);letter-spacing:-0.6px;line-height:1.04;text-wrap:balance}
 .hero h1 span{color:var(--mint)}.hero .sub{font-size:var(--t-sub);color:var(--muted);margin-top:9px;font-weight:700;letter-spacing:0.1px;line-height:1.45}
@@ -51,7 +51,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--ink);min-height:100v
 /* Every drink gets the same 56px medallion behind its emoji, so the grid reads
    as a set of objects on a shelf instead of emoji floating in empty space. */
 .card .e{font-size:31px;line-height:1;width:56px;height:56px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:radial-gradient(circle at 50% 36%,rgba(255,179,71,0.11),rgba(255,255,255,0.035) 72%);border:1px solid var(--line)}
-.card .n{font-family:var(--fd);font-weight:800;font-size:var(--t-name);color:var(--ink);line-height:1.25;letter-spacing:-0.1px;min-height:2.5em;display:flex;align-items:center}
+.card .n{font-family:var(--fd);font-weight:800;font-size:var(--t-name);color:var(--ink);line-height:1.35;letter-spacing:-0.1px;min-height:2.5em;display:flex;align-items:center}
 .card .p{font-family:var(--fd);font-weight:800;font-size:var(--t-price);color:var(--gold);letter-spacing:-0.3px;line-height:1}
 .card .badge{position:absolute;top:0;right:0;background:rgba(255,107,107,0.14);color:#FFA3A3;border-left:1px solid rgba(255,107,107,0.28);border-bottom:1px solid rgba(255,107,107,0.28);font-size:10px;font-weight:900;letter-spacing:0.3px;padding:3px 9px;border-radius:0 var(--r-card) 0 11px}
 /* `@keyframes glow` lived here: a red box-shadow loop on the "Paling Laku"
@@ -274,7 +274,7 @@ button:disabled:active{transform:none}
 .overlay .bg{position:absolute;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(3px)}
 .panel{position:fixed;bottom:0;left:0;right:0;max-height:80vh;background:#2A2419;border-top:1px solid var(--line2);border-radius:20px 20px 0 0;z-index:400;display:flex;flex-direction:column;transform:translateY(100%);transition:transform var(--d-4) var(--eo)}
 .panel.open{transform:translateY(0)}
-@media(min-width:600px){.panel{left:auto;right:0;bottom:0;top:0;max-height:100vh;max-width:420px;border-radius:0;border-left:1px solid var(--line2);border-top:none;transform:translateX(100%)}.panel.open{transform:translateX(0)}}
+@media(min-width:600px){.panel{left:auto;right:0;bottom:0;top:0;max-height:100dvh;max-width:420px;border-radius:0;border-left:1px solid var(--line2);border-top:none;transform:translateX(100%)}.panel.open{transform:translateX(0)}}
 .panel .h{width:40px;height:4px;background:rgba(255,255,255,0.15);border-radius:4px;margin:12px auto 0;flex-shrink:0}
 .panel .hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 10px;border-bottom:1px solid rgba(255,255,255,0.08)}
 .panel .hd h2{font-family:var(--fd);font-weight:800;font-size:26px;color:#00D4AA}
@@ -315,7 +315,7 @@ button:disabled:active{transform:none}
 .chip.sel{background:rgba(0,212,170,0.1)!important;border-color:#00D4AA!important;color:#00D4AA!important}.chip.dis{opacity:0.35}
 .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#00D4AA;color:#000;font-family:var(--fd);font-weight:800;font-size:14px;padding:10px 22px;border-radius:999px;z-index:999;opacity:0;transition:opacity 0.25s,transform 0.25s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.page-foot{text-align:center;padding:20px;color:#9A9385;font-size:13px;font-weight:700}.page-foot b{color:#00D4AA}
+.page-foot{text-align:center;padding:20px;color:#9A9385;font-size:13px;font-weight:700;line-height:1.5}.page-foot b{color:#00D4AA}
 .modal{position:fixed;inset:0;z-index:600;display:none;align-items:center;justify-content:center;padding:20px}
 .modal .bg{position:absolute;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(3px);cursor:pointer}
 .modal .box{position:relative;background:#2A2419;border:1.5px solid #00D4AA;border-radius:20px;padding:24px;max-width:380px;width:100%}

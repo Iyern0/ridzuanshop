@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#081527">
+<title>MINUM MALAM SISWA — promosi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#081527; --navy2:#0E2036; --ink:#F6EFE2; --gold:#D9A85C; --gold-dim:#B4894A;
+    --mint:#3FD3A8; --line:rgba(246,239,226,.14);
+    --ease-out:cubic-bezier(.23,1,.32,1);
+    --ease-in-out:cubic-bezier(.77,0,.175,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    display:grid;place-items:center;
+    background:radial-gradient(120% 80% at 50% 0%,#0F2440 0%,var(--navy) 55%,#050D18 100%);
+    font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--ink);
+    overflow:hidden;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  /* The stage is 9:16 and never taller than the viewport, so it works from a
+     360px phone to a tablet without any media-query juggling. */
+  .stage{
+    position:relative;
+    width:min(100vw,430px);
+    height:min(100svh,932px);
+    overflow:hidden;isolation:isolate;
+    border-radius:0;
+  }
+  @media (min-width:520px){ .stage{border-radius:28px;box-shadow:0 40px 120px rgba(0,0,0,.6)} }
+
+  .fade{position:absolute;inset:0;will-change:opacity}
+  .glow{position:absolute;inset:-20% -30% auto;height:70%;background:radial-gradient(50% 50% at 50% 40%,rgba(217,168,92,.22),transparent 70%);filter:blur(10px)}
+  .grain{position:absolute;inset:0;opacity:.16;background-image:radial-gradient(rgba(255,255,255,.5) .5px,transparent .5px);background-size:3px 3px;pointer-events:none}
+
+  /* ---------- scene 1: brand ---------- */
+  .brand{position:absolute;left:0;right:0;top:6%;text-align:center;padding:0 6%}
+  .moon{font-size:clamp(30px,8vw,40px);line-height:1;display:inline-block;filter:drop-shadow(0 6px 18px rgba(217,168,92,.45))}
+  .word{font-family:'Playfair Display',serif;font-weight:800;font-size:clamp(21px,6.1vw,33px);letter-spacing:.04em;margin-top:6px;display:flex;justify-content:center;gap:.28em;white-space:nowrap}
+  .word i{font-style:italic;font-weight:700;color:var(--gold)}
+  .word span{display:inline-block;will-change:transform,opacity}
+  .tag{margin-top:10px;font-size:clamp(11px,3vw,13px);letter-spacing:.16em;text-transform:uppercase;color:rgba(246,239,226,.66);font-weight:600}
+  .hours{display:inline-block;margin-top:12px;padding:7px 14px;border:1px solid rgba(217,168,92,.4);border-radius:999px;font-size:clamp(10.5px,2.9vw,12px);letter-spacing:.08em;color:var(--gold);background:rgba(217,168,92,.08)}
+
+  /* ---------- scene 2: the phone ---------- */
+  .phone{
+    position:absolute;left:50%;top:26%;width:min(58%,232px);aspect-ratio:9/16.6;transform:translateX(-50%);
+    border-radius:30px;background:linear-gradient(180deg,#12283F,#0A1626);
+    border:1px solid rgba(246,239,226,.18);
+    box-shadow:0 30px 70px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.08);
+    padding:9px;overflow:hidden;
+  }
+  .screen{position:relative;height:100%;border-radius:22px;overflow:hidden;background:linear-gradient(180deg,#0C1B2E,#08131F)}
+  /* The mockup is drawn at a real 360x660 phone and scaled down, so every label
+     keeps a legal font size (11/13/15) instead of shrinking into dust. */
+  .screen-inner{position:absolute;top:0;left:0;width:360px;height:660px;transform-origin:top left;transform:scale(var(--s,.56))}
+  .notch{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:118px;height:6px;border-radius:99px;background:rgba(0,0,0,.55)}
+  .ph-head{position:absolute;top:34px;left:0;right:0;text-align:center;font-family:'Playfair Display',serif;font-size:15px;letter-spacing:.18em;color:rgba(246,239,226,.85)}
+  .cards{position:absolute;top:70px;left:16px;right:16px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .card{background:rgba(246,239,226,.96);border-radius:16px;padding:12px 8px 14px;text-align:center;color:#12283F;will-change:transform,opacity}
+  .card .cup{font-size:30px;line-height:1.05}
+  .card b{display:block;font-size:13px;font-weight:800;margin-top:6px;line-height:1.4}
+  .card em{display:block;font-style:normal;font-size:13px;font-weight:800;color:#7E5418;margin-top:4px;line-height:1.4}
+  .card.pick{outline:3px solid var(--mint);outline-offset:2px}
+
+  .badge{
+    position:absolute;top:30px;right:22px;min-width:26px;height:26px;padding:0 8px;border-radius:99px;
+    background:var(--gold);color:#20160A;font-size:13px;font-weight:800;display:grid;place-items:center;
+    box-shadow:0 4px 12px rgba(217,168,92,.5);will-change:transform
+  }
+  .mini-rail{position:absolute;left:16px;right:16px;bottom:104px;display:flex;gap:8px;align-items:center}
+  .mini-rail b{flex:1;height:5px;border-radius:99px;background:rgba(246,239,226,.16);overflow:hidden;position:relative}
+  .mini-rail span{font-size:11px;letter-spacing:.12em;color:rgba(246,239,226,.62);font-weight:700;line-height:1.4}
+  .cta-mini{position:absolute;left:16px;right:16px;bottom:30px;height:58px;border-radius:99px;background:linear-gradient(90deg,var(--gold),#F0C98A);color:#20160A;font-size:15px;line-height:1.4;white-space:nowrap;font-weight:800;display:grid;place-items:center;letter-spacing:.03em}
+
+  .cursor{position:absolute;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.9);box-shadow:0 0 0 10px rgba(255,255,255,.18);left:24%;top:13%;will-change:transform}
+
+  /* ---------- scene 3: the pitch ---------- */
+  .pitch{position:absolute;left:0;right:0;bottom:5.5%;text-align:center;padding:0 8%}
+  .row{display:flex;gap:7px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+  .chip{padding:8px 13px;border-radius:999px;font-size:clamp(10px,2.8vw,11.5px);font-weight:700;border:1px solid var(--line);background:rgba(246,239,226,.05);color:rgba(246,239,226,.9);will-change:transform,opacity}
+  .chip.gold{border-color:rgba(217,168,92,.55);background:rgba(217,168,92,.12);color:#F4D9AE}
+  .cta{
+    position:relative;display:inline-block;padding:14px 30px;border-radius:999px;overflow:hidden;
+    background:linear-gradient(90deg,var(--gold),#F2CE93);color:#1B1206;font-weight:800;font-size:clamp(12px,3.2vw,14px);
+    letter-spacing:.06em;text-transform:uppercase;will-change:transform,opacity;
+    box-shadow:0 14px 34px rgba(217,168,92,.32)
+  }
+  .cta .sheen{position:absolute;inset:0;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.65) 50%,transparent 70%);transform:translateX(-120%);will-change:transform}
+  .url{margin-top:11px;font-size:clamp(9.5px,2.6vw,11px);letter-spacing:.14em;color:rgba(246,239,226,.5);font-weight:600}
+
+  /* Short phones (360x640, 375x667): the phone frame has to give up height so
+     the closing pitch never collides with it. */
+  @media (max-height:720px){
+    .brand{top:4%}
+    .word{font-size:clamp(19px,5.6vw,26px)}
+    .moon{font-size:clamp(24px,6.4vw,30px)}
+    .tag{margin-top:7px}
+    .hours{margin-top:9px;padding:6px 12px}
+    .phone{top:22%;width:min(48%,184px)}
+    .pitch .row{margin-bottom:10px;gap:6px}
+    .chip{padding:7px 11px}
+    .cta{padding:12px 24px}
+  }
+
+  /* Reduced motion: the composition, held still. */
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none!important;transition:none!important}
+    .stage [data-in]{opacity:1!important;transform:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <div class="glow"></div>
+  <div class="grain"></div>
+
+  <div class="fade" id="fade">
+  <div class="brand">
+    <div class="moon" data-in>🌙</div>
+    <div class="word" aria-label="MINUM MALAM SISWA">
+      <span>MINUM</span><i>MALAM</i><span>SISWA</span>
+    </div>
+    <div class="tag" data-in>Air balang &amp; ais bungkus, sampai 2 pagi</div>
+    <div class="hours" data-in>10:30PM — 2:00AM · Setiap malam</div>
+  </div>
+
+  <div class="phone" data-in>
+    <div class="screen">
+      <div class="screen-inner" id="screen-inner">
+      <div class="notch"></div>
+      <div class="ph-head">MENU</div>
+      <div class="badge" id="badge">1</div>
+      <div class="cards" id="cards">
+        <div class="card"><div class="cup">🥤</div><b>Milo Ais</b><em>RM3.50</em></div>
+        <div class="card"><div class="cup">🍹</div><b>Extrajoss</b><em>RM2.50</em></div>
+        <div class="card"><div class="cup">🧋</div><b>Boba Susu</b><em>RM5.50</em></div>
+        <div class="card"><div class="cup">☕</div><b>Indocafe</b><em>RM3.50</em></div>
+        <div class="card"><div class="cup">🧊</div><b>Teh Ais</b><em>RM2.50</em></div>
+        <div class="card"><div class="cup">🥭</div><b>Sirap Bandung</b><em>RM3.50</em></div>
+      </div>
+      <div class="mini-rail" data-in>
+        <span>BAKUL</span><b><i></i></b><span>BAYAR</span><b><i></i></b><span>SIAP</span>
+      </div>
+      <div class="cta-mini" data-in>Hantar pesanan</div>
+      <div class="cursor" id="cursor"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pitch">
+    <div class="row">
+      <div class="chip gold" data-in>COD RM1 sahaja</div>
+      <div class="chip" data-in>Ambil sendiri · percuma</div>
+    </div>
+    <div class="cta" id="cta" data-in><span class="sheen" id="sheen"></span>Pesan Sekarang</div>
+    <div class="url" data-in>iyern0.github.io/ridzuanshop</div>
+  </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const stage = document.getElementById('stage');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce) return;                       // the static composition is the fallback
+
+  const CYCLE = 12000;                      // 12s loop
+  const EASE_OUT = 'cubic-bezier(.23,1,.32,1)';
+  const EASE_IO  = 'cubic-bezier(.77,0,.175,1)';
+
+  const $  = (s) => stage.querySelector(s);
+  const $$ = (s) => [...stage.querySelectorAll(s)];
+
+  // Each track is [targets, keyframes, startMs, durationMs, easing].
+  const tracks = [
+    ['[data-in].moon',      [{opacity:0, transform:'scale(.4) translateY(18px)'}, {opacity:1, transform:'scale(1) translateY(0)'}], 0,    700,  EASE_OUT],
+    ['[data-in].tag',       [{opacity:0, transform:'translateY(10px)'}, {opacity:1, transform:'translateY(0)'}],                900,  500,  EASE_OUT],
+    ['[data-in].hours',     [{opacity:0, transform:'translateY(10px)'}, {opacity:1, transform:'translateY(0)'}],                1150, 500,  EASE_OUT],
+    ['.phone',              [{opacity:0, transform:'translateX(-50%) translateY(46px) scale(.96)'}, {opacity:1, transform:'translateX(-50%) translateY(0) scale(1)'}], 2100, 700, EASE_OUT],
+    ['.card',               [{opacity:0, transform:'translateY(14px)'}, {opacity:1, transform:'translateY(0)'}],                2850, 420,  EASE_OUT, {stagger:95}],
+    ['#cursor',             [{opacity:0, transform:'translate(-22px,34px) scale(.8)'}, {opacity:1, transform:'translate(0,0) scale(1)'}], 3900, 520, EASE_IO],
+    ['#cursor',             [{transform:'translate(0,0) scale(1)'}, {transform:'translate(2px,5px) scale(.82)'}, {transform:'translate(2px,5px) scale(1)'}], 4500, 420, EASE_OUT],
+    ['.card.pick',          [{outlineOffset:'1px'}, {outlineOffset:'5px'}], 4560, 380, EASE_OUT],
+    ['#badge',              [{transform:'scale(1)'}, {transform:'scale(1.45)'}, {transform:'scale(1)'}], 4740, 420, EASE_OUT],
+    ['.mini-rail b::after', [{transform:'scaleX(0)'}, {transform:'scaleX(1)'}], 5300, 500, EASE_IO],
+    ['.mini-rail b:nth-of-type(2)::after', [{transform:'scaleX(0)'}, {transform:'scaleX(1)'}], 5850, 450, EASE_IO],
+    ['.chip',               [{opacity:0, transform:'translateY(10px)'}, {opacity:1, transform:'translateY(0)'}],                6250, 380,  EASE_OUT, {stagger:90}],
+    ['#cta',                [{opacity:0, transform:'translateY(12px) scale(.94)'}, {opacity:1, transform:'translateY(0) scale(1)'}], 6700, 520, EASE_OUT],
+    ['#fade',               [{opacity:1, offset:0}, {opacity:1, offset:.93}, {opacity:0, offset:1}], 0, CYCLE, 'linear'],
+    ['#sheen',              [{transform:'translateX(-120%)'}, {transform:'translateX(120%)'}],                                 7300, 900,  EASE_IO],
+    ['.url',                [{opacity:0}, {opacity:1}],                                                                        7300, 500,  EASE_OUT],
+    ['.stage-in',           [{opacity:1}, {opacity:1}],                                                                        0,    CYCLE, 'linear']
+  ];
+
+  const anims = [];
+  // Scale the real-size mockup to whatever width the phone frame got.
+  const fitScreen = () => {
+    const inner = document.getElementById('screen-inner');
+    const box = inner && inner.parentElement;
+    if (box) inner.style.setProperty('--s', (box.clientWidth / 360).toFixed(4));
+  };
+  fitScreen();
+  window.addEventListener('resize', fitScreen);
+  const wordLetters = $$('.word span, .word i');
+
+  // Wordmark: letters rise one by one.
+  wordLetters.forEach((el, i) => {
+    el.style.opacity = 0;
+    anims.push(el.animate(
+      [{opacity:0, transform:'translateY(16px)'}, {opacity:1, transform:'translateY(0)'}],
+      {duration:520, delay:380 + i * 110, easing:EASE_OUT, fill:'forwards'}
+    ));
+  });
+
+  for (const [sel, frames, start, dur, ease, opt] of tracks) {
+    if (sel === '.stage-in') continue;
+    if (sel.includes('::')) continue;          // WAAPI cannot target pseudo-elements
+    $$(sel).forEach((el, i) => {
+      const delay = start + (opt && opt.stagger ? i * opt.stagger : 0);
+      const a = el.animate(frames, {duration:dur, delay, easing:ease, fill:'both'});
+      a.pause();
+      anims.push(a);
+    });
+  }
+
+  // Rail fills: real elements, so they can be driven.
+  $$('.mini-rail b i').forEach((el, i) => {
+    el.style.cssText = 'position:absolute;inset:0;background:var(--mint);border-radius:99px;transform-origin:left;transform:scaleX(0)';
+    const a = el.animate([{transform:'scaleX(0)'},{transform:'scaleX(1)'}],
+      {duration:450, delay:i === 0 ? 5300 : 5850, easing:EASE_IO, fill:'both'});
+    a.pause(); anims.push(a);
+  });
+
+  // One master clock: seekable, so screenshots can grab exact frames.
+  const master = document.timeline.currentTime;
+  const start0 = performance.now();
+  let raf;
+  function tick(now) {
+    const t = ((now - start0) % CYCLE);
+    for (const a of anims) {
+      const st = a.effect.getTiming();
+      // currentTime is absolute (it includes the delay); subtracting it put
+      // every delayed track in its "before" phase, which pinned it to its start frame.
+      a.currentTime = Math.max(0, Math.min(st.delay + st.duration, t));
+    }
+    raf = requestAnimationFrame(tick);
+  }
+  raf = requestAnimationFrame(tick);
+
+  // Tap anywhere = pause / resume, so it can be shown to a person on a phone.
+  stage.addEventListener('click', () => {
+    if (raf) { cancelAnimationFrame(raf); raf = null; } else { raf = requestAnimationFrame(tick); }
+  });
+
+  window.__seek = (ms) => {
+    cancelAnimationFrame(raf); raf = null;
+    for (const a of anims) {
+      const st = a.effect.getTiming();
+      a.currentTime = Math.max(0, Math.min(st.delay + st.duration, ms));
+    }
+  };
+})();
+</script>
+</body>
+</html>
