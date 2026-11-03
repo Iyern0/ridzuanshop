@@ -1069,14 +1069,14 @@ password is not something this session handles.
 
 ### 2026-10-20 02:51 — Site moved out of the shared scratch folder
 **What happened:** The repo, its tooling, the design iterations and the review packet now sit
-under `C:\Users\kiifu\Desktop\MINUM MALAM SISWA\`, instead of sharing `Desktop\claude` with
+under `C:\Users\kiifu\Desktop\MINUM MALAM SISWA`, instead of sharing `Desktop\claude` with
 unrelated work (exam PDFs, emulator screenshots, three other widget projects).
-**Found / changed:** `app\` is the git repo — 15 tracked files, `.git` intact, remote unchanged,
+**Found / changed:** `app` is the git repo — 15 tracked files, `.git` intact, remote unchanged,
 `git log` unchanged, and `drinks-order.html` still byte-identical to `index.html` at 206,917
-bytes. `tools\` is the old `fb-admin-setup`; 126 files were retargeted from `Desktop\claude` to
-`Desktop\MINUM MALAM SISWA\app` (134 path references). `archive\` holds `design-v2`,
+bytes. `tools` is the old `fb-admin-setup`; 126 files were retargeted from `Desktop\claude` to
+`Desktop\MINUM MALAM SISWA\app` (134 path references). `archive` holds `design-v2`,
 `design-v3`, `drinks-corpus`, `drinks-out`, `graphify-out`, the `.bak` and experiment copies and
-the QR data. `review\` is the review packet. 75.5 MB in total. The local server on port 8899 was
+the QR data. `review` is the review packet. 75.5 MB in total. The local server on port 8899 was
 stopped before the move so it would not hold the old directory open. `design-v3` refused to move
 — a process holds the directory — so it was copied byte-for-byte (8 files) and the locked
 original left behind in `Desktop\claude` for deletion after a reboot. `tools\ADMIN-CREDENTIALS.txt`
@@ -1084,7 +1084,7 @@ and `tools\creds.js` moved with the tooling; they are still plaintext admin cred
 flagged in the new `README.md`.
 **Artefacts:** `Desktop\MINUM MALAM SISWA\{app,tools,archive,review}`, `README.md`,
 `tools\retarget-paths.js`; `DRINKS-ORDER.md` working-tree path updated
-**Status:** ✅ confirmed — `git status` in `app\` reports only the pre-existing modification to
+**Status:** ✅ confirmed — `git status` in `app` reports only the pre-existing modification to
 `transit-widget/DESIGN.md`, which belongs to the other project.
 
 ### 2026-10-21 12:08 — The verifier was stale, not the code; 21/21 pass
@@ -1448,7 +1448,7 @@ otifyOwnerClaim fires ? closing the QR path that previously reached the seller w
 
 ### 2026-10-22 12:25 — CORRECTION: the three commits are pushed, and live is on v45
 **What happened:** The entry above said three local commits were unpushed. They went out at 12:20:59 and the live site has rebuilt on them, so that line is withdrawn here rather than edited.
-**Found / changed:** `pushed_at` reads 2026-10-22T04:20:59Z (12:20:59 local); GitHub's `main` now serves `a873a08`, and the local `origin/main` ref matches it at 0 ahead. Live `sw.js` reads `v45-20261022` with the mojibake header gone, checked from two independent clients — the first fetch of the bare URL still returned `v43`, which was a stale CDN cache on that URL and not a failed build, so the cache-busted fetch is the one that counts. Separately: the workspace root is no longer a git repository (a tooling-created one was renamed to `.git.bak`); `app\` is unaffected. The repo-name question stands as recorded — `Iyern0/ridzuanshop` exists, `Iyern0/minum-malam-siswa` does not.
+**Found / changed:** `pushed_at` reads 2026-10-22T04:20:59Z (12:20:59 local); GitHub's `main` now serves `a873a08`, and the local `origin/main` ref matches it at 0 ahead. Live `sw.js` reads `v45-20261022` with the mojibake header gone, checked from two independent clients — the first fetch of the bare URL still returned `v43`, which was a stale CDN cache on that URL and not a failed build, so the cache-busted fetch is the one that counts. Separately: the workspace root is no longer a git repository (a tooling-created one was renamed to `.git.bak`); `app` is unaffected. The repo-name question stands as recorded — `Iyern0/ridzuanshop` exists, `Iyern0/minum-malam-siswa` does not.
 **Artefacts:** `WORKLOG.md` only (verification; no app file changed)
 **Status:** ✅ confirmed from the deployed file and the GitHub API
 
@@ -1510,12 +1510,12 @@ otifyOwnerClaim fires ? closing the QR path that previously reached the seller w
 ### 2026-10-22 13:22 — The plaintext admin password is off the disk
 **What happened:** The owner rotated the admin password themselves and asked for the stored copy to be removed. Both files are recycled.
 **Found / changed:**
-- Recycled `tools\ADMIN-CREDENTIALS.txt` (477 bytes) and `tools\creds.js` (419 bytes) to the Recycle Bin after resolving each path and confirming it was a regular file. They were **never tracked by git** — `tools\` sits outside the `app\` repository — so no plaintext password ever entered version control.
+- Recycled `tools\ADMIN-CREDENTIALS.txt` (477 bytes) and `tools\creds.js` (419 bytes) to the Recycle Bin after resolving each path and confirming it was a regular file. They were **never tracked by git** — `tools` sits outside the `app` repository — so no plaintext password ever entered version control.
 - Four scripts referenced them and are now dead: `after-login.js:19`, `verify-auth.js:9`, `verify-passchange.js:8`, `setup.js:10,22`. `require('./creds.js')` now throws `MODULE_NOT_FOUND`, which is a loud failure rather than a silent fallback. They were setup-era one-offs; `setup.js` could not run anyway, needing an absent `service-account.json`.
 - `app/.gitignore:43` still lists `ADMIN-CREDENTIALS.txt`; left in place deliberately, so a future stray copy cannot be committed.
 - **State file corrected:** `DRINKS-ORDER.md:79` still pointed at `Desktop\fb-admin-setup\ADMIN-CREDENTIALS.txt`, a path that no longer exists. Replaced with the rotated credential's real home and the three dead scripts.
 - `tools/README.md:27` still describes the old file; not corrected, since that README is the setup walkthrough, not current state.
-**Artefacts:** two files removed from `tools\` (recoverable from the Recycle Bin); `DRINKS-ORDER.md` updated
+**Artefacts:** two files removed from `tools` (recoverable from the Recycle Bin); `DRINKS-ORDER.md` updated
 **Status:** ✅ verified absent; the workspace holds no plaintext admin password
 
 ### 2026-10-22 13:24 — The setup pipeline is retired, and the docs say so
@@ -1524,8 +1524,8 @@ otifyOwnerClaim fires ? closing the QR path that previously reached the seller w
 - Recycled `tools\setup.js` (6880 B), `after-login.js` (5060 B), `verify-auth.js` (3320 B), `verify-passchange.js` (2810 B) after resolving each path. Nothing else referenced them except documentation.
 - `tools/README.md` rewritten: it still told the owner to save a Firebase Admin key to `service-account.json`. Now it opens with the retirement, states plainly why that key must not be downloaded again, lists only the scripts that still run, and points at the console for anything auth-related.
 - `DRINKS-ORDER.md` "If you ever need to redo it" and "Redeploying rules" corrected. Both named folders that no longer exist (`Desktop\fb-admin-setup`, `Desktop\claude`) and a `firebase deploy` command that cannot run, the CLI not being installed. Replaced with `tools\deploy-rules.js`, which publishes over the Rules REST API with `token.js`.
-- `tools\` holds 184 remaining `.js` files, most of them one-off records from individual bug passes; kept, and labelled as history rather than workflow.
-**Artefacts:** four files removed from `tools\` (recoverable from the Recycle Bin); `tools/README.md` and `DRINKS-ORDER.md` rewritten
+- `tools` holds 184 remaining `.js` files, most of them one-off records from individual bug passes; kept, and labelled as history rather than workflow.
+**Artefacts:** four files removed from `tools` (recoverable from the Recycle Bin); `tools/README.md` and `DRINKS-ORDER.md` rewritten
 **Status:** ✅ documentation now matches what the machine can actually do
 
 ### 2026-10-22 14:37 — Design pass 1: warm charcoal, no glow, card medallions
@@ -2161,7 +2161,7 @@ Eight 390×844 frames in `.scratch/figcraft/mms-body.figcraft` — `1 · Utama`,
 Built two variable collections — `Warna` (`paper`, `ink`, `accent`, `muted`, `hairline`, `chalk`, `chalk-ink`, modes `Cerah` and `Malam`) and `Jenis` (`t-title` 30, `t-heading` 18, `t-body` 15, `t-small` 12, `gap` 16). Exported them as `tokens.css` and `tokens.tailwind.css`; verified the CSS carries both modes (`:root` and `[data-warna="Malam"]`) and the Tailwind file is a v4 `@theme static` block.
 Direction A — paper ground `#FAF3E5`, ink `#1A1A17`, one accent `#C8452D`, and a single chalkboard panel `#23231F` for opening hours. Five frames at x=2000: `A1 · Utama` (555), `A2 · Pilihan minuman` (601), `A3 · Bakul` (646), `A4 · Menu` (685), `A5 · Pesanan` (745). Prices are tabular sans, the only colour on the page is a real data/status signal, chips flip to solid ink when selected, and the green WhatsApp-adjacent button is gone entirely — the primary action is the accent bar with cream text (contrast ≈5.9:1 against `#C8452D`).
 Proven to work, not assumed: `inspect.code` on the chalk panel returned `width: 350px; height: 104px; border-radius: 16px; background: #23231F;`; `proto.interaction.add` linked Utama CTA → Bakul, a menu `+` → the options sheet, and sheet "Tambah" → Bakul (all three returned `{"index":0}`).
-**Artefacts:** `.scratch/figcraft/mms-body.figcraft` (54,021 bytes, 13 frames + 2 variable collections), `.scratch/figcraft/mms-a-3up.png`, and the browsable copy at `C:\Users\kiifu\Desktop\MMS Design\` — `A1`–`A5` PNGs, `tokens.css`, `tokens.tailwind.css`, with the older navy set moved into `lama-navy/`.
+**Artefacts:** `.scratch/figcraft/mms-body.figcraft` (54,021 bytes, 13 frames + 2 variable collections), `.scratch/figcraft/mms-a-3up.png`, and the browsable copy at `C:\Users\kiifu\Desktop\MMS Design` — `A1`–`A5` PNGs, `tokens.css`, `tokens.tailwind.css`, with the older navy set moved into `lama-navy/`.
 **Status:** ⚠️ provisional — canvas only, `app/` still v105. Kupon and Saya have no A-direction screen yet, and no component/variant library exists (every screen is still hand-placed layers), so a change to the drink row must still be repeated six times. Those are the next two steps before this is implementable.
 
 ### 2026-11-01 22:20 — design kit step 1: variables and type scale in FigCraft
@@ -2338,3 +2338,38 @@ Dead ends worth remembering: (1) a full-width accent wash on each card read as a
 **Mistake 2 (corrected):** `git add -A` swept up `experiments/promo.html` — a parallel session's untracked WIP — into commit `e81d349`. Untracked it again in `38e41fa` (`git rm --cached`, file kept on disk, now `??` again). **Guard: never `git add -A` in this repo; stage the release files by name.**
 **Artefacts:** commits `e81d349`, `38e41fa`; live https://ridzuanshop.vercel.app/
 **Status:** confirmed - shipping; rollout verified from the served files.
+
+### 2026-11-03 18:26 — kurze prototype brought to 0 audit findings
+**What happened:** `node tools/audit-design.mjs http://127.0.0.1:8778/index.html` went from **81 findings to 0** without changing the composition (patch42-44 + one direct rule edit).
+**Found / changed:** `100vh`->`100dvh` (body, stage); `--dim #6C79AD` (3.38:1 on card) -> `#8A96CA` (4.95:1); `.moonbtn` 36->44; `.plus` keeps its 28px disc but gains a 44px hit box via 8px transparent border + `background-clip:padding-box` + `margin:-8px`; search input 16->44 tall and 13->15px; `.chipbtn` 33->44; `.step button` 32->44; `.seg2` finally 54 (five later overrides existed - the winner was `.seg2{height:44px}` at the bottom of the sheet); `.bina-back` 34->44; cart pill 48->54; every font-size under 10px lifted to 10/10.5 (22 declarations); CTA `line-height:1.35; white-space:nowrap`.
+**Root cause worth remembering:** the design shell scaled the phone at `max-height:880px`, so on a real 844px device every 44px control measured **40** and the audit looked wrong when the design was right. Breakpoints moved to 800/720.
+**Ambient exception:** the 44 twinkling stars are infinite by design; declared with `data-audit-allow="ambient-motion"` on `<html>` and recorded as exception 5 in DESIGN-RULES.md §5, and the checker skips them knowingly instead of silently passing.
+**Artefacts:** .scratch/kurze3/{patch42.py,patch43.py,patch44.py,template.html,index.html,a42-0.png,b42-1.png}, tools/audit-design.mjs, DESIGN-RULES.md (52,018 bytes)
+**Status:** confirmed - `no console errors` on the flow walk after every patch.
+
+### 2026-11-03 18:41 - kurze step 3 done: Utama carries a live clock
+**What happened:** Step 3 of PLAN.md closed. The status pill now reads the actual clock instead of a hardcoded string.
+**Found / changed:** `patch45.py` - `#statusTxt` label, `OPEN_H = 20`, `CLOSE_H = 2`, `shopClock()` runs on load and every 30 s; when shut the pill says `TUTUP . BUKA 8:00 MALAM`, the dot turns `#8A96CA` and its pulse stops (`.status.closed`). Verified by probe at 18:37: `{"text":"TUTUP . BUKA 8:00 MALAM","closed":true,"dotBg":"rgb(138, 150, 202)","dotAnim":"none"}`.
+**Deliverables:** `g3intro.gif` (26 frames, 1.9 MB, 45 ms), `g3tap.gif` (22 frames, 881 KB) - card tap opens the builder; `s45-0.png` still. Audit still 0 findings, `no console errors`.
+**Artefacts:** .scratch/kurze3/{patch45.py,probe45.mjs,template.html,index.html,g3intro.gif,g3tap.gif,s45-0.png,PLAN.md}
+**Status:** confirmed - awaiting the owner's verdict on the still before step 4.
+
+### 2026-11-03 19:05 — kurze-3 step 4a: builder told the truth about the real menu
+**What happened:** the owner's 4a brief was that the builder offered options the shop does not have, and that the options block was ugly and oversized. Rebuilt the option model and the glass sequence; the panel now fits the phone with room to spare.
+**Found / changed:** removed SAIZ and AIS entirely (the shop sells one size, and ice is not a choice on the live menu). PEMANIS = Susu Kental Manis | Gula, new MANIS = 100% | 50%, TAMBAHAN = Extra Kaw +0.50 only. `BU` is now `{key,pemanis,level,kaw,qty}`; `buExtra()` = kaw ? .50 : 0. Control style replaced (was `.seg2` segmented bars + `.swrow` switches) with 42 px illustrated tiles: 18 px line icon, label, 10 px sub-label, cream fill when chosen, `aria-pressed` kept in sync by `buSync()`. Glass: straw and ice cubes deleted from the SVG; the drink is a three-beat build on open — empty clear glass, liquid pours in at 170 ms (`springY` stiff 128 damp 9), sweetener lands at 900 ms. PEMANIS changes the glass itself, not just a label: susu multiplies `--liq` ×1.30 and blooms `#bcloud` to .22 opacity plus a .17 `#bwash`; gula zeroes both and drops 4 sugar mounds for 100 %, 2 for 50 %, with `grains()` falling. Extra Kaw darkens the drink to .82 and raises steam.
+Two bugs cost real time: `mixHex` sat inside the block patch46 replaced, so `buOpen` threw `mixHex is not defined` and the whole panel silently refused to open; and `#bopts{flex:1}` had been absorbing the slack, so shrinking the tiles changed nothing — the block stayed 460 px and every "smaller" edit was invisible. Fix was `.bopts{flex:none}` with `.cupstage{flex:1}`, giving the freed space to the glass.
+**Measured:** `#bopts` 234 px tall at y 493 (was 460 at y 267), 3 groups, 5 tiles at 42 px, stage 242 px, cup 132 px, footer 737–844, CTA bottom 828, no page scroll. Behaviour probe `probe46.mjs`: pour transform 84 px → 0; susu → `--liq` `#6B3B22` → `#8b4d2c`, cloud .22; gula 100 % → 4 mounds, cloud 0; 50 % → 2; kaw → RM4.00 with steam 1; add → cart 1 with cfg "Gula 50% · extra kaw" and extra .5, state reset to susu/100. `node check.mjs` → no console errors. `index.html` 108,057 bytes.
+**Artefacts:** `.scratch/kurze3/patch46.py`, `patch47.py`, `probe46.mjs`, stills `s46-*.png`, `s47-*.png`.
+**Status:** ⚠️ provisional — waiting on the owner's verdict on the tile style and on whether the block is now small enough. Nothing ported to `engine-source.html`, nothing shipped.
+
+### 2026-11-03 19:29 — kurze-3 4a rework: bars back, panel finally covers the nav
+**What happened:** the owner rejected the tile style ("keep the segmented bars") and called the customization screen half-assed. Three real defects were found and fixed, one of which was structural: the builder never covered the bottom nav, so the last 100 px of the panel — including most of the price and part of the CTA — were drawn underneath it.
+**Found / changed:** `.bina` z-index now 200 (nav is 30, cart 31); tiles replaced by three segmented bars again (`.seg` 52 px, 3 px padding, cream `.seg-ind` with a 440 ms spring slide, `--n` per group); PEMANIS = Susu | Gula, MANIS = 100% | 50%, TAMBAHAN = a one-cell toggle bar for Extra Kaw +0.50 with no indicator when off. Layout is three zones that share the height (`.bina-body{justify-content:space-between}`): header, `.cupstage` 296 px with a 236 px glass, options block, footer 107 px ending at 828. The empty band under the glass now carries diagram-style tags (`.ctag` 26 px pills, `--acc` dot, "susu" / "100%" / "extra kaw") kept in sync by `buSync()`.
+**Verified:** `node check.mjs` → no console errors; `#bcup` 236 × auto; footer bottom 828; nav hidden behind the panel; stills `s50-1.png` … `s52-2.png`. `index.html` 111,055 bytes.
+**Status:** ⚠️ provisional — composition is still unreviewed by the owner; motion work on this screen stays frozen until he approves a still.
+
+### 2026-11-04 01:12 — CORRECTION: promo video withdrawn
+**What happened:** The 12-second promo video (`promo/minum-malam-promo-1080x1920.mp4`, `promo/minum-malam-promo-720x1280.mp4`), its render harness (`.scratch/render-promo.mjs`) and its source page (`app/experiments/promo.html`) were deleted at the owner's request ("nevermind delete that") about 4 minutes after delivery.
+**Found / changed:** Nothing about the storefront: the video was a standalone marketing asset, never linked from `drinks-order.html` or `index.html`, and no release tag included it. The animation technique notes in the 17:44 entry stay valid; the artefacts are gone.
+**Artefacts:** removed `promo/`, `app/experiments/promo.html`, `.scratch/promo-frames/`, `.scratch/render-promo.mjs`, `.scratch/probe-promo.mjs`, `.scratch/promo-shots/`, `.scratch/edge-promo/`.
+**Status:** ✅ confirmed — `ls promo` and `ls app/experiments/promo.html` both return nothing.
