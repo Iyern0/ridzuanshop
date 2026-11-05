@@ -752,6 +752,16 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
   .cpn-rec input::placeholder{color:#7A756C;letter-spacing:0.5px;font-size:12px;text-transform:none}
   .cpn-rec button{height:44px;padding:0 14px;border-radius:10px;background:rgba(201,169,106,0.14);border:1px solid rgba(201,169,106,0.45);color:#C9A96A;font-family:var(--fd);font-weight:800;font-size:13px;cursor:pointer}
   .cpn-rec .msg{font-size:12px;font-weight:700;color:#9FB0C9;margin-top:7px;line-height:1.45}
+  /* Order history: the codes a device actually placed, newest first. */
+  .hist-pop{max-height:min(430px,72vh);overflow:auto;-webkit-overflow-scrolling:touch}
+  .hist-row{display:flex;align-items:center;gap:7px;padding:9px 10px;border-radius:10px;background:rgba(255,255,255,0.045);margin-bottom:7px}
+  .hist-row:last-child{margin-bottom:0}
+  .hist-row .cwrap{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+  .hist-row .top{font-size:12px;font-weight:800;color:#E8E2D6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .hist-row .code{font-family:var(--fd);font-weight:800;font-size:14px;letter-spacing:2px;color:#C9A96A}
+  .hist-row button{border:1px solid rgba(255,255,255,0.18);border-radius:8px;height:28px;padding:0 9px;background:rgba(255,255,255,0.06);color:#FBF4E6;font-family:var(--fd);font-weight:800;font-size:11px;cursor:pointer;flex:none}
+  .hist-row button.go{background:#C9A96A;border-color:#C9A96A;color:#07110E}
+  .hist-empty{font-size:12px;color:#9FB0C9;line-height:1.6}
   .cpn-row button{border:1px solid rgba(255,255,255,0.18);border-radius:8px;font-family:var(--fd);font-weight:800;font-size:11px;
    padding:8px 10px;cursor:pointer;background:transparent;color:#D7E1F0}
   .cpn-row button.go{background:#C9A96A;border-color:#C9A96A;color:#07110E}
@@ -1046,7 +1056,7 @@ body.mm-lock #cart-bar,body.mm-lock #notif-ask{display:none !important}
 <div id="admin-btn-wrap" style="text-align:center;margin-top:8px;display:none"><button id="admin-btn" onclick="enterAdmin()" style="display:none;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.14);color:#93A6C2;font-weight:800;font-size:13px;padding:7px 14px;border-radius:999px;cursor:pointer">🔧 Admin</button></div>
 <div id="founder" class="founder" style="display:none"></div>
 
-<div class="bar" style="position:relative"><span>Pesanan</span><div class="stamps" id="stamps"></div><span class="count" id="loy-count">0</span><span class="cpn-wrap"><button id="cpn-btn" class="cpn-btn" onclick="event.stopPropagation();toggleCpnPop()" aria-label="Kupon"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16a1 1 0 0 1 1 1v2.2a2 2 0 0 0 0 3.6V16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2.2a2 2 0 0 0 0-3.6V8a1 1 0 0 1 1-1Z"/><path d="M9.5 7v10" stroke-dasharray="2 2.4"/></svg><span class="dot" id="cpn-dot">0</span></button><div id="cpn-pop" class="cpn-pop" onclick="event.stopPropagation()"></div></span></div>
+<div class="bar" style="position:relative"><span>Pesanan</span><div class="stamps" id="stamps"></div><span class="count" id="loy-count">0</span><span class="cpn-wrap"><button id="hist-btn" class="cpn-btn" onclick="event.stopPropagation();toggleHistPop()" aria-label="Sejarah pesanan"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg></button><div id="hist-pop" class="cpn-pop hist-pop" onclick="event.stopPropagation()"></div></span><span class="cpn-wrap"><button id="cpn-btn" class="cpn-btn" onclick="event.stopPropagation();toggleCpnPop()" aria-label="Kupon"><svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16a1 1 0 0 1 1 1v2.2a2 2 0 0 0 0 3.6V16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2.2a2 2 0 0 0 0-3.6V8a1 1 0 0 1 1-1Z"/><path d="M9.5 7v10" stroke-dasharray="2 2.4"/></svg><span class="dot" id="cpn-dot">0</span></button><div id="cpn-pop" class="cpn-pop" onclick="event.stopPropagation()"></div></span></div>
 <div class="sec"><h2><span>Minuman</span></h2><div class="l"></div></div>
 
 <div id="mm-menu-tools">
@@ -1072,7 +1082,7 @@ body.mm-lock #cart-bar,body.mm-lock #notif-ask{display:none !important}
 <div class="opt" id="phone-section"><div class="l">📱 No. WhatsApp</div><input class="inp" id="inp-phone" placeholder="cth 0123456789" inputmode="tel" maxlength="20"><div style="font-size:12px;color:#9FB0C9;font-weight:700;margin-top:6px;line-height:1.5">Wajib — supaya kami boleh maklumkan bila pesanan anda siap.</div></div>
 <div class="opt" id="block-section"><div class="l">🏠 Blok</div><div class="block-grid" id="block-grid"></div><div id="room-row" style="display:none;margin-top:8px"><input class="inp" id="inp-room" placeholder="Nombor bilik / unit" maxlength="20"></div></div>
 <div class="opt" id="time-sec"><div class="l" id="time-label">⏰ When to deliver?</div><div id="time-pick" style="margin-top:10px"><div class="ts" id="times"></div><div id="pickup-note" style="display:none;font-size:14px;color:#9FB0C9;font-weight:600;margin-bottom:8px">We will notify you when it's done</div><div id="time-more" style="display:none;font-size:13px;color:#E0A44E;font-weight:800;margin-bottom:6px">Order for later? 👇</div><div id="time-pickup"><input class="inp" id="pickup-time" placeholder="e.g. 11:00 PM" maxlength="30"></div></div></div>
-<div class="opt" id="pay-section"><div class="l">💳 Bayar</div><div class="dt" id="pay"><button data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button><button data-method="coupon">&#127903; Kupon</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(201,169,106,0.1)"><img src="qr-duitnow.jpg?v=110" alt="DuitNow QR" style="width:210px;height:auto;display:block;border-radius:8px"></div><div style="font-size:13px;color:#9FB0C9;margin-top:8px;font-weight:600">Scan untuk bayar</div><a href="qr-duitnow.jpg?v=110" download="duitnow-qr.jpg" style="display:inline-block;margin-top:8px;font-size:12px;font-weight:800;color:#E0A44E;background:rgba(224,164,78,0.12);border:1px solid rgba(224,164,78,0.38);padding:6px 12px;border-radius:999px;text-decoration:none">⬇ Muat turun QR</a><div id="qr-claim-slot" style="margin-top:14px"></div></div></div>
+<div class="opt" id="pay-section"><div class="l">💳 Bayar</div><div class="dt" id="pay"><button data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button><button data-method="coupon">&#127903; Kupon</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(201,169,106,0.1)"><img src="qr-duitnow.jpg?v=111" alt="DuitNow QR" style="width:210px;height:auto;display:block;border-radius:8px"></div><div style="font-size:13px;color:#9FB0C9;margin-top:8px;font-weight:600">Scan untuk bayar</div><a href="qr-duitnow.jpg?v=111" download="duitnow-qr.jpg" style="display:inline-block;margin-top:8px;font-size:12px;font-weight:800;color:#E0A44E;background:rgba(224,164,78,0.12);border:1px solid rgba(224,164,78,0.38);padding:6px 12px;border-radius:999px;text-decoration:none">⬇ Muat turun QR</a><div id="qr-claim-slot" style="margin-top:14px"></div></div></div>
 <div class="opt" id="coupon-section" style="display:none"><div class="l">&#127903; Kupon Percuma</div><div style="display:flex;gap:8px;margin-top:10px"><input class="inp" id="inp-coupon" placeholder="Kod kupon" maxlength="12" autocomplete="off" autocapitalize="characters" style="flex:1;text-transform:uppercase;letter-spacing:1.5px"><button id="coupon-check" style="background:rgba(201,169,106,0.14);border:1px solid rgba(201,169,106,0.4);color:#C9A96A;font-family:var(--fd);font-weight:800;font-size:13px;padding:0 16px;border-radius:10px;cursor:pointer">Guna</button></div><div id="coupon-msg" style="font-size:13px;font-weight:700;margin-top:8px;line-height:1.5;color:#9FB0C9">Masukkan kod yang penjual beri. Satu kod untuk satu minuman percuma (add-on tetap dikenakan).</div></div>
 </div>
 <div class="ft"><div class="tr" style="border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:8px;margin-bottom:8px"><span>Subtotal</span><span style="font-family:var(--fd);font-weight:800;font-size:22px" id="sub">RM0.00</span></div>
@@ -1509,10 +1519,12 @@ function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
     return 'Sah '+left+' hari lagi · '+ds;
   }
   function cpnRecHtml(){
-    return '<div class="cpn-rec"><div class="hint">Kupon atau setem hilang? Masukkan kod pesanan lama anda.</div>'
-      +'<div class="row"><input id="cpn-rec" placeholder="Contoh A2C5B9" maxlength="9" autocomplete="off" autocapitalize="characters">'
-      +'<button id="cpn-rec-go">Cari</button></div>'
-      +'<div class="msg" id="cpn-rec-msg"></div></div>';
+    // No free-text claim box. Typing a code that was not yours used to be able
+    // to pull somebody else's coupon and count their orders as your stamps. The
+    // history panel is the only way in now, and it lists codes this device
+    // actually placed, so there is no field to guess into.
+    return '<div class="cpn-rec"><div class="hint">Kupon atau setem hilang? Buka sejarah pesanan - setiap kod pesanan anda ada di sana.</div>'
+      +'<div class="row"><button id="cpn-hist">Sejarah pesanan</button></div></div>';
   }
   function drawCpnPop(){
     const pop=document.getElementById('cpn-pop');if(!pop)return;const a=liveCpns();
@@ -1538,40 +1550,88 @@ function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
         }).join('')
         +cpnRecHtml();
     }
-    const go=pop.querySelector('#cpn-rec-go'),inp=pop.querySelector('#cpn-rec');
-    if(go)go.addEventListener('click',cpnRecover);
-    if(inp)inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();cpnRecover()}});
+    const hb=pop.querySelector('#cpn-hist');
+    if(hb)hb.addEventListener('click',function(){toggleHistPop()});
     pop.querySelectorAll('[data-cp]').forEach(function(b){b.addEventListener('click',function(){cpnCopy(b.getAttribute('data-cp'))})});
     pop.querySelectorAll('[data-use]').forEach(function(b){b.addEventListener('click',function(){cpnUse(b.getAttribute('data-use'))})});
   }
-  async function cpnRecover(){
-    const pop=document.getElementById('cpn-pop');
-    const inp=pop&&pop.querySelector('#cpn-rec'),msg=pop&&pop.querySelector('#cpn-rec-msg');
-    if(!inp)return;
-    let code=String(inp.value||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
-    if(code.slice(0,3)==='MMS')code=code.slice(3);
-    if(code.length!==6){if(msg)msg.textContent='Kod pesanan ada 6 aksara, contoh A2C5B9.';return}
-    if(msg)msg.textContent='Mencari pesanan '+code+'...';
+  // ── Order history ─────────────────────────────────────────────────────────
+  // The only place a customer can see past orders and their codes, and the only
+  // way to restore a coupon a wiped browser took away. It reads codes this
+  // device placed, so there is no field to guess somebody else's code into.
+  const HIST_T={baru:'Baru',processing:'Diproses',done:'Siap',deleted:'Dipadam'};
+  function histWhen(ts){
     try{
-      const db=getDb();if(!db){if(msg)msg.textContent='Tiada sambungan.';return}
-      const snap=await db.collection('tracking').doc(code).get();
-      if(!snap.exists){if(msg)msg.textContent='Pesanan itu tidak dijumpai.';return}
-      const d=snap.data()||{};
-      // A code that resolves is a real order, so it joins the history even when
-      // it carries no coupon: it still counts toward the stamp row.
-      rememberCode(code);
-      syncLoy();
-      if(!d.coupon){if(msg)msg.textContent='Pesanan ini belum ada kupon, tetapi setemnya dikira.';return}
+      const d=ts&&ts.toDate?ts.toDate():null;
+      if(!d)return '';
+      // Date only: the row also carries two buttons, and "#412 · Siap · 3 Nov · 21:40"
+      // truncated the minute away on a 390px screen.
+      return d.toLocaleDateString('ms-MY',{day:'numeric',month:'short'});
+    }catch(e){return ''}
+  }
+  function _placePop(pop,btn){
+    if(!btn)return;
+    const r=btn.getBoundingClientRect(),m=12;
+    const w=pop.offsetWidth||Math.min(320,innerWidth-2*m);
+    const h=pop.offsetHeight||0;
+    let right=Math.min(Math.max(m,innerWidth-r.right),Math.max(m,innerWidth-w-m));
+    let top=r.bottom+10;
+    if(h&&top+h>innerHeight-m)top=Math.max(m,r.top-h-10);
+    pop.style.top=Math.round(top)+'px';
+    pop.style.right=Math.round(right)+'px';
+    pop.style.left='auto';
+  }
+  async function restoreFromCode(code){
+    const db=getDb();if(!db){toast('Tiada sambungan');return}
+    try{
+      const s=await db.collection('tracking').doc(code).get();
+      if(!s.exists){toast('Pesanan itu tidak dijumpai.');return}
+      const d=s.data()||{};
+      if(!d.coupon){toast('Pesanan ini tiada kupon.');return}
       const added=addCpn(d.coupon,d.couponExp&&d.couponExp.toMillis?d.couponExp.toMillis():0);
-      inp.value='';
-      if(added){drawCpnPop();couponArrived()}
-      else if(msg)msg.textContent='Kupon itu sudah ada dalam senarai.';
-    }catch(e){if(msg)msg.textContent='Tidak dapat menyemak. Cuba lagi.'}
+      if(added){toast('\u2705 Kupon dipulihkan');drawHistPop();drawCpnBtn();couponArrived()}
+      else toast('Kupon itu sudah ada dalam senarai.');
+    }catch(e){toast('Tidak dapat menyemak. Cuba lagi.')}
+  }
+  async function drawHistPop(){
+    const pop=document.getElementById('hist-pop');if(!pop)return;
+    const list=myCodes();
+    if(!list.length){
+      pop.innerHTML='<h4>Tiada sejarah</h4><div class="sub">Pesanan yang dibuat pada telefon ini akan tersenarai di sini, bersama kodnya.</div>';
+      return
+    }
+    pop.innerHTML='<h4>Sejarah pesanan</h4><div class="sub">Tekan <b>Pulihkan</b> pada pesanan yang ada kupon untuk memasukkannya semula.</div><div id="hist-list"><div class="hist-empty">Memuatkan…</div></div>';
+    const box=pop.querySelector('#hist-list'),db=getDb();
+    if(!db){box.innerHTML='<div class="hist-empty">Tiada sambungan.</div>';return}
+    let h='';
+    for(let i=0;i<list.length;i++){
+      const code=list[i];
+      let d=null;
+      try{const s=await db.collection('tracking').doc(code).get();if(s.exists)d=s.data()||{}}catch(e){}
+      const st=d?(HIST_T[d.status]||d.status||'Baru'):'Tidak dijumpai';
+      const top=[d&&d.no?('#'+d.no):'',st,histWhen(d&&d.at)].filter(Boolean).join(' · ');
+      h+='<div class="hist-row"><div class="cwrap"><span class="top">'+esc(top)+'</span><span class="code">'+esc(code)+'</span></div>'
+        +'<button data-hc="'+esc(code)+'">Salin</button>'
+        +(d&&d.coupon?'<button class="go" data-hr="'+esc(code)+'">Pulihkan</button>':'')
+        +'</div>';
+    }
+    box.innerHTML=h||'<div class="hist-empty">Tiada pesanan.</div>';
+    box.querySelectorAll('[data-hc]').forEach(function(b){b.addEventListener('click',function(){cpnCopy(b.getAttribute('data-hc'))})});
+    box.querySelectorAll('[data-hr]').forEach(function(b){b.addEventListener('click',function(){restoreFromCode(b.getAttribute('data-hr'))})});
+  }
+  function toggleHistPop(){
+    const pop=document.getElementById('hist-pop');if(!pop)return;
+    const c=document.getElementById('cpn-pop');if(c)c.style.display='none';
+    if(pop.style.display==='block'){pop.style.display='none';return}
+    const btn=document.getElementById('hist-btn');
+    pop.style.display='block';
+    drawHistPop().then(function(){_placePop(pop,btn)});
   }
   function toggleCpnPop(){
     const pop=document.getElementById('cpn-pop');if(!pop)return;
     if(pop.style.display==='block'){pop.style.display='none';return}
     const btn=document.getElementById('cpn-btn');
+    const hp=document.getElementById('hist-pop');if(hp)hp.style.display='none';
     verifyWallet();
     drawCpnPop();pop.style.display='block';
     if(btn){
@@ -4146,7 +4206,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v110</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v111</div>
 
 <script>
 /* ===== CHAGEE-order UI =====================================================

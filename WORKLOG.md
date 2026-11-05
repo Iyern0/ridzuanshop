@@ -2465,3 +2465,53 @@ Two bugs cost real time: `mixHex` sat inside the block patch46 replaced, so `buO
 **Verified:** `.scratch/t-loy.mjs` with five remembered codes (done / baru / processing / deleted / done+free). `BEFORE {"count":"0","stamps":0}` → focus → `AFTER {"count":"1","stamps":1,"title":"1 pesanan siap · 1/5 · 2 sedang diproses"}`; recovering an unseen finished code took it to `2`. Live: build tag `v110`, `async function syncLoy` ×1, `syncLoy();` ×5, `if(d.status==='done')n++` ×1, `sedang diproses` ×1, `sw.js` `v110-20261105`.
 **Artefacts:** `app/tools/engine-source.html`, `app/drinks-order.html` + `app/index.html` (353,816 bytes, identical), `app/sw.js`, harness `.scratch/t-loy.mjs`.
 **Status:** ✅ confirmed. A stale headless browser (leftover `msedge.exe` holding `.scratch/_edge-loy` and port 9375) made a harness run land on an old page and report a null element — the fix was killing those processes and deleting the profile, not the code.
+
+### 2026-11-06 00:12 — options become data; stack, counter, zero-qty (patch59–60)
+
+**What happened:** eight annotations landed on the builder at once. Two of them were structural, so the options block was rebuilt from a JS array instead of hand-written markup.
+**Found / changed:**
+- `patch59` — `renderOpts()` builds the groups from `OPT_GROUPS` + `EXTRA`. PEMANIS buttons now carry inline icons (`ICON.milk` / `ICON.cube`); MANIS renders a **spoon gauge** (`spoons(2)` = 100 %, `spoons(1)` = 50 %); TAMBAHAN is generated from `EXTRA` and the row scrolls (`overflow-x:auto`) once the list outgrows one line — so a new paid extra is one array entry, not a markup edit.
+- `patch59` also added `stackGlasses()`: qty > 1 draws `qty-1` glass silhouettes behind the cup, each popping in 40 ms after the last.
+- `patch60` — quantity floor dropped 1 → **0**; at 0 the cup fades to 14 % and scales to .9, the CTA disables, and a `1 cawan` counter under the glass reads the live number.
+- Indicator geometry: used to divide the track width (`clientWidth - 6`) / button count, which gave 77 px on one row and 85 px on the next; now it measures `getBoundingClientRect()` of the selected button (and of button 0 when nothing is selected).
+**Verified:** probe → `{qty:"3", count:"3", glasses:2, cta:"Tambah · RM 10.50"}`; `node check.mjs` → `no console errors`; `index.html` 121,509 bytes.
+**Artefacts:** `.scratch/kurze3/patch59.py`, `patch60.py`, `p59-1.png`, `p60-1.png`.
+**Status:** ✅ confirmed ⚠️ three annotations still open: empty band (#2), footer presentation (#7), glass motion depth (#8).
+
+### 2026-11-06 00:20 — "+" now adds a real glass (patch61–62) + a self-inflicted regression
+
+**What happened:** the owner annotated the `+` button — the stacked glasses were empty rectangles, he wants the actual glass duplicated per unit.
+**Changed:**
+- `patch61` — `miniCup()` returns a self-contained 52×69 SVG (own `clipPath` id per clone, `var(--liq)` liquid, cream rim); `stackGlasses()` renders `qty-1` of them left of the hero cup and pops each in with a 420 ms `cubic-bezier(.34,1.36,.5,1)` overshoot plus a `wobble(.5)` on the surface.
+- `patch62` — **`buSync()` had to be rewritten**: `patch61`'s slice removed it (plus `springY`, `wobble`, `tweenMoney`, `bKaw`, `bLevel`, `bSweet`, `buReset`, `grains`) because the physics block sat between the two anchors. The physics block was spliced back from `.bak59.html` and `buSync` re-authored against the generated groups (`#vpemanis` / `#vlevel` / `#vkaw`), with qty-0 handling and `stackGlasses()` at the end.
+**Verified:** probe → `{qty:"3", mini:2, cupSvgs:2, cta:"Tambah · RM 10.50", sum:"RM 10.50"}`; mini rects `[93,356,52,69]` and `[67,356,52,69]` inside a `358×455` stage; `no console errors`; `index.html` 123,413 bytes.
+**Lesson:** a string-slice patch with two anchors eats everything between them. Always diff the function inventory (`function <name>(`) before and after.
+**Artefacts:** `patch61.py`, `patch62.py`, `p62-1.png`.
+**Status:** ✅ confirmed
+
+### 2026-11-06 00:29 — hero glass pinned, copies fan right (patch63–66)
+
+**What happened:** owner: "the adding dont change the position of the main glass. only the small glass icon is being moved."
+**Changed:** `stackGlasses()` no longer scales or translates `#bcup` — it clears the transform every sync. Copies are 46 px cups that peek out to the right at 17 px steps, standing on the hero's own baseline (measured `stage.bottom - hero.bottom`), z-indexed under the hero, popping in with a 420 ms overshoot from 1.25× behind it.
+**Verified:** hero `[91,176]` before and `[91,176]` after three taps — identical; copies at `x 245` and `262`, width 46; `no console errors`; `index.html` 124,580 bytes.
+**Regressions hit again:** `patch63`'s slice deleted the physics block a second time (`springY`, `wobble`, `tweenMoney`, `bSweet`, `bLevel`, `bKaw`, `buReset`); spliced back from `.bak59.html` and confirmed with a function-inventory diff before rebuilding.
+**Artefacts:** `patch63.py` … `patch65.py`, `p63-1.png`, `p65-1.png`, `p66-1.png`.
+**Status:** ✅ confirmed
+
+### 2026-11-06 00:34 — copies centred *under* the glass, not beside it
+
+**What happened:** owner: "change the position to be at the center at the main glass. not at the side. at the below it."
+**Changed:** the fan became a centred row of 34 px cups (gap 7) in the band below the hero: `x0 = (W - rowW) / 2`, `bottom = (stage.bottom - hero.bottom) - cupH - 6`. Hero still untouched.
+**Bug hit:** the geometry block referenced `hb`/`sb` that the slice had removed — `stackGlasses()` threw and the row rendered empty (`qty 4, minis []`). Declared both inside the block; row came back.
+**Verified:** qty 4 → copies at `x 121, 162, 203`, `y 353`, width 34 — row spans 121–237, centre 179 = stage centre; `no console errors`; `index.html` 124,405 bytes.
+**Artefacts:** `p67-1.png` (empty, pre-fix), `p67b-1.png`.
+**Status:** ✅ confirmed
+
+### 2026-11-06 00:36 — v111: order history, and the claim box that let strangers claim codes
+
+**What happened:** owner: "can you make it a section where customer can check their order history with its codes so that they can do something when a coupon is lost. also a loophole is rising. what if they abuse claiming the order codes to fill up the coupon badge?"
+**Changed:** new `#hist-btn` (clipboard) beside the coupon button, and `#hist-pop` listing every code in `mms_mycodes` — `#number · status · date` over the code itself, with `Salin` on every row and `Pulihkan` on rows whose `tracking` document carries a coupon (`restoreFromCode()` → `addCpn()`). The free-text recovery box in the coupon popover is **gone** (`cpnRecHtml()` now only links to the history panel, and `cpnRecover()` was deleted), which is the loophole fix: there is no longer a field where a code that is not yours can be typed. `histWhen()` prints the date without the clock because the two-button row truncated it at 390px.
+**Measured:** `.scratch/t-hist.mjs` (seeds three codes: done+coupon, baru, processing) → rows 3, lines `#412 · Siap · 3 Nov`, `#413 · Baru · 5 Nov`, `#414 · Diproses · 6 Nov`, codes `AAA111/BBB222/CCC333`, exactly 1 `Pulihkan`, `hasInput false`, restore put `FREE1234` in the wallet, opening one popover closes the other. Live v111: `id="hist-btn"` ×1, `function toggleHistPop` ×1, `function drawHistPop` ×1, `function cpnRecover` ×0, `id="cpn-rec"` ×0, `sw.js` `v111-20261105`.
+**Harness trap:** both popovers are declared inside the big indented script block, so `typeof toggleHistPop` is `undefined` until the script has parsed — waiting on `!!document.getElementById('hist-btn')` alone clicks a page whose handlers do not exist yet and reports a panel that never opened. Wait for the function, not the element.
+**Artefacts:** `app/tools/engine-source.html`, `drinks-order.html`, `index.html`, `sw.js`, `.scratch/t-hist.mjs`, `.scratch/t-hist-shot.mjs`, `.scratch/live-bugs/hist-pop.png`.
+**Status:** ✅ confirmed — shipped and live; the remaining hole (a leaked code is spendable at checkout) needs a rules change and has not been made.
