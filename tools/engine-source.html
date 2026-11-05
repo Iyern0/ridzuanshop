@@ -1190,6 +1190,13 @@ function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
   const MY_CODES_KEY='mms_mycodes';
   function myCodes(){try{const a=JSON.parse(localStorage.getItem(MY_CODES_KEY)||'[]');return Array.isArray(a)?a.filter(function(c){return typeof c==='string'&&/^[A-Z0-9]{6}$/.test(c)}):[]}catch(e){return[]}}
   function rememberCode(code){code=String(code||'').toUpperCase();if(!/^[A-Z0-9]{6}$/.test(code))return;const a=myCodes().filter(function(c){return c!==code});a.unshift(code);try{localStorage.setItem(MY_CODES_KEY,JSON.stringify(a.slice(0,25)))}catch(e){}}
+  // Orders paid with a coupon must not count toward the loyalty card, but the
+  // tracking row cannot say so (see the rules note at the order write), so this
+  // device remembers which codes those were. The loss is one order of accuracy
+  // on a browser that forgets: the count would run one or two too high, never
+  // too low, and the seller's own mint still reads the order document.
+  function myFreeCodes(){try{const a=JSON.parse(localStorage.getItem('mms_free')||'[]');return Array.isArray(a)?a.filter(function(c){return typeof c==='string'&&/^[A-Z0-9]{6}$/.test(c)}):[]}catch(e){return[]}}
+  function rememberFree(code){code=String(code||'').toUpperCase();if(!/^[A-Z0-9]{6}$/.test(code))return;const a=myFreeCodes().filter(function(c){return c!==code});a.unshift(code);try{localStorage.setItem('mms_free',JSON.stringify(a.slice(0,25)))}catch(e){}}
   function liveCpns(){const now=Date.now();return cpns().filter(function(c){return !c.exp||c.exp>now})}
   // A code is a bearer token: sharing is allowed, so the only truth is the
   // coupon document. Anything used - by this phone or another - leaves the
@@ -1430,7 +1437,7 @@ function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
   async function syncLoy(){
     const db=getDb();if(!db)return 0;
     const list=myCodes();if(!list.length)return 0;
-    let n=0,seen=0,pending=0;
+    let n=0,seen=0,pending=0;const freeOnes=myFreeCodes();
     for(let i=0;i<list.length;i++){
       try{
         const s=await db.collection('tracking').doc(list[i]).get();
@@ -1440,7 +1447,7 @@ function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
         // A free drink bought with a coupon does not count toward the card, and
         // a deleted order must stop counting - the seller's own card ignores
         // both, so the customer's row has to ignore them too.
-        if(d.free)continue;
+        if(d.free||freeOnes.indexOf(list[i])>=0)continue;
         if(d.status==='deleted')continue;
         if(d.status==='done')n++;else pending++;
       }catch(e){}
@@ -2156,7 +2163,13 @@ if(payM==='qr'&&!stagedProof){toast('⚠ Hantar resit dahulu');closeConfirm();re
           const n=(cs.exists?(cs.data().n||0):0)+1;
           tx.set(cRef,{n:n});
           tx.set(db.collection('orders').doc(code),{...payload,no:n,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-          tx.set(db.collection('tracking').doc(code),{status:'baru',no:n,at:firebase.firestore.FieldValue.serverTimestamp(),free:payM==='coupon'?1:0});
+          // The tracking row may carry ONLY status/no/at - the rules' create
+          // clause is keys().hasOnly(['status','no','at']) and status=='baru'.
+          // v109 added a `free` flag here and every order after that was denied
+          // with permission-denied, which the customer saw as "Pesanan TIDAK
+          // dihantar" because the whole transaction rolled back. A free drink is
+          // remembered on the device instead (rememberFree), see syncLoy.
+          tx.set(db.collection('tracking').doc(code),{status:'baru',no:n,at:firebase.firestore.FieldValue.serverTimestamp()});
           if(payM==='coupon'&&cpnCode)tx.update(db.collection('coupons').doc(cpnCode),{used:true,usedAt:firebase.firestore.FieldValue.serverTimestamp(),ord:code});
           orderNo=n
         });
@@ -2203,6 +2216,10 @@ if(payM==='qr'&&!stagedProof){toast('⚠ Hantar resit dahulu');closeConfirm();re
   // order push; b77d07f deliberately brought it back.
   showDone({...disp,warn:false});
   saveMyOrder(disp);saveCustomer();
+  // Remember on this device that the drink was free, so syncLoy can leave it
+  // out of the loyalty count without asking the tracking row to carry a flag
+  // the rules do not allow.
+  if(payM==='coupon'&&code)rememberFree(code);
   if(proof)submitClaim(code,proof,orderNo,r,null,{items:items,total:total});
   toast('✓ Pesanan dihantar!');
   // The stamp lands when the order is marked ready, not when it is sent, so the
