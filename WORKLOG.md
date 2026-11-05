@@ -2429,3 +2429,27 @@ Two bugs cost real time: `mixHex` sat inside the block patch46 replaced, so `buO
 **Artefacts:** `app/tools/engine-source.html`, `app/firestore.rules`, `app/drinks-order.html` + `app/index.html` (351,390 bytes, identical), `app/sw.js` `v108-20261105`, live `https://ridzuanshop.vercel.app/`. Harness `.scratch/t-cpn.mjs` (blocks the Firebase CDN so the app script does not stall the parser, then fakes `getDb`): `FN function,function,function,function`; metas `Sah 40 hari lagi · 15 Dis 2026` and warn `Tamat dalam 3 hari · 8 Nov 2026`; used-only toast, expired-only toast both correct; recovery returns `codes ["RECOV123"]`; unknown code says "Pesanan itu tidak dijumpai."; `EXCEPTIONS 0`. Live screenshot `.scratch/live-bugs/cpn-pop.png` (180,932 bytes) shows both rows and the recovery box at 390px.
 **Status:** ✅ confirmed — live build tag `v108`, `function cpnRecover` ×1, `function cpnExpMeta` ×1, `60*86400000` ×2, `sah 60 hari` ×1, `sw.js` `v108-20261105`. Design audit: one pre-existing `!` (`infinite-motion` on `body`), not introduced here.
 **Not changed, on purpose:** coupons still expire rather than being permanent — the owner said "i prefer the coupon code to be permanent" and then chose 60 days, so 60 days is what ships. The old GitHub Pages installs remain a separate origin with their own empty wallets; nothing in a page can migrate another origin's storage.
+
+### 2026-11-05 23:52 — the missing bottom nav was an unclosed `<div>`
+
+**What happened:** the owner asked "where is the bar at the bottom like before" — the five-tab nav had vanished from the prototype.
+**Found:** the nav's ancestor chain measured `nav → bina → phone → stage`, i.e. `<nav>` had been swallowed by the builder panel. The builder block was **one `</div>` short** (`<div class="bina">` opened at `template.html:906`, `.bina-ft` closed at `:1065`, but `.bina` never did), so nav and everything after it nested inside the panel — which is translated off-screen, putting the bar at `top 1606` on an 844 px viewport.
+**Changed:** inserted the missing close (`template.html`, backup `.bak59.html`); rebuilt to 117,616 bytes.
+**Verified:** `nav.parentElement.className === "phone"`, `getBoundingClientRect()` → `top 762, height 66` (16 px above the bottom), `node check.mjs` → `no console errors`.
+**Artefacts:** `.bak59.html`, `fix59-0.png`.
+**Status:** ✅ confirmed
+
+### 2026-11-05 23:58 — v109: the stamp row is rebuilt from the server
+
+**What happened:** a customer told the owner his loyalty progress "somehow" reset after three orders. The stamp row was counting in `localStorage` only, so any cleared browser, second browser, or the 2026-10-31 move from `iyern0.github.io` to `ridzuanshop.vercel.app` (a different origin, and therefore a different storage) set it back to 0 while the orders themselves were still on the server.
+**Found:**
+- `l.c` was incremented once, at submit (`tools/engine-source.html:2103`), inside the tab that placed the order, and never derived from anything. The seller's mint card, by contrast, counts `orders` documents with `status==='done' && !free` — two different truths for the same idea.
+- The customer cannot read `orders` at all (`firestore.rules`: `allow read, update, delete: if isAdmin()`), but `tracking/{orderCode}` is get-only and public, and the device remembers up to 25 of its own codes in `mms_mycodes`. That is enough to rebuild the count.
+- Two things would have made a tracking-based count lie: a soft-deleted order kept `status:'done'` on its tracking row (only the `orders` doc was set to `deleted`), and a free drink bought with a coupon was indistinguishable from a paid one.
+**Changed:**
+- `syncLoy()` reads each remembered code's tracking doc and sets the count from the server, skipping `free` and `deleted` rows; called on boot, on focus, and on return to the tab, so a wiped `mms_loy` heals itself.
+- The order transaction now writes `free: payM==='coupon'?1:0` into the tracking row, and `admDelOrder` now moves the tracking row to `deleted` and back on *Buang*, so a deleted order stops counting as a stamp for the customer exactly as it stops counting for the seller.
+- The wallet's recovery box now says *Kupon atau setem hilang?* and a code that resolves but carries no coupon is still remembered, counted, and answered "Pesanan ini belum ada kupon, tetapi setemnya dikira."
+**Verified:** `.scratch/t-loy.mjs` (serves `app/`, blocks the Firebase CDN, fakes `getDb` with one tracking doc per remembered code: done / baru / processing / deleted / done+free). `BEFORE {"count":"0","stamps":0}` → focus hook → `AFTER {"count":"3","stamps":3,"stored":3}` — the deleted and the free order both correctly excluded — then recovering an unseen code took it to `4` with the message above, `EXCEPTIONS 0`. Live: build tag `v109`, `async function syncLoy` ×1, `syncLoy()` ×5, `free:payM==='coupon'?1:0` ×1, `Kupon atau setem hilang` ×1, `sw.js` `v109-20261105`.
+**Artefacts:** `app/tools/engine-source.html`, `app/drinks-order.html` + `app/index.html` (353,119 bytes, identical), `app/sw.js`, harness `.scratch/t-loy.mjs`, live `https://ridzuanshop.vercel.app/`.
+**Status:** ✅ confirmed — but the count is still bounded by what the device remembers (25 codes). A phone that lost *both* `mms_loy` and `mms_mycodes` cannot be repaired from the client: `orders` is admin-only, so there is no query a customer can run to find their own history. Fixing that would need a per-device wallet document, which is a rules change, not a UI one.

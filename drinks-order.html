@@ -1072,7 +1072,7 @@ body.mm-lock #cart-bar,body.mm-lock #notif-ask{display:none !important}
 <div class="opt" id="phone-section"><div class="l">📱 No. WhatsApp</div><input class="inp" id="inp-phone" placeholder="cth 0123456789" inputmode="tel" maxlength="20"><div style="font-size:12px;color:#9FB0C9;font-weight:700;margin-top:6px;line-height:1.5">Wajib — supaya kami boleh maklumkan bila pesanan anda siap.</div></div>
 <div class="opt" id="block-section"><div class="l">🏠 Blok</div><div class="block-grid" id="block-grid"></div><div id="room-row" style="display:none;margin-top:8px"><input class="inp" id="inp-room" placeholder="Nombor bilik / unit" maxlength="20"></div></div>
 <div class="opt" id="time-sec"><div class="l" id="time-label">⏰ When to deliver?</div><div id="time-pick" style="margin-top:10px"><div class="ts" id="times"></div><div id="pickup-note" style="display:none;font-size:14px;color:#9FB0C9;font-weight:600;margin-bottom:8px">We will notify you when it's done</div><div id="time-more" style="display:none;font-size:13px;color:#E0A44E;font-weight:800;margin-bottom:6px">Order for later? 👇</div><div id="time-pickup"><input class="inp" id="pickup-time" placeholder="e.g. 11:00 PM" maxlength="30"></div></div></div>
-<div class="opt" id="pay-section"><div class="l">💳 Bayar</div><div class="dt" id="pay"><button data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button><button data-method="coupon">&#127903; Kupon</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(201,169,106,0.1)"><img src="qr-duitnow.jpg?v=108" alt="DuitNow QR" style="width:210px;height:auto;display:block;border-radius:8px"></div><div style="font-size:13px;color:#9FB0C9;margin-top:8px;font-weight:600">Scan untuk bayar</div><a href="qr-duitnow.jpg?v=108" download="duitnow-qr.jpg" style="display:inline-block;margin-top:8px;font-size:12px;font-weight:800;color:#E0A44E;background:rgba(224,164,78,0.12);border:1px solid rgba(224,164,78,0.38);padding:6px 12px;border-radius:999px;text-decoration:none">⬇ Muat turun QR</a><div id="qr-claim-slot" style="margin-top:14px"></div></div></div>
+<div class="opt" id="pay-section"><div class="l">💳 Bayar</div><div class="dt" id="pay"><button data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button><button data-method="coupon">&#127903; Kupon</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(201,169,106,0.1)"><img src="qr-duitnow.jpg?v=109" alt="DuitNow QR" style="width:210px;height:auto;display:block;border-radius:8px"></div><div style="font-size:13px;color:#9FB0C9;margin-top:8px;font-weight:600">Scan untuk bayar</div><a href="qr-duitnow.jpg?v=109" download="duitnow-qr.jpg" style="display:inline-block;margin-top:8px;font-size:12px;font-weight:800;color:#E0A44E;background:rgba(224,164,78,0.12);border:1px solid rgba(224,164,78,0.38);padding:6px 12px;border-radius:999px;text-decoration:none">⬇ Muat turun QR</a><div id="qr-claim-slot" style="margin-top:14px"></div></div></div>
 <div class="opt" id="coupon-section" style="display:none"><div class="l">&#127903; Kupon Percuma</div><div style="display:flex;gap:8px;margin-top:10px"><input class="inp" id="inp-coupon" placeholder="Kod kupon" maxlength="12" autocomplete="off" autocapitalize="characters" style="flex:1;text-transform:uppercase;letter-spacing:1.5px"><button id="coupon-check" style="background:rgba(201,169,106,0.14);border:1px solid rgba(201,169,106,0.4);color:#C9A96A;font-family:var(--fd);font-weight:800;font-size:13px;padding:0 16px;border-radius:10px;cursor:pointer">Guna</button></div><div id="coupon-msg" style="font-size:13px;font-weight:700;margin-top:8px;line-height:1.5;color:#9FB0C9">Masukkan kod yang penjual beri. Satu kod untuk satu minuman percuma (add-on tetap dikenakan).</div></div>
 </div>
 <div class="ft"><div class="tr" style="border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:8px;margin-bottom:8px"><span>Subtotal</span><span style="font-family:var(--fd);font-weight:800;font-size:22px" id="sub">RM0.00</span></div>
@@ -1509,7 +1509,7 @@ function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
     return 'Sah '+left+' hari lagi · '+ds;
   }
   function cpnRecHtml(){
-    return '<div class="cpn-rec"><div class="hint">Kupon hilang? Masukkan kod pesanan lama anda.</div>'
+    return '<div class="cpn-rec"><div class="hint">Kupon atau setem hilang? Masukkan kod pesanan lama anda.</div>'
       +'<div class="row"><input id="cpn-rec" placeholder="Contoh A2C5B9" maxlength="9" autocomplete="off" autocapitalize="characters">'
       +'<button id="cpn-rec-go">Cari</button></div>'
       +'<div class="msg" id="cpn-rec-msg"></div></div>';
@@ -1557,8 +1557,11 @@ function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
       const snap=await db.collection('tracking').doc(code).get();
       if(!snap.exists){if(msg)msg.textContent='Pesanan itu tidak dijumpai.';return}
       const d=snap.data()||{};
-      if(!d.coupon){if(msg)msg.textContent='Pesanan ini belum ada kupon.';return}
+      // A code that resolves is a real order, so it joins the history even when
+      // it carries no coupon: it still counts toward the stamp row.
       rememberCode(code);
+      syncLoy();
+      if(!d.coupon){if(msg)msg.textContent='Pesanan ini belum ada kupon, tetapi setemnya dikira.';return}
       const added=addCpn(d.coupon,d.couponExp&&d.couponExp.toMillis?d.couponExp.toMillis():0);
       inp.value='';
       if(added){drawCpnPop();couponArrived()}
@@ -1633,6 +1636,34 @@ function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
     if(added)couponArrived();
   }
   function drawLoy(){const l=getLoy();document.getElementById('loy-count').textContent=l.c;document.getElementById('stamps').innerHTML=stampRowHtml(l.c)}
+  // The stamp row is the customer's view of the same count the seller's card
+  // uses. It used to live only in localStorage, so a cleared browser, a second
+  // browser, or the move from github.io to vercel reset somebody's card to 0
+  // while their orders were still on the server. Recompute from the order codes
+  // this device still remembers, and let the server win.
+  async function syncLoy(){
+    const db=getDb();if(!db)return 0;
+    const list=myCodes();if(!list.length)return 0;
+    let n=0,seen=0;
+    for(let i=0;i<list.length;i++){
+      try{
+        const s=await db.collection('tracking').doc(list[i]).get();
+        if(!s.exists)continue;
+        seen++;
+        const d=s.data()||{};
+        // A free drink bought with a coupon does not count toward the card, and
+        // a deleted order must stop counting - the seller's own card ignores
+        // both, so the customer's row has to ignore them too.
+        if(d.free)continue;
+        if(d.status==='deleted')continue;
+        n++;
+      }catch(e){}
+    }
+    if(!seen)return 0;
+    const l=getLoy();
+    if(l.c!==n){l.c=n;saveLoy(l);drawLoy()}
+    return n;
+  }
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2000)}
 function admConfirm(msg,yesLabel,onYes){
   const box=document.getElementById('adm-confirm');
@@ -2338,7 +2369,7 @@ if(payM==='qr'&&!stagedProof){toast('⚠ Hantar resit dahulu');closeConfirm();re
           const n=(cs.exists?(cs.data().n||0):0)+1;
           tx.set(cRef,{n:n});
           tx.set(db.collection('orders').doc(code),{...payload,no:n,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-          tx.set(db.collection('tracking').doc(code),{status:'baru',no:n,at:firebase.firestore.FieldValue.serverTimestamp()});
+          tx.set(db.collection('tracking').doc(code),{status:'baru',no:n,at:firebase.firestore.FieldValue.serverTimestamp(),free:payM==='coupon'?1:0});
           if(payM==='coupon'&&cpnCode)tx.update(db.collection('coupons').doc(cpnCode),{used:true,usedAt:firebase.firestore.FieldValue.serverTimestamp(),ord:code});
           orderNo=n
         });
@@ -3224,8 +3255,12 @@ function admDelOrder(id){
   admConfirm('Padam pesanan '+who+'?','Ya, padam',function(){
     db.collection('orders').doc(id).update({status:'deleted',deletedAt:firebase.firestore.FieldValue.serverTimestamp(),prevStatus:prev})
      .then(function(){
+      // The tracking row is what the customer's device can read, so it has to
+      // follow the order: otherwise a deleted order keeps counting as a stamp.
+      db.collection('tracking').doc(id).update({status:'deleted'}).catch(function(){});
       toastAction('Pesanan dipadam','Buang',function(){
         db.collection('orders').doc(id).update({status:prev}).catch(function(){});
+        db.collection('tracking').doc(id).update({status:prev}).catch(function(){});
         toast('Pesanan dikembalikan');
       });
      })
@@ -4044,13 +4079,13 @@ function admSignOutNow(){admDevStop();const a=getAuth();if(a)a.signOut().then(()
 
 
 
-(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await loadMenu();await initConfig();initDis();fillCustomer();drawCpnBtn();loadMyCoupons();verifyWallet();loadNotify();(function(){const m=loadMyOrder();if(m&&m.code&&m._st!=='done')trackOrder(m.code)})();
-  document.addEventListener('visibilitychange',function(){if(!document.hidden){loadMyCoupons();verifyWallet()}});
+(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await loadMenu();await initConfig();initDis();fillCustomer();drawCpnBtn();loadMyCoupons();syncLoy();verifyWallet();loadNotify();(function(){const m=loadMyOrder();if(m&&m.code&&m._st!=='done')trackOrder(m.code)})();
+  document.addEventListener('visibilitychange',function(){if(!document.hidden){loadMyCoupons();syncLoy();verifyWallet()}});
 // The seller can mark an order done long after the customer closed the page.
 // While a code is still owed this tab re-asks on a slow timer, and stops as
 // soon as every order has one, so a finished wallet costs no reads at all.
 setInterval(function(){if(document.hidden)return;if(!loadMyCoupons._pending)return;loadMyCoupons()},60000);
-  window.addEventListener('focus',function(){loadMyCoupons();verifyWallet()});drawLoy();drawDel();const a=getAuth();
+  window.addEventListener('focus',function(){loadMyCoupons();syncLoy();verifyWallet()});drawLoy();drawDel();const a=getAuth();
 if(a)a.onAuthStateChanged(function(u){
   // Deliberately does NOT call enterAdmin(). A remembered session must never
   // open the dashboard by itself - it only offers the 🔧 button.
@@ -4095,7 +4130,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v108</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v109</div>
 
 <script>
 /* ===== CHAGEE-order UI =====================================================

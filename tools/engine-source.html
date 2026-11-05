@@ -1222,7 +1222,7 @@ function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
     return 'Sah '+left+' hari lagi · '+ds;
   }
   function cpnRecHtml(){
-    return '<div class="cpn-rec"><div class="hint">Kupon hilang? Masukkan kod pesanan lama anda.</div>'
+    return '<div class="cpn-rec"><div class="hint">Kupon atau setem hilang? Masukkan kod pesanan lama anda.</div>'
       +'<div class="row"><input id="cpn-rec" placeholder="Contoh A2C5B9" maxlength="9" autocomplete="off" autocapitalize="characters">'
       +'<button id="cpn-rec-go">Cari</button></div>'
       +'<div class="msg" id="cpn-rec-msg"></div></div>';
@@ -1270,8 +1270,11 @@ function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
       const snap=await db.collection('tracking').doc(code).get();
       if(!snap.exists){if(msg)msg.textContent='Pesanan itu tidak dijumpai.';return}
       const d=snap.data()||{};
-      if(!d.coupon){if(msg)msg.textContent='Pesanan ini belum ada kupon.';return}
+      // A code that resolves is a real order, so it joins the history even when
+      // it carries no coupon: it still counts toward the stamp row.
       rememberCode(code);
+      syncLoy();
+      if(!d.coupon){if(msg)msg.textContent='Pesanan ini belum ada kupon, tetapi setemnya dikira.';return}
       const added=addCpn(d.coupon,d.couponExp&&d.couponExp.toMillis?d.couponExp.toMillis():0);
       inp.value='';
       if(added){drawCpnPop();couponArrived()}
@@ -1346,6 +1349,34 @@ function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
     if(added)couponArrived();
   }
   function drawLoy(){const l=getLoy();document.getElementById('loy-count').textContent=l.c;document.getElementById('stamps').innerHTML=stampRowHtml(l.c)}
+  // The stamp row is the customer's view of the same count the seller's card
+  // uses. It used to live only in localStorage, so a cleared browser, a second
+  // browser, or the move from github.io to vercel reset somebody's card to 0
+  // while their orders were still on the server. Recompute from the order codes
+  // this device still remembers, and let the server win.
+  async function syncLoy(){
+    const db=getDb();if(!db)return 0;
+    const list=myCodes();if(!list.length)return 0;
+    let n=0,seen=0;
+    for(let i=0;i<list.length;i++){
+      try{
+        const s=await db.collection('tracking').doc(list[i]).get();
+        if(!s.exists)continue;
+        seen++;
+        const d=s.data()||{};
+        // A free drink bought with a coupon does not count toward the card, and
+        // a deleted order must stop counting - the seller's own card ignores
+        // both, so the customer's row has to ignore them too.
+        if(d.free)continue;
+        if(d.status==='deleted')continue;
+        n++;
+      }catch(e){}
+    }
+    if(!seen)return 0;
+    const l=getLoy();
+    if(l.c!==n){l.c=n;saveLoy(l);drawLoy()}
+    return n;
+  }
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2000)}
 function admConfirm(msg,yesLabel,onYes){
   const box=document.getElementById('adm-confirm');
@@ -2051,7 +2082,7 @@ if(payM==='qr'&&!stagedProof){toast('⚠ Hantar resit dahulu');closeConfirm();re
           const n=(cs.exists?(cs.data().n||0):0)+1;
           tx.set(cRef,{n:n});
           tx.set(db.collection('orders').doc(code),{...payload,no:n,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-          tx.set(db.collection('tracking').doc(code),{status:'baru',no:n,at:firebase.firestore.FieldValue.serverTimestamp()});
+          tx.set(db.collection('tracking').doc(code),{status:'baru',no:n,at:firebase.firestore.FieldValue.serverTimestamp(),free:payM==='coupon'?1:0});
           if(payM==='coupon'&&cpnCode)tx.update(db.collection('coupons').doc(cpnCode),{used:true,usedAt:firebase.firestore.FieldValue.serverTimestamp(),ord:code});
           orderNo=n
         });
@@ -2937,8 +2968,12 @@ function admDelOrder(id){
   admConfirm('Padam pesanan '+who+'?','Ya, padam',function(){
     db.collection('orders').doc(id).update({status:'deleted',deletedAt:firebase.firestore.FieldValue.serverTimestamp(),prevStatus:prev})
      .then(function(){
+      // The tracking row is what the customer's device can read, so it has to
+      // follow the order: otherwise a deleted order keeps counting as a stamp.
+      db.collection('tracking').doc(id).update({status:'deleted'}).catch(function(){});
       toastAction('Pesanan dipadam','Buang',function(){
         db.collection('orders').doc(id).update({status:prev}).catch(function(){});
+        db.collection('tracking').doc(id).update({status:prev}).catch(function(){});
         toast('Pesanan dikembalikan');
       });
      })
@@ -3757,13 +3792,13 @@ function admSignOutNow(){admDevStop();const a=getAuth();if(a)a.signOut().then(()
 
 
 
-(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await loadMenu();await initConfig();initDis();fillCustomer();drawCpnBtn();loadMyCoupons();verifyWallet();loadNotify();(function(){const m=loadMyOrder();if(m&&m.code&&m._st!=='done')trackOrder(m.code)})();
-  document.addEventListener('visibilitychange',function(){if(!document.hidden){loadMyCoupons();verifyWallet()}});
+(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await loadMenu();await initConfig();initDis();fillCustomer();drawCpnBtn();loadMyCoupons();syncLoy();verifyWallet();loadNotify();(function(){const m=loadMyOrder();if(m&&m.code&&m._st!=='done')trackOrder(m.code)})();
+  document.addEventListener('visibilitychange',function(){if(!document.hidden){loadMyCoupons();syncLoy();verifyWallet()}});
 // The seller can mark an order done long after the customer closed the page.
 // While a code is still owed this tab re-asks on a slow timer, and stops as
 // soon as every order has one, so a finished wallet costs no reads at all.
 setInterval(function(){if(document.hidden)return;if(!loadMyCoupons._pending)return;loadMyCoupons()},60000);
-  window.addEventListener('focus',function(){loadMyCoupons();verifyWallet()});drawLoy();drawDel();const a=getAuth();
+  window.addEventListener('focus',function(){loadMyCoupons();syncLoy();verifyWallet()});drawLoy();drawDel();const a=getAuth();
 if(a)a.onAuthStateChanged(function(u){
   // Deliberately does NOT call enterAdmin(). A remembered session must never
   // open the dashboard by itself - it only offers the 🔧 button.
