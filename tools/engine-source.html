@@ -2458,7 +2458,23 @@ function orderMore(){
   try{window.scrollTo({top:0,behavior:'smooth'})}catch(e){window.scrollTo(0,0)}
   toast('Pilih minuman untuk pesanan baru');
 }
-function showMyOrderBtn(){const b=document.getElementById('my-order');if(!b)return;const o=loadMyOrder();const fin=!!(o&&o._st==='done');b.style.display=(o&&!fin)?'inline-flex':'none';if(o&&!fin)b.textContent='📦 Pesanan saya · #'+fmtNo(o.no);paintMyBar(_lastSt||undefined)}
+function showMyOrderBtn(){const b=document.getElementById('my-order');if(!b)return;const o=loadMyOrder();const fin=!!(o&&(o._st==='done'||o._st==='deleted'));b.style.display=(o&&!fin)?'inline-flex':'none';if(o&&!fin)b.textContent='📦 Pesanan saya · #'+fmtNo(o.no);paintMyBar(_lastSt||undefined)}
+// The pill must not outlive the order. A phone that was closed before the
+// "done" snapshot arrived keeps an old status in mms_last and would keep the
+// pill for ever, so the server row is asked once instead of waiting for a
+// socket that may never be opened again. A deleted order hides it too.
+async function syncMyOrderBtn(){
+  const o=loadMyOrder();
+  if(!o||!o.code){showMyOrderBtn();return}
+  if(o._st==='done'||o._st==='deleted'){showMyOrderBtn();return}
+  try{
+    const db=getDb();if(!db){showMyOrderBtn();return}
+    const s=await db.collection('tracking').doc(o.code).get();
+    const st=s.exists?(s.data().status||'baru'):'deleted';
+    if(st!==o._st){o._st=st;try{localStorage.setItem('mms_last',JSON.stringify(o))}catch(e){}}
+  }catch(e){}
+  showMyOrderBtn();
+}
 function openMyOrder(){const o=loadMyOrder();if(!o)return;_lastSt='';showDone({...o,warn:false})}
 function showDone(o){
   const el=document.getElementById('done');if(!el)return;
@@ -3885,13 +3901,13 @@ function admSignOutNow(){admDevStop();const a=getAuth();if(a)a.signOut().then(()
 
 
 
-(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();await loadMenu();await initConfig();initDis();fillCustomer();drawCpnBtn();loadMyCoupons();syncLoy();verifyWallet();loadNotify();(function(){const m=loadMyOrder();if(m&&m.code&&m._st!=='done')trackOrder(m.code)})();
-  document.addEventListener('visibilitychange',function(){if(!document.hidden){loadMyCoupons();syncLoy();verifyWallet()}});
+(async()=>{track('page_view',true);loadCart();drawStatus();drawFounder();showMyOrderBtn();syncMyOrderBtn();await loadMenu();await initConfig();initDis();fillCustomer();drawCpnBtn();loadMyCoupons();syncLoy();verifyWallet();loadNotify();(function(){const m=loadMyOrder();if(m&&m.code&&m._st!=='done')trackOrder(m.code)})();
+  document.addEventListener('visibilitychange',function(){if(!document.hidden){loadMyCoupons();syncLoy();verifyWallet();syncMyOrderBtn()}});
 // The seller can mark an order done long after the customer closed the page.
 // While a code is still owed this tab re-asks on a slow timer, and stops as
 // soon as every order has one, so a finished wallet costs no reads at all.
 setInterval(function(){if(document.hidden)return;if(!loadMyCoupons._pending)return;loadMyCoupons()},60000);
-  window.addEventListener('focus',function(){loadMyCoupons();syncLoy();verifyWallet()});drawLoy();drawDel();const a=getAuth();
+  window.addEventListener('focus',function(){loadMyCoupons();syncLoy();verifyWallet();syncMyOrderBtn()});drawLoy();drawDel();const a=getAuth();
 if(a)a.onAuthStateChanged(function(u){
   // Deliberately does NOT call enterAdmin(). A remembered session must never
   // open the dashboard by itself - it only offers the 🔧 button.

@@ -2525,3 +2525,12 @@ Two bugs cost real time: `mixHex` sat inside the block patch46 replaced, so `buO
 **Verified:** `.scratch/t-probe-v112.mjs` on the live build → `build v112`, `trackingHasFree false`, `counters ok true`, `tracking-plain ok true`. Built page has 0 occurrences of the forbidden key, 1 each of `rememberFree`/`myFreeCodes`.
 **Artefacts:** `tools/engine-source.html`, `drinks-order.html`, `index.html`, `sw.js`, `.scratch/t-probe-tracking.mjs`, `.scratch/t-probe-v112.mjs`.
 **Status:** ✅ confirmed live in v112 — but the affected window (v109 → v111, about 1 hour) lost any order attempted in it; nothing was stored, so nothing can be restored.
+
+### 2026-11-06 01:04 — v113: the "Pesanan saya" pill stops when the order is finished
+
+**What happened:** owner annotated the live page on `#my-order` (`📦 Pesanan saya · #002`): "make it so that after customer order is finished its going to disappear here."
+**Cause:** the pill read a status cached in `mms_last`, which only ever became `done` if that same browser was open when the seller marked the order done. A phone closed before the snapshot kept the pill for ever, and a deleted order kept it too.
+**Fixed:** new `syncMyOrderBtn()` asks the server once — `tracking/{code}` — on load, on `focus` and on every return to the tab, writes the answer back into `mms_last`, then repaints. `showMyOrderBtn()` now treats `deleted` as finished as well, and a tracking document that no longer exists counts as deleted.
+**Measured:** `.scratch/t-mybtn.mjs` (serves `app/`, blocks the Firebase CDN, stubs `getDb`, four states) → `{"doneServer":"hidden","baruServer":"shown","cachedDone":"hidden","missingDoc":"hidden"}`. Live v113: `function syncMyOrderBtn` ×1, `syncMyOrderBtn()` ×4, `o._st==='deleted'` ×2, `sw.js` `v113-20261105`, build tag `v113`.
+**Artefacts:** `tools/engine-source.html`, `drinks-order.html`, `index.html`, `sw.js`, `.scratch/t-mybtn.mjs`.
+**Status:** ✅ confirmed live in v113.
