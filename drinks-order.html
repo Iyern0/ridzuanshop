@@ -1082,7 +1082,7 @@ body.mm-lock #cart-bar,body.mm-lock #notif-ask{display:none !important}
 <div class="opt" id="phone-section"><div class="l">📱 No. WhatsApp</div><input class="inp" id="inp-phone" placeholder="cth 0123456789" inputmode="tel" maxlength="20"><div style="font-size:12px;color:#9FB0C9;font-weight:700;margin-top:6px;line-height:1.5">Wajib — supaya kami boleh maklumkan bila pesanan anda siap.</div></div>
 <div class="opt" id="block-section"><div class="l">🏠 Blok</div><div class="block-grid" id="block-grid"></div><div id="room-row" style="display:none;margin-top:8px"><input class="inp" id="inp-room" placeholder="Nombor bilik / unit" maxlength="20"></div></div>
 <div class="opt" id="time-sec"><div class="l" id="time-label">⏰ When to deliver?</div><div id="time-pick" style="margin-top:10px"><div class="ts" id="times"></div><div id="pickup-note" style="display:none;font-size:14px;color:#9FB0C9;font-weight:600;margin-bottom:8px">We will notify you when it's done</div><div id="time-more" style="display:none;font-size:13px;color:#E0A44E;font-weight:800;margin-bottom:6px">Order for later? 👇</div><div id="time-pickup"><input class="inp" id="pickup-time" placeholder="e.g. 11:00 PM" maxlength="30"></div></div></div>
-<div class="opt" id="pay-section"><div class="l">💳 Bayar</div><div class="dt" id="pay"><button data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button><button data-method="coupon">&#127903; Kupon</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(201,169,106,0.1)"><img src="qr-duitnow.jpg?v=114" alt="DuitNow QR" style="width:210px;height:auto;display:block;border-radius:8px"></div><div style="font-size:13px;color:#9FB0C9;margin-top:8px;font-weight:600">Scan untuk bayar</div><a href="qr-duitnow.jpg?v=114" download="duitnow-qr.jpg" style="display:inline-block;margin-top:8px;font-size:12px;font-weight:800;color:#E0A44E;background:rgba(224,164,78,0.12);border:1px solid rgba(224,164,78,0.38);padding:6px 12px;border-radius:999px;text-decoration:none">⬇ Muat turun QR</a><div id="qr-claim-slot" style="margin-top:14px"></div></div></div>
+<div class="opt" id="pay-section"><div class="l">💳 Bayar</div><div class="dt" id="pay"><button data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button><button data-method="coupon">&#127903; Kupon</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(201,169,106,0.1)"><img src="qr-duitnow.jpg?v=115" alt="DuitNow QR" style="width:210px;height:auto;display:block;border-radius:8px"></div><div style="font-size:13px;color:#9FB0C9;margin-top:8px;font-weight:600">Scan untuk bayar</div><a href="qr-duitnow.jpg?v=115" download="duitnow-qr.jpg" style="display:inline-block;margin-top:8px;font-size:12px;font-weight:800;color:#E0A44E;background:rgba(224,164,78,0.12);border:1px solid rgba(224,164,78,0.38);padding:6px 12px;border-radius:999px;text-decoration:none">⬇ Muat turun QR</a><div id="qr-claim-slot" style="margin-top:14px"></div></div></div>
 <div class="opt" id="coupon-section" style="display:none"><div class="l">&#127903; Kupon Percuma</div><div style="display:flex;gap:8px;margin-top:10px"><input class="inp" id="inp-coupon" placeholder="Kod kupon" maxlength="12" autocomplete="off" autocapitalize="characters" style="flex:1;text-transform:uppercase;letter-spacing:1.5px"><button id="coupon-check" style="background:rgba(201,169,106,0.14);border:1px solid rgba(201,169,106,0.4);color:#C9A96A;font-family:var(--fd);font-weight:800;font-size:13px;padding:0 16px;border-radius:10px;cursor:pointer">Guna</button></div><div id="coupon-msg" style="font-size:13px;font-weight:700;margin-top:8px;line-height:1.5;color:#9FB0C9">Masukkan kod yang penjual beri. Satu kod untuk satu minuman percuma (add-on tetap dikenakan).</div></div>
 </div>
 <div class="ft"><div class="tr" style="border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:8px;margin-bottom:8px"><span>Subtotal</span><span style="font-family:var(--fd);font-weight:800;font-size:22px" id="sub">RM0.00</span></div>
@@ -2107,13 +2107,28 @@ function checkBuild(force){
     // release must not bounce the tab between two builds.
     if(!m){if(force)try{toast('⚠ Versi tidak dapat dibaca')}catch(e){};return}
     if(!buildIsNewer(m[1],mine)){if(force)try{toast('✅ Sudah versi terbaru ('+mine+')')}catch(e){};return}
-    // never yank the page out from under a half-typed field
+    // never yank the page out from under a half-typed field — but do not let
+    // that silence turn into "stuck on the old version" either
     const ae=document.activeElement;
-    if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)){if(force)try{toast('Selesai taip dulu - versi '+m[1]+' menunggu')}catch(e){};return}
+    if(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)){buildNudge(m[1]);if(force)try{toast('Selesai taip dulu - versi '+m[1]+' menunggu')}catch(e){};return}
     _buildReloadedAt=Date.now();
     try{alertReceipt('🔄 Versi baru '+m[1]+' - memuat semula',1)}catch(e){}
     setTimeout(function(){location.reload()},1200);
   }).catch(function(){_buildBusy=false});
+}
+// A pending update the page must not apply while a field has focus: show a chip
+// the customer can tap, instead of reloading under their keyboard or ignoring it.
+function buildNudge(v){
+  let el=document.getElementById('build-nudge');
+  if(!el){
+    el=document.createElement('button');
+    el.id='build-nudge';
+    el.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:calc(86px + env(safe-area-inset-bottom));z-index:2400;border:none;cursor:pointer;font-family:var(--fb);font-weight:800;font-size:12px;padding:9px 14px;border-radius:999px;background:#C9A96A;color:#08120F;box-shadow:0 6px 18px rgba(0,0,0,0.45)';
+    el.onclick=function(){_buildReloadedAt=Date.now();location.reload()};
+    document.body.appendChild(el);
+  }
+  el.textContent='🔄 Versi '+v+' tersedia · muat semula';
+  el.style.display='';
 }
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible')setTimeout(checkBuild,400)});
 window.addEventListener('focus',function(){setTimeout(checkBuild,400)});
@@ -4255,7 +4270,30 @@ document.addEventListener('visibilitychange',function(){if(document.visibilitySt
 document.addEventListener('focusin',function(e){const t=e.target;if(!t||!t.matches||!t.matches('input,textarea,select'))return;setTimeout(function(){try{t.scrollIntoView({block:'center',behavior:'smooth'})}catch(_){t.scrollIntoView()}},320)},true);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
 </script>
-<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js')</script>
+<script>
+if('serviceWorker' in navigator){
+  // The moment a new worker takes control is the moment this page *could* be the
+  // new build — but the JavaScript already parsed never changes, so reload. Only
+  // when the page was already controlled: the very first install fires this too,
+  // and reloading then would be a reload on every first visit.
+  var _hadController=!!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange',function(){
+    if(!_hadController)return;
+    _hadController=false;
+    try{toast('🔄 Versi baru — memuat semula')}catch(e){}
+    location.reload();
+  });
+  navigator.serviceWorker.register('sw.js').then(function(reg){
+    window._swReg=reg;
+    // Browsers check for a new worker on their own schedule (up to 24 h). Ask now
+    // and every minute the tab is visible, so a release is noticed in seconds.
+    try{reg.update()}catch(e){}
+    setInterval(function(){if(document.visibilityState==='visible'){try{reg.update()}catch(e){}}},60000);
+  }).catch(function(){});
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='visible'&&window._swReg){try{window._swReg.update()}catch(e){}}});
+  window.addEventListener('focus',function(){if(window._swReg){try{window._swReg.update()}catch(e){}}});
+}
+</script>
 <!-- Build marker. Its only job is to answer "which shell is this browser
      actually running?" — the question a stale service-worker cache makes
      impossible to answer by looking. Because it is baked into the HTML, a
@@ -4263,7 +4301,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v114</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v115</div>
 
 <script>
 /* ===== CHAGEE-order UI =====================================================

@@ -2544,3 +2544,20 @@ Two bugs cost real time: `mixHex` sat inside the block patch46 replaced, so `buO
 **Not done, needs a rules deploy:** stamping the build into the order document so a stale-build order is visible in the admin. `validOrder()` allows 17 keys and `v` is not one of them — adding it without updating `firestore.rules` is exactly the v109 mistake, so it waits for the owner's word.
 **Artefacts:** `tools/engine-source.html`, `drinks-order.html`, `index.html`, `sw.js`, `.scratch/t-v114.mjs`.
 **Status:** ✅ confirmed live in v114.
+
+### 2026-11-06 01:06 — finish pass: glass body + footer hierarchy (patch66–67)
+
+**What happened:** owner rejected further layout exploration ("the placement idea is bad … just need a final touch"). Two finish passes done on the existing placement.
+**Changed (patch66):** cards get `linear-gradient(180deg,#1B2E6C,#142352)` + `inset 0 1px 0 rgba(255,246,228,.10)` + `0 12px 26px rgba(0,0,0,.30)`; CTA becomes `#FF7E5E → #F4583A` with a lit top edge; seg track gains an inset shadow; labels 9.5 px at 1.35 tracking; glass gains an edge stroke, six condensation beads and a contact shadow.
+**Changed (patch67):** footer rebuilt as two rows — `PESANAN` eyebrow + config line left, `+RM0.50` and a 22 px gold total right, then stepper + `Tambah ke bakul` (the CTA no longer repeats the price). Glass gains a 1.6 px inner wall offset at .14, a meniscus stroke at .38 on the liquid surface, and a refracted ice pass at .16.
+**Verified:** `no console errors`; `index.html` 127,957 bytes; stills `p66-1.png` (before patch67), `p67-1.png`; backups `.bak66.html`, `.bak67.html`.
+**Status:** ✅ confirmed
+
+### 2026-11-06 01:20 — v115: the page chases the newest build instead of waiting for a lucky reload
+
+**What happened:** owner (m02995): "how to make the customer always view the latest version instead of older vers automatically". v114 could stop a stale order, but it never made the page itself update.
+**Changed:** (1) the service worker registration is no longer one bare line — it listens for `controllerchange` and reloads once, so the moment a new worker takes control the page becomes the new build; the listener is armed only when `navigator.serviceWorker.controller` already existed, because the first install fires the same event and would otherwise reload on every first visit. (2) `reg.update()` is called on register, on every `focus`, on every `visibilitychange`, and once a minute while visible, instead of trusting the browser's own schedule (up to 24 h). (3) `checkBuild()` no longer goes silent while a field has focus: `buildNudge(v)` shows a tappable chip `🔄 Versi vNNN tersedia · muat semula`, so the update is offered instead of ignored.
+**Measured:** `.scratch/t-v115.mjs` with a forged `const V = 'v999-20990101'` and an input focused → `{"chip":"🔄 Versi v999 tersedia · muat semula","chipVisible":true,"chipHasHandler":true,"stillOld":"v62"}` — no reload under the keyboard, and the chip is real and clickable.
+**Note:** the chain only bootstraps forward. A device still on v114 gets v115 on its next focus/visibility check (v114 already reloads when the server is newer); from then on `controllerchange` does the work.
+**Artefacts:** `tools/engine-source.html`, `drinks-order.html`, `index.html`, `sw.js`, `.scratch/t-v115.mjs`.
+**Status:** ✅ confirmed live in v115.
