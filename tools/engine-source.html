@@ -2088,6 +2088,26 @@ function orderCode(){const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let
 // customer had asked for it.
 function noTime(t){const s=String(t==null?'':t).trim();return !s||/^\(?(state a time|nyatakan masa)\)?$/i.test(s)}
 function fmtTimeLabel(t){return (t==='ASAP'||noTime(t))?'Secepat mungkin (~15-30 min)':t}
+// A tab that has been open since yesterday still runs yesterday's JavaScript,
+// and yesterday's JavaScript may carry a bug that has already been fixed. Before
+// anything is written, ask the live sw.js whether a newer build exists. If it
+// does, keep the cart and reload rather than storing an order from stale code.
+// Returns false when it has already started that reload.
+async function staleGuard(){
+  try{
+    const mine=pageBuild();
+    if(!mine)return true;
+    const r=await fetch('sw.js?ts='+Date.now(),{cache:'no-store'});
+    const m=/const V\s*=\s*'(v\d+)/.exec((await r.text())||'');
+    if(m&&buildIsNewer(m[1],mine)){
+      try{saveCart()}catch(e){}
+      toast('🔄 Versi baru tersedia — memuat semula');
+      setTimeout(function(){location.reload()},1000);
+      return false;
+    }
+  }catch(e){}
+  return true;
+}
 let _sending=false;
 async function sendWa(){
   if(_sending)return;
@@ -2100,6 +2120,7 @@ async function sendWa(){
   // seller had no idea how it was meant to arrive.
   if(isCod===null){toast('⚠ Sila pilih cara penghantaran');closeConfirm();return}
   if(!payM){toast('⚠ Sila pilih cara bayar');closeConfirm();return}
+  if(!(await staleGuard()))return;
 if(payM==='qr'&&!stagedProof){toast('⚠ Hantar resit dahulu');closeConfirm();return}
   if(payM==='coupon'&&!cpnOk){toast('Sahkan kupon dahulu');closeConfirm();return}
   if(payM==='coupon'&&cpnLine<0){toast('Pilih minuman percuma di Review');closeConfirm();return}
@@ -2466,12 +2487,15 @@ function showMyOrderBtn(){const b=document.getElementById('my-order');if(!b)retu
 async function syncMyOrderBtn(){
   const o=loadMyOrder();
   if(!o||!o.code){showMyOrderBtn();return}
-  if(o._st==='done'||o._st==='deleted'){showMyOrderBtn();return}
+  if(o._st==='done'||o._st==='deleted'){_lastSt=o._st;showMyOrderBtn();return}
   try{
     const db=getDb();if(!db){showMyOrderBtn();return}
     const s=await db.collection('tracking').doc(o.code).get();
     const st=s.exists?(s.data().status||'baru'):'deleted';
     if(st!==o._st){o._st=st;try{localStorage.setItem('mms_last',JSON.stringify(o))}catch(e){}}
+    // The bar above the menu paints from _lastSt. Without this it kept saying
+    // "Sedang dibuat..." on a phone that never saw the done snapshot.
+    _lastSt=st;
   }catch(e){}
   showMyOrderBtn();
 }

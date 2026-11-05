@@ -2534,3 +2534,13 @@ Two bugs cost real time: `mixHex` sat inside the block patch46 replaced, so `buO
 **Measured:** `.scratch/t-mybtn.mjs` (serves `app/`, blocks the Firebase CDN, stubs `getDb`, four states) → `{"doneServer":"hidden","baruServer":"shown","cachedDone":"hidden","missingDoc":"hidden"}`. Live v113: `function syncMyOrderBtn` ×1, `syncMyOrderBtn()` ×4, `o._st==='deleted'` ×2, `sw.js` `v113-20261105`, build tag `v113`.
 **Artefacts:** `tools/engine-source.html`, `drinks-order.html`, `index.html`, `sw.js`, `.scratch/t-mybtn.mjs`.
 **Status:** ✅ confirmed live in v113.
+
+### 2026-11-06 01:14 — v114: the status bar follows the server, and a stale tab cannot submit
+
+**What happened:** owner annotated `#mybar` ("📦 #002 Sedang dibuat... Lihat"): "its also keep saying sedang dibuat even though its already finished", and asked how to guarantee every customer runs the latest version, including one who orders from an old one.
+**Cause (same shape as v113, different element):** `paintMyBar()` painted `st||o._st||'baru'`, so a phone whose cached status was `processing` kept the bar up for ever; `syncMyOrderBtn()` fixed the pill but never wrote `_lastSt`, which is what the bar paints from.
+**Fixed:** `syncMyOrderBtn()` now sets `_lastSt` to the status it read from `tracking`, so the bar paints the server's truth and disappears on `done`/`deleted`. Measured `.scratch/t-v114.mjs` → `BAR {"serverDone":"hidden","serverProcessing":"Sedang dibuat...","serverBaru":"Menunggu pengesahan penjual"}`.
+**Version safety:** the service worker was already network-first for navigations with `skipWaiting()` + `clients.claim()` + old-cache eviction, and `sw.js` is served `no-store`; the page also re-checks on focus and every 5 minutes. The gap left was an **open tab**: its JavaScript never changes. `staleGuard()` now runs inside `sendWa()` just before the transaction — it fetches `sw.js` with `cache:'no-store'`, compares `const V` against `pageBuild()` and, when the server is newer, keeps the cart, toasts `🔄 Versi baru tersedia — memuat semula` and reloads instead of writing. Measured with a forged `v999` sw.js: `GUARD_NEWER {"ok":false}` (refused) and, with the same build, `GUARD_SAME {"ok":true}` (normal orders unaffected).
+**Not done, needs a rules deploy:** stamping the build into the order document so a stale-build order is visible in the admin. `validOrder()` allows 17 keys and `v` is not one of them — adding it without updating `firestore.rules` is exactly the v109 mistake, so it waits for the owner's word.
+**Artefacts:** `tools/engine-source.html`, `drinks-order.html`, `index.html`, `sw.js`, `.scratch/t-v114.mjs`.
+**Status:** ✅ confirmed live in v114.

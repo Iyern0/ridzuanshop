@@ -1082,7 +1082,7 @@ body.mm-lock #cart-bar,body.mm-lock #notif-ask{display:none !important}
 <div class="opt" id="phone-section"><div class="l">📱 No. WhatsApp</div><input class="inp" id="inp-phone" placeholder="cth 0123456789" inputmode="tel" maxlength="20"><div style="font-size:12px;color:#9FB0C9;font-weight:700;margin-top:6px;line-height:1.5">Wajib — supaya kami boleh maklumkan bila pesanan anda siap.</div></div>
 <div class="opt" id="block-section"><div class="l">🏠 Blok</div><div class="block-grid" id="block-grid"></div><div id="room-row" style="display:none;margin-top:8px"><input class="inp" id="inp-room" placeholder="Nombor bilik / unit" maxlength="20"></div></div>
 <div class="opt" id="time-sec"><div class="l" id="time-label">⏰ When to deliver?</div><div id="time-pick" style="margin-top:10px"><div class="ts" id="times"></div><div id="pickup-note" style="display:none;font-size:14px;color:#9FB0C9;font-weight:600;margin-bottom:8px">We will notify you when it's done</div><div id="time-more" style="display:none;font-size:13px;color:#E0A44E;font-weight:800;margin-bottom:6px">Order for later? 👇</div><div id="time-pickup"><input class="inp" id="pickup-time" placeholder="e.g. 11:00 PM" maxlength="30"></div></div></div>
-<div class="opt" id="pay-section"><div class="l">💳 Bayar</div><div class="dt" id="pay"><button data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button><button data-method="coupon">&#127903; Kupon</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(201,169,106,0.1)"><img src="qr-duitnow.jpg?v=113" alt="DuitNow QR" style="width:210px;height:auto;display:block;border-radius:8px"></div><div style="font-size:13px;color:#9FB0C9;margin-top:8px;font-weight:600">Scan untuk bayar</div><a href="qr-duitnow.jpg?v=113" download="duitnow-qr.jpg" style="display:inline-block;margin-top:8px;font-size:12px;font-weight:800;color:#E0A44E;background:rgba(224,164,78,0.12);border:1px solid rgba(224,164,78,0.38);padding:6px 12px;border-radius:999px;text-decoration:none">⬇ Muat turun QR</a><div id="qr-claim-slot" style="margin-top:14px"></div></div></div>
+<div class="opt" id="pay-section"><div class="l">💳 Bayar</div><div class="dt" id="pay"><button data-method="cash">💵 Tunai</button><button data-method="qr">📱 QR Pay</button><button data-method="coupon">&#127903; Kupon</button></div><div id="qr-section" style="display:none;margin-top:12px;text-align:center"><div style="background:#fff;border-radius:12px;padding:14px;display:inline-block;box-shadow:0 0 20px rgba(201,169,106,0.1)"><img src="qr-duitnow.jpg?v=114" alt="DuitNow QR" style="width:210px;height:auto;display:block;border-radius:8px"></div><div style="font-size:13px;color:#9FB0C9;margin-top:8px;font-weight:600">Scan untuk bayar</div><a href="qr-duitnow.jpg?v=114" download="duitnow-qr.jpg" style="display:inline-block;margin-top:8px;font-size:12px;font-weight:800;color:#E0A44E;background:rgba(224,164,78,0.12);border:1px solid rgba(224,164,78,0.38);padding:6px 12px;border-radius:999px;text-decoration:none">⬇ Muat turun QR</a><div id="qr-claim-slot" style="margin-top:14px"></div></div></div>
 <div class="opt" id="coupon-section" style="display:none"><div class="l">&#127903; Kupon Percuma</div><div style="display:flex;gap:8px;margin-top:10px"><input class="inp" id="inp-coupon" placeholder="Kod kupon" maxlength="12" autocomplete="off" autocapitalize="characters" style="flex:1;text-transform:uppercase;letter-spacing:1.5px"><button id="coupon-check" style="background:rgba(201,169,106,0.14);border:1px solid rgba(201,169,106,0.4);color:#C9A96A;font-family:var(--fd);font-weight:800;font-size:13px;padding:0 16px;border-radius:10px;cursor:pointer">Guna</button></div><div id="coupon-msg" style="font-size:13px;font-weight:700;margin-top:8px;line-height:1.5;color:#9FB0C9">Masukkan kod yang penjual beri. Satu kod untuk satu minuman percuma (add-on tetap dikenakan).</div></div>
 </div>
 <div class="ft"><div class="tr" style="border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:8px;margin-bottom:8px"><span>Subtotal</span><span style="font-family:var(--fd);font-weight:800;font-size:22px" id="sub">RM0.00</span></div>
@@ -2375,6 +2375,26 @@ function orderCode(){const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let
 // customer had asked for it.
 function noTime(t){const s=String(t==null?'':t).trim();return !s||/^\(?(state a time|nyatakan masa)\)?$/i.test(s)}
 function fmtTimeLabel(t){return (t==='ASAP'||noTime(t))?'Secepat mungkin (~15-30 min)':t}
+// A tab that has been open since yesterday still runs yesterday's JavaScript,
+// and yesterday's JavaScript may carry a bug that has already been fixed. Before
+// anything is written, ask the live sw.js whether a newer build exists. If it
+// does, keep the cart and reload rather than storing an order from stale code.
+// Returns false when it has already started that reload.
+async function staleGuard(){
+  try{
+    const mine=pageBuild();
+    if(!mine)return true;
+    const r=await fetch('sw.js?ts='+Date.now(),{cache:'no-store'});
+    const m=/const V\s*=\s*'(v\d+)/.exec((await r.text())||'');
+    if(m&&buildIsNewer(m[1],mine)){
+      try{saveCart()}catch(e){}
+      toast('🔄 Versi baru tersedia — memuat semula');
+      setTimeout(function(){location.reload()},1000);
+      return false;
+    }
+  }catch(e){}
+  return true;
+}
 let _sending=false;
 async function sendWa(){
   if(_sending)return;
@@ -2387,6 +2407,7 @@ async function sendWa(){
   // seller had no idea how it was meant to arrive.
   if(isCod===null){toast('⚠ Sila pilih cara penghantaran');closeConfirm();return}
   if(!payM){toast('⚠ Sila pilih cara bayar');closeConfirm();return}
+  if(!(await staleGuard()))return;
 if(payM==='qr'&&!stagedProof){toast('⚠ Hantar resit dahulu');closeConfirm();return}
   if(payM==='coupon'&&!cpnOk){toast('Sahkan kupon dahulu');closeConfirm();return}
   if(payM==='coupon'&&cpnLine<0){toast('Pilih minuman percuma di Review');closeConfirm();return}
@@ -2753,12 +2774,15 @@ function showMyOrderBtn(){const b=document.getElementById('my-order');if(!b)retu
 async function syncMyOrderBtn(){
   const o=loadMyOrder();
   if(!o||!o.code){showMyOrderBtn();return}
-  if(o._st==='done'||o._st==='deleted'){showMyOrderBtn();return}
+  if(o._st==='done'||o._st==='deleted'){_lastSt=o._st;showMyOrderBtn();return}
   try{
     const db=getDb();if(!db){showMyOrderBtn();return}
     const s=await db.collection('tracking').doc(o.code).get();
     const st=s.exists?(s.data().status||'baru'):'deleted';
     if(st!==o._st){o._st=st;try{localStorage.setItem('mms_last',JSON.stringify(o))}catch(e){}}
+    // The bar above the menu paints from _lastSt. Without this it kept saying
+    // "Sedang dibuat..." on a phone that never saw the done snapshot.
+    _lastSt=st;
   }catch(e){}
   showMyOrderBtn();
 }
@@ -4239,7 +4263,7 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)draw()});
      nothing at all. Either way the answer is visible in one glance.
      Bump the number in the same commit as sw.js V. pointer-events:none and
      z-index below #cart-bar so it can never swallow a tap. -->
-<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v113</div>
+<div id="build-tag" style="position:fixed;left:8px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:150;pointer-events:none;font-family:var(--fd);font-size:10px;font-weight:800;letter-spacing:0.5px;line-height:1;color:var(--muted);background:rgba(27,23,19,0.72);border:1px solid var(--line);border-radius:999px;padding:4px 8px;opacity:0.55">v114</div>
 
 <script>
 /* ===== CHAGEE-order UI =====================================================
