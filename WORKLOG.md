@@ -2373,3 +2373,59 @@ Two bugs cost real time: `mixHex` sat inside the block patch46 replaced, so `buO
 **Found / changed:** Nothing about the storefront: the video was a standalone marketing asset, never linked from `drinks-order.html` or `index.html`, and no release tag included it. The animation technique notes in the 17:44 entry stay valid; the artefacts are gone.
 **Artefacts:** removed `promo/`, `app/experiments/promo.html`, `.scratch/promo-frames/`, `.scratch/render-promo.mjs`, `.scratch/probe-promo.mjs`, `.scratch/promo-shots/`, `.scratch/edge-promo/`.
 **Status:** ✅ confirmed — `ls promo` and `ls app/experiments/promo.html` both return nothing.
+
+### 2026-11-05 22:56 — de-conflicting the design setup (rulebook, skills, state docs)
+
+**What happened:** an audit of the whole front-end setup found 34 rule conflicts across 9 root causes; all were fixed in the documents, none in the live app.
+**Found / changed:**
+- `DESIGN-RULES.md` regenerated (52,018 → 54,861 bytes) with a **Precedence** block: built artefact > §5 shop exceptions > craft skills > house-style skills.
+- §0 rule 3 spacing → `4/8/12/16/24/32/48/64/96/128`; rule 6 type → `13/16/20/26/34` (micro 11, body 16); rule 7 leading → `1.5 body / 0.95–1.05 display`.
+- §1 "Banned furniture" split into **composition bans** vs **allowed in app UI** (glow for depth, `backdrop-filter` glass for overlays/nav, tracked caps ≤2 words, a state-carrying icon tile).
+- §3 one ladder: `140 / 180 / 200 / 360 / 420 ms`, ceiling 300 ms for any control; overshoot ≤3% except §5's object-level ×1.36.
+- §5 corrected: the live app is **v108 on navy `#0A1B33`**, not the warm `#12100E` skin an earlier doc described; gold `#C9A96A`, amber `#E0A44E`. New exception row for the status dot's infinite pulse.
+- `app/DESIGN.md`: shipped `:root` values written in, hero gradient corrected to `#1E3D6B → #0F2546 → #0A1B33`, marker v49 → v108, accent hexes corrected.
+- `README.md` rewritten (was: GitHub Pages, `app/src/`, `tools/build.py`, v54, `git add -A`). Now: the four-command Vercel release, never `git add -A`, Firestore rules separate.
+- `AGENTS.md` (workspace), `app/PRODUCT.md`: hosting truth fixed. `AGENTS.md` gained a "which rules win" note and marks `design-taste-frontend` as landing-page-only.
+- `tools/audit-design.mjs`: an infinite animation is now legal only when tagged `data-motion="state"` or named with `--allow "<selector>"`; `--allow` is repeatable and injected before evaluation.
+**Numbers:** rulebook 54,861 bytes / 7 sections. Audit live v108 with `--allow ".dot"` → **0 findings** (without the flag → 1, the known status dot). kurze prototype → **0** after patch48/patch50 (segment cells 36 → 44 px, `.bh .blab` 9.5 → 10 px).
+**Artefacts:** `DESIGN-RULES.md`, `.scratch/design-rules/{00-core,01-foundations,03-motion,04-mobile-ux,05-shop,06-audit}.md`, `.scratch/design-rules/{align,align_app_docs,align_audit,align_final}.py`, `tools/audit-design.mjs`, `AGENTS.md`, `README.md`, `app/DESIGN.md`, `app/PRODUCT.md`, `.scratch/kurze3/patch{48,50}.py`, `.scratch/probe-anim.mjs`.
+**Status:** ✅ confirmed — every claim above was re-measured by command; the live site was not modified and still serves v108.
+
+### 2026-11-05 23:19 — kurze 4a: the builder composition, patches 51–55
+
+**What happened:** the 4a builder panel was rebuilt five times in one pass after the owner's "half-assed / so ugly / too much space" verdict.
+**Found / changed:**
+- `patch51` — three full-width segmented bars became **setting rows** (label left, control right); three floating chips became one live state line (`SUSUNAN · Susu kental manis · 100%`); stage tightened.
+- `patch52` — **the dock was drawing over the builder footer**, hiding half the CTA (`.nav` z 30 vs `.bina` z 200 but the nav's own stacking context won). Fixed with `body.bina-open` hiding `.nav`/`.cart` on open/close.
+- `patch53` — content stopped two-thirds down; `.bina-body` now `space-between` with the glass centred in the free space.
+- `patch54` — hero-sized glass (232 px) and `width:max-content` controls.
+- `patch55` — settled to 176 px glass and 40 px controls; group rows 52 px.
+**Numbers:** `index.html` 111,150 → 115,079 bytes; `no console errors` after every patch; still `b9-1.png`.
+**Port note:** 7979 is held by `figcraft.exe` PID 28984 (raw control port, no HTTP) — the prototype is served on **8778**.
+**Artefacts:** `.scratch/kurze3/patch{51,52,53,54,55}.py`, `template.html`, `index.html`, `b9-1.png`, `README.md` (new file map).
+**Status:** ✅ confirmed building · ⚠️ composition not yet approved by the owner.
+
+### 2026-11-05 23:36 — kurze 4a cup work + live reload (patches 56–58)
+
+**What happened:** the glass was flat and brown; three patches gave it material, then the prototype got a self-refresh so the owner can watch rebuilds.
+**Found / changed:**
+- `patch56` — ice (three rotated cubes, cream top facet, `#C9B79A` under-facet), four bubbles, an inner wall shadow. First attempt read as **white slips of paper** (too opaque, too pale).
+- `patch57` — ice recoloured to `var(--liqlight)`, soft-blurred via `url(#bsoft)`, cream facets dropped to .22–.30. It now reads as ice inside a dark drink.
+- `patch58` — `?live` adds a poller that HEADs `index.html` every 1.4 s and reloads on a changed `Last-Modified`/`ETag`. Lab-only, query-gated.
+**Numbers:** `index.html` 115,079 → 117,604 bytes; `no console errors` on `?live`.
+**FigCraft:** `figcraft.exe` PID 28984 is **gone** (the app is closed), and `find` turns up no `figcraft.exe`/`figcraft-cli.exe` under `~/.dsh/tools/figcraft/app/figcraft-0.13.1-windows-x64-portable/` — only the zip. Attaching over MCP needs the app running again.
+**Artefacts:** `.scratch/kurze3/patch{56,57,58}.py`, `c1-1.png`, `c2-1.png`.
+**Status:** ✅ confirmed ⚠️ FigCraft mirror blocked until the app is reopened.
+
+### 2026-11-05 23:40 — v108: coupons live 60 days, say how long is left, and can be recovered
+**What happened:** A customer reported a lost coupon. Nothing was deleting it: the coupon lives 30 days by design, the wallet hid an expired code silently, and the one toast it raised blamed use ("Kupon yang sudah digunakan telah dikeluarkan") even when the code had simply run out. Owner's call: 60 days, plus tell the truth and make it recoverable.
+**Found / changed:**
+- `tools/engine-source.html` mint now writes `exp` and `couponExp` at **60 days** (`Date.now()+60*86400000`) in both places — the `coupons/{CODE}` document and the `tracking/{orderId}` mirror. `firestore.rules:243` comment follows.
+- `drawCpnPop` prints `Sah 52 hari lagi · 27 Dis 2026` per code, and switches that line to the warning colour at seven days or fewer (`Tamat dalam 4 hari · 9 Nov 2026`). New helpers `cpnExpMeta` and `cpnRecHtml`; the row markup became `cwrap` + `meta` so the expiry sits under the code without squeezing the two buttons.
+- **Recovery:** the wallet carries a *Kupon hilang? Masukkan kod pesanan lama anda.* box with a 44px input and a `Cari` button. `cpnRecover()` normalises the typed code (strips spaces, an `MMS` prefix and case), reads `tracking/{code}` — which is `allow get: if true` and `allow list: if false`, so a code is a credential and nothing can be harvested by listing — then `addCpn(coupon, couponExp)` and repaints. Wrong code: "Pesanan itu tidak dijumpai." Already there: "Kupon itu sudah ada dalam senarai."
+- `verifyWallet()` now counts used and expired separately and says the true one: `Kupon yang sudah digunakan telah dikeluarkan` vs `Kupon yang tamat tempoh telah dikeluarkan`.
+- `mms_mycodes` keeps the last **25** order codes (was 12), so a browser that only lost the coupon list can still rebuild from order codes alone.
+- Admin mint card copy: "satu minuman percuma, sah 60 hari".
+**Artefacts:** `app/tools/engine-source.html`, `app/firestore.rules`, `app/drinks-order.html` + `app/index.html` (351,390 bytes, identical), `app/sw.js` `v108-20261105`, live `https://ridzuanshop.vercel.app/`. Harness `.scratch/t-cpn.mjs` (blocks the Firebase CDN so the app script does not stall the parser, then fakes `getDb`): `FN function,function,function,function`; metas `Sah 40 hari lagi · 15 Dis 2026` and warn `Tamat dalam 3 hari · 8 Nov 2026`; used-only toast, expired-only toast both correct; recovery returns `codes ["RECOV123"]`; unknown code says "Pesanan itu tidak dijumpai."; `EXCEPTIONS 0`. Live screenshot `.scratch/live-bugs/cpn-pop.png` (180,932 bytes) shows both rows and the recovery box at 390px.
+**Status:** ✅ confirmed — live build tag `v108`, `function cpnRecover` ×1, `function cpnExpMeta` ×1, `60*86400000` ×2, `sah 60 hari` ×1, `sw.js` `v108-20261105`. Design audit: one pre-existing `!` (`infinite-motion` on `body`), not introduced here.
+**Not changed, on purpose:** coupons still expire rather than being permanent — the owner said "i prefer the coupon code to be permanent" and then chose 60 days, so 60 days is what ships. The old GitHub Pages installs remain a separate origin with their own empty wallets; nothing in a page can migrate another origin's storage.

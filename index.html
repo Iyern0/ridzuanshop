@@ -741,7 +741,17 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
   .cpn-row{display:flex;align-items:center;gap:7px;min-width:0;background:rgba(201,169,106,0.07);
    border:1px solid rgba(201,169,106,0.28);border-radius:12px;padding:10px 11px;margin-bottom:8px}
   .cpn-row:last-child{margin-bottom:0}
-  .cpn-row .code{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--fd);font-weight:800;font-size:18px;letter-spacing:2.5px;color:#C9A96A}
+  .cpn-row .cwrap{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+  .cpn-row .code{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--fd);font-weight:800;font-size:18px;letter-spacing:2.5px;color:#C9A96A}
+  .cpn-row .meta{font-size:11.5px;color:#9FB0C9;font-weight:700;line-height:1.45}
+  .cpn-row .meta.warn{color:#E0A44E}
+  .cpn-rec{margin-top:11px;padding-top:11px;border-top:1px solid rgba(255,255,255,0.08)}
+  .cpn-rec .hint{font-size:11.5px;color:#9FB0C9;font-weight:700;line-height:1.45;margin-bottom:7px}
+  .cpn-rec .row{display:flex;gap:7px}
+  .cpn-rec input{flex:1;min-width:0;height:44px;box-sizing:border-box;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.16);border-radius:10px;color:#FBF4E6;font-family:var(--fd);font-weight:800;font-size:15px;letter-spacing:2.5px;padding:0 12px;text-transform:uppercase}
+  .cpn-rec input::placeholder{color:#7A756C;letter-spacing:0.5px;font-size:12px;text-transform:none}
+  .cpn-rec button{height:44px;padding:0 14px;border-radius:10px;background:rgba(201,169,106,0.14);border:1px solid rgba(201,169,106,0.45);color:#C9A96A;font-family:var(--fd);font-weight:800;font-size:13px;cursor:pointer}
+  .cpn-rec .msg{font-size:12px;font-weight:700;color:#9FB0C9;margin-top:7px;line-height:1.45}
   .cpn-row button{border:1px solid rgba(255,255,255,0.18);border-radius:8px;font-family:var(--fd);font-weight:800;font-size:11px;
    padding:8px 10px;cursor:pointer;background:transparent;color:#D7E1F0}
   .cpn-row button.go{background:#C9A96A;border-color:#C9A96A;color:#07110E}
@@ -1456,24 +1466,28 @@ function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
   // older order could then never be discovered again.
   const MY_CODES_KEY='mms_mycodes';
   function myCodes(){try{const a=JSON.parse(localStorage.getItem(MY_CODES_KEY)||'[]');return Array.isArray(a)?a.filter(function(c){return typeof c==='string'&&/^[A-Z0-9]{6}$/.test(c)}):[]}catch(e){return[]}}
-  function rememberCode(code){code=String(code||'').toUpperCase();if(!/^[A-Z0-9]{6}$/.test(code))return;const a=myCodes().filter(function(c){return c!==code});a.unshift(code);try{localStorage.setItem(MY_CODES_KEY,JSON.stringify(a.slice(0,12)))}catch(e){}}
+  function rememberCode(code){code=String(code||'').toUpperCase();if(!/^[A-Z0-9]{6}$/.test(code))return;const a=myCodes().filter(function(c){return c!==code});a.unshift(code);try{localStorage.setItem(MY_CODES_KEY,JSON.stringify(a.slice(0,25)))}catch(e){}}
   function liveCpns(){const now=Date.now();return cpns().filter(function(c){return !c.exp||c.exp>now})}
   // A code is a bearer token: sharing is allowed, so the only truth is the
   // coupon document. Anything used - by this phone or another - leaves the
   // wallet, and so does anything expired or missing.
   async function verifyWallet(){
     const db=getDb();if(!db)return;const a=cpns();if(!a.length)return;
-    let dropped=0;
+    let used=0,gone=0;
     for(let i=0;i<a.length;i++){
       try{
         const snap=await db.collection('coupons').doc(a[i].code).get();
-        if(!snap.exists){dropCpn(a[i].code);dropped++;continue}
+        if(!snap.exists){dropCpn(a[i].code);gone++;continue}
         const d=snap.data()||{};
         const expMs=d.exp&&d.exp.toMillis?d.exp.toMillis():0;
-        if(d.used===true||(expMs&&expMs<=Date.now())){dropCpn(a[i].code);dropped++}
+        if(d.used===true){dropCpn(a[i].code);used++}
+        else if(expMs&&expMs<=Date.now()){dropCpn(a[i].code);gone++}
       }catch(e){}
     }
-    if(dropped)toast('Kupon yang sudah digunakan telah dikeluarkan');
+    // Say the real reason: telling somebody their coupon "was used" when it
+    // simply ran out of time is the kind of small lie that costs trust.
+    if(used)toast('Kupon yang sudah digunakan telah dikeluarkan');
+    else if(gone)toast('Kupon yang tamat tempoh telah dikeluarkan');
   }
   function drawCpnBtn(){
     const b=document.getElementById('cpn-btn'),pop=document.getElementById('cpn-pop'),dot=document.getElementById('cpn-dot');
@@ -1485,6 +1499,21 @@ function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
     if(dot){dot.style.display=a.length?'flex':'none';dot.textContent=String(a.length)}
     if(pop&&pop.style.display==='block')drawCpnPop();
   }
+  function cpnExpMeta(c){
+    if(!c.exp)return 'Sah selagi belum digunakan';
+    const left=Math.ceil((c.exp-Date.now())/86400000);
+    let ds='';
+    try{ds=new Date(c.exp).toLocaleDateString('ms-MY',{day:'numeric',month:'short',year:'numeric'})}catch(e){ds=new Date(c.exp).toDateString()}
+    if(left<=0)return 'Tamat tempoh · '+ds;
+    if(left<=7)return 'Tamat dalam '+left+' hari · '+ds;
+    return 'Sah '+left+' hari lagi · '+ds;
+  }
+  function cpnRecHtml(){
+    return '<div class="cpn-rec"><div class="hint">Kupon hilang? Masukkan kod pesanan lama anda.</div>'
+      +'<div class="row"><input id="cpn-rec" placeholder="Contoh A2C5B9" maxlength="9" autocomplete="off" autocapitalize="characters">'
+      +'<button id="cpn-rec-go">Cari</button></div>'
+      +'<div class="msg" id="cpn-rec-msg"></div></div>';
+  }
   function drawCpnPop(){
     const pop=document.getElementById('cpn-pop');if(!pop)return;const a=liveCpns();
     if(!a.length){
@@ -1495,14 +1524,46 @@ function saveLoy(l){localStorage.setItem('mms_loy',JSON.stringify(l))}
         +'<div style="display:flex;gap:5px;margin-top:10px">'
         +[0,1,2,3,4].map(function(i){return '<span style="flex:1;height:6px;border-radius:3px;background:'+(i<step?'#C9A96A':'rgba(255,255,255,0.12)')+'"></span>'}).join('')
         +'</div>'
-        +'<div style="font-size:11.5px;color:#9FB0C9;margin-top:6px">'+step+'/5 setakat ini</div>';
-      return;
+        +'<div style="font-size:11.5px;color:#9FB0C9;margin-top:6px">'+step+'/5 setakat ini</div>'
+        +cpnRecHtml();
+    }else{
+      pop.innerHTML='<h4>You have '+a.length+' coupon'+(a.length>1?'s':'')+'</h4>'
+        +'<div class="sub">Satu minuman percuma untuk setiap kupon. Add-on tetap dibayar.</div>'
+        +a.map(function(c){
+          const soon=!!c.exp&&c.exp-Date.now()<=7*86400000;
+          return '<div class="cpn-row"><div class="cwrap"><span class="code">'+esc(c.code)+'</span>'
+            +'<span class="meta'+(soon?' warn':'')+'">'+esc(cpnExpMeta(c))+'</span></div>'
+            +'<button data-cp="'+esc(c.code)+'">Salin</button>'
+            +'<button class="go" data-use="'+esc(c.code)+'">Guna</button></div>';
+        }).join('')
+        +cpnRecHtml();
     }
-    pop.innerHTML='<h4>You have '+a.length+' coupon'+(a.length>1?'s':'')+'</h4>'
-      +'<div class="sub">Satu minuman percuma untuk setiap kupon. Add-on tetap dibayar.</div>'
-      +a.map(function(c){return '<div class="cpn-row"><span class="code">'+esc(c.code)+'</span>'
-        +'<button onclick="cpnCopy(\''+c.code+'\')">Salin</button>'
-        +'<button class="go" onclick="cpnUse(\''+c.code+'\')">Guna</button></div>'}).join('');
+    const go=pop.querySelector('#cpn-rec-go'),inp=pop.querySelector('#cpn-rec');
+    if(go)go.addEventListener('click',cpnRecover);
+    if(inp)inp.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();cpnRecover()}});
+    pop.querySelectorAll('[data-cp]').forEach(function(b){b.addEventListener('click',function(){cpnCopy(b.getAttribute('data-cp'))})});
+    pop.querySelectorAll('[data-use]').forEach(function(b){b.addEventListener('click',function(){cpnUse(b.getAttribute('data-use'))})});
+  }
+  async function cpnRecover(){
+    const pop=document.getElementById('cpn-pop');
+    const inp=pop&&pop.querySelector('#cpn-rec'),msg=pop&&pop.querySelector('#cpn-rec-msg');
+    if(!inp)return;
+    let code=String(inp.value||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+    if(code.slice(0,3)==='MMS')code=code.slice(3);
+    if(code.length!==6){if(msg)msg.textContent='Kod pesanan ada 6 aksara, contoh A2C5B9.';return}
+    if(msg)msg.textContent='Mencari pesanan '+code+'...';
+    try{
+      const db=getDb();if(!db){if(msg)msg.textContent='Tiada sambungan.';return}
+      const snap=await db.collection('tracking').doc(code).get();
+      if(!snap.exists){if(msg)msg.textContent='Pesanan itu tidak dijumpai.';return}
+      const d=snap.data()||{};
+      if(!d.coupon){if(msg)msg.textContent='Pesanan ini belum ada kupon.';return}
+      rememberCode(code);
+      const added=addCpn(d.coupon,d.couponExp&&d.couponExp.toMillis?d.couponExp.toMillis():0);
+      inp.value='';
+      if(added){drawCpnPop();couponArrived()}
+      else if(msg)msg.textContent='Kupon itu sudah ada dalam senarai.';
+    }catch(e){if(msg)msg.textContent='Tidak dapat menyemak. Cuba lagi.'}
   }
   function toggleCpnPop(){
     const pop=document.getElementById('cpn-pop');if(!pop)return;
@@ -3128,13 +3189,13 @@ async function maybeMintCoupon(orderId,silent){
       do{code='';for(let i=0;i<8;i++)code+=A[Math.floor(Math.random()*A.length)];tries++}
       while(tries<5&&(await tx.get(db.collection('coupons').doc(code))).exists);
       if((await tx.get(db.collection('coupons').doc(code))).exists){code='';return}
-      tx.set(db.collection('coupons').doc(code),{used:false,at:firebase.firestore.FieldValue.serverTimestamp(),exp:new Date(Date.now()+30*86400000),ord:orderId,earnedBy:orderId,by:due*5});
+      tx.set(db.collection('coupons').doc(code),{used:false,at:firebase.firestore.FieldValue.serverTimestamp(),exp:new Date(Date.now()+60*86400000),ord:orderId,earnedBy:orderId,by:due*5});
       tx.set(mRef,{last:due,code:code,n:n,at:firebase.firestore.FieldValue.serverTimestamp()});
       awarded=due-last;
     });
     if(!code){if(!silent)toast('\u2B50 Kad setia: '+(n%5)+'/5');return}
-    try{await db.collection('tracking').doc(orderId).update({coupon:code,couponExp:new Date(Date.now()+30*86400000)})}catch(e){console.warn('kupon tracking:',e)}
-    admNote('<div style="font-family:var(--fd);font-weight:800;font-size:21px;color:#C9A96A;margin-bottom:10px">Kupon · kad setia '+(due*5)+'/5 &#127903;</div>'+'<div style="font-size:14px;color:#9FB0C9;line-height:1.6;margin-bottom:14px">'+(awarded>1?('Pelanggan ini layak '+awarded+' kupon. Satu kod di bawah, beri kod seterusnya selepas ini digunakan.'):'Pelanggan ini sudah lengkap '+(due*5)+' pesanan. Beri kod ini kepadanya: satu minuman percuma, sah 30 hari.')+'</div>'+'<div style="font-family:var(--fd);font-weight:800;font-size:30px;letter-spacing:3px;color:#FBF4E6;text-align:center;background:rgba(201,169,106,0.1);border:1px dashed rgba(201,169,106,0.5);border-radius:12px;padding:14px;margin-bottom:14px">'+code+'</div>'+'<div style="font-size:13px;color:#9FB0C9;line-height:1.5">Kod ini masuk sendiri ke butang &#127903; Kupon pada telefon pelanggan - tiada apa yang perlu dihantar. Salin di atas hanya jika dia bertanya.</div>');
+    try{await db.collection('tracking').doc(orderId).update({coupon:code,couponExp:new Date(Date.now()+60*86400000)})}catch(e){console.warn('kupon tracking:',e)}
+    admNote('<div style="font-family:var(--fd);font-weight:800;font-size:21px;color:#C9A96A;margin-bottom:10px">Kupon · kad setia '+(due*5)+'/5 &#127903;</div>'+'<div style="font-size:14px;color:#9FB0C9;line-height:1.6;margin-bottom:14px">'+(awarded>1?('Pelanggan ini layak '+awarded+' kupon. Satu kod di bawah, beri kod seterusnya selepas ini digunakan.'):'Pelanggan ini sudah lengkap '+(due*5)+' pesanan. Beri kod ini kepadanya: satu minuman percuma, sah 60 hari.')+'</div>'+'<div style="font-family:var(--fd);font-weight:800;font-size:30px;letter-spacing:3px;color:#FBF4E6;text-align:center;background:rgba(201,169,106,0.1);border:1px dashed rgba(201,169,106,0.5);border-radius:12px;padding:14px;margin-bottom:14px">'+code+'</div>'+'<div style="font-size:13px;color:#9FB0C9;line-height:1.5">Kod ini masuk sendiri ke butang &#127903; Kupon pada telefon pelanggan - tiada apa yang perlu dihantar. Salin di atas hanya jika dia bertanya.</div>');
   }catch(e){console.warn('kupon gagal:',e)}
 }
 function admUpdOrder(id,status){

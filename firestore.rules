@@ -240,7 +240,7 @@ service cloud.firestore {
     // ------------------------------------------------------------------
     // ------------------------------------------------------------------
     // Free-drink coupons. Minted by the seller when a customer completes
-    // their fifth order: one drink free, valid 30 days, one use.
+    // their fifth order: one drink free, valid 60 days, one use.
     //
     // The code IS the document id and it is the only credential - 8 chars
     // from a 32-character alphabet (40 bits), with LIST denied so the
