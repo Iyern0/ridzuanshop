@@ -82,7 +82,7 @@ body{font-family:var(--fb);background:var(--bg);color:var(--ink);min-height:100d
 .founder .fi{flex:1;min-width:0}
 .founder .fn{font-weight:800;font-size:14px;color:#F0F0F0}
 .founder .fs{font-size:12px;color:#9A9385;font-weight:700;margin-top:2px}
-.founder .fb{background:#25D366;color:#fff;border:none;font-weight:800;font-size:13px;padding:8px 14px;border-radius:999px;cursor:pointer;flex-shrink:0;text-decoration:none;display:inline-block}
+.founder .fb{background:#25D366;color:#04351C;border:none;font-weight:800;font-size:13px;padding:0 16px;min-height:44px;border-radius:999px;cursor:pointer;flex-shrink:0;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap}
 .photo{width:100%;aspect-ratio:1;border-radius:10px;object-fit:cover;margin-bottom:6px;background:rgba(255,255,255,0.04)}
 .done{position:fixed;inset:0;z-index:1200;background:#131010;display:none;flex-direction:column;align-items:center;justify-content:flex-start;padding:24px 16px 32px;text-align:center;overflow-y:auto}
 .done.show{display:flex}
@@ -577,6 +577,21 @@ html[data-mob="1"] .adm-side nav .subnav a{padding:16px 16px;font-size:15px;min-
 .o-num.legacy{font-family:var(--fb);font-size:13px;color:#6B645A;font-weight:800}
 .o-nm{font-weight:800;font-size:15px;color:#F0F0F0;flex-shrink:0;max-width:34%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .o-where{font-size:14px;font-weight:700;color:#FFB347;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* The phone is the only stable identity between two customers with one name,
+   so it sits in the row itself rather than behind the detail tap. */
+.o-ph{font-size:12.5px;font-weight:700;color:#8FA3BF;white-space:nowrap;flex-shrink:0;text-decoration:none;display:inline-flex;align-items:center;gap:5px}
+.o-ph .ph-s{display:none}
+/* At 390px the full number plus the repeat badge pushed the price off the
+   row, so a narrow panel shows only the last four digits - enough to tell
+   two Ahmads apart - and the tap still dials the whole number. */
+@media(max-width:640px){
+  .o-ph .ph-f{display:none}
+  .o-ph .ph-s{display:inline}
+  .o-nm{max-width:42%}
+}
+.o-ph:hover{color:#C9A96A}
+.o-rep{font-size:11px;font-weight:800;color:#C9A96A;background:rgba(201,169,106,0.12);border:1px solid rgba(201,169,106,0.3);border-radius:999px;padding:1px 6px;white-space:nowrap}
+.o-dup{font-size:11px;font-weight:800;color:#E0A44E;background:rgba(224,164,78,0.12);border:1px solid rgba(224,164,78,0.34);border-radius:999px;padding:1px 6px;white-space:nowrap}
 .o-where.muted{color:#6B645A}
 .o-clam{font-size:14px;flex-shrink:0}
 .o-money{font-size:16px;color:#00D4AA;flex-shrink:0;font-family:var(--fd);font-weight:800;letter-spacing:.5px}
@@ -2851,6 +2866,18 @@ if(t!=='orders'&&t!=='receipts'&&admUnsub){admUnsub();admUnsub=null}
 document.getElementById('adm-hd').textContent=ADM_T[t]||t;document.querySelectorAll('#adm-nav a').forEach(a=>{a.classList.toggle('active',a.dataset.tab===t)});
 if(ADM_SETUP.indexOf(t)>-1)admSetupOpen(true);const pg=document.getElementById('adm-pg');if(t==='orders')admOrders(pg);else if(t==='menu')admMenu(pg);else if(t==='addons')admAddons(pg);else if(t==='schedule')admSchedule(pg);else if(t==='delivery')admDelivery(pg);else if(t==='customers')admCustomers(pg);else if(t==='receipts')admReceipts(pg);else if(t==='coupons')admCoupons(pg);else if(t==='stats')admAnalytics(pg);else if(t==='drinks')admDrinks(pg);else if(t==='settings')admSettings(pg)}
 let _admFilter='aktif',_admDelFilter='all',_admClaimOnly=false,_admSearch='',_admPrevCount=0,_admVisDocs=[];
+let _admPhoneFilter='all',_admRep={},_admDup={};
+// Digits only, with a local number normalised to 60 form: "012-345 6789",
+// "0123456789" and "60123456789" all become "60123456789", so one person who
+// types their number three ways is still one person.
+function phoneKey(p){
+  const d=String(p==null?'':p).replace(/\D/g,'');
+  if(!d)return '';
+  if(d.indexOf('60')===0&&d.length>=10)return d;   // already international
+  if(d.charAt(0)==='0')return '6'+d;               // 0123456789 -> 60123456789
+  if(d.length>=9)return '60'+d;                    // 123456789  -> 60123456789
+  return d;
+}
 // Block filter for the order list. Set by the chips under the search box, so a
 // block can be picked without typing anything. _blkOpen is "the search box has
 // been clicked", which is what reveals the row.
@@ -2873,6 +2900,19 @@ function _admOrderRow(o,idx){
       ?'<span class="o-num">#'+fmtNo(o.no)+'</span>'
       :'<span class="o-num legacy">'+(o.createdAt&&o.createdAt.toDate?o.createdAt.toDate().toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'}):'•')+'</span>')
    +'<span class="o-nm">'+esc(o.name||'')+'</span>'
+   +((function(){
+       const nm=String(o.name||'').trim().toLowerCase();
+       return _admDup[nm]?'<span class="o-dup" title="Nama ini digunakan oleh '+_admDup[nm]+' pelanggan berbeza">×'+_admDup[nm]+'</span>':'';
+     })())
+   +(function(){
+       const k=phoneKey(o.phone);
+       if(!k)return '';
+       const rep=_admRep[k]||0;
+       const full=String(o.phone),tail=full.replace(/\s/g,'').slice(-4);
+       return '<a class="o-ph" href="tel:'+esc(full)+'" onclick="event.stopPropagation()" title="'+esc(full)+'">'
+         +'<span class="ph-f">'+esc(full)+'</span><span class="ph-s">…'+esc(tail)+'</span>'
+         +(rep>=2?'<span class="o-rep" title="Jumlah pesanan dari nombor ini">↻'+rep+'</span>':'')+'</a>';
+     })()
    +(isCod&&o.room?'<span class="o-where">🏠 '+esc(o.room)+'</span>':'<span class="o-where muted">🏪 Ambil sendiri</span>')
    +(cl?'<button class="'+clamCls(o.id)+'" data-claim="'+o.id+'" onclick="event.stopPropagation();admViewClaim(\''+o.id+'\')" title="Lihat resit bayaran pelanggan">📎 Resit</button>':'')
    +'<span class="o-money">RM'+Number(o.total||0).toFixed(2)+'</span></div>'
@@ -2990,15 +3030,41 @@ function _admRenderOrders(pg,docs){
   if(_admClaimOnly)filtered=filtered.filter(function(o){return !!_admClaims[o.id]});
   // The chip counts are taken here, before the typed name narrows anything, so
   // the numbers do not collapse as a search is typed.
+  // Identity pass. Repeat count and duplicate-name detection are computed from
+  // every live order (not the filtered slice) so the numbers stay true while a
+  // search is typed. They annotate rows; they never hide one.
+  const byKey={},nameKeys={};
+  docs.forEach(function(o){
+    if(o.status==='deleted')return;
+    const k=phoneKey(o.phone);
+    if(k){if(!byKey[k])byKey[k]=0;byKey[k]++}
+    const nm=String(o.name||'').trim().toLowerCase();
+    if(nm){if(!nameKeys[nm])nameKeys[nm]={};(nameKeys[nm][k||'∅']=1)}
+  });
+  _admRep=byKey;
+  _admDup={};
+  Object.keys(nameKeys).forEach(function(nm){
+    const n=Object.keys(nameKeys[nm]).length;
+    if(n>1)_admDup[nm]=n;
+  });
   const blockPool=filtered;
   // Whether the search box holds the caret right now. The rows are rebuilt from
   // scratch below, which throws the input away, so this has to be remembered
   // before that happens or typing can only ever be one character long.
   const hadSearchFocus=!!(document.activeElement&&document.activeElement.classList&&document.activeElement.classList.contains('a-search'));
   if(_admSearch&&(f==='done'||f==='all')){
-    const q=_admSearch.toLowerCase();
-    filtered=filtered.filter(o=>(o.name||'').toLowerCase().includes(q)||(o.room||'').toLowerCase().includes(q));
+    const q=_admSearch.toLowerCase(),qd=q.replace(/\D/g,'');
+    filtered=filtered.filter(function(o){
+      if((o.name||'').toLowerCase().includes(q))return true;
+      if((o.room||'').toLowerCase().includes(q))return true;
+      if((o.code||'').toLowerCase().includes(q))return true;
+      if(!qd)return false;
+      const k=phoneKey(o.phone);
+      return !!k&&k.indexOf(qd.replace(/^60/,''))>=0;
+    });
   }
+  if(_admPhoneFilter==='with')filtered=filtered.filter(function(o){return !!phoneKey(o.phone)});
+  if(_admPhoneFilter==='without')filtered=filtered.filter(function(o){return !phoneKey(o.phone)});
   if(_admBlockFilter)filtered=filtered.filter(function(o){return blockOf(o)===_admBlockFilter});
   _admVisDocs=filtered;_admOrdersCache=docs;
   const nB=live.filter(o=>o.status==='baru').length,nP=live.filter(o=>o.status==='processing').length,nD=live.filter(o=>o.status==='done').length;
@@ -3017,6 +3083,7 @@ function _admRenderOrders(pg,docs){
   const dsegs=[['all','Semua',nStatus],['cod','📦 COD',nCod],['pickup','🏪 Ambil',nPick]];
   let h='<div class="a-bar"><div class="a-seg">'+segs.map(x=>'<button class="'+(f===x[0]?'on':'')+'" onclick="admSetFilter(\''+x[0]+'\')">'+x[1]+'<span class="c">'+x[2]+'</span></button>').join('')+'</div>'
    +'<div class="a-seg del"><span class="dlb">Hantar</span>'+dsegs.map(x=>'<button class="'+(_admDelFilter===x[0]?'on':'')+'" onclick="admSetDelFilter(\''+x[0]+'\')">'+x[1]+'<span class="c">'+x[2]+'</span></button>').join('')+'</div>'
+   +'<div class="a-seg del"><span class="dlb">Telefon</span>'+[['all','Semua',0],['with','Ada',0],['without','Tiada',0]].map(x=>'<button class="'+(_admPhoneFilter===x[0]?'on':'')+'" onclick="admSetPhoneFilter(\''+x[0]+'\')">'+x[1]+'</button>').join('')+'</div>'
    +(nReceipt?'<button class="a-receipt'+(nReceipt&&_admClaimOnly?' on':'')+'" onclick="admClaimFilter()" title="Tunjuk pesanan yang ada resit">📎 Resit<span class="c">'+nReceipt+'</span></button>':'')
    +'<div class="sum">'
    +'<span>'+(T.n?'Malam ini <b>'+T.n+'</b> · <b>RM'+T.v.toFixed(2)+'</b>':'Belum ada pesanan malam ini')+'</span>'
@@ -3025,7 +3092,7 @@ function _admRenderOrders(pg,docs){
    +'<span class="warnText" id="adm-unseen-warn" style="display:'+(nUnseen&&!_admClaimOnly?'':'none')+'">📎 '+nUnseen+' resit perlu semak</span>'
    +'</div></div>';
 
-  if(f==='done'||f==='all')h+='<input class="a-search" placeholder="🔍 Cari nama atau blok..." value="'+esc(_admSearch)+'" oninput="admDoSearch(this.value)" onfocus="admOpenBlocks()" onclick="admOpenBlocks()">'+blockBarHtml(blockPool);
+  if(f==='done'||f==='all')h+='<input class="a-search" placeholder="🔍 Cari nama, telefon, kod atau blok..." value="'+esc(_admSearch)+'" oninput="admDoSearch(this.value)" onfocus="admOpenBlocks()" onclick="admOpenBlocks()">'+blockBarHtml(blockPool);
   if(f==='deleted'&&filtered.length)h+='<div class="a-bulk"><button onclick="admRestoreAll()">↩ Pulihkan semua ('+filtered.length+')</button>'
     +'<button class="danger" onclick="admPurgeAll()">🗑 Padam kekal ('+filtered.length+')</button></div>';
   if(f==='aktif'&&filtered.length)h+='<div class="a-bulk"><button onclick="admBulkDone()">✅ Tandakan semua siap ('+filtered.length+')</button></div>';
@@ -3049,6 +3116,7 @@ function _admRenderOrders(pg,docs){
 }
 function admClaimFilter(){_admClaimOnly=!_admClaimOnly;const pg=document.getElementById('adm-pg');if(pg)_admRenderOrders(pg,_admOrdersCache||[])}
 function admSetDelFilter(d){_admDelFilter=d;const pg=document.getElementById('adm-pg');if(pg)_admRenderOrders(pg,_admOrdersCache||[])}
+function admSetPhoneFilter(v){_admPhoneFilter=v;const pg=document.getElementById('adm-pg');if(pg)_admRenderOrders(pg,_admOrdersCache||[])}
 function admSetFilter(f){_admFilter=f;if(f==='done')_admSearch='';const pg=document.getElementById('adm-pg');if(admUnsub){admUnsub();admUnsub=null}const db=getDb();if(!db||!isAdmin())return;admUnsub=ordersQ(db).onSnapshot(snap=>{const docs=snap.docs.map(d=>({id:d.id,...d.data()}));_admOrdersCache=docs;if(admTab!=='orders')return;_admRenderOrders(pg,docs)})}
 function admNote(html){const box=document.getElementById('adm-confirm');if(!box)return;box.innerHTML='<div class="c-bg" onclick="admConfirmClose()"></div><div class="c-box">'+html+'<div class="c-row"><button class="c-no" onclick="admConfirmClose()">Tutup</button></div></div>';box.style.display='flex'}
 async function maybeMintCoupon(orderId,silent){
@@ -3064,11 +3132,23 @@ async function maybeMintCoupon(orderId,silent){
       if(!silent)admNote('<div style="font-family:var(--fd);font-weight:800;font-size:18px;color:#FFB347;margin-bottom:8px">Tiada pengenalan pelanggan</div><div style="font-size:14px;color:#9A9385;line-height:1.6">Pesanan ini tiada nombor dan tiada id peranti, jadi kad setia tidak dapat dikira.</div>');
       return;
     }
-    const q=dev?await db.collection('orders').where('dev','==',dev).limit(1000).get():await db.collection('orders').where('phone','==',ph).limit(1000).get();
-    const n=q.docs.filter(function(x){const v=x.data()||{};return v.status==='done'&&!v.free}).length;
+    // A phone number identifies a person; a device id only identifies a phone.
+    // Both are queried and unioned by document id, so changing handsets keeps
+    // the history instead of starting from zero, and nothing already counted
+    // under the old key is thrown away.
+    const phoneQueries=[];
+    if(ph)phoneQueries.push(db.collection('orders').where('phone','==',ph).limit(1000).get());
+    if(dev)phoneQueries.push(db.collection('orders').where('dev','==',dev).limit(1000).get());
+    const snaps=await Promise.all(phoneQueries);
+    const seen={};let n=0;
+    snaps.forEach(function(s){s.docs.forEach(function(x){
+      if(seen[x.id])return;seen[x.id]=1;
+      const v=x.data()||{};if(v.status==='done'&&!v.free)n++;
+    })});
     if(n<1)return;
     const due=Math.floor(n/5);
-    const idKey=(dev||ph.replace(/\D/g,'')||ph);
+    const pk=phoneKey(ph);
+    const idKey=(pk||dev||ph);
     const mRef=db.collection('milestones').doc(idKey);
     const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     let code='',awarded=0;
